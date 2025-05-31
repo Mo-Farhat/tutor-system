@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../../../../contexts/AuthContext';
-import { getUserProfile } from '../../../../services/authService';
+import { getUserProfile, getSubjectSelectionData, getTutorSubjects, updateTutorSubjects, updateUserProfile, updateTutorProfile } from '../../../../services/authService';
 import "../../../../css/dashboards/tutor/account-settings/account-settings.css";
 
 function TutorAccountSettings() {
@@ -29,27 +29,21 @@ function TutorAccountSettings() {
         newPassword: '',
         confirmPassword: ''
     });
-    const [yearLevels] = useState([
-        'Year 1-4', 'Year 5-6', 'Year 7-8', 'Year 9-10', 'Year 11-12'
-    ]);
-    const [curriculums] = useState({
-        'Year 1-4': ['QLD', 'NSW', 'VIC', 'IB'],
-        'Year 5-6': ['QLD', 'NSW', 'VIC', 'IB'],
-        'Year 7-8': ['QLD', 'NSW', 'VIC', 'IB'],
-        'Year 9-10': ['QLD', 'NSW', 'VIC', 'IB'],
-        'Year 11-12': ['QLD', 'NSW', 'VIC', 'IB']
-    });
-    const [subjects] = useState({
-        'QLD': ['Mathematics', 'English', 'Science', 'Physics', 'Chemistry', 'Biology'],
-        'NSW': ['Mathematics', 'English', 'Science', 'Physics', 'Chemistry', 'Biology'],
-        'VIC': ['Mathematics', 'English', 'Science', 'Physics', 'Chemistry', 'Biology'],
-        'IB': ['Mathematics HL', 'Mathematics SL', 'Physics HL', 'Physics SL', 'Chemistry HL', 'Chemistry SL']
+    
+    // Subject selection data from API
+    const [subjectData, setSubjectData] = useState({
+        year_levels: [],
+        curricula: [],
+        states: [],
+        year_11_12_subjects: {},
+        year_1_10_subjects: {}
     });
     const [subjectEntries, setSubjectEntries] = useState([{
         yearLevel: '',
-        curriculum: '',
+        curriculumOrState: '',
         subject: ''
     }]);
+    
     const [showPasswords, setShowPasswords] = useState({
         currentPassword: false,
         newPassword: false,
@@ -58,7 +52,21 @@ function TutorAccountSettings() {
 
     useEffect(() => {
         fetchTutorProfile();
+        fetchSubjectData();
     }, []);
+
+    const fetchSubjectData = async () => {
+        try {
+            const result = await getSubjectSelectionData();
+            if (result.success) {
+                setSubjectData(result.data);
+            } else {
+                console.error('Failed to load subject data:', result.error);
+            }
+        } catch (err) {
+            console.error('Error loading subject data:', err.message);
+        }
+    };
 
     const fetchTutorProfile = async () => {
         try {
@@ -88,11 +96,49 @@ function TutorAccountSettings() {
                 if (profile.preferred_locations && profile.preferred_locations.length > 0) {
                     setSelectedLocations(profile.preferred_locations);
                 }
-                if (profile.subjects_taught && profile.subjects_taught.length > 0) {
-                    // Convert subjects to the format expected by the form
+                
+                // Load current subject selections from the new subjects_selected field
+                if (profile.subjects_selected && profile.subjects_selected.length > 0) {
+                    setSelectedSubjects(profile.subjects_selected);
+                    // Convert subjects to entries format for display
+                    const subjectEntries = profile.subjects_selected.map(subject => {
+                        // Try to parse the subject format: "SubjectName - YearLevel (Curriculum/State)"
+                        const parts = subject.split(' - ');
+                        if (parts.length >= 2) {
+                            const subjectName = parts[0];
+                            const yearAndCurriculum = parts[1];
+                            const matches = yearAndCurriculum.match(/^(.+?) \((.+?)\)$/);
+                            if (matches) {
+                                return {
+                                    yearLevel: matches[1],
+                                    curriculumOrState: matches[2],
+                                    subject: subjectName
+                                };
+                            }
+                        }
+                        // Fallback for subjects that don't match the expected format
+                        return {
+                            yearLevel: '',
+                            curriculumOrState: '',
+                            subject: subject
+                        };
+                    });
+                    setSubjectEntries(subjectEntries);
+                } else {
+                    // Set default empty entry if no subjects selected
+                    setSubjectEntries([{
+                        yearLevel: '',
+                        curriculumOrState: '',
+                        subject: ''
+                    }]);
+                }
+                
+                // Legacy: also check subjects_taught for backwards compatibility
+                if ((!profile.subjects_selected || profile.subjects_selected.length === 0) && 
+                    profile.subjects_taught && profile.subjects_taught.length > 0) {
                     const subjectEntries = profile.subjects_taught.map(subject => ({
                         yearLevel: '',
-                        curriculum: '',
+                        curriculumOrState: '',
                         subject: subject
                     }));
                     setSubjectEntries(subjectEntries);
@@ -152,19 +198,46 @@ function TutorAccountSettings() {
         
         // Reset dependent fields
         if (field === 'yearLevel') {
-            newEntries[index].curriculum = '';
+            newEntries[index].curriculumOrState = '';
             newEntries[index].subject = '';
-        } else if (field === 'curriculum') {
+        } else if (field === 'curriculumOrState') {
             newEntries[index].subject = '';
         }
         
         setSubjectEntries(newEntries);
     };
 
+    const getCurriculumOrStateOptions = (yearLevel) => {
+        if (yearLevel === 'Year 11/12') {
+            return subjectData.curricula || [];
+        } else if (yearLevel === 'Year 1-10') {
+            return subjectData.states || [];
+        }
+        return [];
+    };
+
+    const getSubjectOptions = (yearLevel, curriculumOrState) => {
+        if (yearLevel === 'Year 11/12' && curriculumOrState) {
+            return subjectData.year_11_12_subjects[curriculumOrState] || [];
+        } else if (yearLevel === 'Year 1-10' && curriculumOrState) {
+            return subjectData.year_1_10_subjects[curriculumOrState] || [];
+        }
+        return [];
+    };
+
+    const getCurriculumOrStateLabel = (yearLevel) => {
+        if (yearLevel === 'Year 11/12') {
+            return 'Curriculum';
+        } else if (yearLevel === 'Year 1-10') {
+            return 'State';
+        }
+        return 'Curriculum/State';
+    };
+
     const addSubjectEntry = () => {
         setSubjectEntries([...subjectEntries, {
             yearLevel: '',
-            curriculum: '',
+            curriculumOrState: '',
             subject: ''
         }]);
     };
@@ -216,18 +289,78 @@ function TutorAccountSettings() {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Here you would typically send the data to your backend
-        console.log('Form submitted:', {
-            ...formData,
-            schools,
-            currentStudies,
-            selectedLocations,
-            profileImage,
-            introVideo
-        });
-        setIsEditMode(false);
+        
+        try {
+            setError('');
+            
+            // Split full name into first and last name
+            const nameParts = formData.fullName.trim().split(' ');
+            const firstName = nameParts[0] || '';
+            const lastName = nameParts.slice(1).join(' ') || '';
+            
+            // Prepare user profile data (basic user fields)
+            const userProfileData = {
+                first_name: firstName,
+                last_name: lastName,
+                email: formData.email,
+                phone_number: formData.phoneNumber,
+            };
+            
+            // Prepare tutor profile data (tutor-specific fields)
+            const tutorProfileData = {
+                bio: formData.bio,
+                university: currentStudies[0] || '',
+                school: schools[0] || '',
+                preferred_locations: selectedLocations,
+            };
+            
+            // Update user profile (basic info)
+            const userResult = await updateUserProfile(userProfileData);
+            if (!userResult.success) {
+                console.error('Failed to update user profile:', userResult.error);
+                setError('Failed to update basic profile information: ' + userResult.error);
+                return;
+            }
+            
+            // Update tutor profile (tutor-specific info)
+            const tutorResult = await updateTutorProfile(tutorProfileData);
+            if (!tutorResult.success) {
+                console.error('Failed to update tutor profile:', tutorResult.error);
+                setError('Failed to update tutor profile information: ' + tutorResult.error);
+                return;
+            }
+            
+            // Convert subject entries to the format expected by the API
+            const formattedSubjects = subjectEntries
+                .filter(entry => entry.yearLevel && entry.curriculumOrState && entry.subject)
+                .map(entry => `${entry.subject} - ${entry.yearLevel} (${entry.curriculumOrState})`);
+            
+            // Update subject selections
+            if (formattedSubjects.length > 0) {
+                const subjectResult = await updateTutorSubjects({
+                    subjects_selected: formattedSubjects
+                });
+                
+                if (!subjectResult.success) {
+                    console.error('Failed to update subjects:', subjectResult.error);
+                    setError('Failed to update subject selections: ' + subjectResult.error);
+                    return;
+                }
+            }
+            
+            // Refresh the profile data to show the updates
+            await fetchTutorProfile();
+            
+            console.log('All profile data updated successfully');
+            setIsEditMode(false);
+            setError('');
+            
+        } catch (err) {
+            console.error('Error submitting form:', err);
+            setError('Error updating profile: ' + err.message);
+        }
     };
 
     const togglePasswordVisibility = (field) => {
@@ -591,22 +724,22 @@ function TutorAccountSettings() {
                                                     disabled={!isEditMode}
                                                 >
                                                     <option value="">Select year level...</option>
-                                                    {yearLevels.map((year) => (
+                                                    {subjectData.year_levels.map((year) => (
                                                         <option key={year} value={year}>{year}</option>
                                                     ))}
                                                 </select>
                                             </div>
 
                                             <div className="subject-dropdown-group">
-                                                <label>Curriculum/State</label>
+                                                <label>{getCurriculumOrStateLabel(entry.yearLevel)}</label>
                                                 <select 
                                                     className="form-select"
-                                                    value={entry.curriculum}
-                                                    onChange={(e) => handleSubjectChange(index, 'curriculum', e.target.value)}
+                                                    value={entry.curriculumOrState}
+                                                    onChange={(e) => handleSubjectChange(index, 'curriculumOrState', e.target.value)}
                                                     disabled={!isEditMode || !entry.yearLevel}
                                                 >
-                                                    <option value="">Select curriculum...</option>
-                                                    {entry.yearLevel && curriculums[entry.yearLevel].map((curr) => (
+                                                    <option value="">Select {getCurriculumOrStateLabel(entry.yearLevel).toLowerCase()}...</option>
+                                                    {getCurriculumOrStateOptions(entry.yearLevel).map((curr) => (
                                                         <option key={curr} value={curr}>{curr}</option>
                                                     ))}
                                                 </select>
@@ -618,11 +751,11 @@ function TutorAccountSettings() {
                                                     className="form-select"
                                                     value={entry.subject}
                                                     onChange={(e) => handleSubjectChange(index, 'subject', e.target.value)}
-                                                    disabled={!isEditMode || !entry.yearLevel || !entry.curriculum}
+                                                    disabled={!isEditMode || !entry.yearLevel || !entry.curriculumOrState}
                                                 >
                                                     <option value="">Select subject...</option>
-                                                    {entry.curriculum && subjects[entry.curriculum].map((subj) => (
-                                                        <option key={subj} value={subj}>{subj}</option>
+                                                    {getSubjectOptions(entry.yearLevel, entry.curriculumOrState).map((state) => (
+                                                        <option key={state} value={state}>{state}</option>
                                                     ))}
                                                 </select>
                                             </div>

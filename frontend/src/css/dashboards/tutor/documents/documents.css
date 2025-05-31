@@ -83,6 +83,11 @@
     color: #C53030;
 }
 
+.status-badge.rejected {
+    background-color: #FED7D7;
+    color: #C53030;
+}
+
 .document-upload-container {
     display: flex;
     flex-direction: column;
@@ -144,6 +149,40 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+}
+
+.uploaded-file-info {
+    background-color: #E6FFFA;
+    border: 2px solid #81E6D9;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.file-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #2C7A7B;
+    font-weight: 500;
+}
+
+.file-info i {
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+}
+
+.upload-actions {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #E2E8F0;
+}
+
+.upload-actions .btn {
+    padding: 0.75rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
 }
 
 @media (max-width: 768px) {

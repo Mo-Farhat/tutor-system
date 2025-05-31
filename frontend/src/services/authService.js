@@ -339,6 +339,175 @@ class AuthService {
       return null;
     }
   }
+
+  // Document management methods
+  async getTutorDocuments() {
+    try {
+      const data = await this.makeRequest('/tutor/documents/');
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async uploadTutorDocuments(documentData) {
+    try {
+      const formData = new FormData();
+      
+      if (documentData.tutorContract) {
+        formData.append('tutor_contract', documentData.tutorContract);
+      }
+      
+      if (documentData.wwccDocument) {
+        formData.append('wwcc_document', documentData.wwccDocument);
+      }
+
+      const data = await this.makeRequest('/tutor/documents/', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Payment management methods
+  async getPaymentDetails() {
+    try {
+      const data = await this.makeRequest('/tutor/payment-details/');
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async updatePaymentDetails(paymentData) {
+    try {
+      const data = await this.makeRequest('/tutor/payment-details/', {
+        method: 'PUT',
+        body: JSON.stringify(paymentData),
+      });
+      
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getTransactionHistory(filters = {}) {
+    try {
+      const queryParams = new URLSearchParams();
+      
+      if (filters.status) queryParams.append('status', filters.status);
+      if (filters.type) queryParams.append('type', filters.type);
+      if (filters.limit) queryParams.append('limit', filters.limit);
+      
+      const endpoint = `/tutor/transactions/${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+      const data = await this.makeRequest(endpoint);
+      
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Subject selection methods
+  async getSubjectSelectionData() {
+    try {
+      const data = await this.makeRequest('/subjects/');
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getTutorSubjects() {
+    try {
+      const data = await this.makeRequest('/tutor/subjects/');
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async updateTutorSubjects(subjectsData) {
+    try {
+      const data = await this.makeRequest('/tutor/subjects/', {
+        method: 'PUT',
+        body: JSON.stringify(subjectsData),
+      });
+      
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Public tutor search methods
+  async getLiveTutors() {
+    try {
+      const data = await this.makeRequest('/tutors/live/', {
+        method: 'GET'
+      });
+      
+      return {
+        success: true,
+        data: data
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  async getTutorById(tutorId) {
+    try {
+      const data = await this.makeRequest(`/tutors/${tutorId}/`, {
+        method: 'GET'
+      });
+      
+      return {
+        success: true,
+        data: data
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  // Profile update methods
+  async updateUserProfile(profileData) {
+    try {
+      const data = await this.makeRequest('/profile/', {
+        method: 'PUT',
+        body: JSON.stringify(profileData),
+      });
+      
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async updateTutorProfile(profileData) {
+    try {
+      const data = await this.makeRequest('/tutor/profile/', {
+        method: 'PUT',
+        body: JSON.stringify(profileData),
+      });
+      
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 // Create and export a singleton instance
@@ -357,4 +526,16 @@ export const verifyPasswordSetupToken = (token) => authService.verifyPasswordSet
 export const setupTutorPassword = (token, passwordData) => authService.setupTutorPassword(token, passwordData);
 export const refreshToken = () => authService.refreshToken();
 export const isAuthenticated = () => authService.isAuthenticated();
-export const getUserInfo = () => authService.getUserInfo(); 
+export const getUserInfo = () => authService.getUserInfo();
+export const getTutorDocuments = () => authService.getTutorDocuments();
+export const uploadTutorDocuments = (documentData) => authService.uploadTutorDocuments(documentData);
+export const getPaymentDetails = () => authService.getPaymentDetails();
+export const updatePaymentDetails = (paymentData) => authService.updatePaymentDetails(paymentData);
+export const getTransactionHistory = (filters) => authService.getTransactionHistory(filters);
+export const getSubjectSelectionData = () => authService.getSubjectSelectionData();
+export const getTutorSubjects = () => authService.getTutorSubjects();
+export const updateTutorSubjects = (subjectsData) => authService.updateTutorSubjects(subjectsData);
+export const getLiveTutors = () => authService.getLiveTutors();
+export const getTutorById = (tutorId) => authService.getTutorById(tutorId);
+export const updateUserProfile = (profileData) => authService.updateUserProfile(profileData);
+export const updateTutorProfile = (profileData) => authService.updateTutorProfile(profileData); 

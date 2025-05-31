@@ -21,7 +21,16 @@ function PricingHero() {
             sub: 'Save 37.5% on lessons',
         },
     ];
+    
     const [selected, setSelected] = useState(0);
+
+    const handleCategorySelect = (index) => {
+        setSelected(index);
+        // Store in localStorage and dispatch event for other components to listen
+        localStorage.setItem('selectedPricingCategory', index.toString());
+        window.dispatchEvent(new CustomEvent('pricingCategoryChanged', { detail: { category: index } }));
+    };
+
     return (
         <section className="row container-fluid section d-flex g-0 z-index-0 pricing-hero-main" id="pricing-hero">
             <div className="row col-9 d-flex pricing-hero-sec">
@@ -31,7 +40,7 @@ function PricingHero() {
                         <div className="col-12 d-flex justify-content-end">
                             <div className="pricing-hero-content container-fluid text-end">
                                 <h1 className="pricing-hero-title display-5 fw-bold text-white mb-4">
-                                    Pricing page heading
+                                    Achieve your goals with a Strive tutor.
                                 </h1>
                             </div>
                         </div>
@@ -44,7 +53,7 @@ function PricingHero() {
                         <button
                             key={cat.label}
                             className={`pricing-c-selector-btn btn ${selected === idx ? 'pricing-c-selector-btn-active' : ''}`}
-                            onClick={() => setSelected(idx)}
+                            onClick={() => handleCategorySelect(idx)}
                             type="button"
                         >
                             <div className="pricing-c-selector-label fw-bold">{cat.label}</div>

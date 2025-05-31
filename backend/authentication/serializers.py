@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
-from .models import User, StudentProfile, TutorProfile, AdminProfile
+from .models import User, StudentProfile, TutorProfile, AdminProfile, Transaction
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, validators=[validate_password])
@@ -195,11 +195,89 @@ class StudentProfileSerializer(serializers.ModelSerializer):
 
 class TutorProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
+    current_study = serializers.SerializerMethodField()
+    total_lessons = serializers.SerializerMethodField()
     
     class Meta:
         model = TutorProfile
         fields = '__all__'
-        read_only_fields = ('is_approved', 'rating', 'total_sessions')
+        read_only_fields = ('is_approved', 'rating', 'total_reviews', 'password_setup_token', 
+                           'password_setup_completed', 'approved_at', 'documents_reviewed_at', 
+                           'reviewed_by', 'account_live', 'tutor_contract_status', 'wwcc_status')
+
+    def get_current_study(self, obj):
+        """Return the degree as current study, or a default value"""
+        return obj.degree or "University Studies"
+    
+    def get_total_lessons(self, obj):
+        """Calculate total lessons from completed transactions or use a default"""
+        # You can implement actual lesson counting logic here
+        # For now, return a computed value based on experience or use 0
+        return obj.experience_years * 25 if obj.experience_years else 0
+
+class TutorSubjectSelectionSerializer(serializers.ModelSerializer):
+    """Serializer specifically for updating tutor subject selections"""
+    
+    class Meta:
+        model = TutorProfile
+        fields = ('subjects_selected',)
+    
+    def validate_subjects_selected(self, value):
+        """Validate that subjects_selected is a list"""
+        if not isinstance(value, list):
+            raise serializers.ValidationError("subjects_selected must be a list")
+        return value
+
+class TutorDocumentUploadSerializer(serializers.ModelSerializer):
+    """Serializer specifically for document uploads by tutors"""
+    
+    class Meta:
+        model = TutorProfile
+        fields = ('tutor_contract', 'wwcc_document')
+    
+    def update(self, instance, validated_data):
+        # Update document status to pending when files are uploaded
+        if 'tutor_contract' in validated_data and validated_data['tutor_contract']:
+            instance.tutor_contract_status = 'pending'
+        
+        if 'wwcc_document' in validated_data and validated_data['wwcc_document']:
+            instance.wwcc_status = 'pending'
+        
+        # Update the files
+        for field, value in validated_data.items():
+            setattr(instance, field, value)
+        
+        instance.save()
+        return instance
+
+class TutorDocumentApprovalSerializer(serializers.ModelSerializer):
+    """Serializer for admin document approval"""
+    
+    class Meta:
+        model = TutorProfile
+        fields = ('tutor_contract_status', 'wwcc_status', 'account_live', 'documents_reviewed_at')
+    
+    def update(self, instance, validated_data):
+        from django.utils import timezone
+        
+        # Set review timestamp
+        instance.documents_reviewed_at = timezone.now()
+        instance.reviewed_by = self.context['request'].user
+        
+        # Update status fields
+        for field, value in validated_data.items():
+            setattr(instance, field, value)
+        
+        # Automatically set account_live if both documents are approved and tutor is approved
+        if (instance.tutor_contract_status == 'approved' and 
+            instance.wwcc_status == 'approved' and 
+            instance.is_approved):
+            instance.account_live = True
+        else:
+            instance.account_live = False
+        
+        instance.save()
+        return instance
 
 class AdminProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
@@ -226,4 +304,58 @@ class TutorApprovalSerializer(serializers.ModelSerializer):
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'email', 'phone_number', 'date_of_birth', 'profile_picture') 
+        fields = ('first_name', 'last_name', 'email', 'phone_number', 'date_of_birth', 'profile_picture')
+
+class TransactionSerializer(serializers.ModelSerializer):
+    """Serializer for tutor transaction history"""
+    
+    class Meta:
+        model = Transaction
+        fields = ('id', 'date', 'description', 'amount', 'status', 'transaction_type', 'reference_number')
+        read_only_fields = ('id', 'date')
+
+class PaymentDetailsSerializer(serializers.ModelSerializer):
+    """Serializer for tutor payment information"""
+    
+    class Meta:
+        model = TutorProfile
+        fields = ('account_name', 'bsb', 'account_number', 'current_balance')
+        read_only_fields = ('current_balance',)
+    
+    def validate_bsb(self, value):
+        """Validate BSB format (6 digits)"""
+        if value and not value.replace('-', '').isdigit():
+            raise serializers.ValidationError("BSB must contain only digits")
+        if value and len(value.replace('-', '')) != 6:
+            raise serializers.ValidationError("BSB must be 6 digits")
+        return value
+    
+    def validate_account_number(self, value):
+        """Validate account number format"""
+        if value and not value.isdigit():
+            raise serializers.ValidationError("Account number must contain only digits")
+        if value and len(value) < 6:
+            raise serializers.ValidationError("Account number must be at least 6 digits")
+        return value
+
+class TutorPaymentSummarySerializer(serializers.ModelSerializer):
+    """Serializer for tutor payment summary including recent transactions"""
+    recent_transactions = serializers.SerializerMethodField()
+    payment_details = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = TutorProfile
+        fields = ('current_balance', 'payment_details', 'recent_transactions')
+    
+    def get_recent_transactions(self, obj):
+        """Get the last 10 transactions"""
+        recent_transactions = obj.transactions.all()[:10]
+        return TransactionSerializer(recent_transactions, many=True).data
+    
+    def get_payment_details(self, obj):
+        """Get payment method details"""
+        return {
+            'account_name': obj.account_name,
+            'bsb': obj.bsb,
+            'account_number': obj.account_number
+        } 

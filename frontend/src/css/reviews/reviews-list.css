@@ -35,24 +35,57 @@
   height: 5rem;
   border-radius: 50%;
   overflow: hidden;
-  background-color: #fef3c7; /* Default yellow for Spider Man */
+  background: linear-gradient(135deg, #fef3c7, #fed7aa);
+  transition: all 0.3s ease;
 }
 
-.reviewer-avatar[data-name="Iron Man"] {
-  background-color: #ffb38a;
+/* Dynamic avatar backgrounds based on first letter */
+.reviewer-avatar[data-name^="A"], .reviewer-avatar[data-name^="M"], .reviewer-avatar[data-name^="Y"] {
+  background: linear-gradient(135deg, #fef3c7, #fed7aa);
 }
 
-.reviewer-avatar[data-name="Hulk"] {
-  background-color: #ffbdbd;
+.reviewer-avatar[data-name^="B"], .reviewer-avatar[data-name^="N"], .reviewer-avatar[data-name^="Z"] {
+  background: linear-gradient(135deg, #fce7f3, #fbcfe8);
 }
 
-.reviewer-avatar[data-name="Wonder Woman"], 
-.reviewer-avatar[data-name="Hawkeye"] {
-  background-color: #e0e0e0;
+.reviewer-avatar[data-name^="C"], .reviewer-avatar[data-name^="O"] {
+  background: linear-gradient(135deg, #ffb38a, #ffc9a8);
 }
 
-.reviewer-avatar[data-name="Black Panther"] {
-  background-color: #d9d9ff;
+.reviewer-avatar[data-name^="D"], .reviewer-avatar[data-name^="P"] {
+  background: linear-gradient(135deg, #ffbdbd, #ffc9c9);
+}
+
+.reviewer-avatar[data-name^="E"], .reviewer-avatar[data-name^="Q"] {
+  background: linear-gradient(135deg, #ffb38a, #ffc9a8);
+}
+
+.reviewer-avatar[data-name^="F"], .reviewer-avatar[data-name^="R"] {
+  background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+}
+
+.reviewer-avatar[data-name^="G"], .reviewer-avatar[data-name^="S"] {
+  background: linear-gradient(135deg, #e0e0e0, #f5f5f5);
+}
+
+.reviewer-avatar[data-name^="H"], .reviewer-avatar[data-name^="T"] {
+  background: linear-gradient(135deg, #e0e0e0, #f5f5f5);
+}
+
+.reviewer-avatar[data-name^="I"], .reviewer-avatar[data-name^="U"] {
+  background: linear-gradient(135deg, #e6f3ff, #cce7ff);
+}
+
+.reviewer-avatar[data-name^="J"], .reviewer-avatar[data-name^="V"] {
+  background: linear-gradient(135deg, #e6f3ff, #cce7ff);
+}
+
+.reviewer-avatar[data-name^="K"], .reviewer-avatar[data-name^="W"] {
+  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+}
+
+.reviewer-avatar[data-name^="L"], .reviewer-avatar[data-name^="X"] {
+  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
 }
 
 .avatar-placeholder {
@@ -75,6 +108,29 @@
   font-weight: 700;
   color: #0D2371;
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.new-badge {
+  background-color: #10b981;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.375rem;
+  text-transform: uppercase;
+}
+
+.photo-count {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.375rem;
 }
 
 .review-date {
@@ -113,6 +169,39 @@
   hyphens: auto;
 }
 
+.owner-reply {
+  background-color: #f8fafc;
+  border-left: 3px solid #0D2371;
+  padding: 1rem;
+  margin-top: 1rem;
+  border-radius: 0.5rem;
+}
+
+.owner-reply-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.owner-reply-header strong {
+  color: #0D2371;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.owner-reply-date {
+  color: #6b7280;
+  font-size: 0.8rem;
+}
+
+.owner-reply-text {
+  color: #4b5563;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
 .review-platform {
   display: flex;
   justify-content: flex-start;
@@ -134,5 +223,18 @@
 @media (max-width: 768px) {
   .reviews-grid {
     grid-template-columns: 1fr;
+  }
+  
+  .reviewer-name {
+    font-size: 1.5rem;
+  }
+  
+  .new-badge, .photo-count {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.4rem;
+  }
+  
+  .owner-reply {
+    padding: 0.75rem;
   }
 } 

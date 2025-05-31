@@ -1,7 +1,56 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import "../../css/pricing/pricing-price-grid.css";
 
 function PricingPricegrid() {
+    const [selectedCategory, setSelectedCategory] = useState(0);
+
+    // Base prices for private sessions
+    const basePrices = {
+        gold: 60,
+        platinum: 80,
+        elite: 120
+    };
+
+    // Calculate price based on category
+    const calculatePrice = (basePrice, categoryIndex) => {
+        switch (categoryIndex) {
+            case 0: // Private Tutoring
+                return basePrice;
+            case 1: // Bring a Friend (12.5% off)
+                return basePrice * 0.875;
+            case 2: // Bring 2 Friends (25% off)
+                return basePrice * 0.75;
+            case 3: // Bring 3 Friends (37.5% off)
+                return basePrice * 0.625;
+            default:
+                return basePrice;
+        }
+    };
+
+    const categories = [
+        'Private Tutoring',
+        'Bring a Friend',
+        'Bring 2 Friends',
+        'Bring 3 Friends'
+    ];
+
+    // Listen for category changes from parent or local storage
+    useEffect(() => {
+        const handleCategoryChange = () => {
+            const storedCategory = localStorage.getItem('selectedPricingCategory');
+            if (storedCategory) {
+                setSelectedCategory(parseInt(storedCategory));
+            }
+        };
+
+        handleCategoryChange();
+        window.addEventListener('pricingCategoryChanged', handleCategoryChange);
+        
+        return () => {
+            window.removeEventListener('pricingCategoryChanged', handleCategoryChange);
+        };
+    }, []);
+
     return (
         <section className="row container-fluid section d-flex g-0 z-index-0 pricing-price-grid-main" id="pricing-price-grid">
             <div className="row col-lg-9 col-md-12 d-flex pricing-price-grid-sec">
@@ -14,21 +63,31 @@ function PricingPricegrid() {
                                 <h3 className="mb-2">🧑‍🎓 Gold</h3>
                                 <p className="text-muted mb-3">Personalised Sessions</p>
                                 <div className="pricing-price-grid-price-tag mb-3">
-                                    <span className="pricing-price-grid-amount">$52.5</span>
-                                    <span className="pricing-price-grid-period">/hr</span>
+                                    <span className="pricing-price-grid-amount">${calculatePrice(basePrices.gold, selectedCategory)}</span>
+                                    <span className="pricing-price-grid-period">/hr{selectedCategory > 0 ? ' each' : ''}</span>
                                 </div>
                                 <button className="btn btn-primary w-100">Get Started</button>
+                                {selectedCategory === 0 && (
+                                    <div className="mt-2 text-muted small">
+                                        ${basePrices.gold}/hr private sessions
+                                    </div>
+                                )}
                             </div>
                         </div>
                         <div className="col pricing-price-grid-header" id='pricing-price-grid-platinum'>
                             <div className="pricing-price-grid-card pricing-price-grid-platinum text-center p-4 rounded-4">
-                                <h3 className="mb-2">🧑‍🏫 Platinum</h3>
+                                <h3 className="mb-2">🧑‍🏫 Premium</h3>
                                 <p className="text-muted mb-3">Experienced Tutor</p>
                                 <div className="pricing-price-grid-price-tag mb-3">
-                                    <span className="pricing-price-grid-amount">$70</span>
-                                    <span className="pricing-price-grid-period">/hr</span>
+                                    <span className="pricing-price-grid-amount">${calculatePrice(basePrices.platinum, selectedCategory)}</span>
+                                    <span className="pricing-price-grid-period">/hr{selectedCategory > 0 ? ' each' : ''}</span>
                                 </div>
                                 <button className="btn btn-primary w-100">Get Started</button>
+                                {selectedCategory === 0 && (
+                                    <div className="mt-2 text-muted small">
+                                        ${basePrices.platinum}/hr private sessions
+                                    </div>
+                                )}
                             </div>
                         </div>
                         <div className="col pricing-price-grid-header" id='pricing-price-grid-elite'>
@@ -36,10 +95,15 @@ function PricingPricegrid() {
                                 <h3 className="mb-2">🌟 Elite</h3>
                                 <p className="text-muted mb-3">Expert Tutor</p>
                                 <div className="pricing-price-grid-price-tag mb-3">
-                                    <span className="pricing-price-grid-amount">$105</span>
-                                    <span className="pricing-price-grid-period">/hr</span>
+                                    <span className="pricing-price-grid-amount">${calculatePrice(basePrices.elite, selectedCategory)}</span>
+                                    <span className="pricing-price-grid-period">/hr{selectedCategory > 0 ? ' each' : ''}</span>
                                 </div>
                                 <button className="btn btn-primary w-100">Get Started</button>
+                                {selectedCategory === 0 && (
+                                    <div className="mt-2 text-muted small">
+                                        ${basePrices.elite}/hr private sessions
+                                    </div>
+                                )}
                             </div>
                         </div>
 

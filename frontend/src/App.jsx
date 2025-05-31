@@ -38,6 +38,7 @@ const App = () => {
             <Route path="/find-a-tutor" element={<FindtPage />} />
             <Route path="/join-us" element={<JoinusPage />} />
             <Route path="/tutor" element={<TutorPage />} />
+            <Route path="/tutor/:id" element={<TutorPage />} />
             <Route path="/tutor/contact" element={<TutorContactPage />} />
             <Route path="/bring-a-friend-and-save" element={<BFriendPage />} />
             <Route path="/interview-preperation" element={<InterviewPage />} /> 

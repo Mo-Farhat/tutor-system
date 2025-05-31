@@ -17,9 +17,12 @@ from .serializers import (
     UserRegistrationSerializer, UserLoginSerializer, UserSerializer,
     StudentProfileSerializer, TutorProfileSerializer, AdminProfileSerializer,
     PasswordChangeSerializer, TutorApprovalSerializer, UserProfileUpdateSerializer,
-    TutorApplicationSerializer
+    TutorApplicationSerializer, TutorDocumentUploadSerializer, TutorDocumentApprovalSerializer,
+    PaymentDetailsSerializer, TutorPaymentSummarySerializer, TransactionSerializer,
+    TutorSubjectSelectionSerializer
 )
 from .utils import send_tutor_application_confirmation, send_tutor_approval_email, send_tutor_rejection_email
+from .subjects_data import YEAR_11_12_SUBJECTS, YEAR_1_10_SUBJECTS, CURRICULA, STATES, YEAR_LEVELS
 
 User = get_user_model()
 
@@ -203,6 +206,130 @@ class TutorProfileView(generics.RetrieveUpdateAPIView):
         profile, created = TutorProfile.objects.get_or_create(user=self.request.user)
         return profile
 
+class TutorDocumentUploadView(APIView):
+    """Handle document uploads for tutors"""
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+    
+    def get(self, request):
+        """Get current document status"""
+        if request.user.role != 'tutor':
+            return Response({'error': 'Tutor access required'}, status=status.HTTP_403_FORBIDDEN)
+        
+        try:
+            tutor_profile = TutorProfile.objects.get(user=request.user)
+            data = {
+                'tutor_contract': {
+                    'file_url': tutor_profile.tutor_contract.url if tutor_profile.tutor_contract else None,
+                    'status': tutor_profile.tutor_contract_status,
+                    'uploaded': bool(tutor_profile.tutor_contract)
+                },
+                'wwcc_document': {
+                    'file_url': tutor_profile.wwcc_document.url if tutor_profile.wwcc_document else None,
+                    'status': tutor_profile.wwcc_status,
+                    'uploaded': bool(tutor_profile.wwcc_document)
+                },
+                'account_live': tutor_profile.account_live,
+                'documents_reviewed_at': tutor_profile.documents_reviewed_at
+            }
+            return Response(data, status=status.HTTP_200_OK)
+        except TutorProfile.DoesNotExist:
+            return Response({'error': 'Tutor profile not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    def post(self, request):
+        """Upload documents"""
+        if request.user.role != 'tutor':
+            return Response({'error': 'Tutor access required'}, status=status.HTTP_403_FORBIDDEN)
+        
+        try:
+            tutor_profile = TutorProfile.objects.get(user=request.user)
+        except TutorProfile.DoesNotExist:
+            return Response({'error': 'Tutor profile not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = TutorDocumentUploadSerializer(tutor_profile, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                'message': 'Documents uploaded successfully',
+                'tutor_contract_status': tutor_profile.tutor_contract_status,
+                'wwcc_status': tutor_profile.wwcc_status
+            }, status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class TutorPaymentDetailsView(APIView):
+    """Handle tutor payment details management"""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        """Get payment summary including balance and recent transactions"""
+        if request.user.role != 'tutor':
+            return Response({'error': 'Tutor access required'}, status=status.HTTP_403_FORBIDDEN)
+        
+        try:
+            tutor_profile = TutorProfile.objects.get(user=request.user)
+            serializer = TutorPaymentSummarySerializer(tutor_profile)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except TutorProfile.DoesNotExist:
+            return Response({'error': 'Tutor profile not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    def put(self, request):
+        """Update payment method details"""
+        if request.user.role != 'tutor':
+            return Response({'error': 'Tutor access required'}, status=status.HTTP_403_FORBIDDEN)
+        
+        try:
+            tutor_profile = TutorProfile.objects.get(user=request.user)
+        except TutorProfile.DoesNotExist:
+            return Response({'error': 'Tutor profile not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = PaymentDetailsSerializer(tutor_profile, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                'message': 'Payment details updated successfully',
+                'payment_details': serializer.data
+            }, status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class TutorTransactionHistoryView(APIView):
+    """Get detailed transaction history for tutor"""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        if request.user.role != 'tutor':
+            return Response({'error': 'Tutor access required'}, status=status.HTTP_403_FORBIDDEN)
+        
+        try:
+            tutor_profile = TutorProfile.objects.get(user=request.user)
+            
+            # Get query parameters for filtering
+            status_filter = request.query_params.get('status', None)
+            transaction_type = request.query_params.get('type', None)
+            limit = int(request.query_params.get('limit', 50))
+            
+            # Build queryset
+            transactions = tutor_profile.transactions.all()
+            
+            if status_filter:
+                transactions = transactions.filter(status=status_filter)
+            
+            if transaction_type:
+                transactions = transactions.filter(transaction_type=transaction_type)
+            
+            # Limit results
+            transactions = transactions[:limit]
+            
+            serializer = TransactionSerializer(transactions, many=True)
+            return Response({
+                'transactions': serializer.data,
+                'total_count': tutor_profile.transactions.count()
+            }, status=status.HTTP_200_OK)
+            
+        except TutorProfile.DoesNotExist:
+            return Response({'error': 'Tutor profile not found'}, status=status.HTTP_404_NOT_FOUND)
+
 class TutorListView(generics.ListAPIView):
     """List all approved tutors"""
     serializer_class = TutorProfileSerializer
@@ -240,7 +367,11 @@ class TutorDetailView(generics.RetrieveAPIView):
     """Get specific tutor details"""
     serializer_class = TutorProfileSerializer
     permission_classes = [permissions.AllowAny]
-    queryset = TutorProfile.objects.filter(is_approved=True)
+    queryset = TutorProfile.objects.filter(
+        is_approved=True,
+        account_live=True,
+        user__is_active=True
+    ).select_related('user')
 
 # Admin-specific views
 class AdminProfileView(generics.RetrieveUpdateAPIView):
@@ -441,3 +572,176 @@ def check_auth_status(request):
         'authenticated': True,
         'user': UserSerializer(request.user).data
     }, status=status.HTTP_200_OK)
+
+class AdminDocumentApprovalView(APIView):
+    """Admin view to approve/reject tutor documents"""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        """Get all tutors with pending documents"""
+        if request.user.role != 'admin':
+            return Response({'error': 'Admin access required'}, status=status.HTTP_403_FORBIDDEN)
+        
+        # Get tutors with pending documents or approved tutors who need document review
+        tutors_pending_docs = TutorProfile.objects.filter(
+            is_approved=True,
+            account_live=False
+        ).filter(
+            Q(tutor_contract_status='pending') | 
+            Q(wwcc_status='pending') |
+            Q(tutor_contract__isnull=False, tutor_contract_status='not_uploaded') |
+            Q(wwcc_document__isnull=False, wwcc_status='not_uploaded')
+        )
+        
+        serializer = TutorProfileSerializer(tutors_pending_docs, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def post(self, request, tutor_id):
+        """Approve or reject tutor documents"""
+        if request.user.role != 'admin':
+            return Response({'error': 'Admin access required'}, status=status.HTTP_403_FORBIDDEN)
+        
+        try:
+            tutor_profile = TutorProfile.objects.get(id=tutor_id)
+        except TutorProfile.DoesNotExist:
+            return Response({'error': 'Tutor profile not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Update document statuses based on admin input
+        data = {
+            'tutor_contract_status': request.data.get('tutor_contract_status'),
+            'wwcc_status': request.data.get('wwcc_status')
+        }
+        
+        # Remove None values
+        data = {k: v for k, v in data.items() if v is not None}
+        
+        serializer = TutorDocumentApprovalSerializer(
+            tutor_profile, 
+            data=data, 
+            partial=True,
+            context={'request': request}
+        )
+        
+        if serializer.is_valid():
+            updated_profile = serializer.save()
+            
+            response_data = {
+                'message': 'Document status updated successfully',
+                'tutor_contract_status': updated_profile.tutor_contract_status,
+                'wwcc_status': updated_profile.wwcc_status,
+                'account_live': updated_profile.account_live,
+                'documents_reviewed_at': updated_profile.documents_reviewed_at
+            }
+            
+            # Send notification if account is now live
+            if updated_profile.account_live:
+                response_data['account_status'] = 'Tutor account is now live!'
+            
+            return Response(response_data, status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class TutorSubjectSelectionView(APIView):
+    """Handle tutor subject selection management"""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        """Get current subject selections"""
+        if request.user.role != 'tutor':
+            return Response({'error': 'Tutor access required'}, status=status.HTTP_403_FORBIDDEN)
+        
+        try:
+            tutor_profile = TutorProfile.objects.get(user=request.user)
+            return Response({
+                'subjects_selected': tutor_profile.subjects_selected
+            }, status=status.HTTP_200_OK)
+        except TutorProfile.DoesNotExist:
+            return Response({'error': 'Tutor profile not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    def put(self, request):
+        """Update subject selections"""
+        if request.user.role != 'tutor':
+            return Response({'error': 'Tutor access required'}, status=status.HTTP_403_FORBIDDEN)
+        
+        try:
+            tutor_profile = TutorProfile.objects.get(user=request.user)
+        except TutorProfile.DoesNotExist:
+            return Response({'error': 'Tutor profile not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = TutorSubjectSelectionSerializer(tutor_profile, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                'message': 'Subject selections updated successfully',
+                'subjects_selected': tutor_profile.subjects_selected
+            }, status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class SubjectSelectionDataView(APIView):
+    """API view to provide subject selection data for tutors"""
+    permission_classes = [permissions.AllowAny]
+    
+    def get(self, request):
+        """Return all subject selection data"""
+        return Response({
+            'year_levels': YEAR_LEVELS,
+            'curricula': CURRICULA,
+            'states': STATES,
+            'year_11_12_subjects': YEAR_11_12_SUBJECTS,
+            'year_1_10_subjects': YEAR_1_10_SUBJECTS
+        }, status=status.HTTP_200_OK)
+
+class LiveTutorsView(APIView):
+    """Get all live tutors (account_live=True) for the find-a-tutor page"""
+    permission_classes = [permissions.AllowAny]
+    
+    def get(self, request):
+        """Get all tutors with account_live=True"""
+        try:
+            # Get tutors that are approved, have account_live=True, and are active users
+            live_tutors = TutorProfile.objects.filter(
+                account_live=True,
+                is_approved=True,
+                user__is_active=True
+            ).select_related('user').order_by('-created_at')
+            
+            tutors_data = []
+            for tutor in live_tutors:
+                user = tutor.user
+                
+                # Determine status based on availability or other criteria
+                tutor_status = "Available"  # You can customize this logic later
+                
+                # Create a comprehensive bio if none exists
+                bio = tutor.bio
+                if not bio:
+                    subjects_text = ', '.join(tutor.subjects_selected[:2]) if tutor.subjects_selected else 'various subjects'
+                    bio = f"Experienced tutor specializing in {subjects_text}. Committed to helping students achieve their academic goals."
+                
+                tutors_data.append({
+                    'id': tutor.id,
+                    'name': f"{user.first_name} {user.last_name}".strip() or user.username,
+                    'image': user.profile_picture.url if user.profile_picture else None,
+                    'status': tutor_status,
+                    'goldPoints': f"{tutor.rating}/5",  # Using rating as gold points
+                    'atrPoints': str(tutor.atar) if tutor.atar else "N/A",
+                    'bio': bio[:150] + "..." if len(bio) > 150 else bio,
+                    'university': tutor.university,
+                    'subjects': tutor.subjects_selected or tutor.subjects_taught or [],
+                    'hourly_rate': str(tutor.hourly_rate) if tutor.hourly_rate else None,
+                    'experience_years': tutor.experience_years,
+                    'total_reviews': tutor.total_reviews,
+                    'preferred_locations': tutor.preferred_locations or ['Online']
+                })
+            
+            return Response({
+                'tutors': tutors_data,
+                'count': len(tutors_data)
+            }, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            return Response({
+                'error': 'Failed to fetch live tutors',
+                'details': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

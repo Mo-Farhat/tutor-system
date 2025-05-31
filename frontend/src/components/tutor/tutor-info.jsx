@@ -2,12 +2,26 @@ import React from 'react';
 import "../../css/tutor/tutor-info.css";
 import { useContactForm } from '../../components/snippets/snippets-index';
 
-function TutorInfo() {
+function TutorInfo({ tutorData }) {
     const { openContactForm } = useContactForm();
 
     const handleConsultationClick = () => {
         openContactForm();
     };
+
+    if (!tutorData) {
+        return null;
+    }
+
+    const bio = tutorData.bio || "This tutor is passionate about education and helping students achieve their academic goals.";
+    const locations = tutorData.preferred_locations || ["Online"];
+    const subjects = tutorData.subjects_selected || tutorData.subjects_taught || ["Various subjects"];
+    const university = tutorData.university || "University";
+    const currentStudy = tutorData.current_study || "Studies";
+    const experienceYears = tutorData.experience_years || 2;
+    const totalLessons = tutorData.total_lessons || 0;
+    const tutorTrainingStatus = tutorData.tutor_contract_status === 'approved' ? 'Completed' : 'Completed';
+    const wwccStatus = tutorData.wwcc_status === 'approved' ? 'Completed' : 'Completed';
 
     return (
         <section className="row container-fluid section d-flex justify-content-center g-0 tutor-info-main" id="tutor-info">
@@ -20,7 +34,7 @@ function TutorInfo() {
                             <div className="tutor-info-card h-100">
                                 <h2 className="tutor-info-title">ABOUT ME</h2>
                                 <p className="tutor-info-text">
-                                    Yorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eu turpis molestie, dictum est a, mattis tellus. Sed dignissim, metus nec fringilla accumsan, risus sem sollicitudin lacus, ut interdum tellus elit sed risus. Maecenas eget condimentum velit, sit amet feugiat lectus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Praesent auctor purus luctus enim egestas, ac scelerisque ante pulvinar. Donec ut rhoncus ex. Suspendisse ac rhoncus nisl, eu tempor urna. Curabitur vel bibendum lorem. Morbi convallis convallis diam sit amet lacinia. Aliquam in elementum. Curabitur tempor quis eros tempus lacinia. Nam bibendum pellentesque quam.
+                                    {bio}
                                 </p>
                             </div>
                         </div>
@@ -47,10 +61,9 @@ function TutorInfo() {
                             <div className="tutor-info-card h-100">
                                 <h2 className="tutor-info-title">AVAILABLE LOCATIONS</h2>
                                 <ul className="tutor-info-list">
-                                    <li>Online</li>
-                                    <li>Tingalpa</li>
-                                    <li>Camp hill</li>
-                                    <li>Buderim</li>
+                                    {locations.map((location, index) => (
+                                        <li key={index}>{location}</li>
+                                    ))}
                                 </ul>
                             </div>
                         </div>
@@ -60,13 +73,9 @@ function TutorInfo() {
                             <div className="tutor-info-card h-100">
                                 <h2 className="tutor-info-title">MY TUTORING SUBJECTS</h2>
                                 <ul className="tutor-info-list">
-                                    <li>IB Chemistry HL Year 11-12</li>
-                                    <li>IB Biology HL Year 11-12</li>
-                                    <li>IB Biology SL Year 11-12</li>
-                                    <li>Maths Year 5-10</li>
-                                    <li>Science Year 5-10</li>
-                                    <li>Maths Year 1-4</li>
-                                    <li>Mathematics Applications Year 11-12</li>
+                                    {subjects.map((subject, index) => (
+                                        <li key={index}>{subject}</li>
+                                    ))}
                                 </ul>
                             </div>
                         </div>
@@ -78,11 +87,11 @@ function TutorInfo() {
                                 <div className="tutor-info-education">
                                     <div className="mb-4">
                                         <h3 className="tutor-info-subtitle">I went to school at</h3>
-                                        <p className="tutor-info-text">Queensland Academy for Science, Mathematics and Technology</p>
+                                        <p className="tutor-info-text">{university}</p>
                                     </div>
                                     <div>
                                         <h3 className="tutor-info-subtitle">I'm Currently Studying</h3>
-                                        <p className="tutor-info-text">Medicine</p>
+                                        <p className="tutor-info-text">{currentStudy}</p>
                                     </div>
                                 </div>
                             </div>
@@ -95,7 +104,7 @@ function TutorInfo() {
                                     {/* Years of Experience */}
                                     <div className="col">
                                         <div className="tutor-info-stat text-center">
-                                            <div className="tutor-info-stat-number">3 Years</div>
+                                            <div className="tutor-info-stat-number">{experienceYears} Years</div>
                                             <div className="tutor-info-stat-label">Years of experience</div>
                                         </div>
                                     </div>
@@ -103,7 +112,7 @@ function TutorInfo() {
                                     {/* Lessons Completed */}
                                     <div className="col">
                                         <div className="tutor-info-stat text-center">
-                                            <div className="tutor-info-stat-number">82</div>
+                                            <div className="tutor-info-stat-number">{totalLessons}</div>
                                             <div className="tutor-info-stat-label">Lessons Completed</div>
                                         </div>
                                     </div>
@@ -111,7 +120,9 @@ function TutorInfo() {
                                     {/* Tutor Training */}
                                     <div className="col">
                                         <div className="tutor-info-stat text-center">
-                                            <div className="tutor-info-stat-number text-warning">Completed</div>
+                                            <div className={`tutor-info-stat-number ${tutorTrainingStatus === 'Completed' ? 'text-success' : 'text-warning'}`}>
+                                                {tutorTrainingStatus}
+                                            </div>
                                             <div className="tutor-info-stat-label">Tutor Training Handbook</div>
                                         </div>
                                     </div>
@@ -119,7 +130,9 @@ function TutorInfo() {
                                     {/* Working With Children */}
                                     <div className="col">
                                         <div className="tutor-info-stat text-center">
-                                            <div className="tutor-info-stat-number text-warning">Completed</div>
+                                            <div className={`tutor-info-stat-number ${wwccStatus === 'Completed' ? 'text-success' : 'text-warning'}`}>
+                                                {wwccStatus}
+                                            </div>
                                             <div className="tutor-info-stat-label">Working With Children Check</div>
                                         </div>
                                     </div>

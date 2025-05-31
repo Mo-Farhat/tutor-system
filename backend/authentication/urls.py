@@ -27,12 +27,22 @@ urlpatterns = [
     
     # Tutor endpoints
     path('tutor/profile/', views.TutorProfileView.as_view(), name='tutor_profile'),
+    path('tutor/documents/', views.TutorDocumentUploadView.as_view(), name='tutor_documents'),
+    path('tutor/subjects/', views.TutorSubjectSelectionView.as_view(), name='tutor_subjects'),
+    path('tutor/payment-details/', views.TutorPaymentDetailsView.as_view(), name='tutor_payment_details'),
+    path('tutor/transactions/', views.TutorTransactionHistoryView.as_view(), name='tutor_transactions'),
     path('tutors/', views.TutorListView.as_view(), name='tutor_list'),
     path('tutors/<int:pk>/', views.TutorDetailView.as_view(), name='tutor_detail'),
+    path('tutors/live/', views.LiveTutorsView.as_view(), name='live_tutors'),
     
     # Admin endpoints
     path('admin/profile/', views.AdminProfileView.as_view(), name='admin_profile'),
     path('admin/tutors/pending/', views.AdminTutorApprovalView.as_view(), name='admin_pending_tutors'),
     path('admin/tutors/<int:tutor_id>/approve/', views.AdminTutorApprovalView.as_view(), name='admin_approve_tutor'),
+    path('admin/documents/pending/', views.AdminDocumentApprovalView.as_view(), name='admin_pending_documents'),
+    path('admin/documents/<int:tutor_id>/approve/', views.AdminDocumentApprovalView.as_view(), name='admin_approve_documents'),
     path('admin/users/', views.AdminUserManagementView.as_view(), name='admin_user_management'),
+    
+    # Subject selection data
+    path('subjects/', views.SubjectSelectionDataView.as_view(), name='subject_selection_data'),
 ] 
