@@ -1,13 +1,94 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import '../../css/login-signup/login.css';
 
 function Login() {
-    const [userType, setUserType] = useState('student');
+    const [formData, setFormData] = useState({
+        username: '',
+        password: ''
+    });
     const [rememberMe, setRememberMe] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [errors, setErrors] = useState({});
 
-    const handleUserTypeChange = (type) => {
-        setUserType(type);
+    const { login, error, clearError, isLoading } = useAuth();
+    const navigate = useNavigate();
+
+    const handleInputChange = (e) => {
+        const { id, value } = e.target;
+        const fieldName = id.replace('Input', '');
+        
+        setFormData(prev => ({
+            ...prev,
+            [fieldName]: value
+        }));
+
+        // Clear specific field error when user starts typing
+        if (errors[fieldName]) {
+            setErrors(prev => ({
+                ...prev,
+                [fieldName]: ''
+            }));
+        }
+        
+        // Clear general error
+        if (error) {
+            clearError();
+        }
+    };
+
+    const validateForm = () => {
+        const newErrors = {};
+
+        if (!formData.username.trim()) {
+            newErrors.username = 'Username is required';
+        }
+
+        if (!formData.password) {
+            newErrors.password = 'Password is required';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        
+        if (!validateForm()) {
+            return;
+        }
+
+        setIsSubmitting(true);
+
+        try {
+            const response = await login({
+                username: formData.username.trim(),
+                password: formData.password
+            });
+
+            // Redirect based on user role
+            const userRole = response.user.role;
+            switch (userRole) {
+                case 'student':
+                    navigate('/');
+                    break;
+                case 'tutor':
+                    navigate('/tutor/account-settings');
+                    break;
+                case 'admin':
+                    navigate('/admin/dashboard');
+                    break;
+                default:
+                    navigate('/');
+            }
+        } catch (err) {
+            console.error('Login failed:', err);
+            // Error is handled by the AuthContext
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -24,48 +105,51 @@ function Login() {
                                 <h2 className="login-title text-center mb-2">Welcome Back</h2>
                                 <p className="login-subtitle text-center mb-4">Please sign in to continue</p>
 
-                                <div className="login-toggle-container mb-4">
-                                    <div className="row g-0">
-                                        <div className="col-6">
-                                            <button 
-                                                className={`login-toggle-btn ${userType === 'student' ? 'active' : ''}`}
-                                                onClick={() => handleUserTypeChange('student')}>
-                                                Student
-                                            </button>
-                                        </div>
-                                        <div className="col-6">
-                                            <button 
-                                                className={`login-toggle-btn ${userType === 'teacher' ? 'active' : ''}`}
-                                                onClick={() => handleUserTypeChange('teacher')}>
-                                                Teacher
-                                            </button>
-                                        </div>
+                                {error && (
+                                    <div className="alert alert-danger" role="alert">
+                                        {error}
                                     </div>
-                                </div>
+                                )}
 
-                                <form className="login-form">
+                                <form className="login-form" onSubmit={handleSubmit}>
                                     <div className="form-floating mb-3">
                                         <input 
-                                            type="email" 
-                                            className="form-control login-input" 
-                                            id="emailInput" 
-                                            placeholder="Email address" 
+                                            type="text" 
+                                            className={`form-control login-input ${errors.username ? 'is-invalid' : ''}`}
+                                            id="usernameInput" 
+                                            placeholder="Username" 
+                                            value={formData.username}
+                                            onChange={handleInputChange}
+                                            disabled={isSubmitting || isLoading}
                                         />
-                                        <label htmlFor="emailInput">
-                                            <i className="bi bi-envelope login-input-icon"></i> Email address
+                                        <label htmlFor="usernameInput">
+                                            <i className="bi bi-person login-input-icon"></i> Username
                                         </label>
+                                        {errors.username && (
+                                            <div className="invalid-feedback">
+                                                {errors.username}
+                                            </div>
+                                        )}
                                     </div>
                                     
                                     <div className="form-floating mb-3">
                                         <input 
                                             type="password" 
-                                            className="form-control login-input" 
+                                            className={`form-control login-input ${errors.password ? 'is-invalid' : ''}`}
                                             id="passwordInput" 
                                             placeholder="Password" 
+                                            value={formData.password}
+                                            onChange={handleInputChange}
+                                            disabled={isSubmitting || isLoading}
                                         />
                                         <label htmlFor="passwordInput">
                                             <i className="bi bi-lock login-input-icon"></i> Password
                                         </label>
+                                        {errors.password && (
+                                            <div className="invalid-feedback">
+                                                {errors.password}
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="d-flex justify-content-between mb-4 align-items-center">
@@ -76,6 +160,7 @@ function Login() {
                                                 id="rememberMe" 
                                                 checked={rememberMe}
                                                 onChange={() => setRememberMe(!rememberMe)}
+                                                disabled={isSubmitting || isLoading}
                                             />
                                             <label className="form-check-label login-check-label" htmlFor="rememberMe">
                                                 Remember me
@@ -84,8 +169,21 @@ function Login() {
                                         <Link to="/forgot-password" className="login-forgot-link">Forgot password?</Link>
                                     </div>
 
-                                    <button type="button" className="btn login-submit-btn w-100 mb-4">
-                                        <i className="bi bi-box-arrow-in-right me-2"></i> Sign In
+                                    <button 
+                                        type="submit" 
+                                        className="btn login-submit-btn w-100 mb-4"
+                                        disabled={isSubmitting || isLoading}
+                                    >
+                                        {isSubmitting || isLoading ? (
+                                            <>
+                                                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                                Signing In...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <i className="bi bi-box-arrow-in-right me-2"></i> Sign In
+                                            </>
+                                        )}
                                     </button>
 
                                     <div className="login-signup-prompt text-center">
