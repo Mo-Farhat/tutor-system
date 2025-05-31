@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import '../../css/login-signup/login.css';
 
@@ -11,9 +11,25 @@ function Login() {
     const [rememberMe, setRememberMe] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState({});
+    const [successMessage, setSuccessMessage] = useState('');
 
     const { login, error, clearError, isLoading } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+
+    // Handle success message from password setup
+    useEffect(() => {
+        if (location.state?.message) {
+            setSuccessMessage(location.state.message);
+            // Pre-fill email if provided
+            if (location.state?.email) {
+                setFormData(prev => ({
+                    ...prev,
+                    email_or_phone: location.state.email
+                }));
+            }
+        }
+    }, [location.state]);
 
     const handleInputChange = (e) => {
         const { id, value } = e.target;
@@ -35,6 +51,11 @@ function Login() {
         // Clear general error
         if (error) {
             clearError();
+        }
+
+        // Clear success message when user starts typing
+        if (successMessage) {
+            setSuccessMessage('');
         }
     };
 
@@ -90,12 +111,18 @@ function Login() {
 
             // Redirect based on user role
             const userRole = response.user.role;
+            const isNewTutor = location.state?.isNewTutor;
+            
             switch (userRole) {
                 case 'student':
                     navigate('/');
                     break;
                 case 'tutor':
-                    navigate('/tutor/account-settings');
+                    navigate('/tutor/account-settings', {
+                        state: isNewTutor ? { 
+                            message: 'Welcome to Strive Academy! Please complete your profile setup.'
+                        } : undefined
+                    });
                     break;
                 case 'admin':
                     navigate('/admin/dashboard');
@@ -124,6 +151,13 @@ function Login() {
 
                                 <h2 className="login-title text-center mb-2">Welcome Back</h2>
                                 <p className="login-subtitle text-center mb-4">Please sign in to continue</p>
+
+                                {successMessage && (
+                                    <div className="alert alert-success" role="alert">
+                                        <i className="bi bi-check-circle me-2"></i>
+                                        {successMessage}
+                                    </div>
+                                )}
 
                                 {error && (
                                     <div className="alert alert-danger" role="alert">

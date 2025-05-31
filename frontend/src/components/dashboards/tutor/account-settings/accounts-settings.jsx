@@ -1,7 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { useAuth } from '../../../../contexts/AuthContext';
+import { getUserProfile } from '../../../../services/authService';
 import "../../../../css/dashboards/tutor/account-settings/account-settings.css";
 
 function TutorAccountSettings() {
+    const { user } = useAuth();
+    const location = useLocation();
+    const welcomeMessage = location.state?.message;
+    
     const [profileImage, setProfileImage] = useState(null);
     const [selectedLocations, setSelectedLocations] = useState([]);
     const [selectedSubjects, setSelectedSubjects] = useState([]);
@@ -9,6 +16,9 @@ function TutorAccountSettings() {
     const [schools, setSchools] = useState(['']);
     const [currentStudies, setCurrentStudies] = useState(['']);
     const [isEditMode, setIsEditMode] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [tutorProfile, setTutorProfile] = useState(null);
     const [formData, setFormData] = useState({
         fullName: '',
         username: '',
@@ -45,6 +55,67 @@ function TutorAccountSettings() {
         newPassword: false,
         confirmPassword: false
     });
+
+    useEffect(() => {
+        fetchTutorProfile();
+    }, []);
+
+    const fetchTutorProfile = async () => {
+        try {
+            setLoading(true);
+            const result = await getUserProfile();
+            
+            if (result.success) {
+                const userData = result.data;
+                const profile = userData.profile || {};
+                
+                setTutorProfile(profile);
+                setFormData({
+                    fullName: `${userData.first_name || ''} ${userData.last_name || ''}`.trim(),
+                    username: userData.username || '',
+                    email: userData.email || '',
+                    phoneNumber: userData.phone_number || '',
+                    bio: profile.bio || '',
+                    currentPassword: '',
+                    newPassword: '',
+                    confirmPassword: ''
+                });
+                
+                // Set profile-specific data
+                if (profile.university) {
+                    setCurrentStudies([profile.university]);
+                }
+                if (profile.preferred_locations && profile.preferred_locations.length > 0) {
+                    setSelectedLocations(profile.preferred_locations);
+                }
+                if (profile.subjects_taught && profile.subjects_taught.length > 0) {
+                    // Convert subjects to the format expected by the form
+                    const subjectEntries = profile.subjects_taught.map(subject => ({
+                        yearLevel: '',
+                        curriculum: '',
+                        subject: subject
+                    }));
+                    setSubjectEntries(subjectEntries);
+                }
+                
+                // Set profile picture if available
+                if (userData.profile_picture) {
+                    setProfileImage(userData.profile_picture);
+                }
+                
+                // Set video if available
+                if (profile.video_submission) {
+                    setIntroVideo(profile.video_submission);
+                }
+            } else {
+                setError('Failed to load profile data');
+            }
+        } catch (err) {
+            setError('Error loading profile: ' + err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -153,7 +224,6 @@ function TutorAccountSettings() {
             schools,
             currentStudies,
             selectedLocations,
-            selectedSubjects,
             profileImage,
             introVideo
         });
@@ -167,8 +237,47 @@ function TutorAccountSettings() {
         }));
     };
 
+    if (loading) {
+        return (
+            <div className="account-settings-main">
+                <div className="d-flex justify-content-center align-items-center" style={{ height: '400px' }}>
+                    <div className="text-center">
+                        <div className="spinner-border text-primary" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </div>
+                        <p className="mt-3">Loading your profile...</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="account-settings-main">
+                <div className="alert alert-danger" role="alert">
+                    {error}
+                    <button 
+                        className="btn btn-primary ms-3" 
+                        onClick={fetchTutorProfile}
+                    >
+                        Retry
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="account-settings-main">
+            {welcomeMessage && (
+                <div className="alert alert-success alert-dismissible fade show" role="alert">
+                    <i className="fas fa-check-circle me-2"></i>
+                    {welcomeMessage}
+                    <button type="button" className="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            )}
+            
             <h1 className="account-settings-title">Account Management</h1>
 
             <div className="account-settings-header">
@@ -193,21 +302,25 @@ function TutorAccountSettings() {
                         </label>
                     </div>
                     <div className="account-settings-profile-info">
-                        <h2>Sarah Brown</h2>
+                        <h2>{formData.fullName || user?.username || 'Tutor'}</h2>
                         <div className="account-settings-stats">
                             <span className="stats-gold">
-                                Gold (250/5)
+                                Rating: {tutorProfile?.rating || '0.0'}/5.0
                             </span>
                             <span className="stats-atr">
-                                ATR (96.45)
+                                ATAR: {tutorProfile?.atar || 'Not specified'}
                             </span>
                         </div>
                         <div className="account-settings-meta">
                             <span className="account-settings-location">
-                                <i className="fas fa-map-marker-alt"></i> New York
+                                <i className="fas fa-graduation-cap"></i> {tutorProfile?.university || 'University not specified'}
                             </span>
                             <span className="account-settings-joined">
-                                <i className="fas fa-calendar-alt"></i> Joined March 17
+                                <i className="fas fa-calendar-alt"></i> 
+                                {tutorProfile?.approved_at ? 
+                                    `Approved ${new Date(tutorProfile.approved_at).toLocaleDateString()}` : 
+                                    'Approval pending'
+                                }
                             </span>
                         </div>
                     </div>

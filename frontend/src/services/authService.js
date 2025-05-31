@@ -110,15 +110,39 @@ class AuthService {
       formData.append('resume', applicationData.resume);
     }
 
-    // Make request with FormData (don't set Content-Type, let browser set it)
-    const data = await this.makeRequest('/tutor/apply/', {
+    // Make request WITHOUT authentication for tutor application
+    const url = `${API_BASE_URL}/tutor/apply/`;
+    const response = await fetch(url, {
       method: 'POST',
       body: formData,
-      headers: {
-        // Remove Content-Type header to let browser set it automatically for multipart/form-data
-        // The browser will add the boundary parameter automatically
-      },
+      // Explicitly don't add Authorization header - this endpoint doesn't require auth
     });
+
+    // Handle response
+    let data;
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      data = await response.json();
+    } else {
+      data = { message: await response.text() };
+    }
+
+    if (!response.ok) {
+      // Handle validation errors
+      if (response.status === 400 && data && typeof data === 'object') {
+        const errorMessages = [];
+        for (const [field, messages] of Object.entries(data)) {
+          if (Array.isArray(messages)) {
+            errorMessages.push(...messages);
+          } else if (typeof messages === 'string') {
+            errorMessages.push(messages);
+          }
+        }
+        throw new Error(errorMessages.join('. ') || 'Validation failed');
+      }
+      
+      throw new Error(data.detail || data.message || data.error || 'Request failed');
+    }
 
     return data;
   }
@@ -159,7 +183,82 @@ class AuthService {
 
   // Get current user profile
   async getCurrentUser() {
-    return await this.makeRequest('/profile/');
+    try {
+      const data = await this.makeRequest('/profile/');
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Alias for getCurrentUser for consistency
+  async getUserProfile() {
+    try {
+      const data = await this.makeRequest('/profile/');
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Tutor password setup functions
+  async verifyPasswordSetupToken(token) {
+    try {
+      const data = await this.makeRequest(`/tutor/setup-password/${token}/`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async setupTutorPassword(token, passwordData) {
+    try {
+      // Make direct fetch call without authentication headers
+      const url = `${API_BASE_URL}/tutor/setup-password/${token}/`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(passwordData),
+      });
+
+      // Handle response
+      let data;
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        data = { message: await response.text() };
+      }
+
+      if (!response.ok) {
+        // Handle validation errors
+        if (response.status === 400 && data && typeof data === 'object') {
+          const errorMessages = [];
+          for (const [field, messages] of Object.entries(data)) {
+            if (Array.isArray(messages)) {
+              errorMessages.push(...messages);
+            } else if (typeof messages === 'string') {
+              errorMessages.push(messages);
+            }
+          }
+          throw new Error(errorMessages.join('. ') || 'Validation failed');
+        }
+        
+        throw new Error(data.detail || data.message || data.error || 'Request failed');
+      }
+      
+      if (data.tokens) {
+        // Store tokens and update auth state
+        this.setTokens(data.tokens.access, data.tokens.refresh);
+      }
+      
+      return { success: true, data };
+    } catch (error) {
+      console.error('Password setup error:', error);
+      return { success: false, error: error.message };
+    }
   }
 
   // Check if user is authenticated
@@ -244,4 +343,18 @@ class AuthService {
 
 // Create and export a singleton instance
 const authService = new AuthService();
-export default authService; 
+export default authService;
+
+// Export individual functions for direct import
+export const registerStudent = (userData) => authService.registerStudent(userData);
+export const submitTutorApplication = (applicationData) => authService.submitTutorApplication(applicationData);
+export const login = (credentials) => authService.login(credentials);
+export const logout = () => authService.logout();
+export const getCurrentUser = () => authService.getCurrentUser();
+export const getUserProfile = () => authService.getUserProfile();
+export const checkAuthStatus = () => authService.checkAuthStatus();
+export const verifyPasswordSetupToken = (token) => authService.verifyPasswordSetupToken(token);
+export const setupTutorPassword = (token, passwordData) => authService.setupTutorPassword(token, passwordData);
+export const refreshToken = () => authService.refreshToken();
+export const isAuthenticated = () => authService.isAuthenticated();
+export const getUserInfo = () => authService.getUserInfo(); 

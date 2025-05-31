@@ -23,6 +23,7 @@ import ContactusPage from './pages/js/contact-us';
 import AccountSettingsPage from './pages/js/dashboard/tutor/account-settings';
 import TutorDocumentsPage from './pages/js/dashboard/tutor/documents';
 import TutorPaymentDetailsPage from './pages/js/dashboard/tutor/payment-details';
+import TutorPasswordSetup from './components/TutorPasswordSetup';
 
 const App = () => {
   return (
@@ -47,6 +48,7 @@ const App = () => {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/contact-us" element={<ContactusPage />} />
+            <Route path="/tutor/setup-password/:token" element={<TutorPasswordSetup />} />
             <Route path="/tutor/account-settings" element={<AccountSettingsPage />} />
             <Route path="/tutor/documents" element={<TutorDocumentsPage />} />
             <Route path="/tutor/payment-details" element={<TutorPaymentDetailsPage />} />
