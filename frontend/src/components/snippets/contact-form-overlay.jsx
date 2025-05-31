@@ -51,9 +51,9 @@ const ContactFormOverlay = ({ onClose }) => {
       <div className="snippet-contact-us-modal">
         <div className="container">
           <div className="row">
-            <div className="col-md-6 d-none d-md-block snippet-contact-us-image-container">
+            <div className="col-md-6 d-none d-md-flex justify-content-center align-items-center snippet-contact-us-image-container">
               <div className="snippet-contact-us-heading">
-                <h1>Form overlay heading</h1>
+                <h1>Let Us Know What You’re Looking For  We’ll Handle the Rest</h1>
               </div>
             </div>
             <div className="col-md-6 col-sm-12 snippet-contact-us-form-container">
