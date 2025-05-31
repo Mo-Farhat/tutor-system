@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import authService from '../../services/authService';
 import "../../css/joinus/joinus-form.css";
 
 function JoinusForm({ isOpen, onClose }) {
@@ -38,6 +39,7 @@ function JoinusForm({ isOpen, onClose }) {
 
   const [errors, setErrors] = useState({});
   const [showTerminationMessage, setShowTerminationMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // State options for dropdown
   const australianStates = [
@@ -201,33 +203,63 @@ function JoinusForm({ isOpen, onClose }) {
     return isValid;
   };
 
-  // Handle next button click
+  // Handle next button
   const handleNext = () => {
-    // Skip validation and allow proceeding to next step
-    setCurrentStep(currentStep + 1);
-    
-    // Clear any termination messages if they exist
-    setShowTerminationMessage("");
-    
-    // Clear any validation errors
-    setErrors({});
+    if (validateStep(currentStep)) {
+      setCurrentStep(currentStep + 1);
+    }
   };
 
-  // Handle previous button click
+  // Handle previous button
   const handlePrevious = () => {
     setCurrentStep(currentStep - 1);
-    setShowTerminationMessage("");
   };
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (validateStep(currentStep)) {
-      // Here you would typically send the form data to your backend
-      console.log("Form submitted:", formData);
-      alert("Thank you for expressing interest in joining our tutoring team at Strive Academics! We will review your application and contact you regarding the next steps.");
+    if (!validateStep(currentStep)) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await authService.submitTutorApplication(formData);
+      
+      // Show success message
+      alert(`${response.message}\n\nApplication ID: ${response.application_id}\nStatus: ${response.status}`);
+      
+      // Reset form and close modal
+      setFormData({
+        fullName: "",
+        phone: "",
+        email: "",
+        currentStudy: "",
+        year12State: "",
+        year12CompletionYear: "",
+        currentState: "",
+        atar: "",
+        canCommit3Hours: "yes",
+        canCommit1Year: "yes",
+        canTutorMostWeeks: "yes",
+        canTutorGroups: "yes",
+        subjectsToTutor: "",
+        hasWorkingWithChildrenCheck: "no",
+        motivation: "",
+        videoSubmission: null,
+        resume: null
+      });
+      setCurrentStep(1);
+      setErrors({});
       onClose();
+      
+    } catch (error) {
+      console.error('Application submission failed:', error);
+      alert(`Application submission failed: ${error.message}`);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -678,6 +710,7 @@ function JoinusForm({ isOpen, onClose }) {
                 type="button"
                 className="btn btn-secondary"
                 onClick={handlePrevious}
+                disabled={isSubmitting}
               >
                 Previous
               </button>
@@ -688,6 +721,7 @@ function JoinusForm({ isOpen, onClose }) {
                 type="button"
                 className="btn btn-primary"
                 onClick={handleNext}
+                disabled={isSubmitting}
               >
                 Next
               </button>
@@ -695,8 +729,16 @@ function JoinusForm({ isOpen, onClose }) {
               <button
                 type="submit"
                 className="btn btn-success"
+                disabled={isSubmitting}
               >
-                Submit Application
+                {isSubmitting ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Submitting Application...
+                  </>
+                ) : (
+                  'Submit Application'
+                )}
               </button>
             )}
           </div>

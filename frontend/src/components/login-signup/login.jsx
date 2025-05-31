@@ -5,7 +5,7 @@ import '../../css/login-signup/login.css';
 
 function Login() {
     const [formData, setFormData] = useState({
-        username: '',
+        email_or_phone: '',
         password: ''
     });
     const [rememberMe, setRememberMe] = useState(false);
@@ -41,8 +41,17 @@ function Login() {
     const validateForm = () => {
         const newErrors = {};
 
-        if (!formData.username.trim()) {
-            newErrors.username = 'Username is required';
+        if (!formData.email_or_phone.trim()) {
+            newErrors.email_or_phone = 'Email or phone number is required';
+        } else {
+            const value = formData.email_or_phone.trim();
+            // Check if it's a valid email or phone number
+            const isEmail = /\S+@\S+\.\S+/.test(value);
+            const isPhone = /^\+?[\d\s-()]+$/.test(value);
+            
+            if (!isEmail && !isPhone) {
+                newErrors.email_or_phone = 'Please enter a valid email address or phone number';
+            }
         }
 
         if (!formData.password) {
@@ -63,10 +72,21 @@ function Login() {
         setIsSubmitting(true);
 
         try {
-            const response = await login({
-                username: formData.username.trim(),
+            // Determine if input is email or phone and format accordingly
+            const loginData = {
                 password: formData.password
-            });
+            };
+
+            const value = formData.email_or_phone.trim();
+            const isEmail = /\S+@\S+\.\S+/.test(value);
+            
+            if (isEmail) {
+                loginData.email = value;
+            } else {
+                loginData.phone_number = value;
+            }
+
+            const response = await login(loginData);
 
             // Redirect based on user role
             const userRole = response.user.role;
@@ -115,19 +135,19 @@ function Login() {
                                     <div className="form-floating mb-3">
                                         <input 
                                             type="text" 
-                                            className={`form-control login-input ${errors.username ? 'is-invalid' : ''}`}
-                                            id="usernameInput" 
-                                            placeholder="Username" 
-                                            value={formData.username}
+                                            className={`form-control login-input ${errors.email_or_phone ? 'is-invalid' : ''}`}
+                                            id="email_or_phoneInput" 
+                                            placeholder="Email or Phone Number" 
+                                            value={formData.email_or_phone}
                                             onChange={handleInputChange}
                                             disabled={isSubmitting || isLoading}
                                         />
-                                        <label htmlFor="usernameInput">
-                                            <i className="bi bi-person login-input-icon"></i> Username
+                                        <label htmlFor="email_or_phoneInput">
+                                            <i className="bi bi-envelope login-input-icon"></i> Email or Phone Number
                                         </label>
-                                        {errors.username && (
+                                        {errors.email_or_phone && (
                                             <div className="invalid-feedback">
-                                                {errors.username}
+                                                {errors.email_or_phone}
                                             </div>
                                         )}
                                     </div>

@@ -5,12 +5,19 @@ class AuthService {
   async makeRequest(endpoint, options = {}) {
     const url = `${API_BASE_URL}${endpoint}`;
     const config = {
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
+      headers: {},
       ...options,
     };
+
+    // Only set Content-Type for non-FormData requests
+    if (!(options.body instanceof FormData)) {
+      config.headers['Content-Type'] = 'application/json';
+    }
+
+    // Add any additional headers
+    if (options.headers) {
+      Object.assign(config.headers, options.headers);
+    }
 
     // Add auth token if available
     const token = this.getAccessToken();
@@ -68,6 +75,50 @@ class AuthService {
     if (data.tokens) {
       this.setTokens(data.tokens.access, data.tokens.refresh);
     }
+
+    return data;
+  }
+
+  // Submit tutor application
+  async submitTutorApplication(applicationData) {
+    // Create FormData for file uploads
+    const formData = new FormData();
+    
+    // Add all text fields
+    formData.append('fullName', applicationData.fullName);
+    formData.append('phone', applicationData.phone);
+    formData.append('email', applicationData.email);
+    formData.append('currentStudy', applicationData.currentStudy);
+    formData.append('year12State', applicationData.year12State);
+    formData.append('year12CompletionYear', applicationData.year12CompletionYear);
+    formData.append('currentState', applicationData.currentState);
+    formData.append('atar', parseFloat(applicationData.atar));
+    formData.append('canCommit3Hours', applicationData.canCommit3Hours);
+    formData.append('canCommit1Year', applicationData.canCommit1Year);
+    formData.append('canTutorMostWeeks', applicationData.canTutorMostWeeks);
+    formData.append('canTutorGroups', applicationData.canTutorGroups);
+    formData.append('subjectsToTutor', applicationData.subjectsToTutor);
+    formData.append('hasWorkingWithChildrenCheck', applicationData.hasWorkingWithChildrenCheck);
+    formData.append('motivation', applicationData.motivation);
+    
+    // Add files if they exist
+    if (applicationData.videoSubmission) {
+      formData.append('videoSubmission', applicationData.videoSubmission);
+    }
+    
+    if (applicationData.resume) {
+      formData.append('resume', applicationData.resume);
+    }
+
+    // Make request with FormData (don't set Content-Type, let browser set it)
+    const data = await this.makeRequest('/tutor/apply/', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        // Remove Content-Type header to let browser set it automatically for multipart/form-data
+        // The browser will add the boundary parameter automatically
+      },
+    });
 
     return data;
   }
