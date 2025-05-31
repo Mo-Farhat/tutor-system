@@ -1,0 +1,37 @@
+STRIVE ACADEMY
+Application Received - Under Review
+
+Dear {{ first_name }},
+
+Thank you for your interest in joining the Strive Academy tutoring team! We have successfully received your tutor application and wanted to confirm that it's now under review.
+
+APPLICATION DETAILS
+===================
+Application ID: #{{ application_id }}
+Submitted Date: {{ submission_date }}
+Email: {{ email }}
+University: {{ university }}
+ATAR: {{ atar }}
+
+WHAT HAPPENS NEXT?
+==================
+1. Review Process: Our team will carefully review your application, including your video submission and resume.
+
+2. Timeline: You can expect to hear back from us within 5-7 business days.
+
+3. Interview: If your application is successful, we'll invite you for a brief interview to discuss your tutoring goals.
+
+4. Onboarding: Upon approval, we'll guide you through our tutor onboarding process and help you get started.
+
+QUESTIONS OR CONCERNS?
+=====================
+If you have any questions about your application or our process, please don't hesitate to reach out to us at tutors@striveacademy.com or call us at (02) 1234 5678.
+
+We're excited about the possibility of having you join our team of dedicated tutors who are making a real difference in students' academic journeys.
+
+Best regards,
+The Strive Academy Team
+
+---
+© 2024 Strive Academy. All rights reserved.
+www.striveacademy.com | info@striveacademy.com 

@@ -8,6 +8,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
+from django.utils import timezone
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 
 from .models import StudentProfile, TutorProfile, AdminProfile
 from .serializers import (
@@ -16,6 +19,7 @@ from .serializers import (
     PasswordChangeSerializer, TutorApprovalSerializer, UserProfileUpdateSerializer,
     TutorApplicationSerializer
 )
+from .utils import send_tutor_application_confirmation, send_tutor_approval_email, send_tutor_rejection_email
 
 User = get_user_model()
 
@@ -52,11 +56,25 @@ class TutorApplicationView(APIView):
                 # Create ghost account and tutor profile
                 user, tutor_profile = serializer.create_ghost_account(serializer.validated_data)
                 
-                return Response({
+                # Send confirmation email
+                email_sent = send_tutor_application_confirmation(
+                    user, 
+                    tutor_profile, 
+                    serializer.validated_data
+                )
+                
+                response_data = {
                     'message': 'Application submitted successfully! We will review your application and contact you regarding the next steps.',
                     'application_id': tutor_profile.id,
                     'status': 'pending_review'
-                }, status=status.HTTP_201_CREATED)
+                }
+                
+                if email_sent:
+                    response_data['email_confirmation'] = 'Confirmation email sent successfully'
+                else:
+                    response_data['email_confirmation'] = 'Application received but confirmation email failed to send'
+                
+                return Response(response_data, status=status.HTTP_201_CREATED)
                 
             except Exception as e:
                 return Response({
@@ -111,16 +129,19 @@ class UserProfileView(APIView):
         # Add role-specific profile data
         if user.role == 'student':
             profile = getattr(user, 'student_profile', None)
-            if profile:
-                user_data['profile'] = StudentProfileSerializer(profile).data
+            if not profile:
+                profile = StudentProfile.objects.create(user=user)
+            user_data['profile'] = StudentProfileSerializer(profile).data
         elif user.role == 'tutor':
             profile = getattr(user, 'tutor_profile', None)
-            if profile:
-                user_data['profile'] = TutorProfileSerializer(profile).data
+            if not profile:
+                profile = TutorProfile.objects.create(user=user)
+            user_data['profile'] = TutorProfileSerializer(profile).data
         elif user.role == 'admin':
             profile = getattr(user, 'admin_profile', None)
-            if profile:
-                user_data['profile'] = AdminProfileSerializer(profile).data
+            if not profile:
+                profile = AdminProfile.objects.create(user=user)
+            user_data['profile'] = AdminProfileSerializer(profile).data
         
         return Response(user_data, status=status.HTTP_200_OK)
     
@@ -252,17 +273,152 @@ class AdminTutorApprovalView(APIView):
             return Response({'error': 'Admin access required'}, status=status.HTTP_403_FORBIDDEN)
         
         tutor_profile = get_object_or_404(TutorProfile, id=tutor_id)
-        serializer = TutorApprovalSerializer(tutor_profile, data=request.data, partial=True)
+        action = request.data.get('action')  # 'approve' or 'reject'
+        reason = request.data.get('reason', '')  # Optional rejection reason
         
-        if serializer.is_valid():
-            serializer.save()
-            action = 'approved' if serializer.validated_data['is_approved'] else 'rejected'
-            return Response({
-                'message': f'Tutor application {action} successfully',
+        if action == 'approve':
+            # Approve the tutor
+            tutor_profile.is_approved = True
+            tutor_profile.approved_at = timezone.now()
+            tutor_profile.password_setup_completed = False
+            tutor_profile.regenerate_password_token()  # Generate new token
+            tutor_profile.save()
+            
+            # Enable the user account
+            tutor_profile.user.is_active = True
+            tutor_profile.user.save()
+            
+            # Send approval email with setup link
+            email_sent = send_tutor_approval_email(tutor_profile.user, tutor_profile)
+            
+            response_data = {
+                'message': 'Tutor application approved successfully',
                 'tutor': TutorProfileSerializer(tutor_profile).data
-            }, status=status.HTTP_200_OK)
+            }
+            
+            if email_sent:
+                response_data['email_confirmation'] = 'Approval email sent successfully'
+            else:
+                response_data['email_confirmation'] = 'Approval processed but email failed to send'
+            
+            return Response(response_data, status=status.HTTP_200_OK)
+            
+        elif action == 'reject':
+            # Send rejection email
+            email_sent = send_tutor_rejection_email(tutor_profile.user, tutor_profile, reason)
+            
+            # Delete the application (or mark as rejected)
+            tutor_profile.user.delete()  # This will also delete the tutor_profile due to CASCADE
+            
+            response_data = {
+                'message': 'Tutor application rejected successfully'
+            }
+            
+            if email_sent:
+                response_data['email_confirmation'] = 'Rejection email sent successfully'
+            else:
+                response_data['email_confirmation'] = 'Application rejected but email failed to send'
+            
+            return Response(response_data, status=status.HTTP_200_OK)
         
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'error': 'Invalid action. Use "approve" or "reject"'}, status=status.HTTP_400_BAD_REQUEST)
+
+class TutorPasswordSetupView(APIView):
+    """Handle password setup for approved tutors"""
+    permission_classes = [permissions.AllowAny]
+    
+    def get(self, request, token):
+        """Verify token and return tutor info"""
+        try:
+            tutor_profile = TutorProfile.objects.get(
+                password_setup_token=token,
+                is_approved=True,
+                password_setup_completed=False
+            )
+            
+            return Response({
+                'valid': True,
+                'first_name': tutor_profile.user.first_name,
+                'last_name': tutor_profile.user.last_name,
+                'email': tutor_profile.user.email,
+                'university': tutor_profile.university
+            }, status=status.HTTP_200_OK)
+            
+        except TutorProfile.DoesNotExist:
+            return Response({
+                'valid': False,
+                'message': 'Invalid or expired setup link'
+            }, status=status.HTTP_400_BAD_REQUEST)
+    
+    def post(self, request, token):
+        """Set password and complete setup"""
+        try:
+            tutor_profile = TutorProfile.objects.get(
+                password_setup_token=token,
+                is_approved=True,
+                password_setup_completed=False
+            )
+            
+            password = request.data.get('password')
+            password_confirm = request.data.get('password_confirm')
+            
+            # Validate required fields
+            if not password:
+                return Response({
+                    'error': 'Password is required'
+                }, status=status.HTTP_400_BAD_REQUEST)
+                
+            if not password_confirm:
+                return Response({
+                    'error': 'Password confirmation is required'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Basic password length check
+            if len(password) < 8:
+                return Response({
+                    'error': 'Password must be at least 8 characters long'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Check password confirmation
+            if password != password_confirm:
+                return Response({
+                    'error': 'Passwords do not match'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Use Django's password validation
+            try:
+                validate_password(password, tutor_profile.user)
+            except ValidationError as e:
+                return Response({
+                    'error': ' '.join(e.messages)
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Set the password
+            user = tutor_profile.user
+            user.set_password(password)
+            user.is_active = True
+            user.save()
+            
+            # Mark password setup as completed
+            tutor_profile.password_setup_completed = True
+            tutor_profile.save()
+            
+            # Return success message without tokens - user will need to login
+            return Response({
+                'message': 'Password set successfully! Please log in with your new password.',
+                'email': user.email,
+                'redirect_to_login': True
+            }, status=status.HTTP_200_OK)
+            
+        except TutorProfile.DoesNotExist:
+            return Response({
+                'error': 'Invalid or expired setup link'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({
+                'error': f'An error occurred: {str(e)}'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class AdminUserManagementView(APIView):
     """Admin view to manage all users"""

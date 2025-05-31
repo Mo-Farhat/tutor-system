@@ -1,0 +1,41 @@
+STRIVE ACADEMY
+🎉 Application Approved - Complete Your Account Setup
+
+Dear {{ first_name }} {{ last_name }},
+
+CONGRATULATIONS! Your tutor application has been approved!
+
+We're thrilled to welcome you to the Strive Academy team. After careful review of your application, we believe you'll be an excellent addition to our community of dedicated tutors.
+
+APPROVAL DETAILS
+================
+Approved Date: {{ approval_date }}
+Email: {{ email }}
+University: {{ university }}
+
+COMPLETE YOUR ACCOUNT SETUP
+===========================
+To get started, please set up your account password by visiting the link below:
+
+{{ setup_link }}
+
+This link is secure and will expire in 7 days for your protection.
+
+WHAT HAPPENS NEXT?
+==================
+1. Set Your Password: Visit the link above to create your secure password.
+
+2. Complete Your Profile: You'll be redirected to your dashboard to review and complete your tutor profile.
+
+3. Start Tutoring: Once your profile is complete, you can begin accepting students and start your tutoring journey!
+
+4. Get Support: Our team is here to help you every step of the way.
+
+We're excited to have you join our mission of empowering students to achieve their academic goals. Welcome to the Strive Academy family!
+
+Best regards,
+The Strive Academy Team
+
+---
+© 2024 Strive Academy. All rights reserved.
+www.striveacademy.com | tutors@striveacademy.com 

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Received - Strive Academy</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .email-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 300;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .welcome-message {
+            font-size: 18px;
+            color: #2c3e50;
+            margin-bottom: 25px;
+        }
+        .application-details {
+            background-color: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 4px;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 5px 0;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #34495e;
+        }
+        .detail-value {
+            color: #7f8c8d;
+        }
+        .next-steps {
+            background-color: #e8f5e8;
+            border: 1px solid #d4edda;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        .next-steps h3 {
+            color: #155724;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .next-steps ul {
+            color: #155724;
+            margin: 0;
+            padding-left: 20px;
+        }
+        .next-steps li {
+            margin-bottom: 8px;
+        }
+        .contact-info {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        .footer {
+            background-color: #34495e;
+            color: #ecf0f1;
+            padding: 25px 30px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .footer a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .content {
+                padding: 30px 20px;
+            }
+            .detail-row {
+                flex-direction: column;
+            }
+            .detail-value {
+                margin-top: 5px;
+                font-weight: 500;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="logo">STRIVE ACADEMY</div>
+            <h1>Application Received</h1>
+        </div>
+        
+        <div class="content">
+            <div class="welcome-message">
+                Dear {{ first_name }},
+            </div>
+            
+            <p>Thank you for your interest in joining the Strive Academy tutoring team! We have successfully received your tutor application and wanted to confirm that it's now under review.</p>
+            
+            <div class="application-details">
+                <h3 style="margin-top: 0; color: #2c3e50;">Application Details</h3>
+                <div class="detail-row">
+                    <span class="detail-label">Application ID:</span>
+                    <span class="detail-value">#{{ application_id }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Submitted Date:</span>
+                    <span class="detail-value">{{ submission_date }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Email:</span>
+                    <span class="detail-value">{{ email }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">University:</span>
+                    <span class="detail-value">{{ university }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">ATAR:</span>
+                    <span class="detail-value">{{ atar }}</span>
+                </div>
+            </div>
+            
+            <div class="next-steps">
+                <h3>📋 What Happens Next?</h3>
+                <ul>
+                    <li><strong>Review Process:</strong> Our team will carefully review your application, including your video submission and resume.</li>
+                    <li><strong>Timeline:</strong> You can expect to hear back from us within 5-7 business days.</li>
+                    <li><strong>Interview:</strong> If your application is successful, we'll invite you for a brief interview to discuss your tutoring goals.</li>
+                    <li><strong>Onboarding:</strong> Upon approval, we'll guide you through our tutor onboarding process and help you get started.</li>
+                </ul>
+            </div>
+            
+            <div class="contact-info">
+                <h3 style="margin-top: 0; color: #856404;">📞 Questions or Concerns?</h3>
+                <p style="margin-bottom: 0; color: #856404;">
+                    If you have any questions about your application or our process, please don't hesitate to reach out to us at 
+                    <strong>tutors@striveacademy.com</strong> or call us at <strong>(02) 1234 5678</strong>.
+                </p>
+            </div>
+            
+            <p>We're excited about the possibility of having you join our team of dedicated tutors who are making a real difference in students' academic journeys.</p>
+            
+            <p style="margin-bottom: 0;">
+                Best regards,<br>
+                <strong>The Strive Academy Team</strong>
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p style="margin: 0;">
+                © 2024 Strive Academy. All rights reserved.<br>
+                <a href="https://striveacademy.com">www.striveacademy.com</a> | 
+                <a href="mailto:info@striveacademy.com">info@striveacademy.com</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html> 

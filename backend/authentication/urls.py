@@ -15,6 +15,9 @@ urlpatterns = [
     # Tutor application
     path('tutor/apply/', views.TutorApplicationView.as_view(), name='tutor_apply'),
     
+    # Tutor password setup
+    path('tutor/setup-password/<uuid:token>/', views.TutorPasswordSetupView.as_view(), name='tutor_password_setup'),
+    
     # User profile management
     path('profile/', views.UserProfileView.as_view(), name='user_profile'),
     path('change-password/', views.PasswordChangeView.as_view(), name='change_password'),

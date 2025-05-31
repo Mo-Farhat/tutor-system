@@ -104,8 +104,6 @@ class TutorApplicationSerializer(serializers.Serializer):
             is_verified=False
         )
         
-        # Don't set a password initially - will be set when approved
-        
         # Process subjects list
         subjects_list = []
         if validated_data['subjectsToTutor']:
@@ -116,40 +114,26 @@ class TutorApplicationSerializer(serializers.Serializer):
         # Create tutor profile with application data
         tutor_profile = TutorProfile.objects.create(
             user=user,
-            bio=validated_data['motivation'],
-            university=validated_data['currentStudy'],
+            bio=validated_data.get('motivation', ''),
+            university=validated_data.get('currentStudy', ''),
+            degree='',  # Can be filled later
+            atar=float(validated_data.get('atar', 0)),
             subjects_taught=subjects_list,
-            years_experience=0,  # New applicant
-            hourly_rate=0,  # To be set later
-            availability='flexible',  # Default, can be updated later
+            experience_years=0,  # New applicant
+            hourly_rate=None,  # To be set later
+            availability={},  # Default, can be updated later
             is_approved=False,  # Pending approval
+            motivation=validated_data.get('motivation', ''),
+            preferred_locations=[validated_data.get('currentState', '')] if validated_data.get('currentState') else []
         )
         
         # Save uploaded files if they exist
         if validated_data.get('resume'):
-            tutor_profile.cv_document = validated_data['resume']
+            tutor_profile.resume = validated_data['resume']
         
         if validated_data.get('videoSubmission'):
-            # Store video in the dedicated video_submission field
             tutor_profile.video_submission = validated_data['videoSubmission']
         
-        # Store additional application data in a way that doesn't conflict with model
-        # We could create a separate ApplicationData model later, but for now 
-        # we'll store key info in the bio field or create custom fields
-        additional_info = {
-            'atar': float(validated_data['atar']),
-            'year12_state': validated_data['year12State'],
-            'completion_year': validated_data['year12CompletionYear'],
-            'current_state': validated_data['currentState'],
-            'can_commit_3_hours': validated_data['canCommit3Hours'] == 'yes',
-            'can_commit_1_year': validated_data['canCommit1Year'] == 'yes',
-            'can_tutor_most_weeks': validated_data['canTutorMostWeeks'] == 'yes',
-            'can_tutor_groups': validated_data['canTutorGroups'] == 'yes',
-            'has_working_with_children_check': validated_data['hasWorkingWithChildrenCheck'] == 'yes',
-        }
-        
-        # Update bio to include application details
-        tutor_profile.bio = f"MOTIVATION: {validated_data['motivation']}\n\nAPPLICATION DATA: ATAR {validated_data['atar']}, {validated_data['year12State']} {validated_data['year12CompletionYear']}, Currently in {validated_data['currentState']}"
         tutor_profile.save()
         
         return user, tutor_profile

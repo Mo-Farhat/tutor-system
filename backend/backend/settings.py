@@ -64,7 +64,7 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -194,3 +194,18 @@ CORS_ALLOW_CREDENTIALS = True
 # Development settings for CORS (be more restrictive in production)
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
+
+# Frontend URL for email links
+FRONTEND_URL = 'http://localhost:3000'
+
+# Email Configuration (Gmail SMTP)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'academicsstrive@gmail.com'  # Replace with your Gmail address
+EMAIL_HOST_PASSWORD = 'kbgvmfnjwixguyzu'  # Replace with Gmail App Password
+DEFAULT_FROM_EMAIL = 'Strive Academy <academicsstrive@gmail.com>'
+
+# Email settings
+EMAIL_TIMEOUT = 30

@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
+import uuid
 
 class User(AbstractUser):
     ROLE_CHOICES = [
@@ -32,44 +34,48 @@ class StudentProfile(models.Model):
         return f"Student: {self.user.username}"
 
 class TutorProfile(models.Model):
-    QUALIFICATION_CHOICES = [
-        ('undergraduate', 'Undergraduate'),
-        ('graduate', 'Graduate'),
-        ('postgraduate', 'Postgraduate'),
-        ('phd', 'PhD'),
-        ('professional', 'Professional Certification'),
-    ]
-    
-    AVAILABILITY_CHOICES = [
-        ('part_time', 'Part Time'),
-        ('full_time', 'Full Time'),
-        ('weekends', 'Weekends Only'),
-        ('flexible', 'Flexible'),
-    ]
-    
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='tutor_profile')
-    bio = models.TextField(blank=True, null=True)
-    qualifications = models.CharField(max_length=20, choices=QUALIFICATION_CHOICES)
-    subjects_taught = models.JSONField(default=list)
-    years_experience = models.PositiveIntegerField(default=0)
-    hourly_rate = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
-    availability = models.CharField(max_length=15, choices=AVAILABILITY_CHOICES)
-    university = models.CharField(max_length=100, blank=True, null=True)
-    degree = models.CharField(max_length=100, blank=True, null=True)
+    bio = models.TextField(blank=True, default='')
+    qualifications = models.JSONField(default=list, blank=True)  # List of qualifications
+    subjects_taught = models.JSONField(default=list, blank=True)  # List of subjects
+    experience_years = models.IntegerField(default=0, validators=[MinValueValidator(0)])
+    hourly_rate = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+    availability = models.JSONField(default=dict, blank=True)  # Schedule availability
     is_approved = models.BooleanField(default=False)
-    rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
-    total_sessions = models.PositiveIntegerField(default=0)
+    rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.0, validators=[MinValueValidator(0), MaxValueValidator(5)])
+    total_reviews = models.IntegerField(default=0)
+    profile_picture = models.ImageField(upload_to='tutor_profiles/', null=True, blank=True)
     
-    # Documents for verification
-    cv_document = models.FileField(upload_to='tutor_documents/cv/', blank=True, null=True)
-    qualification_documents = models.FileField(upload_to='tutor_documents/qualifications/', blank=True, null=True)
-    id_document = models.FileField(upload_to='tutor_documents/id/', blank=True, null=True)
+    # Application-specific fields
+    university = models.CharField(max_length=200, blank=True, default='')
+    degree = models.CharField(max_length=200, blank=True, default='')
+    graduation_year = models.IntegerField(null=True, blank=True)
+    atar = models.FloatField(null=True, blank=True)
     
-    # Application-specific files
-    video_submission = models.FileField(upload_to='tutor_documents/videos/', blank=True, null=True)
+    # Document uploads
+    resume = models.FileField(upload_to='tutor_documents/cv/', null=True, blank=True)
+    video_submission = models.FileField(upload_to='tutor_documents/videos/', null=True, blank=True)
     
+    # Additional application data
+    motivation = models.TextField(blank=True, default='')
+    preferred_locations = models.JSONField(default=list, blank=True)
+    
+    # Password setup for approved tutors
+    password_setup_token = models.UUIDField(default=uuid.uuid4, unique=True)
+    password_setup_completed = models.BooleanField(default=False)
+    approved_at = models.DateTimeField(null=True, blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     def __str__(self):
-        return f"Tutor: {self.user.username}"
+        return f"{self.user.get_full_name()} - Tutor"
+    
+    def regenerate_password_token(self):
+        """Generate a new password setup token"""
+        self.password_setup_token = uuid.uuid4()
+        self.save()
+        return self.password_setup_token
 
 class AdminProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='admin_profile')
