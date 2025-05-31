@@ -54,6 +54,11 @@
     border-radius: 1rem !important;
     padding: 1rem 1.5rem !important;
     font-weight: 600 !important;
+    transition: transform 0.3s ease-in-out !important;
+  }
+
+  .hero-btns:hover {
+    transform: scale(1.05);
   }
   
   #hero-ft-btn {
@@ -63,7 +68,7 @@
   
   #hero-lau-btn {
     color: white;
-    border: 3px solid #3A75C4;
+    background-color: #3A75C4;
   }
   
   #hero-lau-btn:hover {
