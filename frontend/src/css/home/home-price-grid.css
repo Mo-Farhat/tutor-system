@@ -1,0 +1,134 @@
+#home-pricing-plans {
+  padding: 3rem 0;
+  align-items: center;
+  gap: 2rem;
+  flex-direction: column;
+}
+
+.homeprice-grid-title {
+  height: fit-content;
+  font-size: 3rem;
+  justify-content: center;
+  color: #0D2371 !important;
+  font-weight: 700;
+}
+
+.pricing-plans-sub-h {
+  text-align: center;
+  justify-content: center;
+}
+
+.homeprice-grid-card {
+  border-radius: 2rem !important;
+  /* border: 2px solid transparent !important; */
+  transition: 0.3s ease-in-out;
+}
+
+.homeprice-grid-card:hover {
+  transform: translateY(-15px);
+}
+
+
+.homeprice-grid-gold {
+  background-color: #f7e2ab !important;
+  border-color: #CCAC00 !important;
+}
+
+.homeprice-grid-gold .homeprice-grid-price {
+  color: #CCAC00 !important;
+  font-weight: 600;
+  padding: 1rem ;
+  border: 2px solid #CCAC00;
+  border-radius: 1rem;
+  background-color: white;
+}
+
+.homeprice-grid-platinum {
+  background-color: #B0C0CA !important;
+  border-color: #3A4750 !important;
+}
+
+.homeprice-grid-platinum .homeprice-grid-price {
+  color: #3A4750 !important;
+  font-weight: 600;
+  padding: 1rem;
+  border: 2px solid #3A4750;
+  border-radius: 1rem;
+  background-color: white;
+}
+
+.homeprice-grid-elite {
+  background-color: #C7D3FF !important;
+  border-color: #0D2371 !important;
+}
+
+.homeprice-grid-elite .homeprice-grid-price {
+  color: #0D2371 !important;
+  font-weight: 600;
+  padding: 1rem;
+  border: 2px solid #0D2371;
+  border-radius: 1rem;
+  background-color: white;
+}
+
+.home-pricing-plans .card-text {
+  font-weight: 800 !important;
+}
+
+.homeprice-grid-card .card-title {
+  font-weight: 600;
+}
+
+.homeprice-grid-card .card-title {
+  font-weight: 600;
+}
+
+.homeprice-grid-card .card-text {
+  text-align: start;
+}
+
+.homeprice-grid-card .btn-primary {
+  font-size: 1.25rem;
+  font-weight: 600;
+  border-radius: 1rem;
+  padding: 1rem 1.5rem;
+}
+
+.homeprice-grid-gold .btn-primary {
+  background-color: white;
+  border: 2px solid #CCAC00;
+  color: #CCAC00;
+}
+
+.homeprice-grid-gold .btn-primary:hover {
+  background-color: #CCAC00;
+  border: 2px solid #CCAC00;
+  color: white;
+  transform: scale(1.05)
+}
+
+.homeprice-grid-platinum .btn-primary {
+  background-color: white;
+  border: 2px solid #3A4750;
+  color: #3A4750;
+}
+
+.homeprice-grid-platinum .btn-primary:hover {
+  background-color: #3A4750;
+  border: 2px solid #3A4750;
+  color: white;
+  transform: scale(1.05)
+}
+
+.homeprice-grid-elite .btn-primary {
+  background-color: white;
+  border: 2px solid #0D2371;
+  color: #0D2371;
+}
+
+.homeprice-grid-elite .btn-primary:hover {
+  background-color: #0D2371;
+  border: 2px solid #0D2371;
+  color: white;
+  transform: scale(1.05)
+}

@@ -1,0 +1,61 @@
+.reviews-header-container {
+  height: auto;
+  background-color: transparent;
+  text-align: center;
+  padding: 12rem 0 2rem 0;
+  /* background-image: url('../../../public/Images/Home/Hero/hero-bg.png'); */
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  justify-content: center;
+  margin-bottom: 2rem;
+  background-image: url('/public/Images/site-images/com/site-top-new.png');
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position-y: 10%;
+}
+
+.reviews-header-sec {
+  max-width: 2000px;
+}
+
+.reviews-header-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+.reviews-heading {
+  color: #0D2371;
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 3rem;
+  margin-top: 20rem;
+}
+
+
+.reviews-content {
+  color: #888;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  font-size: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .reviews-heading {
+    font-size: 2.5rem;
+  }
+  
+  .reviews-slogan {
+    font-size: 1.25rem;
+  }
+  
+  .review-platforms {
+    flex-direction: column;
+    gap: 2rem;
+  }
+} 

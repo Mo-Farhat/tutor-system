@@ -1,0 +1,346 @@
+.tutor-contact-wrapper {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    padding: 2rem 0;
+    background-image: url('/public/Images/site-images/com/site-top-new.png');
+    background-repeat: no-repeat;
+    background-size: 100% ;
+}
+
+.tutor-contact-card {
+    border: none;
+    border-radius: 2rem;
+    background-color: #ffffff;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.tutor-contact-card-body {
+    padding: 2rem;
+}
+
+.tutor-contact-title {
+    color: #2c3e50;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+}
+
+/* Tutor Profile Styles */
+.tutor-contact-profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.tutor-contact-profile-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    border: 3px solid #4a90e2;
+    padding: 3px;
+}
+
+.tutor-contact-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.tutor-contact-name {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0.5rem 0;
+}
+
+.tutor-contact-stats {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-top: 0.5rem;
+}
+
+.tutor-contact-atar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.tutor-contact-score {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #DC2626;
+    line-height: 1;
+}
+
+.tutor-contact-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+
+.tutor-contact-tier {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.tutor-contact-badge {
+    background-color: #FFF9E6;
+    color: #B8860B;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.tutor-contact-price {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.tutor-contact-subtitle {
+    color: #6c757d;
+    font-size: 1.1rem;
+}
+
+.tutor-contact-form-group {
+    margin-bottom: 1.5rem;
+}
+
+.tutor-contact-input,
+.tutor-contact-select,
+.tutor-contact-textarea {
+    width: 100%;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 0.75rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.tutor-contact-input:focus,
+.tutor-contact-select:focus,
+.tutor-contact-textarea:focus {
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
+    outline: none;
+}
+
+.tutor-contact-input[type="password"] {
+    letter-spacing: 0.1em;
+    font-family: monospace;
+}
+
+/* Availability Table Styles */
+.tutor-contact-availability-section {
+    background-color: #ffffff;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.tutor-contact-availability-table {
+    margin-bottom: 0.5rem;
+    overflow-x: auto;
+}
+
+.tutor-contact-availability-table table {
+    margin-bottom: 0;
+}
+
+.tutor-contact-availability-table th,
+.tutor-contact-availability-table td {
+    text-align: center;
+    vertical-align: middle;
+    padding: 0.75rem;
+    border-color: #e9ecef;
+}
+
+.tutor-contact-availability-table th:first-child,
+.tutor-contact-availability-table td:first-child {
+    text-align: left;
+    font-weight: 600;
+    min-width: 100px;
+}
+
+.tutor-contact-time-label {
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.tutor-contact-checkbox {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin: 0;
+    cursor: pointer;
+    border: 2px solid #4a90e2;
+    border-radius: 4px;
+}
+
+.tutor-contact-checkbox:checked {
+    background-color: #4a90e2;
+    border-color: #4a90e2;
+}
+
+.tutor-contact-help-text {
+    display: block;
+    color: #6c757d;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.tutor-contact-radio-group {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.tutor-contact-radio {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tutor-contact-radio-input {
+    margin: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.tutor-contact-radio-input:checked {
+    background-color: #4a90e2;
+    border-color: #4a90e2;
+}
+
+.tutor-contact-radio-label {
+    margin: 0;
+    font-size: 1rem;
+    color: #2c3e50;
+}
+
+.tutor-contact-button-wrapper {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.tutor-contact-submit-btn {
+    background-color: #1a3dad;
+    color: white;
+    border: none;
+    border-radius: 1rem;
+    padding: 1rem 2rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.tutor-contact-submit-btn:hover {
+    background-color: #357abd;
+    transform: translateY(-2px);
+}
+
+.tutor-contact-submit-btn:active {
+    transform: translateY(0);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .tutor-contact-title {
+        font-size: 2rem;
+    }
+
+    .tutor-contact-card-body {
+        padding: 1.5rem !important;
+    }
+
+    .tutor-contact-availability-table {
+        margin: 0 -1rem;
+    }
+
+    .tutor-contact-availability-table table {
+        min-width: 600px;
+    }
+}
+
+@media (max-width: 576px) {
+    .tutor-contact-title {
+        font-size: 1.75rem;
+    }
+
+    .tutor-contact-radio-group {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .tutor-contact-availability-table {
+        margin: 0 -1.5rem;
+    }
+}
+
+/* Terms and Conditions Styles */
+.tutor-contact-terms {
+    margin: 1.5rem 0;
+}
+
+.tutor-contact-checkbox-wrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.tutor-contact-terms-checkbox {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: 0.25rem;
+    cursor: pointer;
+    border: 2px solid #4a90e2;
+    border-radius: 4px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: white;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.tutor-contact-terms-checkbox:checked {
+    background-color: #1a3dad;
+    border-color: #1a3dad;
+}
+
+.tutor-contact-terms-checkbox:checked::after {
+    content: '✓';
+    position: absolute;
+    color: white;
+    font-size: 0.875rem;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.tutor-contact-terms-label {
+    font-size: 0.95rem;
+    color: #2c3e50;
+    cursor: pointer;
+    user-select: none;
+}
+
+.tutor-contact-terms-link {
+    color: #1a3dad;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.tutor-contact-terms-link:hover {
+    color: #4a90e2;
+    text-decoration: underline;
+}

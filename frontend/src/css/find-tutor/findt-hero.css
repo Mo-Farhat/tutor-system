@@ -1,0 +1,20 @@
+#findt-hero {
+    justify-content: center;
+    background-color: #0D2371;
+    background-image: url('/public/Images/site-images/com/site-top-sec.png');
+    background-repeat: no-repeat;
+    background-size: 100%;
+    background-position-y: 5rem;
+}
+
+
+.findt-hero-sec {
+    justify-content: end;
+    margin: 10rem 0 !important;
+    max-width: 2000px !important;
+}
+
+.findt-hero-main-h {
+    color: #FFFFFF;
+    font-size: 2.5rem !important;
+}

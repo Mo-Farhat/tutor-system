@@ -1,0 +1,146 @@
+/* Basic styles for the bootom-footer */
+.bootom-footer-wrapper {
+  background-color: #0C1759 !important;
+  color: white;
+}
+
+/* Top Searches Section */
+.bootom-footer-top-searches {
+  background-color: #f8f9fa;
+  padding: 3rem 0;
+}
+
+.bootom-footer-top-searches h2 {
+  color: #0C1759;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+}
+
+.bootom-footer-top-searches h3 {
+  color: #FF3A3A;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.bootom-footer-search-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.bootom-footer-search-item {
+  margin-bottom: 0.5rem;
+}
+
+.bootom-footer-search-link {
+  color: #2c3e50;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.bootom-footer-search-link:hover {
+  color: #3498db;
+}
+
+/* Logo */
+.bootom-footer-logo {
+    width: 160px;
+    height: auto;
+    transform: scale(1.6);
+}
+
+/* Links */
+.bootom-footer-link {
+  color: white;
+  text-decoration: none;
+}
+
+.bootom-footer-link:hover {
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+}
+
+.bootom-footer-social {
+    display: flex;
+    align-items: center;
+}
+
+/* Social icons */
+.bootom-footer-social-link {
+  background-color: white;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bootom-footer-social-link svg {
+  color: #0C1759;
+}
+
+/* Buttons */
+.bootom-footer-btn-become,
+.bootom-footer-btn-find {
+  min-width: 160px !important;
+  padding: .5rem 1rem !important;
+  font-size: 1rem !important;
+  text-align: center;
+  border-radius: 1rem !important;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  font-weight: 700;
+}
+
+.bootom-footer-btn-become {
+  color: #85C5FF !important;
+  border: 3px solid #85C5FF !important;
+}
+
+.bootom-footer-btn-become:hover {
+  background-color: #85C5FF !important;
+  color: white !important;
+}
+
+.bootom-footer-btn-find {
+  background-color: transparent;
+  color: #FF5757 !important;
+  border: 3px solid #FF5757 !important;
+}
+
+.bootom-footer-btn-find:hover {
+  background-color: #FF5757 !important;
+  color: white !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .bootom-footer-brand-section {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .bootom-footer-social {
+    justify-content: center;
+  }
+  
+  .bootom-footer-top-searches h2 {
+    font-size: 2rem;
+    text-align: center;
+  }
+  
+  .bootom-footer-top-searches h3 {
+    font-size: 1.25rem;
+    text-align: center;
+    margin-top: 1.5rem;
+  }
+  
+  .bootom-footer-search-list {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+}

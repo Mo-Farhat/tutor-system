@@ -1,0 +1,326 @@
+#ucat-hdiw {
+    justify-content: center;
+}
+
+.ucat-hdiw-main {
+    display: flex;
+    align-items: center;
+    padding: 4rem 0;
+    overflow: hidden;
+}
+
+.ucat-hdiw-sec {
+    justify-content: center;
+    margin: 0 !important;
+    max-width: 2000px !important;
+}
+
+.ucat-hdiw-title {
+    font-size: 2.7rem !important;
+    font-weight: 800;
+    color: #0D2371;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.ucat-hdiw-number {
+    color: #f44336;
+    font-size: 3.5rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 1.5rem;
+    display: block;
+    text-align: center;
+    font-family: 'Arial', sans-serif;
+    text-shadow: 2px 2px 4px rgba(244, 67, 54, 0.1);
+}
+
+.ucat-hdiw-steps {
+    position: relative;
+    padding: 2rem 0;
+}
+
+.ucat-hdiw-step {
+    display: flex;
+    align-items: flex-start;
+    position: relative;
+    padding-bottom: 3rem;
+}
+
+.ucat-hdiw-step:last-child {
+    padding-bottom: 0;
+}
+
+/* Vertical line connector */
+.ucat-hdiw-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 25px;
+    top: 60px;
+    bottom: 0;
+    width: 2px;
+    background-color: #e0e0e0;
+}
+
+.ucat-hdiw-step-number {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid #f44336;
+    color: #f44336;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-right: 1.5rem;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+}
+
+.ucat-hdiw-step-content {
+    flex-grow: 1;
+    padding-top: 0.5rem;
+}
+
+.ucat-hdiw-step-title {
+    color: #16205b;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.ucat-hdiw-step-text {
+    color: #666;
+    font-size: 1rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.ucat-hdiw-link {
+    color: #0D2371;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.ucat-hdiw-link:hover {
+    color: #f44336;
+    text-decoration: underline;
+}
+
+/* Modal Styles */
+.ucat-hdiw-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+}
+
+.ucat-hdiw-modal {
+    width: 100%;
+    max-width: 800px;
+    margin: 1.75rem auto;
+    z-index: 1060;
+}
+
+.ucat-hdiw-modal-dialog {
+    position: relative;
+    pointer-events: auto;
+}
+
+.ucat-hdiw-modal-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background-color: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+}
+
+.ucat-hdiw-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom:  1.5rem;
+    border-radius: 10px 10px 0 0;
+}
+
+.ucat-hdiw-modal-title {
+    font-weight: 700;
+    color: #0D2371;
+    margin: 0;
+}
+
+.ucat-hdiw-close-button {
+    background-color: transparent;
+    filter: invert(1) brightness(200%);
+    opacity: 0.8;
+}
+
+.ucat-hdiw-close-button:hover {
+    opacity: 1;
+}
+
+
+.ucat-hdiw-form-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.ucat-hdiw-form-input,
+.ucat-hdiw-form-select {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 0.75rem;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.ucat-hdiw-form-input:focus,
+.ucat-hdiw-form-select:focus {
+    border-color: #0D2371;
+    box-shadow: 0 0 0 0.25rem rgba(13, 35, 113, 0.25);
+}
+
+.ucat-hdiw-form-checkbox {
+    margin-top: 0.5rem;
+}
+
+.ucat-hdiw-submit-btn {
+    background-color: #16205b !important;
+    color: white !important;
+    border: none;
+    padding: 0.75rem 1.5rem !important;
+    font-size: 1.125rem;
+    font-weight: 600;
+    border-radius: 1rem !important;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+}
+
+.ucat-hdiw-submit-btn:hover,
+.ucat-hdiw-submit-btn:focus {
+    background-color: #091a54;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ucat-hdiw-confirmation {
+    padding: 2rem 1rem;
+}
+
+.ucat-hdiw-confirmation-icon {
+    font-size: 4rem;
+    color: #28a745;
+    display: inline-block;
+}
+
+.ucat-hdiw-confirmation-title {
+    color: #0D2371;
+    font-weight: 700;
+    font-size: 1.75rem;
+}
+
+.ucat-hdiw-confirmation-text {
+    font-size: 1.25rem;
+    color: #555;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .ucat-hdiw-modal {
+        width: 90%;
+    }
+    
+    .ucat-hdiw-modal-body {
+        padding: 1.5rem;
+    }
+    
+    .ucat-hdiw-confirmation-icon {
+        font-size: 3rem;
+    }
+    
+    .ucat-hdiw-confirmation-title {
+        font-size: 1.5rem;
+    }
+    
+    .ucat-hdiw-confirmation-text {
+        font-size: 1.125rem;
+    }
+
+    .ucat-hdiw-steps {
+        padding: 1rem 0;
+    }
+
+    .ucat-hdiw-step {
+        padding-bottom: 2rem;
+    }
+
+    .ucat-hdiw-step-number {
+        width: 40px;
+        height: 40px;
+        font-size: 1.25rem;
+        margin-right: 1rem;
+    }
+
+    .ucat-hdiw-step:not(:last-child)::after {
+        left: 20px;
+        top: 50px;
+    }
+
+    .ucat-hdiw-step-title {
+        font-size: 1.1rem;
+    }
+
+    .ucat-hdiw-step-text {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .ucat-hdiw-step-number {
+        width: 35px;
+        height: 35px;
+        font-size: 1.1rem;
+    }
+
+    .ucat-hdiw-step:not(:last-child)::after {
+        left: 17px;
+        top: 45px;
+    }
+
+    .ucat-hdiw-step-title {
+        font-size: 1rem;
+    }
+
+    .ucat-hdiw-step-text {
+        font-size: 0.9rem;
+    }
+}
+
+.ucat-hdiw-card {
+    border: 1px solid rgba(13, 35, 113, 0.1);
+    box-shadow: 0 4px 6px rgba(13, 35, 113, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 1rem !important;
+    padding: 2rem 1.5rem;
+    height: 100%;
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9ff 100%);
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.ucat-hdiw-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 20px rgba(13, 35, 113, 0.15);
+}

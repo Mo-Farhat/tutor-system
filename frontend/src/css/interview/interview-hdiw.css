@@ -1,0 +1,294 @@
+#interview-hdiw {
+    justify-content: center;
+}
+
+.interview-hdiw-main {
+    display: flex;
+    align-items: center;
+    padding: 4rem 0;
+    overflow: hidden;
+}
+
+.interview-hdiw-sec {
+    justify-content: center;
+    margin: 0 !important;
+    max-width: 2000px !important;
+}
+
+.interview-hdiw-title {
+    font-size: 2.7rem !important;
+    font-weight: 800;
+    color: #0D2371;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.interview-hdiw-steps {
+    position: relative;
+    padding: 2rem 0;
+}
+
+.interview-hdiw-step {
+    display: flex;
+    align-items: flex-start;
+    position: relative;
+    padding-bottom: 3rem;
+}
+
+.interview-hdiw-step:last-child {
+    padding-bottom: 0;
+}
+
+/* Vertical line connector */
+.interview-hdiw-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 25px;
+    top: 60px;
+    bottom: 0;
+    width: 2px;
+    background-color: #e0e0e0;
+}
+
+.interview-hdiw-step-number {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #fff;
+    border: 2px solid #f44336;
+    color: #f44336;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-right: 1.5rem;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+}
+
+.interview-hdiw-step-content {
+    flex-grow: 1;
+    padding-top: 0.5rem;
+}
+
+.interview-hdiw-step-title {
+    color: #16205b;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.interview-hdiw-step-text {
+    color: #666;
+    font-size: 1rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.interview-hdiw-link {
+    color: #0D2371;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.interview-hdiw-link:hover {
+    color: #f44336;
+    text-decoration: underline;
+}
+
+/* Modal Styles */
+.interview-hdiw-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+}
+
+.interview-hdiw-modal {
+    width: 100%;
+    max-width: 800px;
+    margin: 1.75rem auto;
+    z-index: 1060;
+}
+
+.interview-hdiw-modal-dialog {
+    position: relative;
+    pointer-events: auto;
+}
+
+.interview-hdiw-modal-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background-color: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+}
+
+.interview-hdiw-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom:  1.5rem;
+    border-radius: 10px 10px 0 0;
+}
+
+.interview-hdiw-modal-title {
+    font-weight: 700;
+    color: #0D2371;
+    margin: 0;
+}
+
+.interview-hdiw-close-button {
+    background-color: transparent;
+    filter: invert(1) brightness(200%);
+    opacity: 0.8;
+}
+
+.interview-hdiw-close-button:hover {
+    opacity: 1;
+}
+
+.interview-hdiw-form-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.interview-hdiw-form-input,
+.interview-hdiw-form-select {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 0.75rem;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.interview-hdiw-form-input:focus,
+.interview-hdiw-form-select:focus {
+    border-color: #16205b;
+    box-shadow: 0 0 0 0.25rem rgba(22, 32, 91, 0.25);
+}
+
+.interview-hdiw-form-checkbox {
+    margin-top: 0.5rem;
+}
+
+.interview-hdiw-submit-btn {
+    background-color: #16205b !important;
+    color: white !important;
+    border: none;
+    padding: 0.75rem 1.5rem !important;
+    font-size: 1.125rem;
+    font-weight: 600;
+    border-radius: 1rem !important;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+}
+
+.interview-hdiw-submit-btn:hover,
+.interview-hdiw-submit-btn:focus {
+    background-color: #0d1333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.interview-hdiw-confirmation {
+    padding: 2rem 1rem;
+}
+
+.interview-hdiw-confirmation-icon {
+    font-size: 4rem;
+    color: #28a745;
+    display: inline-block;
+}
+
+.interview-hdiw-confirmation-title {
+    color: #16205b;
+    font-weight: 700;
+    font-size: 1.75rem;
+}
+
+.interview-hdiw-confirmation-text {
+    font-size: 1.25rem;
+    color: #555;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .interview-hdiw-steps {
+        padding: 1rem 0;
+    }
+
+    .interview-hdiw-step {
+        padding-bottom: 2rem;
+    }
+
+    .interview-hdiw-step-number {
+        width: 40px;
+        height: 40px;
+        font-size: 1.25rem;
+        margin-right: 1rem;
+    }
+    
+    .interview-hdiw-step:not(:last-child)::after {
+        left: 20px;
+        top: 50px;
+    }
+
+    .interview-hdiw-step-title {
+        font-size: 1.1rem;
+    }
+    
+    .interview-hdiw-step-text {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .interview-hdiw-step-number {
+        width: 35px;
+        height: 35px;
+        font-size: 1.1rem;
+    }
+    
+    .interview-hdiw-step:not(:last-child)::after {
+        left: 17px;
+        top: 45px;
+    }
+
+    .interview-hdiw-step-title {
+        font-size: 1rem;
+    }
+
+    .interview-hdiw-step-text {
+        font-size: 0.9rem;
+    }
+    }
+    
+.interview-hdiw-card {
+    border: 1px solid rgba(22, 32, 91, 0.1);
+    box-shadow: 0 4px 6px rgba(22, 32, 91, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 1rem !important;
+    padding: 2rem 1.5rem;
+    height: 100%;
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9ff 100%);
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.interview-hdiw-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 20px rgba(22, 32, 91, 0.15);
+}
