@@ -29,6 +29,20 @@ function TutorNavbar() {
         </button>
       </div>
 
+      {/* Alert Section */}
+      <div className="tutor-navbar-alert">
+        <div className="tutor-navbar-alert-content">
+          <i className="fas fa-exclamation-circle"></i>
+          <div className="tutor-navbar-alert-text">
+            <p>Complete these steps to go live:</p>
+            <ul>
+              <li>Upload required documents in Documents section</li>
+              <li>Complete your profile in Account Settings</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
       {/* Navigation Menu */}
       <nav className="tutor-navbar-nav">
         <div className="tutor-navbar-section">
