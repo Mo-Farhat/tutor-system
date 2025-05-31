@@ -26,6 +26,7 @@ function TutorDocuments() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [accountLive, setAccountLive] = useState(false);
+    const [abnNumber, setAbnNumber] = useState('');
 
     useEffect(() => {
         fetchDocuments();
@@ -55,6 +56,10 @@ function TutorDocuments() {
                     }
                 });
                 setAccountLive(data.account_live);
+                // Set ABN if it exists in the response
+                if (data.abn) {
+                    setAbnNumber(data.abn);
+                }
             } else {
                 setError(result.error || 'Failed to load documents');
             }
@@ -123,6 +128,13 @@ function TutorDocuments() {
             setError('Error uploading documents: ' + err.message);
         } finally {
             setUploading(false);
+        }
+    };
+
+    const handleAbnChange = (e) => {
+        const value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+        if (value.length <= 11) { // ABN is 11 digits
+            setAbnNumber(value);
         }
     };
 
@@ -302,6 +314,31 @@ function TutorDocuments() {
                             </button>
                         </div>
                     )}
+
+                    {/* ABN Input Section */}
+                    <div className="document-section">
+                        <div className="document-header">
+                            <h3>
+                                <i className="fas fa-briefcase"></i> Australian Business Number (ABN)
+                            </h3>
+                        </div>
+                        <div className="document-upload-container">
+                            <div className="form-group">
+                                <input
+                                    type="text"
+                                    className="form-control form-control-lg"
+                                    value={abnNumber}
+                                    onChange={handleAbnChange}
+                                    placeholder="Enter your 11-digit ABN"
+                                    maxLength="11"
+                                />
+                                <small className="form-text text-muted">
+                                    <i className="fas fa-info-circle me-1"></i>
+                                    Please enter your valid 11-digit Australian Business Number
+                                </small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
