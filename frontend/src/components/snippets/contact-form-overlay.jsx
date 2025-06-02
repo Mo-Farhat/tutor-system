@@ -1,4 +1,5 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
+import { useLocation } from 'react-router-dom';
 import '../../css/snippets/contact-form-overlay.css';
 
 // Create a context to expose the overlay functionality globally
@@ -12,15 +13,17 @@ export const useContactForm = () => useContext(ContactFormContext);
 
 export const ContactFormProvider = ({ children }) => {
   const [showOverlay, setShowOverlay] = useState(false);
+  const location = useLocation();
   
   useEffect(() => {
-    // Show overlay after 5 seconds - keep existing functionality
-    const timer = setTimeout(() => {
-      setShowOverlay(true);
-    }, 5000);
-    
-    return () => clearTimeout(timer);
-  }, []);
+    // Only show overlay on home page after 5 seconds
+    if (location.pathname === '/') {
+      const timer = setTimeout(() => {
+        setShowOverlay(true);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [location.pathname]);
 
   const openContactForm = () => {
     setShowOverlay(true);
@@ -33,7 +36,7 @@ export const ContactFormProvider = ({ children }) => {
   return (
     <ContactFormContext.Provider value={{ openContactForm, closeContactForm }}>
       {children}
-      {showOverlay && <ContactFormOverlay onClose={closeContactForm} />}
+      {location.pathname === '/' && showOverlay && <ContactFormOverlay onClose={closeContactForm} />}
     </ContactFormContext.Provider>
   );
 };
@@ -53,7 +56,7 @@ const ContactFormOverlay = ({ onClose }) => {
           <div className="row">
             <div className="col-md-6 d-none d-md-flex justify-content-center align-items-center snippet-contact-us-image-container">
               <div className="snippet-contact-us-heading">
-                <h1>Let Us Know What You’re Looking For  We’ll Handle the Rest</h1>
+                <h1>Let Us Know What You're Looking For  We'll Handle the Rest</h1>
               </div>
             </div>
             <div className="col-md-6 col-sm-12 snippet-contact-us-form-container">
@@ -133,24 +136,24 @@ const ContactFormOverlay = ({ onClose }) => {
   );
 };
 
-// For backwards compatibility with existing code
 const ContactFormOverlayStandalone = () => {
   const [showOverlay, setShowOverlay] = useState(false);
+  const location = useLocation();
   
   useEffect(() => {
-    // Show overlay after 5 seconds
-    const timer = setTimeout(() => {
-      setShowOverlay(true);
-    }, 5000);
-    
-    return () => clearTimeout(timer);
-  }, []);
+    if (location.pathname === '/') {
+      const timer = setTimeout(() => {
+        setShowOverlay(true);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [location.pathname]);
 
   const handleClose = () => {
     setShowOverlay(false);
   };
 
-  if (!showOverlay) return null;
+  if (!showOverlay || location.pathname !== '/') return null;
   
   return <ContactFormOverlay onClose={handleClose} />;
 };

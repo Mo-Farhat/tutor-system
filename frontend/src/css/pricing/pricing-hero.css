@@ -35,11 +35,15 @@
     z-index: 1;
     /* max-width: 800px; */
     padding: 0 1rem;
+    display: flex;
+    justify-content: end;
 }
 
 .pricing-hero-title {
     font-weight: 700;
     margin-bottom: 0;
+    width: 500px;
+    text-align: end;
 }
 
 .pricing-hero-subtitle-wrapper {

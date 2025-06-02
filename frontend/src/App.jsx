@@ -28,8 +28,8 @@ import TutorPasswordSetup from './components/TutorPasswordSetup';
 const App = () => {
   return (
     <AuthProvider>
-      <ContactFormProvider>
-        <Router>
+      <Router>
+        <ContactFormProvider>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/aboutus" element={<AboutusPage />} />
@@ -54,8 +54,8 @@ const App = () => {
             <Route path="/tutor/documents" element={<TutorDocumentsPage />} />
             <Route path="/tutor/payment-details" element={<TutorPaymentDetailsPage />} />
           </Routes>
-        </Router>
-      </ContactFormProvider>
+        </ContactFormProvider>
+      </Router>
     </AuthProvider>
   );
 };

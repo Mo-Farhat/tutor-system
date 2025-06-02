@@ -7,7 +7,7 @@ function FindtHero(params) {
             <div className="col-10 d-flex findt-hero-sec">
 
                 <h1 className="row fw-bold findt-hero-main-h">
-                    Main heading section of tutors page
+                Achieve your goals with a Strive tutor.
                 </h1>
 
             </div>

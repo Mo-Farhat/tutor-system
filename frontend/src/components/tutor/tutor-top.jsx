@@ -9,7 +9,7 @@ function TutorTop({ tutorData, getDefaultImage }) {
 
     const tutorName = `${tutorData.user?.first_name || ''} ${tutorData.user?.last_name || ''}`.trim() || 'Tutor';
     const profileImage = tutorData.user?.profile_picture || getDefaultImage?.(tutorName) || 'https://cdn.pixabay.com/photo/2016/08/20/05/38/avatar-1606916_960_720.png';
-    const hourlyRate = tutorData.hourly_rate || '30';
+    const hourlyRate = tutorData.hourly_rate || '60';
     const rating = tutorData.rating || '0.00';
     const atar = tutorData.atar || 'N/A';
     const status = "Available"; // You can make this dynamic based on tutor availability

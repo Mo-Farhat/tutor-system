@@ -40,7 +40,7 @@ function PricingHero() {
                         <div className="col-12 d-flex justify-content-end">
                             <div className="pricing-hero-content container-fluid text-end">
                                 <h1 className="pricing-hero-title display-5 fw-bold text-white mb-4">
-                                    Achieve your goals with a Strive tutor.
+                                    Strive For Success Expert Tutors. Affordable Prices.
                                 </h1>
                             </div>
                         </div>
