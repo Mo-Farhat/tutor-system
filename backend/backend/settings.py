@@ -198,13 +198,14 @@ if DEBUG:
 # Frontend URL for email links
 FRONTEND_URL = 'http://178.128.109.143:3000'
 
-# Email Configuration
+# Email Configuration (SendGrid)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.sendgrid.net'
-EMAIL_PORT = 2525
+EMAIL_PORT = 587  # Changed from 2525 to 587 for better reliability
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'apikey'
-EMAIL_HOST_PASSWORD = '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'
-DEFAULT_FROM_EMAIL = 'academicsstrive@gmail.com'
-SERVER_EMAIL = 'academicsstrive@gmail.com'
-EMAIL_TIMEOUT = 20
+EMAIL_HOST_PASSWORD = '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'
+DEFAULT_FROM_EMAIL = 'Strive Academy <academicsstrive@gmail.com>'
+
+# Email settings
+EMAIL_TIMEOUT = 30  # Increased timeout to handle slow connections
