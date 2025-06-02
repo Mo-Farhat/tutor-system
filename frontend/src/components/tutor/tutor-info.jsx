@@ -16,12 +16,42 @@ function TutorInfo({ tutorData }) {
     const bio = tutorData.bio || "This tutor is passionate about education and helping students achieve their academic goals.";
     const locations = tutorData.preferred_locations || ["Online"];
     const subjects = tutorData.subjects_selected || tutorData.subjects_taught || ["Various subjects"];
-    const university = tutorData.university || "University";
-    const currentStudy = tutorData.current_study || "Studies";
+    
+    // Handle multiple education entries with fallback to single fields
+    const schools = tutorData.schools_attended && tutorData.schools_attended.length > 0 
+        ? tutorData.schools_attended 
+        : (tutorData.school ? [tutorData.school] : ["School not specified"]);
+    
+    const currentStudies = tutorData.current_studies && tutorData.current_studies.length > 0 
+        ? tutorData.current_studies 
+        : (tutorData.university ? [tutorData.university] : ["University not specified"]);
+    
     const experienceYears = tutorData.experience_years || 2;
     const totalLessons = tutorData.total_lessons || 0;
     const tutorTrainingStatus = tutorData.tutor_contract_status === 'approved' ? 'Completed' : 'Completed';
     const wwccStatus = tutorData.wwcc_status === 'approved' ? 'Completed' : 'Completed';
+
+    // Get the introduction video URL
+    const getVideoUrl = () => {
+        // First try the new video_submission_url field from API
+        if (tutorData.video_submission_url) {
+            return tutorData.video_submission_url;
+        }
+        
+        // Fallback to video_submission field with URL construction
+        if (tutorData.video_submission) {
+            // If it's already a full URL, use it directly
+            if (typeof tutorData.video_submission === 'string' && tutorData.video_submission.startsWith('http')) {
+                return tutorData.video_submission;
+            } else if (typeof tutorData.video_submission === 'string') {
+                // If it's a relative path, construct the full URL
+                return `http://localhost:8000${tutorData.video_submission}`;
+            }
+        }
+        return null;
+    };
+
+    const videoUrl = getVideoUrl();
 
     return (
         <section className="row container-fluid section d-flex justify-content-center g-0 tutor-info-main" id="tutor-info">
@@ -44,14 +74,28 @@ function TutorInfo({ tutorData }) {
                             <div className="tutor-info-card h-100 d-flex flex-column justify-content-center align-items-center">
                                 <h2 className="tutor-info-title text-center mb-4">Introduction video</h2>
                                 <div className="tutor-info-video-placeholder">
-                                    {/* Video placeholder - replace with actual video component */}
-                                    <div className="ratio ratio-16x9">
-                                        <iframe 
-                                            src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
-                                            title="Introduction Video"
-                                            allowFullScreen
-                                        ></iframe>
-                                    </div>
+                                    {videoUrl ? (
+                                        <div className="ratio ratio-16x9">
+                                            <video 
+                                                controls 
+                                                src={videoUrl}
+                                                className="w-100 h-100"
+                                                style={{ objectFit: 'cover' }}
+                                                onError={(e) => {
+                                                    console.warn('Video load error:', e);
+                                                }}
+                                            >
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        </div>
+                                    ) : (
+                                        <div className="ratio ratio-16x9 d-flex align-items-center justify-content-center bg-light">
+                                            <div className="text-center text-muted">
+                                                <i className="fas fa-video fa-3x mb-3"></i>
+                                                <p>No introduction video available</p>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -87,11 +131,11 @@ function TutorInfo({ tutorData }) {
                                 <div className="tutor-info-education">
                                     <div className="mb-4">
                                         <h3 className="tutor-info-subtitle">I went to school at</h3>
-                                        <p className="tutor-info-text">{university}</p>
+                                        <p className="tutor-info-text">{schools.join(', ')}</p>
                                     </div>
                                     <div>
                                         <h3 className="tutor-info-subtitle">I'm Currently Studying</h3>
-                                        <p className="tutor-info-text">{currentStudy}</p>
+                                        <p className="tutor-info-text">{currentStudies.join(', ')}</p>
                                     </div>
                                 </div>
                             </div>

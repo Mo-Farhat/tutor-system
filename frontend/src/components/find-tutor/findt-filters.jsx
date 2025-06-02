@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from "react";
+import { getSubjectSelectionData } from "../../services/authService";
 import "../../css/find-tutor/findt-filters.css"
 
-function FindtFilters() {
+function FindtFilters({ onFiltersChange }) {
     // Create separate states and refs for each dropdown
     const [yearDropdown, setYearDropdown] = useState({
         isOpen: false,
@@ -20,11 +21,56 @@ function FindtFilters() {
         selectedOption: ""
     });
 
+    // Subject data from API
+    const [subjectData, setSubjectData] = useState({
+        year_levels: [],
+        curricula: [],
+        states: [],
+        year_11_12_subjects: {},
+        year_1_10_subjects: {}
+    });
+    const [loading, setLoading] = useState(true);
+
     // Create separate refs for each dropdown
     const yearDropdownRef = useRef(null);
     const curriculumDropdownRef = useRef(null);
     const subjectDropdownRef = useRef(null);
     const locationDropdownRef = useRef(null);
+    // Add a wrapper ref for the whole filters section
+    const filtersWrapperRef = useRef(null);
+
+    // Load subject data on component mount
+    useEffect(() => {
+        fetchSubjectData();
+    }, []);
+
+    // Notify parent component when filters change
+    useEffect(() => {
+        if (onFiltersChange) {
+            onFiltersChange({
+                yearLevel: yearDropdown.selectedOption,
+                curriculum: curriculumDropdown.selectedOption,
+                subject: subjectDropdown.selectedOption,
+                location: locationDropdown.selectedOption
+            });
+        }
+    }, [yearDropdown.selectedOption, curriculumDropdown.selectedOption, subjectDropdown.selectedOption, locationDropdown.selectedOption, onFiltersChange]);
+
+    const fetchSubjectData = async () => {
+        try {
+            setLoading(true);
+            const result = await getSubjectSelectionData();
+            if (result.success) {
+                setSubjectData(result.data);
+            } else {
+                console.error('Failed to load subject data:', result.error);
+            }
+        } catch (err) {
+            console.error('Error loading subject data:', err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
   
     // Toggle functions for each dropdown
     const toggleYearDropdown = () => {
@@ -61,12 +107,26 @@ function FindtFilters() {
             isOpen: false,
             selectedOption: option
         });
+        // Reset dependent dropdowns
+        setCurriculumDropdown({
+            isOpen: false,
+            selectedOption: ""
+        });
+        setSubjectDropdown({
+            isOpen: false,
+            selectedOption: ""
+        });
     };
 
     const handleCurriculumSelect = (option) => {
         setCurriculumDropdown({
             isOpen: false,
             selectedOption: option
+        });
+        // Reset subject dropdown when curriculum changes
+        setSubjectDropdown({
+            isOpen: false,
+            selectedOption: ""
         });
     };
 
@@ -91,12 +151,24 @@ function FindtFilters() {
             ...yearDropdown,
             selectedOption: ""
         });
+        setCurriculumDropdown({
+            isOpen: false,
+            selectedOption: ""
+        });
+        setSubjectDropdown({
+            isOpen: false,
+            selectedOption: ""
+        });
     };
     
     const clearCurriculumOption = (e) => {
         e.stopPropagation(); 
         setCurriculumDropdown({
             ...curriculumDropdown,
+            selectedOption: ""
+        });
+        setSubjectDropdown({
+            isOpen: false,
             selectedOption: ""
         });
     };
@@ -116,52 +188,88 @@ function FindtFilters() {
             selectedOption: ""
         });
     };
+
+    // Get curriculum/state options based on selected year level
+    const getCurriculumOptions = () => {
+        if (yearDropdown.selectedOption === 'Year 11/12') {
+            return subjectData.curricula || [];
+        } else if (yearDropdown.selectedOption === 'Year 1-10') {
+            return subjectData.states || [];
+        }
+        return [];
+    };
+
+    // Get subject options based on selected year level and curriculum/state
+    const getSubjectOptions = () => {
+        if (yearDropdown.selectedOption === 'Year 11/12' && curriculumDropdown.selectedOption) {
+            return subjectData.year_11_12_subjects[curriculumDropdown.selectedOption] || [];
+        } else if (yearDropdown.selectedOption === 'Year 1-10' && curriculumDropdown.selectedOption) {
+            return subjectData.year_1_10_subjects[curriculumDropdown.selectedOption] || [];
+        }
+        return [];
+    };
+
+    // Get label for curriculum/state dropdown
+    const getCurriculumLabel = () => {
+        if (yearDropdown.selectedOption === 'Year 11/12') {
+            return 'Curriculum';
+        } else if (yearDropdown.selectedOption === 'Year 1-10') {
+            return 'State';
+        }
+        return 'Curriculum';
+    };
+
+    // Common locations - you can expand this list or make it dynamic
+    const commonLocations = [
+        'Online',
+        'Brisbane',
+        'Sydney', 
+        'Melbourne',
+        'Perth',
+        'Adelaide',
+        'Canberra',
+        'Darwin',
+        'Hobart',
+        'Gold Coast',
+        'Newcastle',
+        'Wollongong',
+        'Geelong',
+        'Townsville',
+        'Cairns'
+    ];
   
-    // Close dropdowns when clicking outside
+    // Close dropdowns when clicking outside the filters section
     useEffect(() => {
         function handleClickOutside(event) {
-            // Check Year dropdown
-            if (yearDropdownRef.current && !yearDropdownRef.current.contains(event.target)) {
-                setYearDropdown(prev => ({
-                    ...prev,
-                    isOpen: false
-                }));
-            }
-            
-            // Check Curriculum dropdown
-            if (curriculumDropdownRef.current && !curriculumDropdownRef.current.contains(event.target)) {
-                setCurriculumDropdown(prev => ({
-                    ...prev,
-                    isOpen: false
-                }));
-            }
-            
-            // Check Subject dropdown
-            if (subjectDropdownRef.current && !subjectDropdownRef.current.contains(event.target)) {
-                setSubjectDropdown(prev => ({
-                    ...prev,
-                    isOpen: false
-                }));
-            }
-            
-            // Check location dropdown
-            if (locationDropdownRef.current && !locationDropdownRef.current.contains(event.target)) {
-                setLocationDropdown(prev => ({
-                    ...prev,
-                    isOpen: false
-                }));
+            if (!filtersWrapperRef.current) return;
+            if (!filtersWrapperRef.current.contains(event.target)) {
+                setYearDropdown(prev => ({ ...prev, isOpen: false }));
+                setCurriculumDropdown(prev => ({ ...prev, isOpen: false }));
+                setSubjectDropdown(prev => ({ ...prev, isOpen: false }));
+                setLocationDropdown(prev => ({ ...prev, isOpen: false }));
             }
         }
-      
-        document.addEventListener("mousedown", handleClickOutside);
+        document.addEventListener("click", handleClickOutside);
         return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("click", handleClickOutside);
         };
     }, []);
 
+    if (loading) {
+        return (
+            <section className='row container-fluid d-flex g-0 findt-filters-main' id='findt-filters'>
+                <div className="col-8 d-flex findt-filters-sec justify-content-center align-items-center">
+                    <div className="spinner-border text-primary" role="status">
+                        <span className="visually-hidden">Loading filters...</span>
+                    </div>
+                </div>
+            </section>
+        );
+    }
+
     return (
         <section className='row container-fluid d-flex g-0 findt-filters-main' id='findt-filters'>
-            <div className="col-8 d-flex findt-filters-sec">
+            <div className="col-8 d-flex findt-filters-sec" ref={filtersWrapperRef}>
                 {/* Year Level Dropdown */}
                 <div className="col-3 d-flex findt-filter-main justify-content-center align-items-center gap-3" ref={yearDropdownRef}>
                     <span className="fw-bold findt-filter-h">Year Level</span>
@@ -177,10 +285,13 @@ function FindtFilters() {
                         
                         {yearDropdown.isOpen && (
                             <ul className="dropdown-menu show">
-                                <li><button className="dropdown-item" onClick={() => handleYearSelect("Year 1")}>Year 1</button></li>
-                                <li><button className="dropdown-item" onClick={() => handleYearSelect("Year 2")}>Year 2</button></li>
-                                <li><button className="dropdown-item" onClick={() => handleYearSelect("Year 3")}>Year 3</button></li>
-                                <li><button className="dropdown-item" onClick={() => handleYearSelect("Year 4")}>Year 4</button></li>
+                                {subjectData.year_levels.map((year) => (
+                                    <li key={year}>
+                                        <button className="dropdown-item" onClick={() => handleYearSelect(year)}>
+                                            {year}
+                                        </button>
+                                    </li>
+                                ))}
                             </ul>
                         )}
                     </div>
@@ -191,23 +302,27 @@ function FindtFilters() {
 
                 {/* Curriculum Dropdown */}
                 <div className="col-3 d-flex findt-filter-main justify-content-center align-items-center gap-3" ref={curriculumDropdownRef}>
-                    <span className="fw-bold findt-filter-h">Curriculum</span>
+                    <span className="fw-bold findt-filter-h">{getCurriculumLabel()}</span>
                     <div className="dropdown">
                         <button 
                             className={`btn btn-secondary d-flex px-3 auto-width ${curriculumDropdown.isOpen ? 'dropdown-open' : ''}`}
                             type="button"
                             onClick={toggleCurriculumDropdown}
                             aria-expanded={curriculumDropdown.isOpen}
+                            disabled={!yearDropdown.selectedOption}
                         >
                             {curriculumDropdown.selectedOption || "Select"}
                         </button>
                         
                         {curriculumDropdown.isOpen && (
                             <ul className="dropdown-menu show">
-                                <li><button className="dropdown-item" onClick={() => handleCurriculumSelect("National")}>National</button></li>
-                                <li><button className="dropdown-item" onClick={() => handleCurriculumSelect("International")}>International</button></li>
-                                <li><button className="dropdown-item" onClick={() => handleCurriculumSelect("IB")}>IB</button></li>
-                                <li><button className="dropdown-item" onClick={() => handleCurriculumSelect("Cambridge")}>Cambridge</button></li>
+                                {getCurriculumOptions().map((curr) => (
+                                    <li key={curr}>
+                                        <button className="dropdown-item" onClick={() => handleCurriculumSelect(curr)}>
+                                            {curr}
+                                        </button>
+                                    </li>
+                                ))}
                             </ul>
                         )}
                     </div>
@@ -225,16 +340,20 @@ function FindtFilters() {
                             type="button"
                             onClick={toggleSubjectDropdown}
                             aria-expanded={subjectDropdown.isOpen}
+                            disabled={!yearDropdown.selectedOption || !curriculumDropdown.selectedOption}
                         >
-                            {subjectDropdown.selectedOption || "Type in your subject"}
+                            {subjectDropdown.selectedOption || "Select Subject"}
                         </button>
                         
                         {subjectDropdown.isOpen && (
                             <ul className="dropdown-menu show">
-                                <li><button className="dropdown-item" onClick={() => handleSubjectSelect("Mathematics")}>Mathematics</button></li>
-                                <li><button className="dropdown-item" onClick={() => handleSubjectSelect("Science")}>Science</button></li>
-                                <li><button className="dropdown-item" onClick={() => handleSubjectSelect("English")}>English</button></li>
-                                <li><button className="dropdown-item" onClick={() => handleSubjectSelect("History")}>History</button></li>
+                                {getSubjectOptions().map((subject) => (
+                                    <li key={subject}>
+                                        <button className="dropdown-item" onClick={() => handleSubjectSelect(subject)}>
+                                            {subject}
+                                        </button>
+                                    </li>
+                                ))}
                             </ul>
                         )}
                     </div>
@@ -243,7 +362,7 @@ function FindtFilters() {
                     )}
                 </div>
 
-                {/* location Dropdown */}
+                {/* Location Dropdown */}
                 <div className="col-3 d-flex findt-filter-main justify-content-center align-items-center gap-3" ref={locationDropdownRef}>
                     <span className="fw-bold findt-filter-h">Location</span>
                     <div className="dropdown">
@@ -258,10 +377,13 @@ function FindtFilters() {
                         
                         {locationDropdown.isOpen && (
                             <ul className="dropdown-menu show">
-                                <li><button className="dropdown-item" onClick={() => handleLocationSelect("location1")}>location 1</button></li>
-                                <li><button className="dropdown-item" onClick={() => handleLocationSelect("location2")}>location 2</button></li>
-                                <li><button className="dropdown-item" onClick={() => handleLocationSelect("location3")}>location 3</button></li>
-                                <li><button className="dropdown-item" onClick={() => handleLocationSelect("location4")}>location 4</button></li>
+                                {commonLocations.map((location) => (
+                                    <li key={location}>
+                                        <button className="dropdown-item" onClick={() => handleLocationSelect(location)}>
+                                            {location}
+                                        </button>
+                                    </li>
+                                ))}
                             </ul>
                         )}
                     </div>

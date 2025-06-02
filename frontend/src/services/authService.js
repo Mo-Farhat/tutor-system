@@ -496,11 +496,54 @@ class AuthService {
     }
   }
 
+  async updateUserProfileWithFiles(profileData) {
+    try {
+      const formData = new FormData();
+      
+      // Add all non-file fields
+      Object.keys(profileData).forEach(key => {
+        if (profileData[key] !== null && profileData[key] !== undefined && key !== 'profile_picture') {
+          formData.append(key, profileData[key]);
+        }
+      });
+      
+      // Add profile picture file if provided
+      if (profileData.profile_picture instanceof File) {
+        formData.append('profile_picture', profileData.profile_picture);
+      }
+
+      const data = await this.makeRequest('/profile/', {
+        method: 'PUT',
+        body: formData,
+      });
+      
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
   async updateTutorProfile(profileData) {
     try {
       const data = await this.makeRequest('/tutor/profile/', {
         method: 'PUT',
         body: JSON.stringify(profileData),
+      });
+      
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async updateTutorVideoSubmission(videoFile) {
+    try {
+      const formData = new FormData();
+      formData.append('video_submission', videoFile);
+      
+      const data = await this.makeRequest('/tutor/profile/', {
+        method: 'PUT',
+        body: formData,
       });
       
       return { success: true, data };
@@ -538,4 +581,6 @@ export const updateTutorSubjects = (subjectsData) => authService.updateTutorSubj
 export const getLiveTutors = () => authService.getLiveTutors();
 export const getTutorById = (tutorId) => authService.getTutorById(tutorId);
 export const updateUserProfile = (profileData) => authService.updateUserProfile(profileData);
-export const updateTutorProfile = (profileData) => authService.updateTutorProfile(profileData); 
+export const updateUserProfileWithFiles = (profileData) => authService.updateUserProfileWithFiles(profileData);
+export const updateTutorProfile = (profileData) => authService.updateTutorProfile(profileData);
+export const updateTutorVideoSubmission = (videoFile) => authService.updateTutorVideoSubmission(videoFile); 

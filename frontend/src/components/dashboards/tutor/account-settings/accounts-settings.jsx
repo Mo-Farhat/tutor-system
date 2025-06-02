@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../../../../contexts/AuthContext';
-import { getUserProfile, getSubjectSelectionData, getTutorSubjects, updateTutorSubjects, updateUserProfile, updateTutorProfile } from '../../../../services/authService';
+import { getUserProfile, getSubjectSelectionData, getTutorSubjects, updateTutorSubjects, updateUserProfile, updateUserProfileWithFiles, updateTutorProfile, updateTutorVideoSubmission } from '../../../../services/authService';
 import "../../../../css/dashboards/tutor/account-settings/account-settings.css";
 
 function TutorAccountSettings() {
@@ -10,9 +10,12 @@ function TutorAccountSettings() {
     const welcomeMessage = location.state?.message;
     
     const [profileImage, setProfileImage] = useState(null);
+    const [profileImageFile, setProfileImageFile] = useState(null);
     const [selectedLocations, setSelectedLocations] = useState([]);
     const [selectedSubjects, setSelectedSubjects] = useState([]);
     const [introVideo, setIntroVideo] = useState(null);
+    const [videoBlob, setVideoBlob] = useState(null); // Track blob URL for cleanup
+    const [isVideoUploading, setIsVideoUploading] = useState(false);
     const [schools, setSchools] = useState(['']);
     const [currentStudies, setCurrentStudies] = useState(['']);
     const [isEditMode, setIsEditMode] = useState(false);
@@ -89,10 +92,23 @@ function TutorAccountSettings() {
                     confirmPassword: ''
                 });
                 
-                // Set profile-specific data
-                if (profile.university) {
+                // Set profile-specific data - prioritize new arrays, fallback to single fields
+                if (profile.current_studies && profile.current_studies.length > 0) {
+                    setCurrentStudies(profile.current_studies);
+                } else if (profile.university) {
                     setCurrentStudies([profile.university]);
+                } else {
+                    setCurrentStudies(['']);
                 }
+                
+                if (profile.schools_attended && profile.schools_attended.length > 0) {
+                    setSchools(profile.schools_attended);
+                } else if (profile.school) {
+                    setSchools([profile.school]);
+                } else {
+                    setSchools(['']);
+                }
+                
                 if (profile.preferred_locations && profile.preferred_locations.length > 0) {
                     setSelectedLocations(profile.preferred_locations);
                 }
@@ -145,13 +161,22 @@ function TutorAccountSettings() {
                 }
                 
                 // Set profile picture if available
-                if (userData.profile_picture) {
-                    setProfileImage(userData.profile_picture);
+                if (userData.profile_picture_url) {
+                    setProfileImage(userData.profile_picture_url);
+                } else if (userData.profile_picture) {
+                    // Fallback to relative URL if absolute URL not available
+                    setProfileImage(`http://localhost:8000${userData.profile_picture}`);
                 }
                 
-                // Set video if available
-                if (profile.video_submission) {
-                    setIntroVideo(profile.video_submission);
+                // Set video if available, but don't override blob URLs during user interaction
+                if (profile.video_submission && !videoBlob) {
+                    // If it's a URL from backend, use it directly
+                    if (typeof profile.video_submission === 'string' && profile.video_submission.startsWith('http')) {
+                        setIntroVideo(profile.video_submission);
+                    } else if (typeof profile.video_submission === 'string') {
+                        // If it's a relative path, construct the full URL
+                        setIntroVideo(`http://localhost:8000${profile.video_submission}`);
+                    }
                 }
             } else {
                 setError('Failed to load profile data');
@@ -163,22 +188,80 @@ function TutorAccountSettings() {
         }
     };
 
-    const handleImageChange = (e) => {
+    const handleImageChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setProfileImage(reader.result);
-            };
-            reader.readAsDataURL(file);
+            try {
+                // Store the actual file for upload
+                setProfileImageFile(file);
+                
+                // Create preview URL for display
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setProfileImage(reader.result);
+                };
+                reader.readAsDataURL(file);
+
+                // Automatically save the profile image
+                const userProfileData = {
+                    profile_picture: file
+                };
+
+                console.log('Automatically saving profile image...');
+                const userResult = await updateUserProfileWithFiles(userProfileData);
+                
+                if (userResult.success) {
+                    console.log('Profile image saved successfully');
+                    // Refresh the profile data to get the new image URL
+                    await fetchTutorProfile();
+                    // Clear the file state since it's been uploaded
+                    setProfileImageFile(null);
+                } else {
+                    console.error('Failed to save profile image:', userResult.error);
+                    // You could show an error message here if needed
+                    setError('Failed to save profile image: ' + userResult.error);
+                }
+            } catch (err) {
+                console.error('Error uploading profile image:', err);
+                setError('Error uploading profile image: ' + err.message);
+            }
         }
     };
 
-    const handleVideoChange = (e) => {
+    const handleVideoChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
-            const videoUrl = URL.createObjectURL(file);
-            setIntroVideo(videoUrl);
+            try {
+                setIsVideoUploading(true);
+                
+                // Clean up previous blob URL if it exists
+                if (videoBlob) {
+                    URL.revokeObjectURL(videoBlob);
+                }
+                
+                // Create new preview URL for display
+                const videoUrl = URL.createObjectURL(file);
+                setVideoBlob(videoUrl);
+                setIntroVideo(videoUrl);
+
+                // Automatically save the video
+                console.log('Automatically saving introduction video...');
+                const result = await updateTutorVideoSubmission(file);
+                
+                if (result.success) {
+                    console.log('Introduction video saved successfully');
+                    // Don't immediately refresh profile to avoid changing video source during playback
+                    // The video will load from backend on next page load or when user refreshes
+                } else {
+                    console.error('Failed to save introduction video:', result.error);
+                    setError('Failed to save introduction video: ' + result.error);
+                }
+            } catch (err) {
+                console.error('Error uploading introduction video:', err);
+                setError('Error uploading introduction video: ' + err.message);
+            } finally {
+                setIsVideoUploading(false);
+            }
         }
     };
 
@@ -308,24 +391,29 @@ function TutorAccountSettings() {
                 phone_number: formData.phoneNumber,
             };
             
-            // Prepare tutor profile data (tutor-specific fields)
-            const tutorProfileData = {
-                bio: formData.bio,
-                university: currentStudies[0] || '',
-                school: schools[0] || '',
-                preferred_locations: selectedLocations,
-            };
-            
-            // Update user profile (basic info)
+            // Update user profile (basic info) - profile image is handled separately
             const userResult = await updateUserProfile(userProfileData);
+            
             if (!userResult.success) {
                 console.error('Failed to update user profile:', userResult.error);
                 setError('Failed to update basic profile information: ' + userResult.error);
                 return;
             }
             
+            // Prepare tutor profile data (tutor-specific fields)
+            const tutorProfileData = {
+                bio: formData.bio,
+                university: currentStudies[0] || '',
+                school: schools[0] || '',
+                preferred_locations: selectedLocations,
+                // Save all education entries in the new fields
+                schools_attended: schools.filter(school => school.trim() !== ''),
+                current_studies: currentStudies.filter(study => study.trim() !== ''),
+            };
+            
             // Update tutor profile (tutor-specific info)
             const tutorResult = await updateTutorProfile(tutorProfileData);
+            
             if (!tutorResult.success) {
                 console.error('Failed to update tutor profile:', tutorResult.error);
                 setError('Failed to update tutor profile information: ' + tutorResult.error);
@@ -369,6 +457,15 @@ function TutorAccountSettings() {
             [field]: !prev[field]
         }));
     };
+
+    // Cleanup blob URLs on component unmount
+    useEffect(() => {
+        return () => {
+            if (videoBlob) {
+                URL.revokeObjectURL(videoBlob);
+            }
+        };
+    }, [videoBlob]);
 
     if (loading) {
         return (
@@ -556,14 +653,53 @@ function TutorAccountSettings() {
                                         controls 
                                         src={introVideo}
                                         className="uploaded-video"
+                                        onError={(e) => {
+                                            console.warn('Video load error:', e);
+                                            // Don't show error to user for common video loading issues
+                                        }}
+                                        onLoadStart={() => {
+                                            console.log('Video loading started');
+                                        }}
+                                        onCanPlay={() => {
+                                            console.log('Video can play');
+                                        }}
                                     >
                                         Your browser does not support the video tag.
                                     </video>
+                                    {isVideoUploading && (
+                                        <div className="video-upload-overlay">
+                                            <div className="spinner-border text-light" role="status">
+                                                <span className="visually-hidden">Uploading...</span>
+                                            </div>
+                                            <p className="text-light mt-2">Uploading video...</p>
+                                        </div>
+                                    )}
                                     {isEditMode && (
                                         <button 
                                             type="button" 
                                             className="video-remove-btn"
-                                            onClick={() => setIntroVideo(null)}
+                                            onClick={async () => {
+                                                try {
+                                                    // Clean up blob URL if it exists
+                                                    if (videoBlob) {
+                                                        URL.revokeObjectURL(videoBlob);
+                                                        setVideoBlob(null);
+                                                    }
+                                                    
+                                                    // Remove video from backend by sending null
+                                                    const result = await updateTutorProfile({ video_submission: null });
+                                                    if (result.success) {
+                                                        setIntroVideo(null);
+                                                        console.log('Video removed successfully');
+                                                    } else {
+                                                        console.error('Failed to remove video:', result.error);
+                                                        setError('Failed to remove video: ' + result.error);
+                                                    }
+                                                } catch (err) {
+                                                    console.error('Error removing video:', err);
+                                                    setError('Error removing video: ' + err.message);
+                                                }
+                                            }}
                                         >
                                             <i className="fas fa-trash-alt"></i> Remove Video
                                         </button>
