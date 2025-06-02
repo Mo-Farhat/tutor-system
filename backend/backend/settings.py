@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-a9kx^qmp9=+@_rblx-28&c+#-4-t4k6sc9^#)_$_$qjxbguj@d
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -196,16 +196,16 @@ if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
 
 # Frontend URL for email links
-FRONTEND_URL = 'http://localhost:3000'
+FRONTEND_URL = 'http://178.128.109.143:3000'
 
 # Email Configuration (Gmail SMTP)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
+EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_PORT = 2525
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'academicsstrive@gmail.com'  # Replace with your Gmail address
-EMAIL_HOST_PASSWORD = 'kbgvmfnjwixguyzu'  # Replace with Gmail App Password
+EMAIL_HOST_USER = 'apikey'  # Replace with your Gmail address
+EMAIL_HOST_PASSWORD = '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'  # Replace with Gmail App Password
 DEFAULT_FROM_EMAIL = 'Strive Academy <academicsstrive@gmail.com>'
 
 # Email settings
-EMAIL_TIMEOUT = 30
+EMAIL_TIMEOUT = 20
