@@ -40,7 +40,7 @@ class TutorProfileAdmin(admin.ModelAdmin):
             'fields': ('user',)
         }),
         ('Education & Background', {
-            'fields': ('university', 'degree', 'graduation_year', 'atar', 'qualifications', 'experience_years')
+            'fields': ('university', 'degree', 'school', 'schools_attended', 'current_studies', 'graduation_year', 'atar', 'qualifications', 'experience_years')
         }),
         ('Tutoring Details', {
             'fields': ('subjects_taught', 'hourly_rate', 'availability', 'bio')

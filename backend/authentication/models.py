@@ -50,8 +50,13 @@ class TutorProfile(models.Model):
     # Application-specific fields
     university = models.CharField(max_length=200, blank=True, default='')
     degree = models.CharField(max_length=200, blank=True, default='')
+    school = models.CharField(max_length=200, blank=True, default='', help_text="High school or secondary school attended")
     graduation_year = models.IntegerField(null=True, blank=True)
     atar = models.FloatField(null=True, blank=True)
+    
+    # New fields for multiple education entries
+    schools_attended = models.JSONField(default=list, blank=True, help_text="List of schools attended")
+    current_studies = models.JSONField(default=list, blank=True, help_text="List of current studies/degrees")
     
     # Document uploads
     resume = models.FileField(upload_to='tutor_documents/cv/', null=True, blank=True)

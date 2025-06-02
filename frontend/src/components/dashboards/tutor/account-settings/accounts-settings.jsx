@@ -165,7 +165,7 @@ function TutorAccountSettings() {
                     setProfileImage(userData.profile_picture_url);
                 } else if (userData.profile_picture) {
                     // Fallback to relative URL if absolute URL not available
-                    setProfileImage(`http://localhost:8000${userData.profile_picture}`);
+                    setProfileImage(`http://178.128.109.143:8000${userData.profile_picture}`);
                 }
                 
                 // Set video if available, but don't override blob URLs during user interaction
@@ -175,7 +175,7 @@ function TutorAccountSettings() {
                         setIntroVideo(profile.video_submission);
                     } else if (typeof profile.video_submission === 'string') {
                         // If it's a relative path, construct the full URL
-                        setIntroVideo(`http://localhost:8000${profile.video_submission}`);
+                        setIntroVideo(`http://178.128.109.143:8000${profile.video_submission}`);
                     }
                 }
             } else {

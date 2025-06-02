@@ -52,7 +52,7 @@ def send_tutor_approval_email(user, tutor_profile):
     """
     try:
         # Generate password setup link
-        frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:3000')
+        frontend_url = getattr(settings, 'FRONTEND_URL', 'http://178.128.109.143:3000')
         password_setup_link = f"{frontend_url}/tutor/setup-password/{tutor_profile.password_setup_token}"
         
         # Prepare email context

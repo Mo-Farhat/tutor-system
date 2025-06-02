@@ -185,7 +185,7 @@ SIMPLE_JWT = {
 
 # CORS settings (for React frontend)
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # React development server
+    "http://178.128.109.143:3000",  # React development server
     "http://127.0.0.1:3000",
 ]
 
@@ -198,14 +198,13 @@ if DEBUG:
 # Frontend URL for email links
 FRONTEND_URL = 'http://178.128.109.143:3000'
 
-# Email Configuration (Gmail SMTP)
+# Email Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.sendgrid.net'
 EMAIL_PORT = 2525
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'apikey'  # Replace with your Gmail address
-EMAIL_HOST_PASSWORD = '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'  # Replace with Gmail App Password
-DEFAULT_FROM_EMAIL = 'Strive Academy <academicsstrive@gmail.com>'
-
-# Email settings
+EMAIL_HOST_USER = 'apikey'
+EMAIL_HOST_PASSWORD = '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'
+DEFAULT_FROM_EMAIL = 'academicsstrive@gmail.com'
+SERVER_EMAIL = 'academicsstrive@gmail.com'
 EMAIL_TIMEOUT = 20

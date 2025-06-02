@@ -179,12 +179,27 @@ class UserLoginSerializer(serializers.Serializer):
         return attrs
 
 class UserSerializer(serializers.ModelSerializer):
+    profile_picture_url = serializers.SerializerMethodField()
+    
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'role', 
-                 'phone_number', 'date_of_birth', 'profile_picture', 'is_verified', 
+                 'phone_number', 'date_of_birth', 'profile_picture', 'profile_picture_url', 'is_verified', 
                  'created_at', 'updated_at')
         read_only_fields = ('id', 'created_at', 'updated_at', 'is_verified')
+    
+    def get_profile_picture_url(self, obj):
+        """Return full URL for profile picture"""
+        if obj.profile_picture:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.profile_picture.url)
+            else:
+                # Fallback for when request context is not available
+                from django.conf import settings
+                base_url = 'http://178.128.109.143:8000'  # You can make this configurable
+                return f"{base_url}{obj.profile_picture.url}"
+        return None
 
 class StudentProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
@@ -197,6 +212,7 @@ class TutorProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     current_study = serializers.SerializerMethodField()
     total_lessons = serializers.SerializerMethodField()
+    video_submission_url = serializers.SerializerMethodField()
     
     class Meta:
         model = TutorProfile
@@ -214,6 +230,37 @@ class TutorProfileSerializer(serializers.ModelSerializer):
         # You can implement actual lesson counting logic here
         # For now, return a computed value based on experience or use 0
         return obj.experience_years * 25 if obj.experience_years else 0
+    
+    def get_video_submission_url(self, obj):
+        """Return full URL for video submission"""
+        if obj.video_submission:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.video_submission.url)
+            else:
+                # Fallback for when request context is not available
+                from django.conf import settings
+                base_url = 'http://178.128.109.143:8000'  # You can make this configurable
+                return f"{base_url}{obj.video_submission.url}"
+        return None
+    
+    def update(self, instance, validated_data):
+        """Custom update to handle multiple education entries"""
+        # Handle schools_attended and current_studies
+        if 'schools_attended' in validated_data:
+            schools = validated_data['schools_attended']
+            # Update the single school field for backward compatibility
+            if schools and len(schools) > 0:
+                instance.school = schools[0]
+        
+        if 'current_studies' in validated_data:
+            studies = validated_data['current_studies']
+            # Update the single university field for backward compatibility
+            if studies and len(studies) > 0:
+                instance.university = studies[0]
+        
+        # Call parent update for all other fields
+        return super().update(instance, validated_data)
 
 class TutorSubjectSelectionSerializer(serializers.ModelSerializer):
     """Serializer specifically for updating tutor subject selections"""

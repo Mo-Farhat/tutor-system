@@ -1,9 +1,9 @@
-STRIVE ACADEMY
+STRIVE Academics
 Application Update
 
 Dear {{ first_name }},
 
-Thank you for your interest in joining the Strive Academy tutoring team and for taking the time to submit your application.
+Thank you for your interest in joining the Strive Academics tutoring team and for taking the time to submit your application.
 
 APPLICATION STATUS
 ==================
@@ -31,8 +31,8 @@ WHAT'S NEXT?
 We sincerely appreciate the time and effort you put into your application. Your passion for education is commendable, and we wish you all the best in your future endeavors.
 
 Best regards,
-The Strive Academy Team
+The Strive Academics Team
 
 ---
-© 2024 Strive Academy. All rights reserved.
-www.striveacademy.com | tutors@striveacademy.com 
+© 2024 Strive Academics. All rights reserved.
+www.striveAcademics.com | tutors@striveAcademics.com 

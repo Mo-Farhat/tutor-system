@@ -105,7 +105,7 @@ function TutorNavbar() {
             {user?.profile_picture_url ? (
               <img src={user.profile_picture_url} alt="Profile" className="tutor-navbar-avatar-img" />
             ) : user?.profile_picture ? (
-              <img src={`http://localhost:8000${user.profile_picture}`} alt="Profile" className="tutor-navbar-avatar-img" />
+              <img src={`http://178.128.109.143:8000${user.profile_picture}`} alt="Profile" className="tutor-navbar-avatar-img" />
             ) : (
               <div className="tutor-navbar-avatar-placeholder">
                 <i className="fas fa-user"></i>

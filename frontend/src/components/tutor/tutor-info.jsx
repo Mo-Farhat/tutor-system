@@ -45,7 +45,7 @@ function TutorInfo({ tutorData }) {
                 return tutorData.video_submission;
             } else if (typeof tutorData.video_submission === 'string') {
                 // If it's a relative path, construct the full URL
-                return `http://localhost:8000${tutorData.video_submission}`;
+                return `http://178.128.109.143:8000${tutorData.video_submission}`;
             }
         }
         return null;

@@ -1,11 +1,11 @@
-STRIVE ACADEMY
+STRIVE Academics
 🎉 Application Approved - Complete Your Account Setup
 
 Dear {{ first_name }} {{ last_name }},
 
 CONGRATULATIONS! Your tutor application has been approved!
 
-We're thrilled to welcome you to the Strive Academy team. After careful review of your application, we believe you'll be an excellent addition to our community of dedicated tutors.
+We're thrilled to welcome you to the Strive Academics team. After careful review of your application, we believe you'll be an excellent addition to our community of dedicated tutors.
 
 APPROVAL DETAILS
 ================
@@ -31,11 +31,11 @@ WHAT HAPPENS NEXT?
 
 4. Get Support: Our team is here to help you every step of the way.
 
-We're excited to have you join our mission of empowering students to achieve their academic goals. Welcome to the Strive Academy family!
+We're excited to have you join our mission of empowering students to achieve their academic goals. Welcome to the Strive Academics family!
 
 Best regards,
-The Strive Academy Team
+The Strive Academics Team
 
 ---
-© 2024 Strive Academy. All rights reserved.
-www.striveacademy.com | tutors@striveacademy.com 
+© 2024 Strive Academics. All rights reserved.
+www.striveAcademics.com | tutors@striveAcademics.com 

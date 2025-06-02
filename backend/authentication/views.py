@@ -127,7 +127,7 @@ class UserProfileView(APIView):
     
     def get(self, request):
         user = request.user
-        user_data = UserSerializer(user).data
+        user_data = UserSerializer(user, context={'request': request}).data
         
         # Add role-specific profile data
         if user.role == 'student':
@@ -156,7 +156,7 @@ class UserProfileView(APIView):
             serializer.save()
             return Response({
                 'message': 'Profile updated successfully',
-                'user': UserSerializer(user).data
+                'user': UserSerializer(user, context={'request': request}).data
             }, status=status.HTTP_200_OK)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -199,6 +199,7 @@ class TutorProfileView(generics.RetrieveUpdateAPIView):
     """Get and update tutor profile"""
     serializer_class = TutorProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
     
     def get_object(self):
         if self.request.user.role != 'tutor':
@@ -722,7 +723,7 @@ class LiveTutorsView(APIView):
                 tutors_data.append({
                     'id': tutor.id,
                     'name': f"{user.first_name} {user.last_name}".strip() or user.username,
-                    'image': user.profile_picture.url if user.profile_picture else None,
+                    'image': UserSerializer(user, context={'request': request}).data.get('profile_picture_url'),
                     'status': tutor_status,
                     'goldPoints': f"{tutor.rating}/5",  # Using rating as gold points
                     'atrPoints': str(tutor.atar) if tutor.atar else "N/A",

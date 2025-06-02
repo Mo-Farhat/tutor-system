@@ -1,9 +1,9 @@
-STRIVE ACADEMY
+STRIVE Academics
 Application Received - Under Review
 
 Dear {{ first_name }},
 
-Thank you for your interest in joining the Strive Academy tutoring team! We have successfully received your tutor application and wanted to confirm that it's now under review.
+Thank you for your interest in joining the Strive Academics tutoring team! We have successfully received your tutor application and wanted to confirm that it's now under review.
 
 APPLICATION DETAILS
 ===================
@@ -25,13 +25,13 @@ WHAT HAPPENS NEXT?
 
 QUESTIONS OR CONCERNS?
 =====================
-If you have any questions about your application or our process, please don't hesitate to reach out to us at tutors@striveacademy.com or call us at (02) 1234 5678.
+If you have any questions about your application or our process, please don't hesitate to reach out to us at tutors@striveAcademics.com or call us at (02) 1234 5678.
 
 We're excited about the possibility of having you join our team of dedicated tutors who are making a real difference in students' academic journeys.
 
 Best regards,
-The Strive Academy Team
+The Strive Academics Team
 
 ---
-© 2024 Strive Academy. All rights reserved.
-www.striveacademy.com | info@striveacademy.com 
+© 2024 Strive Academics. All rights reserved.
+www.striveAcademics.com | info@striveAcademics.com 
