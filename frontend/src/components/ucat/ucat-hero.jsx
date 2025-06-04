@@ -12,7 +12,7 @@ function UcatHero() {
                             <div className="col-12 d-flex justify-content-end">
                                 <div className="ucat-hero-content container-fluid text-end">
                                     <h1 className="ucat-hero-title display-5 fw-bold text-white mb-4">
-                                        Ucat page main heading
+                                    Results-Driven UCAT Tutoring
                                     </h1>
                                 </div>
                             </div>
