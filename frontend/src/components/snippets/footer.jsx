@@ -222,7 +222,7 @@ const Footer = () => {
                     </Link>
                   </li>
                   <li className="bootom-footer-nav-item">
-                    <Link to="/faq" className="bootom-footer-link">
+                    <Link to="/contact-us" className="bootom-footer-link">
                       Contact Us
                     </Link>
                   </li>

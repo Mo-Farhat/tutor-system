@@ -10,7 +10,7 @@ function UcatPoints() {
                     <div className="row align-items-center svg">
                         <div className="col-12 col-lg-6 mb-4 mb-lg-0">
                             <div className="ucat-points-content">
-                                <h2 className="ucat-points-title mb-4">Proven Results</h2>
+                                <h2 className="ucat-points-title mb-4">🌟 Proven Results</h2>
                                 <p className="ucat-points-text">
                                     Our students achieve an average UCAT score above <span className="fw-bold">3000</span>, 
                                     with our highest score this year being an impressive <span className="fw-bold">3330</span>!
@@ -49,7 +49,7 @@ function UcatPoints() {
                     <div className="row align-items-center svg">
                         <div className="col-12 col-lg-6 mb-4 mb-lg-0">
                             <div className="ucat-points-content">
-                                <h2 className="ucat-points-title mb-4">Interview Success</h2>
+                                <h2 className="ucat-points-title mb-4">✨ Interview Success</h2>
                                 <p className="ucat-points-text">
                                 Over <span className="fw-bold">𝟗𝟎%</span>of our students who received interview preparation secured offers at medical schools across Australia (2020-2024).<span className="fw-bold">3330</span>!
                                 </p>
@@ -75,7 +75,7 @@ function UcatPoints() {
                         </div>
                         <div className="col-12 col-lg-6 mb-4 mb-lg-0">
                             <div className="ucat-points-content text-start text-lg-end">
-                                <h2 className="ucat-points-title mb-4">Elite Tutors</h2>
+                                <h2 className="ucat-points-title mb-4">👩🏻‍💻 Elite Tutors</h2>
                                 <p className="ucat-points-text">
                                 Top-scoring medical students with an average ATAR of 99+ and top 5 percentile UCAT scores. They currently study at top universities and have 10,000+ hours of combined tutoring experience
                                 </p>
@@ -86,7 +86,7 @@ function UcatPoints() {
                     <div className="row align-items-center svg">
                         <div className="col-12 col-lg-6 mb-4 mb-lg-0">
                             <div className="ucat-points-content">
-                                <h2 className="ucat-points-title mb-4">Rigorous Tutor Selection</h2>
+                                <h2 className="ucat-points-title mb-4">👩🏻‍🏫 Rigorous Tutor Selection</h2>
                                 <p className="ucat-points-text">
                                     Our team carefully selects tutors based on tutoring experience, student reviews, academic background, results, and current university studies. All tutors are in the top <span className="fw-bold">𝟑%</span>with a mean ATAR of well above 99. All tutors also have a current Working With Children Check.
                                 </p>

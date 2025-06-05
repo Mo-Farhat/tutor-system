@@ -5,8 +5,8 @@ function Faqtop() {
         <section className="row container-fluid section d-flex g-0 z-index-0 faq-top-main" id="faq-top">
             <div className="row col-9 d-flex faq-top-sec">
                 <h1 className="fw-bold faq-top-main-h">Frequently Asked Questions</h1>
-                <div className="row d-flex gap-3 faq-top-q-main">
-                    <div class="accordion col-5" id="faq-top-q-1">
+                <div className="row d-flex faq-top-q-main">
+                    <div class="accordion col-4" id="faq-top-q-1">
                         <div class="accordion-item" id="faq-top-ac-item">
                             <h2 class="accordion-header">
                             <button class="btn primary-button fw-bold w-100 faq-top-q m-0" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
@@ -36,7 +36,7 @@ function Faqtop() {
                             </div>
                         </div>
                     </div>
-                    <div class="accordion col-5" id="faq-top-q-2">
+                    <div class="accordion col-4" id="faq-top-q-2">
                         <div class="accordion-item" id="faq-top-ac-item">
                             <h2 class="accordion-header">
                             <button class="btn primary-button fw-bold w-100 faq-top-q m-0" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="true" aria-controls="panelsStayOpen-collapseTwo" id="faq-top-q-2">
@@ -76,6 +76,22 @@ function Faqtop() {
                                     </li>
                                     <li>Insufficient notice (even with acceptable reason) incurs a fee: You must give at least 1 hour notice, or the cancellation fee applies.</li>
                                     <li>Immediate notice is important: Even with an acceptable reason, if the late notice significantly inconveniences the tutor, you may still be charged.</li>
+                                </ul>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion col-4" id="faq-top-q-3">
+                        <div class="accordion-item" id="faq-top-ac-item">
+                            <h2 class="accordion-header">
+                            <button class="btn primary-button fw-bold w-100 faq-top-q m-0" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseThree" aria-expanded="true" aria-controls="panelsStayOpen-collapseThree" id="faq-top-q-3">
+                            Academic Honesty
+                            </button>
+                            </h2>
+                            <div id="panelsStayOpen-collapseThree" class="accordion-collapse collapse">
+                            <div class="accordion-body">
+                                <ul class="ps-4">
+                                    <li>We take academic dishonesty very seriously and have a strict policy against it to protect the platform's integrity and the academic community. This includes completing work for someone else (assignments, essays, quizzes, exams) or anything else that goes against academic honesty.”</li>
                                 </ul>
                             </div>
                             </div>

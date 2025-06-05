@@ -102,7 +102,7 @@ function InterviewPriceGrid() {
                     </div>
                     <div className="row mt-4">
                         <div className="col-12 text-center">
-                            <p className="text-muted small">*please view our payment policy for more information: insert hyperlink to terms and conditions</p>
+                            <p className="text-muted small">*please view our payment policy for more information: <a href="/terms" className="text-decoration-none">terms and conditions</a></p>
                         </div>
                     </div>
                 </div>

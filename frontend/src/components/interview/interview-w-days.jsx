@@ -19,29 +19,29 @@ function InterviewWdays() {
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td className="interview-w-days-td">Interview 1</td>
-                                    <td className="interview-w-days-td">Augest 31st Saturday</td>   
-                                    <td className="interview-w-days-td">10:00 AM</td>   
+                                    <td className="interview-w-days-td">Workshop 1</td>
+                                    <td className="interview-w-days-td">Saturday 31st August</td>   
+                                    <td className="interview-w-days-td">10am-1pm AEST</td>   
                                 </tr>
                                 <tr>
-                                    <td className="interview-w-days-td">Interview 1</td>
-                                    <td className="interview-w-days-td">Augest 31st Saturday</td>   
-                                    <td className="interview-w-days-td">10:00 AM</td>   
+                                    <td className="interview-w-days-td">Workshop 2</td>
+                                    <td className="interview-w-days-td">Saturday 28th September</td>   
+                                    <td className="interview-w-days-td">10am-1pm AEST</td>   
                                 </tr>
                                 <tr>
-                                    <td className="interview-w-days-td">Interview 1</td>
-                                    <td className="interview-w-days-td">Augest 31st Saturday</td>   
-                                    <td className="interview-w-days-td">10:00 AM</td>   
+                                    <td className="interview-w-days-td">Workshop 3</td>
+                                    <td className="interview-w-days-td">Saturday 28th September</td>   
+                                    <td className="interview-w-days-td">10am-1pm AEST</td>   
+                                </tr>
+                                <tr>    
+                                    <td className="interview-w-days-td">Workshop 4</td>
+                                    <td className="interview-w-days-td">Saturday 12th October</td>   
+                                    <td className="interview-w-days-td">10am-1pm AEST</td>   
                                 </tr>
                                 <tr>
-                                    <td className="interview-w-days-td">Interview 1</td>
-                                    <td className="interview-w-days-td">Augest 31st Saturday</td>   
-                                    <td className="interview-w-days-td">10:00 AM</td>   
-                                </tr>
-                                <tr>
-                                    <td className="interview-w-days-td">Interview 1</td>
-                                    <td className="interview-w-days-td">Augest 31st Saturday</td>   
-                                    <td className="interview-w-days-td">10:00 AM</td>   
+                                    <td className="interview-w-days-td">Workshop 5</td>
+                                    <td className="interview-w-days-td">Saturday 26th October</td>   
+                                    <td className="interview-w-days-td">10am-1pm AEST</td>   
                                 </tr>
                             </tbody>
                         </table>

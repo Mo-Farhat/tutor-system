@@ -32,6 +32,9 @@
 #faq-top-q-2 .accordion-item  {
     border-color: #ff3a3a !important;
 }
+#faq-top-q-3 .accordion-item  {
+    border-color: #0C4DA2 !important;
+}
 
 .faq-top-q {
     padding: 1rem !important;
@@ -46,5 +49,10 @@
 
 #faq-top-q-2 button {
     background-color: #ff3a3a !important;
+    color: white;
+}
+
+#faq-top-q-3 button {
+    background-color: #0C4DA2 !important;
     color: white;
 }
