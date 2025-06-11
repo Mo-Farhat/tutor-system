@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ContactFormProvider } from './components/snippets/contact-form-overlay';
 import { AuthProvider } from './contexts/AuthContext';
+import ScrollToTop from './components/ScrollToTop';
 
 import HomePage from './pages/js/home';
 import AboutusPage from './pages/js/aboutus';
@@ -29,6 +30,7 @@ const App = () => {
   return (
     <AuthProvider>
       <Router>
+        <ScrollToTop />
         <ContactFormProvider>
           <Routes>
             <Route path="/" element={<HomePage />} />
