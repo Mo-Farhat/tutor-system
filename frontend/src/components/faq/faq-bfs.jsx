@@ -23,7 +23,7 @@ function Bfs() {
                                 aria-expanded="true"
                                 aria-controls="panelsStayOpen-collapsebfs1"
                             >
-                                How does Bring a Friend and Save work?
+                                How do I get started?
                             </button>
                         </h2>
                         <div
@@ -34,9 +34,9 @@ function Bfs() {
                                 <strong>All you need to do is follow these steps:</strong>
                                 <br /><br />
                                 <ol>
-                                    <li>Find a Tutor - reach out to a suitable tutor to request tutoring. We have limited spots available - lock it in early!</li>
-                                    <li>Confirm that your friends would like to receive tutoring with you and fill out this <a href="#">form</a>.</li>
-                                    <li>Have your free academic consultation together and then start sessions! <strong>You'll receive lessons as a group at a discounted rate (12.5% off per friend you bring along!)</strong></li>
+                                    <li>Visit the <a href="/find-a-tutor" className="faq-link">Find a Tutor page</a> to browse our list of expert tutors and reach out to one that suits your needs. Spots are limited, so it’s best to lock it in early!</li>
+                                    <li>Head to the <a href="/bring-a-friend-and-save" className="faq-link">Bring a Friend and Save page</a> Confirm that your friends would like to join you for tutoring, then fill out the group request form on that page.</li>
+                                    <li>Attend your free academic consultation together. Once confirmed, you’ll have a free consult with your tutor as a group, and then you’re all set to start lessons at a discounted rate (12.5% off per friend you bring along!).</li>
                                 </ol>
                             </div>
                         </div>

@@ -59,7 +59,7 @@ function Private() {
                             <div class="accordion-body">
                                 Absolutely! We believe that to be the best, you must learn from the best. For this reason, only hire tutors with ATAR results in the top 3% across Australia (our average tutor ATAR is well above 99). To ensure that tutors are qualified, experienced, and reliable, they must get through a rigorous interview process. We are confident that our tutors are amazing tutors and even better people.
                                 <br /><br />
-                                All tutors are also required to have current Working with Children's Checks in line with our <a href="/terms">Terms and Conditions</a>.
+                                All tutors are also required to have current Working with Children's Checks in line with our <a href="/terms" className="faq-link">Terms and Conditions</a>.
                             </div>
                         </div>
                     </div>

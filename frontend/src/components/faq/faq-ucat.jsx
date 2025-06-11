@@ -31,11 +31,7 @@ function Ucat() {
                             class="accordion-collapse collapse"
                         >
                             <div class="accordion-body">
-                            You can get started by filling this form. <br /><br />
-                            Once we establish a group of at least 4, and no more than 8 students, we will get the free academic skills consultation organised!<br /><br />
-                            Once the free academic skills consultation is complete, you will start having weekly sessions with your group and expert tutor! <br /><br />
-
-                            Please note: the free academic skills consultation will not be offered if you are joining an existing group. 
+                            Please navigate to our <a href="/ucat" className="faq-link">UCAT page</a> to see more information on how you can get started! 
                             </div>
                         </div>
                     </div>
@@ -58,7 +54,7 @@ function Ucat() {
                         >
                             <div class="accordion-body">
                             You will need access to the Medify questionbank - the gold standard for UCAT questions. While we have no affiliation with Medify, we know that their questionbank closely represents the standard of questions on the UCAT exam.<br /><br />
-                            You can purchase Medify using the following link: <strong><a href="https://www.medify.com.au/ucat">https://www.medify.com.au/ucat</a></strong>
+                            You can purchase Medify using the following link: <strong><a className="faq-link" href="https://www.medify.com.au/ucat">https://www.medify.com.au/ucat</a></strong>
                             </div>
                         </div>
                     </div>

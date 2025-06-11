@@ -33,34 +33,34 @@ function Reviews() {
   // Latest 6 reviews data
   const latestReviews = [
     {
-      name: "Yuvraj Singh",
-      date: "21 Jun 2022",
-      text: "Amazing team of dedicated tutors promoting a fun and encouraging learning environment. Highly recommend them for your studies."
-    },
-    {
-      name: "Charlotte Hamilton",
-      date: "19 Jan 2024", 
-      text: "Each of the tutors at Strive were committed to providing individualised support, and helped each student improve in the areas they struggled with. I could not have received dentistry offers in two states without their guidance, I highly recommend!!"
-    },
-    {
-      name: "Anushree Vora",
-      date: "33 weeks ago",
-      text: "Strive Academics have helped me significantly! The tutors are highly supportive, and the group sessions are very informative and collaborative! It works really well to break down the key areas of interviews into more manageable sessions!"
-    },
-    {
-      name: "Sandamalie Gunasinghe",
-      date: "4 weeks ago",
-      text: "We are very grateful to Pasindu and his colleague Adithya for their support and encouragement during the preparation for the medical interview process of my daughter. Their guidance helped build confidence and provided valuable insights into how to approach the interview with clarity and composure."
-    },
-    {
-      name: "Piumee Bandara", 
-      date: "11 minutes ago",
-      text: "My tutor Sienna and the team at Strive Academics have been extremely supportive and encouraging in helping me with UCAT and my ATAR subjects, Biology & Chemistry. They have given me mentorship and advice outside of sessions, and I found my UCAT sessions with Sienna very helpful."
+      name: "Amara",
+      date: "2 months ago",
+      text: "My tutoring at Strive Academics has been excellent. My tutor, Clayton, explains concepts clearly, and I've already noticed significant improvement. I highly recommend him and Strive for UCAT preparation."
     },
     {
       name: "Mehriza Khokhar",
-      date: "4 weeks ago",
-      text: "My experience with Strive Academics has been fantastic. I highly recommend both the company and my tutor, Clayton. He provides tailored sessions that focus on my goals and areas of weakness, and he explains concepts and strategies for different UCAT question types clearly."
+      date: "a month ago", 
+      text: "My experience with Strive Academics has been fantastic. I highly recommend both the company and my tutor, Clayton. He provides tailored sessions that focus on my goals and areas of weakness."
+    },
+    {
+      name: "Lihini Vandercone",
+      date: "a month ago",
+      text: "I found Yong's class to be effective, encouraging and improving. Thanks to his guidance and aid, I have seen noticeable changes and improvements within my Ucat performance."
+    },
+    {
+      name: "Skye Madeleine",
+      date: "3 months ago",
+      text: "The interview tutoring at Strive Academics was exceptional!! My tutors, Brendan and Seran, provided clear explanations and encouraged everyone to actively participate in answering questions."
+    },
+    {
+      name: "Janette Nguyen", 
+      date: "3 months ago",
+      text: "My son has been tutoring with Sienna for UCAT, she is amazing with him. Very knowledgeable and has given many tips on how to better achieve and understand the UCAT."
+    },
+    {
+      name: "Alice Niu",
+      date: "3 weeks ago",
+      text: "Sienna was my tutor and she was very helpful in assisting me with UCAT preparation. Pasindu was also very supportive and easy to reach out to."
     }
   ];
 
@@ -192,6 +192,7 @@ function Reviews() {
               <div className="d-flex review-site-img-main">
                 <img src="/Images/review sites/trustpilot.png" className="review-site-img" alt="" />
               </div>
+
             </div>
           </div>
         ))}

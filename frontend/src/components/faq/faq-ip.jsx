@@ -31,7 +31,8 @@ function Ip() {
                             class="accordion-collapse collapse"
                         >
                             <div class="accordion-body">
-                            You can get started by filling out this form to confirm attendance in our interview preparation workshops.
+                            Please navigate to our <a href="/interview-preparation" className="faq-link">Interview Preparation page</a> to see more information on how you can get started!
+
                             </div>
                         </div>
                     </div>

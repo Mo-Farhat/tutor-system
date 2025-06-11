@@ -18,20 +18,20 @@ function Hero() {
             potential.
           </span>
           <div className="d-flex gap-4 hero-btns-main">
-            <button
+            <a href="/find-a-tutor"
               type="button"
               className="btn btn-primary hero-btns"
               id="hero-ft-btn"
             >
               Find a Tutor
-            </button>
-            <button
+            </a>
+            <a href="#home_services"
               type="button"
               className="btn btn-outline-primary hero-btns"
               id="hero-lau-btn"
             >
               Learn about us
-            </button>
+            </a>
           </div>
         </div>
 

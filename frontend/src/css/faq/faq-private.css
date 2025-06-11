@@ -41,3 +41,14 @@
     padding: 1rem 1.5rem !important;
     color: #0C4DA2 !important;
 }
+
+.faq-link {
+    text-decoration: none;
+    font-weight: 600;
+    color: #0C4DA2 !important;
+}
+
+.faq-link:hover {
+    text-decoration: underline;
+    color: #ff3a3a !important;
+}
