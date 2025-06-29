@@ -22,6 +22,7 @@ function  Msg() {
                     <div className="col-md-4 d-flex align-items-center justify-content-center">
                         <div className="aboutus-founder-img-container">
                             <img src="/Images/Aboutus/dp.png" alt="Founder of Strive Academics" className="aboutus-founder-img" />
+                            <div className="aboutus-founder-caption">Founder</div>
                         </div>
                     </div>
                 </div>

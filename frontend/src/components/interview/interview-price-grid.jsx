@@ -21,7 +21,7 @@ function InterviewPriceGrid() {
                             <div className="interview-price-grid-card interview-price-grid-gold text-center p-4 rounded-4">
                                 <p className="text-muted mb-3">🧑‍🎓 5 x Interview Workshops</p>
                                 <div className="interview-price-grid-price-tag mb-3">
-                                    <span className="interview-price-grid-amount">$30</span>
+                                    <span className="interview-price-grid-amount">$40</span>
                                     <span className="interview-price-grid-period">/hr</span>
                                 </div>
                                 <button className="btn btn-primary w-100">Get Started</button>

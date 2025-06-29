@@ -6,7 +6,7 @@ function InterviewWdays() {
         <>
             <section className="row container-fluid section d-flex g-0 z-index-0 interview-w-days-main" id="interview-w-days">
                 <div className="row col-9 d-flex interview-w-days-sec">
-                    <h1 className="interview-w-days-heading">Interview with Days</h1>
+                    <h1 className="interview-w-days-heading">Interview Workshop Dates</h1>
 
                     <div className="interview-w-days-grid-main col-8">
                         <table className="interview-w-days-table">

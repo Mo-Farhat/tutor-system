@@ -6,7 +6,7 @@
 
 /* Top Searches Section */
 .bootom-footer-top-searches {
-  background-color: #f8f9fa;
+  background-color: #0C1759;
   padding: 3rem 0;
 }
 
@@ -35,14 +35,14 @@
 }
 
 .bootom-footer-search-link {
-  color: #2c3e50;
+  color: white;
   text-decoration: none;
   transition: color 0.3s ease;
   font-size: 0.95rem;
 }
 
 .bootom-footer-search-link:hover {
-  color: #3498db;
+  color: #85C5FF;
 }
 
 /* Logo */

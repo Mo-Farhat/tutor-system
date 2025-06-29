@@ -44,13 +44,13 @@
 .ucat-price-grid-header .ucat-price-grid-gold h3, 
 .ucat-price-grid-header .ucat-price-grid-gold .ucat-price-grid-price-tag .ucat-price-grid-amount, 
 .ucat-price-grid-header .ucat-price-grid-gold .ucat-price-grid-price-tag .ucat-price-grid-period {
-    color: #CCAC00;
+    color: #ff3a3a !important;
 
 }
 
 
 .ucat-price-grid-header .ucat-price-grid-gold .btn-primary {
-    background-color: #CCAC00 !important;
+    background-color: #ff3a3a !important;
     border: none;
     border-radius: 1rem;
     font-weight: 600;
@@ -69,7 +69,7 @@
 }
 
 .ucat-price-grid-card.ucat-price-grid-gold {
-    background-color: #f7e2ab;
+    background-color: #ff3a3a54;
     box-shadow: 0 10px 20px rgba(255, 224, 102, 0.1);
 }
 
@@ -78,7 +78,7 @@
 }
 
 .ucat-price-grid-header .ucat-price-grid-gold .btn-primary {
-    background-color: #CCAC00 !important;
+    background-color: #ff3a3a !important;
     border: none;
     border-radius: 1rem;
     font-weight: 600;
@@ -98,7 +98,7 @@
 }
 
 #ucat-price-grid-gold {
-    border-color: #CCAC00;
+    border-color: #ff3a3a;
 }
 
 

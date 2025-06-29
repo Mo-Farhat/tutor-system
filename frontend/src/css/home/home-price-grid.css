@@ -132,3 +132,38 @@
   color: white;
   transform: scale(1.05)
 }
+
+.home-pricing-nav-btn {
+  box-shadow: none !important;
+  border: none;
+  border-radius: 1rem !important;
+  font-size: 1.25rem;
+  font-weight: 600;
+  padding: 1rem 2rem !important;
+  color: white !important;
+  background: #0C4DA2;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+
+.home-pricing-nav-btn:hover, .home-pricing-nav-btn:focus {
+  background: #08336a;
+  color: white !important;
+  transform: translateY(-2px) scale(1.03);
+  text-decoration: none;
+}
+
+.home-pricing-nav-btn.secondary {
+  background: #ff3a3a;
+  color: white !important;
+}
+
+.home-pricing-nav-btn.secondary:hover, .home-pricing-nav-btn.secondary:focus {
+  background: #c82333;
+  color: white !important;
+}
+
+.home-pricing-nav-btn,
+.home-pricing-nav-btn:hover,
+.home-pricing-nav-btn:focus {
+  text-decoration: none !important;
+}

@@ -36,7 +36,7 @@ function Bfs() {
                                 <ol>
                                     <li>Visit the <a href="/find-a-tutor" className="faq-link">Find a Tutor page</a> to browse our list of expert tutors and reach out to one that suits your needs. Spots are limited, so it’s best to lock it in early!</li>
                                     <li>Head to the <a href="/bring-a-friend-and-save" className="faq-link">Bring a Friend and Save page</a> Confirm that your friends would like to join you for tutoring, then fill out the group request form on that page.</li>
-                                    <li>Attend your free academic consultation together. Once confirmed, you’ll have a free consult with your tutor as a group, and then you’re all set to start lessons at a discounted rate (12.5% off per friend you bring along!).</li>
+                                    <li>Attend your free 20-Minute Free Academic Consultation together. Once confirmed, you’ll have a free consult with your tutor as a group, and then you’re all set to start lessons at a discounted rate (12.5% off per friend you bring along!).</li>
                                 </ol>
                             </div>
                         </div>
@@ -51,7 +51,7 @@ function Bfs() {
                                 aria-expanded="false"
                                 aria-controls="panelsStayOpen-collapsebfs2"
                             >
-                                How will I receive my 30-minute free academic consultation?
+                                How will I receive my 20-minute free academic consultation?
                             </button>
                         </h2>
                         <div
@@ -59,13 +59,13 @@ function Bfs() {
                             class="accordion-collapse collapse"
                         >
                             <div class="accordion-body">
-                                You will engage in your 30-minute free academic consultation as a group.
+                                You will engage in your 20-minute free academic consultation as a group.
                                 <br /><br />
-                                The 30-minute free academic consultation is an opportunity for you to meet your tutor, agree upon how you would like sessions to run, and plan for success.
+                                The 20-minute free academic consultation is an opportunity for you to meet your tutor, agree upon how you would like sessions to run, and plan for success.
                                 <br /><br />
                                 Content is not covered during this session, as its purpose is to facilitate future sessions.
                                 <br /><br />
-                                The 30-minute free academic consultation is compulsory as it is essential to ensure that you and your friend(s) have been matched to a suitable tutor.
+                                The 20-minute free academic consultation is compulsory as it is essential to ensure that you and your friend(s) have been matched to a suitable tutor.
                             </div>
                         </div>
                     </div>

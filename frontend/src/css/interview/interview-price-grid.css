@@ -52,7 +52,7 @@
 .interview-price-grid-header .interview-price-grid-gold h3, 
 .interview-price-grid-header .interview-price-grid-gold .interview-price-grid-price-tag .interview-price-grid-amount, 
 .interview-price-grid-header .interview-price-grid-gold .interview-price-grid-price-tag .interview-price-grid-period {
-  color: #CCAC00;
+  color: #ff3a3a ;
 
 }
 
@@ -65,7 +65,7 @@
 
 
 .interview-price-grid-header .interview-price-grid-gold .btn-primary {
-  background-color: #CCAC00 !important;
+  background-color: #ff3a3a  !important;
   border: none;
   border-radius: 1rem;
   font-weight: 600;
@@ -98,7 +98,7 @@
 }
 
 .interview-price-grid-card.interview-price-grid-gold {
-  background-color: #f7e2ab;
+  background-color: #ff3a3a54;
   box-shadow: 0 10px 20px rgba(255, 224, 102, 0.1);
 }
 
@@ -114,7 +114,7 @@
 }
 
 .interview-price-grid-header .interview-price-grid-gold .btn-primary {
-  background-color: #CCAC00 !important;
+  background-color: #ff3a3a  !important;
   border: none;
   border-radius: 1rem;
   font-weight: 600;
@@ -134,7 +134,7 @@
 }
 
 #interview-price-grid-gold {
-  border-color: #CCAC00;
+  border-color: #ff3a3a ;
 }
 
 #interview-price-grid-elite {

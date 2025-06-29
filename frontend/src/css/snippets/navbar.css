@@ -59,6 +59,14 @@
 .nav-link {
   color: #333333 !important;
   font-size: 20px !important;
+  border-radius: 1rem !important;
+}
+
+.signup-btn {
+  border: 3px solid #062A78 !important;
+  padding: 0.5rem 1rem !important;
+  color: #062A78 !important;
+  font-weight: 700 !important;
 }
 
 #nav-au-dd {
@@ -114,4 +122,12 @@
 .nav-f-t-btn:hover {
   background-color: rgb(255, 58, 58) !important;
   color: white !important;
+}
+
+.nav-item.dropdown:hover .dropdown-menu {
+  display: block;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 0;
 }

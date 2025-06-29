@@ -61,7 +61,7 @@ function Navbar() {
                     <li><Link className="dropdown-item nav-item-drop-down-item" to="/reviews" onClick={handleNavigation('/reviews')}>Reviews</Link></li>
                     <li><Link className="dropdown-item nav-item-drop-down-item" to="/faq" onClick={handleNavigation('/faq')}>FAQ</Link></li>
                     <li><a className="dropdown-item nav-item-drop-down-item" href="/contact-us" onClick={handleNavigation('/contact-us')}>Contact Us</a></li>
-                    <li><Link className="dropdown-item nav-item-drop-down-item" to="/join-us" onClick={handleNavigation('/join-us')}>Become Tutor</Link></li>
+                    <li><Link className="dropdown-item nav-item-drop-down-item" to="/join-us" onClick={handleNavigation('/join-us')}>Become a Tutor</Link></li>
                   </ul>
                 </li>
                 <li className="nav-item dropdown">
@@ -76,7 +76,7 @@ function Navbar() {
                   </a>
                   <ul className="dropdown-menu nav-item-drop-down" id="nav-Tu-dd">
                     <li><Link className="dropdown-item nav-item-drop-down-item" to="/find-a-tutor" onClick={handleNavigation('/find-a-tutor')}>Private Tutoring</Link></li>
-                    <li><Link className="dropdown-item nav-item-drop-down-item" to="/bring-a-friend-and-save" onClick={handleNavigation('/bring-a-friend-and-save')}>Bring a Friend and save</Link></li>
+                    <li><Link className="dropdown-item nav-item-drop-down-item" to="/bring-a-friend-and-save" onClick={handleNavigation('/bring-a-friend-and-save')}>Bring a Friend & Save</Link></li>
                   </ul>
                 </li>
                 <li className="nav-item dropdown">
@@ -91,7 +91,7 @@ function Navbar() {
                   </a>
                   <ul className="dropdown-menu nav-item-drop-down" id="nav-me-dd">
                     <li><Link className="dropdown-item nav-item-drop-down-item" to="/ucat" onClick={handleNavigation('/ucat')}>UCAT</Link></li>
-                    <li><Link className="dropdown-item nav-item-drop-down-item" to="/interview-preperation" onClick={handleNavigation('/interview-preperation')}>Interview Preperation</Link></li>
+                    <li><Link className="dropdown-item nav-item-drop-down-item" to="/interview-preperation" onClick={handleNavigation('/interview-preperation')}>Interview Preparation</Link></li>
                   </ul>
                 </li>
                 <li className="nav-item">
@@ -150,8 +150,7 @@ function Navbar() {
                       </li>
                     ) : (
                       <li className="nav-item login-signup-links">
-                        <Link className="nav-link active" aria-current="page" to="/login" onClick={handleNavigation('/login')}>Login</Link>/
-                        <Link className="nav-link active" aria-current="page" to="/signup" onClick={handleNavigation('/signup')}>Sign Up</Link>
+                        <Link className="nav-link signup-btn active" aria-current="page" to="/signup" onClick={handleNavigation('/signup')}>Sign Up</Link>
                       </li>
                     )}
                   </>

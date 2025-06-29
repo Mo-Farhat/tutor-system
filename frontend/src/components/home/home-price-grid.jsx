@@ -26,11 +26,9 @@ function Pricegrid() {
                 <p className="card-text mb-4">Hand-picked tutors with strong subject knowledge and a passion for teaching.</p>
                 <ul className="list-unstyled mb-4">
                   <li className="mb-2">✓ 24/7 Support via Platform</li>
-                  <li className="mb-2">✓ Progress Reports</li>
-                  <li className="mb-2">✓ Medicine/Dentistry Interview Prep</li>
                 </ul>
                 <div className="mt-auto">
-                  <button className="btn btn-primary w-100">Get Started</button>
+                  <a href="/find-a-tutor" className="btn btn-primary w-100">Get Started</a>
                 </div>
               </div>
             </div>
@@ -48,12 +46,12 @@ function Pricegrid() {
                 </div>
                 <p className="card-text mb-4">Tutors with a wealth of experience and consistently outstanding student feedback.</p>
                 <ul className="list-unstyled mb-4">
-                  <li className="mb-2">✓ 24/7 Support via Platform</li>
                   <li className="mb-2">✓ Progress Reports</li>
+                  <li className="mb-2">✓ 24/7 Support via Platform</li>
                   <li className="mb-2">✓ Medicine/Dentistry Interview Prep</li>
                 </ul>
                 <div className="mt-auto">
-                  <button className="btn btn-primary w-100">Get Started</button>
+                  <a href="/find-a-tutor" className="btn btn-primary w-100">Get Started</a>
                 </div>
               </div>
             </div>
@@ -71,17 +69,26 @@ function Pricegrid() {
                 </div>
                 <p className="card-text mb-4">Top-tier tutors with 3+ years experience, glowing reviews, and academic excellence.</p>
                 <ul className="list-unstyled mb-4">
-                  <li className="mb-2">✓ 24/7 Support via Platform</li>
                   <li className="mb-2">✓ Progress Reports</li>
+                  <li className="mb-2">✓ 24/7 Support via Platform</li>
                   <li className="mb-2">✓ Parent Consultations</li>
                   <li className="mb-2">✓ Medicine/Dentistry Interview Prep</li>
                   <li className="mb-2">✓ University/Scholarship Application Support</li>
                 </ul>
                 <div className="mt-auto">
-                  <button className="btn btn-primary w-100">Get Started</button>
+                  <a href="/find-a-tutor" className="btn btn-primary w-100">Get Started</a>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+        {/* Add navigation buttons below the cards */}
+        <div className="row justify-content-center mt-5">
+          <div className="col-auto">
+            <a href="/pricing" className="home-pricing-nav-btn me-3">View Detailed Pricing Table</a>
+          </div>
+          <div className="col-auto">
+            <a href="/bring-a-friend-and-save" className="home-pricing-nav-btn secondary">Bring a Friend & Save</a>
           </div>
         </div>
       </div>
@@ -90,3 +97,4 @@ function Pricegrid() {
 }
 
 export default Pricegrid;
+

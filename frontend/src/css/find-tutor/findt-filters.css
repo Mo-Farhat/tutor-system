@@ -74,3 +74,456 @@
     opacity: 1; /* Ensure visibility */
   }
   
+/* Progressive Filters Main Container */
+.progressive-filters-main {
+    background: linear-gradient(135deg, #0D2371 0%, #062A78 100%);
+    min-height: 200px;
+    padding: 2rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.progressive-filters-main::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.filters-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+}
+
+/* Filter Step Container */
+.filter-step {
+    margin-bottom: 2rem;
+}
+
+.filter-step:last-child {
+    margin-bottom: 0;
+}
+
+.step-content {
+    background: rgba(205, 228, 249, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Step Titles */
+.step-title {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.step-title .highlight {
+    color: #85C5FF;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Selected Filters Pills */
+.selected-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    justify-content: center;
+}
+
+.filter-pill {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 25px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #062A78;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(58, 117, 196, 0.2);
+}
+
+.filter-pill:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    background: white;
+    border-color: #3A75C4;
+}
+
+.filter-pill span {
+    margin-right: 0.5rem;
+}
+
+.remove-btn {
+    background: #ff3a3a;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.remove-btn:hover {
+    background: #e6342e;
+    transform: scale(1.1);
+}
+
+/* Options Grid for Year Level and Curriculum */
+.options-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.option-btn {
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid rgba(58, 117, 196, 0.3);
+    border-radius: 25px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #062A78;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.option-btn:hover {
+    background: white;
+    border-color: #3A75C4;
+    color: #0D2371;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.option-btn:active {
+    transform: translateY(-1px);
+}
+
+/* Subject Search Container */
+.subject-search-container {
+    max-width: 600px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.search-input-container {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.subject-search-input {
+    width: 100%;
+    padding: 1rem 3rem 1rem 1.5rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.95);
+    font-size: 1.1rem;
+    color: #062A78;
+    outline: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.subject-search-input:focus {
+    border-color: #3A75C4;
+    background: white;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.subject-search-input::placeholder {
+    color: #6B7280;
+    font-style: italic;
+}
+
+.search-icon {
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6B7280;
+    font-size: 1.1rem;
+    pointer-events: none;
+}
+
+/* Subject Suggestions */
+.subject-suggestions {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    margin-top: 0.5rem;
+    border: 1px solid rgba(58, 117, 196, 0.2);
+}
+
+.suggestion-item {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    border: none;
+    background: white;
+    text-align: left;
+    font-size: 1rem;
+    color: #062A78;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item:hover {
+    background: #CDE4F9;
+    color: #0D2371;
+}
+
+/* All Subjects Grid */
+.all-subjects-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 1rem 0;
+}
+
+.subject-option-btn {
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(58, 117, 196, 0.2);
+    border-radius: 20px;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #062A78;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
+}
+
+.subject-option-btn:hover {
+    background: white;
+    border-color: #3A75C4;
+    color: #0D2371;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.subject-option-btn:active {
+    transform: translateY(0);
+}
+
+/* Location Options */
+.location-options {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.online-tutors-btn {
+    background: #ff3a3a;
+    color: white;
+    border: 2px solid transparent;
+    border-radius: 25px;
+    padding: 0.75rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.online-tutors-btn:hover,
+.online-tutors-btn.active {
+    background: white;
+    color: #ff3a3a;
+    border-color: #ff3a3a;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.or-text {
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 500;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.postcode-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.postcode-input {
+    width: 120px;
+    padding: 0.75rem 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.95);
+    font-size: 1rem;
+    color: #062A78;
+    text-align: center;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.postcode-input:focus {
+    border-color: #3A75C4;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.postcode-input:disabled {
+    background: rgba(255, 255, 255, 0.5);
+    color: #6B7280;
+    cursor: not-allowed;
+}
+
+.postcode-input::placeholder {
+    color: #6B7280;
+}
+
+.save-btn {
+    background: rgba(255, 255, 255, 0.95);
+    color: #062A78;
+    border: 2px solid rgba(58, 117, 196, 0.3);
+    border-radius: 20px;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.save-btn:hover {
+    background: white;
+    border-color: #3A75C4;
+    color: #0D2371;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Loading State */
+.spinner-border.text-white {
+    color: white !important;
+    margin: 2rem auto;
+    display: block;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .filters-container {
+        padding: 0 1rem;
+    }
+    
+    .step-content {
+        padding: 1.5rem;
+    }
+    
+    .step-title {
+        font-size: 1.3rem;
+    }
+    
+    .options-grid {
+        gap: 0.75rem;
+    }
+    
+    .option-btn {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+    }
+    
+    .all-subjects-grid {
+        gap: 0.5rem;
+        max-height: 300px;
+    }
+    
+    .subject-option-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .location-options {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .postcode-container {
+        justify-content: center;
+    }
+    
+    .subject-search-input {
+        font-size: 1rem;
+        padding: 0.9rem 2.5rem 0.9rem 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .progressive-filters-main {
+        padding: 1.5rem 0;
+    }
+    
+    .step-content {
+        padding: 1rem;
+        border-radius: 15px;
+    }
+    
+    .step-title {
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .selected-filters {
+        margin-bottom: 1rem;
+    }
+    
+    .filter-pill {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+    }
+    
+    .option-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .all-subjects-grid {
+        gap: 0.4rem;
+        max-height: 250px;
+    }
+    
+    .subject-option-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+}
+  

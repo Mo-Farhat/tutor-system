@@ -116,12 +116,11 @@
     font-size: 1.1rem;
     font-weight: 600;
     color: #333;
-    margin-bottom: 1rem;
-    text-align: center;
+    margin-bottom: 0;
+    text-align: start !important;
     width: 100%;
     display: flex;
     align-items: center;
-    justify-content: center;
 }
 
 .pricing-price-grid-feature-content {
@@ -135,6 +134,11 @@
 .pricing-price-grid-feature-content-b {
     border-bottom: 3px solid transparent;
     border-radius: 0 0 1rem 1rem;
+}
+
+.pricing-price-grid-feature-title-b {
+    color: #7d848a;
+    font-weight: 400 !important;
 }
 
 #pricing-price-grid-gold {

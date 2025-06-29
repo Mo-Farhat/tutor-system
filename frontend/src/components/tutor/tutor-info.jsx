@@ -185,14 +185,14 @@ function TutorInfo({ tutorData }) {
                                 {/* Consultation Button */}
                                 <div className="row mt-4">
                                     <div className="col-12">
-                                        <div className="d-flex align-items-center flex-wrap gap-3">
+                                        <div className="d-flex flex-column align-items-center">
                                             <button 
-                                                className="tutor-info-consultation-btn"
+                                                className="tutor-info-consultation-btn mb-2"
                                                 onClick={handleConsultationClick}
                                             >
-                                                Book free academic consultation
+                                                Book free 20-minute free academic consultation
                                             </button>
-                                            <small className="tutor-info-consultation-note">
+                                            <small className="tutor-info-consultation-note text-center">
                                                 * No payment details required until after consultation
                                             </small>
                                         </div>

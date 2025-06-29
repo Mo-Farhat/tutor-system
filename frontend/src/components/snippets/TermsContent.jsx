@@ -87,7 +87,7 @@ const TermsContent = () => {
       <p>(d) we will provide you with notice if you are moved into the Platinum tier, at which point the new pricing tier will apply immediately upon such notice.</p>
       
       <p>5.5. If your services are engaged by a Student Member:</p>
-      <p>(a) you will complete a "30-minute free academic consultation" with your student(s) prior to commencing and logging any paid lessons;</p>
+      <p>(a) you will complete a "20-minute free academic consultation" with your student(s) prior to commencing and logging any paid lessons;</p>
       <p>(b) you acknowledge and agree that Student Members will pay Strive Academics for the delivery of your service, once it has been delivered;</p>
       <p>(c) you authorise use to collect any fees for your services ('Billings') on your behalf;</p>
       <p>(d) we connect you with students through our Tutor Marketplace platform. To cover the cost of maintaining this platform, we deduct a Service Fee from your hourly rate. Here's a breakdown of what Tutor Members earn after our fees:</p>
@@ -136,7 +136,7 @@ const TermsContent = () => {
       <p>7.3. Payment to Tutor Members will be made upon receiving the payment made by the Student Member. Payments will be processed securely via Stripe.</p>
       
       <h3 className="terms-section-subtitle">10. Free trials</h3>
-      <p>10.1 Strive Academics provides new Private Tutoring students with a "20-minute Free Academic Consultation" (also referred to "Free Academic Consultation"). Each student is eligible for one such session per tutor. Tutors are directed not to concentrate on covering content or learning materials during these sessions. The purpose of this consultation is to determine how tutoring sessions should run, and to introduce the Student Member to the Tutor Member. Although the "30-minute free academic consultation" incurs no charge for the student, the Cancellation Policy remains applicable. Content-related enquiries are strictly not permitted during this consultation.</p>
+      <p>10.1 Strive Academics provides new Private Tutoring students with a "20-minute Free Academic Consultation" (also referred to "Free Academic Consultation"). Each student is eligible for one such session per tutor. Tutors are directed not to concentrate on covering content or learning materials during these sessions. The purpose of this consultation is to determine how tutoring sessions should run, and to introduce the Student Member to the Tutor Member. Although the "20-minute free academic consultation" incurs no charge for the student, the Cancellation Policy remains applicable. Content-related enquiries are strictly not permitted during this consultation.</p>
       
       <h3 className="terms-section-subtitle">11. Academic Honesty</h3>
       <p>11.1 You are prohibited from utilising Strive Academics to solicit, participate in, or support any type of academic dishonesty. This includes actions such as completing assignments or projects, writing papers or essays, taking (or assisting in taking) quizzes or exams for someone else, or engaging in work that violates academic or conduct policies of educational institutions or workplaces. Furthermore, any attempt to engage in such activities may result in immediate suspension or termination of your account. We uphold a strict zero-tolerance policy towards academic dishonesty to maintain the integrity of our platform and the academic community as a whole.</p>
@@ -153,7 +153,7 @@ const TermsContent = () => {
       
       <h3 className="terms-section-subtitle">Appendix A – Payment Policy</h3>
       <ol className="terms-appendix-list">
-        <li>The "30-minutes free academic consultation" does not incur any fee. In all lessons thereafter, we will only collect lesson payments after a lesson has been completed.</li>
+        <li>The "20-minutes free academic consultation" does not incur any fee. In all lessons thereafter, we will only collect lesson payments after a lesson has been completed.</li>
         <li>The first lesson with a Tutor will be charged as an invoice, sent to the Student's chosen email address.</li>
         <li>This invoice must be paid within 3 days after being issued via Credit Card or Direct Debit methods.</li>
         <li>In the future sessions, charges will be processed automatically through our payment platform. Following the completion of a lesson and the Tutor's confirmation on our system, payment will be automatically deducted from the Student's designated payment method one hour later.</li>

@@ -154,13 +154,16 @@ function TutorContact() {
                                                 required
                                             >
                                                 <option value="">Select a subject</option>
-                                                    <option value="IB Chemistry HL">IB Chemistry HL Year 11-12</option>
-                                                    <option value="IB Biology HL">IB Biology HL Year 11-12</option>
-                                                    <option value="IB Biology SL">IB Biology SL Year 11-12</option>
-                                                    <option value="Maths 5-10">Maths Year 5-10</option>
-                                                    <option value="Science 5-10">Science Year 5-10</option>
-                                                    <option value="Maths 1-4">Maths Year 1-4</option>
-                                                    <option value="Math Applications">Mathematics Applications Year 11-12</option>
+                                                <option value="VCE Chemistry">VCE Chemistry</option>
+                                                <option value="HSC Physics">HSC Physics</option>
+                                                <option value="IB Biology HL">IB Biology HL</option>
+                                                <option value="QCE Mathematical Methods">QCE Mathematical Methods</option>
+                                                <option value="UCAT">UCAT (Medical Entrance)</option>
+                                                <option value="GAMSAT">GAMSAT (Medical Entrance)</option>
+                                                <option value="Year 1-10 Maths">Year 1-10 Maths</option>
+                                                <option value="Year 1-10 Science">Year 1-10 Science</option>
+                                                <option value="Selective Entry">Selective Entry</option>
+                                                <option value="Interview Preparation">Interview Preparation (Medical)</option>
                                             </select>
                                             </div>
                                         </div>

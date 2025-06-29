@@ -6,7 +6,8 @@
     background-image: url('/public/Images/site-images/home/site-stats.svg');
     background-repeat: no-repeat;
     background-size: cover;
-    background-position: 0 100%;
+    background-position: 100% 100% !important;
+    margin-bottom: 3rem;
 
   }
   

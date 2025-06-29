@@ -53,8 +53,9 @@ function Ucat() {
                             class="accordion-collapse collapse"
                         >
                             <div class="accordion-body">
-                            You will need access to the Medify questionbank - the gold standard for UCAT questions. While we have no affiliation with Medify, we know that their questionbank closely represents the standard of questions on the UCAT exam.<br /><br />
-                            You can purchase Medify using the following link: <strong><a className="faq-link" href="https://www.medify.com.au/ucat">https://www.medify.com.au/ucat</a></strong>
+                            You will need access to the MedEntry questionbank - the gold standard for UCAT questions. We have partnered with MedEntry to offer you a 10% discount on packages.<br /><br />
+                            Please use the code STRIVE_25 for a 10% discount: <strong><a className="faq-link" href="https://www.medentry.edu.au/ucat">https://www.medentry.edu.au/ucat</a></strong>.<br /><br />We recommend having access to the Essential Package as this provides access to the questionbank. You will be able to learn strategies with Strive, and then apply these strategies in daily preparation using MedEntry.
+
                             </div>
                         </div>
                     </div>

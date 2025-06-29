@@ -159,7 +159,7 @@ function PricingPricegrid() {
 
                     {/* Progress Reports */}
                         <div className="col p-3 d-flex">
-                            <h4 className="pricing-price-grid-feature-title">Progress Reports</h4>
+                            <h4 className="pricing-price-grid-feature-title ps-3 pricing-price-grid-feature-title-b">Progress Reports</h4>
                         </div>
                         <div className="col text-center pricing-price-grid-feature-content" id='pricing-price-grid-gold'>
                             <span className="pricing-price-grid-check pricing-price-grid-gold-check"></span>    
@@ -173,7 +173,7 @@ function PricingPricegrid() {
 
                     {/* Parent consultations */}
                         <div className="col p-3 d-flex">
-                            <h4 className="pricing-price-grid-feature-title">Parent consultations</h4>
+                            <h4 className="pricing-price-grid-feature-title ps-3 pricing-price-grid-feature-title-b">Parent consultations</h4>
                         </div>
                         <div className="col text-center pricing-price-grid-feature-content" id='pricing-price-grid-gold'>
                             <span className="pricing-price-grid-check pricing-price-grid-gold-check"></span>    
@@ -187,7 +187,7 @@ function PricingPricegrid() {
 
                     {/* 24/7 support */}
                         <div className="col p-3 d-flex">
-                            <h4 className="pricing-price-grid-feature-title">24/7 support via Platform</h4>
+                            <h4 className="pricing-price-grid-feature-title ps-3 pricing-price-grid-feature-title-b">24/7 support via Platform</h4>
                         </div>
                         <div className="col text-center pricing-price-grid-feature-content" id='pricing-price-grid-gold'>
                             <span className="pricing-price-grid-check pricing-price-grid-gold-check"></span>    
@@ -201,7 +201,7 @@ function PricingPricegrid() {
 
                     {/* Medicine/Dentistry Interview */}
                         <div className="col p-3 d-flex">
-                            <h4 className="pricing-price-grid-feature-title">Medicine/Dentistry Interview Preparation Workshops</h4>
+                            <h4 className="pricing-price-grid-feature-title ps-3 pricing-price-grid-feature-title-b">Medicine/Dentistry Interview Preparation Workshops</h4>
                         </div>
                         <div className="col text-center pricing-price-grid-feature-content" id='pricing-price-grid-gold'>
                             <span className="pricing-price-grid-check pricing-price-grid-gold-check"></span>    
@@ -215,7 +215,7 @@ function PricingPricegrid() {
 
                     {/* Scholarship Application */}
                         <div className="col p-3 d-flex">
-                            <h4 className="pricing-price-grid-feature-title">Scholarship Application Support</h4>
+                            <h4 className="pricing-price-grid-feature-title ps-3 pricing-price-grid-feature-title-b">Scholarship Application Support</h4>
                         </div>
                         <div className="col text-center pricing-price-grid-feature-content" id='pricing-price-grid-gold'>
                             <span className="pricing-price-grid-check pricing-price-grid-gold-check"></span>    
@@ -229,7 +229,7 @@ function PricingPricegrid() {
 
                     {/* University Application */}
                         <div className="p-3 d-flex">
-                            <h4 className="pricing-price-grid-feature-title">University Application Support</h4>
+                            <h4 className="pricing-price-grid-feature-title ps-3 pricing-price-grid-feature-title-b">University Application Support</h4>
                         </div>
                         <div className="text-center pricing-price-grid-feature-content" id='pricing-price-grid-gold'>
                             <span className="pricing-price-grid-check pricing-price-grid-gold-check"></span>    
@@ -243,7 +243,7 @@ function PricingPricegrid() {
 
                     {/* Discounted Packages*/}
                         <div className="p-3 d-flex">
-                            <h4 className="pricing-price-grid-feature-title">Discounted Packages</h4>
+                            <h4 className="pricing-price-grid-feature-title ps-3 pricing-price-grid-feature-title-b" >Discounted Packages</h4>
                         </div>
                         <div className="text-center pricing-price-grid-feature-content" id='pricing-price-grid-gold'>
                             <span className="pricing-price-grid-check pricing-price-grid-gold-check"></span>    
@@ -257,7 +257,7 @@ function PricingPricegrid() {
 
                     {/* Mode of Delivery */}
                         <div className="col p-3 d-flex">
-                            <h4 className="pricing-price-grid-feature-title">Mode of Delivery</h4>
+                            <h4 className="pricing-price-grid-feature-title ps-3 pricing-price-grid-feature-title-b">Mode of Delivery</h4>
                         </div>
                         <div className="col text-center pricing-price-grid-feature-content" id='pricing-price-grid-gold'>
                             <p className="text-muted small">Online</p>    
@@ -271,7 +271,7 @@ function PricingPricegrid() {
 
                     {/* Lesson Style */}
                         <div className="col p-3 d-flex">
-                            <h4 className="pricing-price-grid-feature-title">Lesson Style</h4>
+                            <h4 className="pricing-price-grid-feature-title ps-3 pricing-price-grid-feature-title-b">Lesson Style</h4>
                         </div>
                         <div className="col text-center pricing-price-grid-feature-content" id='pricing-price-grid-gold'>
                             <p className="text-muted small">Interactive structured sessions or Q&A style</p>    
@@ -285,7 +285,7 @@ function PricingPricegrid() {
 
                     {/* Payments */}
                         <div className="col p-3 d-flex">
-                            <h4 className="pricing-price-grid-feature-title">Payments</h4>
+                            <h4 className="pricing-price-grid-feature-title ps-3 pricing-price-grid-feature-title-b">Payments</h4>
                         </div>
                         <div className="col text-center pricing-price-grid-feature-content pricing-price-grid-feature-content-b" id='pricing-price-grid-gold'>
                             <p className="text-muted small">Online, payment following each lesson</p>    

@@ -82,7 +82,7 @@ function Private() {
                         >
                             <div class="accordion-body">
                                 You can view our stellar tutors here to find a suitable tutor.
-                                From here, click the "Contact Me" button on your tutor's page to book your 30-minute free academic consultation. To schedule this session, your tutor will get in touch with you within 24 hours via a phone call or text message.
+                                From here, click the "Contact Me" button on your tutor's page to book your 20-minute free academic consultation. To schedule this session, your tutor will get in touch with you within 24 hours via a phone call or text message.
                             </div>
                         </div>
                     </div>
@@ -96,7 +96,7 @@ function Private() {
                                 aria-expanded="false"
                                 aria-controls="panelsStayOpen-collapseP4"
                             >
-                                What do I do during my 30-minute free academic consultation?
+                                What do I do during my 20-minute free academic consultation?
                             </button>
                         </h2>
                         <div
@@ -104,11 +104,11 @@ function Private() {
                             class="accordion-collapse collapse"
                         >
                             <div class="accordion-body">
-                                The 30-minute free academic consultation is an opportunity for you to meet your tutor, agree upon how you would like sessions to run, and plan for success.
+                                The 20-minute free academic consultation is an opportunity for you to meet your tutor, agree upon how you would like sessions to run, and plan for success.
                                 <br /><br />
                                 <strong>Content is not covered during this session, as its purpose is to facilitate future sessions.</strong>
                                 <br /><br />
-                                <strong>The 30-minute free academic consultation is compulsory </strong>as it is essential to ensure you have been matched to a suitable tutor.
+                                <strong>The 20-minute free academic consultation is compulsory </strong>as it is essential to ensure you have been matched to a suitable tutor.
                             </div>
                         </div>
                     </div>
@@ -130,8 +130,8 @@ function Private() {
                             class="accordion-collapse collapse"
                         >
                             <div class="accordion-body">
-                                Once you contact a tutor, they will get back to you via a text message or phone call within 24 hours to schedule your 30-minute free academic consultation. <br /><br />
-                                After you complete your 30-minute free academic consultation, lessons can start at any point after that!
+                                Once you contact a tutor, they will get back to you via a text message or phone call within 24 hours to schedule your 20-minute free academic consultation. <br /><br />
+                                After you complete your 20-minute free academic consultation, lessons can start at any point after that!
                             </div>
                         </div>
                     </div>
@@ -145,7 +145,7 @@ function Private() {
                                 aria-expanded="false"
                                 aria-controls="panelsStayOpen-collapseP6"
                             >
-                                How do I organise lessons after my 30-minute free academic consultation?
+                                How do I organise lessons after my 20-minute free academic consultation?
                             </button>
                         </h2>
                         <div
@@ -153,7 +153,7 @@ function Private() {
                             class="accordion-collapse collapse"
                         >
                             <div class="accordion-body">
-                                During the 30-minute free academic consultation, you will receive your tutor's contact details (phone number and email address). You can then contact your tutor directly to organise sessions.<br /><br />
+                                During the 20-minute free academic consultation, you will receive your tutor's contact details (phone number and email address). You can then contact your tutor directly to organise sessions.<br /><br />
                                 You will be able to contact your tutor directly to reschedule sessions if needed, in accordance with our Terms and Conditions.
                             </div>
                         </div>
@@ -223,7 +223,7 @@ function Private() {
                             class="accordion-collapse collapse"
                         >
                             <div class="accordion-body">
-                                Lessons run exactly how you would like them to run, and as agreed upon in the 30-minute free academic consultation. Sessions can be run in a curriculum based style where the tutor helps you understand content, or they can be a Q&A style. We also believe that assignment drafting is an opportunity to learn so must be done within a lesson.
+                                Lessons run exactly how you would like them to run, and as agreed upon in the 20-minute free academic consultation. Sessions can be run in a curriculum based style where the tutor helps you understand content, or they can be a Q&A style. We also believe that assignment drafting is an opportunity to learn so must be done within a lesson.
                             </div>
                         </div>
                     </div>
