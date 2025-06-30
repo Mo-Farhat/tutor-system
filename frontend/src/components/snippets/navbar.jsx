@@ -29,7 +29,7 @@ function Navbar() {
     <div className="row w-100 d-flex nav-main g-0">
       <div className="col-12 g-0 nav-sec">
         <nav className="navbar navbar-expand-lg">
-          <div className="container-fluid p-0 col-9">
+          <div className="container-fluid p-0">
             <Link className="navbar-brand" to="/" onClick={handleNavigation('/')}>
               <img src="/Images/logo/logo-h/logo-h-gr.svg" alt="" className="nav-logo" />
             </Link>

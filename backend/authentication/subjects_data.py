@@ -65,41 +65,44 @@ YEAR_11_12_SUBJECTS = {
         "IB Chinese B SL", "IB Chinese ab initio", "IB Spanish ab initio", "IB Spanish B SL", 
         "IB Music SL", "IB Psychology SL", "IB Psychology HL", "IB Business Management HL", 
         "IB Physics SL", "IB Physics HL"
+    ],
+    "Medical Entrance": [
+        "UCAT", "GAMSAT", "Interview Preparation", "Application Support"
     ]
 }
 
 YEAR_1_10_SUBJECTS = {
     "Victoria": [
         "Maths", "English", "Science", "Selective Entry", "English as an Additional Language (EAL)", 
-        "Music Performance", "French", "Japanese"
+        "Music Performance"
     ],
     "Queensland": [
         "Maths", "English", "Science", "Selective Entry", "English as an Additional Language (EAL)", 
-        "Music Performance", "French", "Japanese"
+        "Music Performance"
     ],
     "South Australia": [
         "Maths", "English", "Science", "Selective Entry", "English as an Additional Language (EAL)", 
-        "Music Performance", "French", "Japanese"
+        "Music Performance"
     ],
     "New South Wales": [
         "Maths", "English", "Science", "Selective Entry", "English as an Additional Language (EAL)", 
-        "Music Performance", "French", "Japanese"
+        "Music Performance"
     ],
     "Western Australia": [
         "Maths", "English", "Science", "Selective Entry", "English as an Additional Language (EAL)", 
-        "Music Performance", "French", "Japanese"
+        "Music Performance"
     ],
     "Northern Territory": [
         "Maths", "English", "Science", "Selective Entry", "English as an Additional Language (EAL)", 
-        "Music Performance", "French", "Japanese"
+        "Music Performance"
     ],
     "Australian Capital Territory": [
         "Maths", "English", "Science", "Selective Entry", "English as an Additional Language (EAL)", 
-        "Music Performance", "French", "Japanese"
+        "Music Performance"
     ],
     "Tasmania": [
         "Maths", "English", "Science", "Selective Entry", "English as an Additional Language (EAL)", 
-        "Music Performance", "French", "Japanese"
+        "Music Performance"
     ]
 }
 
@@ -112,7 +115,8 @@ CURRICULUM_TO_STATE = {
     "WACE": "Western Australia",
     "NTCET": "Northern Territory",
     "BSSS": "Australian Capital Territory",
-    "IB": "International"  # IB can be in any state
+    "IB": "International",  # IB can be in any state
+    "Medical Entrance": "National"  # Medical entrance exams are national
 }
 
 # Year level options
