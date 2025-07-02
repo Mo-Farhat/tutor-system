@@ -1,9 +1,12 @@
 import React from 'react';
 import "../../css/interview/interview-price-grid.css";
+import useAnimateOnScroll from '../../utils/useAnimateOnScroll';
 
 function InterviewPriceGrid() {
+    const ref = useAnimateOnScroll();
+
     return (
-        <>
+        <div ref={ref} className="interview-price-grid-section section-animate-target">
             <section className="row container-fluid section d-flex g-0 z-index-0 interview-price-grid-main" id="interview-price-grid">
                 <div className="row col-9 d-flex interview-price-grid-sec">
 
@@ -107,7 +110,7 @@ function InterviewPriceGrid() {
                     </div>
                 </div>
             </section>
-        </>
+        </div>
     );
 }
 

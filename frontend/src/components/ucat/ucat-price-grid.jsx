@@ -1,9 +1,12 @@
 import React from 'react';
 import "../../css/ucat/ucat-price-grid.css";
+import useAnimateOnScroll from '../../utils/useAnimateOnScroll';
 
 function UcatPricegrid() {
+    const ref = useAnimateOnScroll();
+
     return (
-        <>
+        <div ref={ref} className="ucat-price-grid-section section-animate-target">
             <section className="row container-fluid section d-flex g-0 z-index-0 ucat-price-grid-main" id="ucat-price-grid">
                 <div className="row col-11 col-lg-9 d-flex ucat-price-grid-sec">
                     <h3 className="ucat-price-grid-heading">Why Choose Us ?</h3>
@@ -53,13 +56,13 @@ function UcatPricegrid() {
                     </div>
                     <div className="row mt-4">
                         <div className="col-12 text-center">
-                            <p className="text-muted small">*please view our payment policy for more information: insert hyperlink to terms and conditions</p>
+                            <p className="text-muted small">*please view our payment policy for more information: <a href="/terms" className="text-decoration-none text-primary">terms and conditions</a></p>
                         </div>
                     </div>
 
                 </div>
             </section>
-        </>
+        </div>
     );
 }
 

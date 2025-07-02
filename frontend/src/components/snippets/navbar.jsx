@@ -61,8 +61,26 @@ function Navbar() {
                     <li><Link className="dropdown-item nav-item-drop-down-item" to="/reviews" onClick={handleNavigation('/reviews')}>Reviews</Link></li>
                     <li><Link className="dropdown-item nav-item-drop-down-item" to="/faq" onClick={handleNavigation('/faq')}>FAQ</Link></li>
                     <li><a className="dropdown-item nav-item-drop-down-item" href="/contact-us" onClick={handleNavigation('/contact-us')}>Contact Us</a></li>
-                    <li><Link className="dropdown-item nav-item-drop-down-item" to="/join-us" onClick={handleNavigation('/join-us')}>Become a Tutor</Link></li>
+                    <li><Link className="dropdown-item nav-item-drop-down-item" to="/join-us" onClick={handleNavigation('/join-us')}>Become A Tutor</Link></li>
                   </ul>
+                </li>
+                <li className="nav-item dropdown">
+                  <a
+                    className="nav-link"
+                    href="#"
+                    role="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
+                    Medical Entrance
+                  </a>
+                  <ul className="dropdown-menu nav-item-drop-down" id="nav-me-dd">
+                    <li><Link className="dropdown-item nav-item-drop-down-item" to="/ucat" onClick={handleNavigation('/ucat')}>UCAT</Link></li>
+                    <li><Link className="dropdown-item nav-item-drop-down-item" to="/interview-preparation" onClick={handleNavigation('/interview-preperation')}>Interview Preparation</Link></li>
+                  </ul>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link active" aria-current="page" to="/pricing" onClick={handleNavigation('/pricing')}>Pricing</Link>
                 </li>
                 <li className="nav-item dropdown">
                   <a
@@ -78,24 +96,6 @@ function Navbar() {
                     <li><Link className="dropdown-item nav-item-drop-down-item" to="/find-a-tutor" onClick={handleNavigation('/find-a-tutor')}>Private Tutoring</Link></li>
                     <li><Link className="dropdown-item nav-item-drop-down-item" to="/bring-a-friend-and-save" onClick={handleNavigation('/bring-a-friend-and-save')}>Bring a Friend & Save</Link></li>
                   </ul>
-                </li>
-                <li className="nav-item dropdown">
-                  <a
-                    className="nav-link"
-                    href="#"
-                    role="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  >
-                    Medical Entrance
-                  </a>
-                  <ul className="dropdown-menu nav-item-drop-down" id="nav-me-dd">
-                    <li><Link className="dropdown-item nav-item-drop-down-item" to="/ucat" onClick={handleNavigation('/ucat')}>UCAT</Link></li>
-                    <li><Link className="dropdown-item nav-item-drop-down-item" to="/interview-preperation" onClick={handleNavigation('/interview-preperation')}>Interview Preparation</Link></li>
-                  </ul>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link active" aria-current="page" to="/pricing" onClick={handleNavigation('/pricing')}>Pricing</Link>
                 </li>
                 <Link to='/find-a-tutor' className="btn btn-outline-primary nav-item nav-f-t-btn" onClick={handleNavigation('/find-a-tutor')}>
                   Find a Tutor

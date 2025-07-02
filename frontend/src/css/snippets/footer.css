@@ -66,6 +66,7 @@
 .bootom-footer-social {
     display: flex;
     align-items: center;
+    transform: translateY(-3.5rem);
 }
 
 /* Social icons */
@@ -143,4 +144,60 @@
     text-align: center;
     margin-bottom: 1.5rem;
   }
+}
+
+.footer-animate {
+  animation: fadeInUpFooter 1s cubic-bezier(0.23, 1, 0.32, 1) 1;
+}
+
+@keyframes fadeInUpFooter {
+  0% {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.section-animate-target {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s cubic-bezier(0.23, 1, 0.32, 1), transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.section-animate {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+/* Footer navigation styles */
+.bootom-footer-nav-heading {
+  color: #FF3A3A;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.bootom-footer-nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.bootom-footer-nav-item {
+  margin-bottom: 0.5rem;
+}
+
+.bootom-footer-nav-link {
+  color: white;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color 0.3s ease;
+}
+
+.bootom-footer-nav-link:hover {
+  color: #85C5FF;
+  text-decoration: none;
 }

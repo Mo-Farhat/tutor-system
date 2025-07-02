@@ -69,6 +69,11 @@
   font-weight: 700 !important;
 }
 
+.signup-btn:hover {
+  background-color: #062A78 !important;
+  color: white !important;
+}
+
 #nav-au-dd {
   margin-left: -28%;
   /* mobile
