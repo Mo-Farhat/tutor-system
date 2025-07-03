@@ -1,5 +1,6 @@
 import React from "react";
 import "../../css/reviews/reviews-list.css";
+import useAnimateOnScroll from '../../utils/useAnimateOnScroll';
 
 // Review card component
 const ReviewCard = ({ name, date, rating, reviewText, platform, ownerReply, ownerReplyDate, isNew, photos }) => {
@@ -127,23 +128,27 @@ function ReviewsList() {
     }
   ];
 
+  const ref = useAnimateOnScroll();
+
   return (
-    <div className="d-flex reviews-list-container">
-      <div className="reviews-grid">
-        {reviews.map((review) => (
-          <ReviewCard
-            key={review.id}
-            name={review.name}
-            date={review.date}
-            rating={review.rating}
-            reviewText={review.reviewText}
-            platform={review.platform}
-            ownerReply={review.ownerReply}
-            ownerReplyDate={review.ownerReplyDate}
-            isNew={review.isNew}
-            photos={review.photos}
-          />
-        ))}
+    <div ref={ref} className="reviews-list-section section-animate-target">
+      <div className="d-flex reviews-list-container">
+        <div className="reviews-grid">
+          {reviews.map((review) => (
+            <ReviewCard
+              key={review.id}
+              name={review.name}
+              date={review.date}
+              rating={review.rating}
+              reviewText={review.reviewText}
+              platform={review.platform}
+              ownerReply={review.ownerReply}
+              ownerReplyDate={review.ownerReplyDate}
+              isNew={review.isNew}
+              photos={review.photos}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

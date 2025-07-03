@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import "../../css/interview/interview-hdiw.css";
+import useAnimateOnScroll from '../../utils/useAnimateOnScroll';
 
 function InterviewHdiw() {
     const [showModal, setShowModal] = useState(false);
@@ -50,7 +51,10 @@ function InterviewHdiw() {
         };
     }, []);
     
+    const ref = useAnimateOnScroll();
+    
     return (
+        <div ref={ref} className="interview-hdiw-section section-animate-target">
             <section className="row container-fluid section d-flex g-0 z-index-0 interview-hdiw-main" id="interview-hdiw">
                 <div className="row col-lg-9 col-md-12 d-flex interview-hdiw-sec">
                     <div className="container-fluid interview-hdiw-container">
@@ -252,6 +256,7 @@ function InterviewHdiw() {
                     </div>
                 )}
             </section>
+        </div>
     );
 }
 

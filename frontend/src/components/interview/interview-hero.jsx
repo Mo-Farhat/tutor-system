@@ -1,9 +1,12 @@
 import React from 'react';
 import "../../css/interview/interview-hero.css";
+import useAnimateOnScroll from '../../utils/useAnimateOnScroll';
 
 function InterviewHero() {
+    const ref = useAnimateOnScroll();
+
     return (
-        <>
+        <div ref={ref} className="interview-hero-section section-animate-target">
             <section className="row container-fluid section d-flex g-0 z-index-0 interview-hero-main" id="interview-hero">
                 <div className="row col-9 d-flex interview-hero-sec">
                     <div className="interview-hero-pattern"></div>
@@ -20,7 +23,7 @@ function InterviewHero() {
                     </div>
                 </div>
             </section>
-        </>
+        </div>
     );
 }
 

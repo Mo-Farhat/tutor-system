@@ -64,7 +64,11 @@
   font-weight: 700 !important;
 }
 
-/* Dropdown positioning using transform for better responsiveness */
+.signup-btn:hover {
+  background-color: #062A78 !important;
+  color: white !important;
+}
+
 #nav-au-dd {
   transform: translateX(-28%);
 }

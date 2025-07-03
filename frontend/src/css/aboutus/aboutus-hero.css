@@ -8,25 +8,25 @@
 
 .aboutus-hero-top {
     justify-content: center;
-    margin: 20rem 0 !important;
+    margin: 30rem 0 !important;
     max-width: 2000px !important;
-    margin-bottom: 4rem !important;
+    margin-bottom: 5rem !important;
 }
 
 .aboutus-strive-logo {
-    height: 600px;
+    height: 400px;
     width: auto;
     transform: translateY(-2rem);
 }
 
 .aboutus-hero-main-h {
-    transform: translateY(-10rem);
+    transform: translateY(-6rem);
     justify-content: center;
     color: #0D2371;
     height: fit-content !important;
 }
 
 .aboutus-hero-sub-h {
-    transform: translateY(-10rem);
+    transform: translateY(-6rem);
     justify-content: center;
 }

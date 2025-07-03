@@ -1,9 +1,12 @@
 import React from 'react';
 import "../../css/joinus/joinus-hero.css";
+import useAnimateOnScroll from '../../utils/useAnimateOnScroll';
 
 function JoinusHero() {
+    const ref = useAnimateOnScroll();
+
     return (
-        <>
+        <div ref={ref} className="joinus-hero-section section-animate-target">
             <section className="row container-fluid section d-flex g-0 z-index-0 joinus-hero-main" id="joinus-hero">
                 <div className="row col-9 d-flex joinus-hero-sec">
                     <div className="joinus-hero-pattern"></div>
@@ -25,7 +28,7 @@ function JoinusHero() {
                     We have set criteria and only hire the best tutors across Australia.
                 </h2>                
             </div>
-        </>
+        </div>
     );
 }
 

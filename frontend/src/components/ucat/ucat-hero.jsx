@@ -1,9 +1,12 @@
 import React from 'react';
 import "../../css/ucat/ucat-hero.css";
+import useAnimateOnScroll from '../../utils/useAnimateOnScroll';
 
 function UcatHero() {
+    const ref = useAnimateOnScroll();
+
     return (
-        <>
+        <div ref={ref} className="ucat-hero-section section-animate-target">
             <section className="row container-fluid section d-flex g-0 z-index-0 ucat-hero-main" id="ucat-hero">
                 <div className="row col-9 d-flex ucat-hero-sec">
                     <div className="ucat-hero-pattern"></div>
@@ -20,7 +23,7 @@ function UcatHero() {
                     </div>
                 </div>
             </section>
-        </>
+        </div>
     );
 }
 

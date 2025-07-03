@@ -1,9 +1,12 @@
 import React from 'react';
 import "../../css/ucat/ucat-points.css";
+import useAnimateOnScroll from '../../utils/useAnimateOnScroll';
 
 function UcatPoints() {
+    const ref = useAnimateOnScroll();
+
     return (
-        <>
+        <div ref={ref} className="ucat-points-section section-animate-target">
             <section className="row container-fluid section d-flex g-0 z-index-0 ucat-points-main" id="ucat-points">
                 <div className="row col-11 col-lg-9 d-flex flex-column ucat-points-sec">
                     {/* First Point */}
@@ -121,7 +124,7 @@ function UcatPoints() {
                     </div>
                 </div>
             </section>
-        </>
+        </div>
     );
 }
 
