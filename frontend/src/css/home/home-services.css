@@ -3,91 +3,57 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: clamp(3rem, 5vw, 5rem) 0;
-    gap: clamp(2rem, 4vw, 3rem);
+    padding: 5rem 0;
+    gap: 3rem;
   }
   
   .service-main {
     flex-direction: column;
     align-items: center;
-    gap: clamp(3rem, 5vw, 4rem);
+    gap: 4rem;
     max-width: 2000px !important;
-    width: 100%;
-    padding: 0 1rem;
   }
   
   .service-main-t {
     flex-direction: column;
-    gap: 1rem;
-    width: 100%;
-    max-width: 66.666667%; /* Equivalent to col-8 */
+    gap: 1rem
   }
   
   .service-main-h {
-    font-size: clamp(1.75rem, 3.5vw, 2.25rem);
+    font-size: 2.25rem;
     color: #062A78;
-    margin-bottom: 0;
   }
   
   .service-des {
-    font-size: clamp(1rem, 1.5vw, 1.25rem);
+    font-size: 1.25rem;
     word-spacing: 0.2rem;
-    line-height: clamp(1.5rem, 2.5vw, 2rem);
-    color: #333333;
-    max-width: 87.5%; /* Equivalent to col-7 */
-}
-
-.des-bold {
-    font-weight: 700;
-}
-
-.service-sub-main {
-    width: 100%;
-    max-width: 66.666667%; /* Equivalent to col-8 */
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0;
-}
-
-.service-sub-l-col {
-    flex: 0 0 50%; /* Equivalent to col-6 */
-    max-width: 50%;
-    padding-right: 1rem;
-}
-
-.service-sub-r-col {
-    flex: 0 0 50%; /* Equivalent to col-6 */
-    max-width: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
+    line-height: 2rem;
+    color: 333333;
   }
   
   .service-sub-h-main {
-    gap: clamp(1rem, 2vw, 1.5rem);
+    gap: 1.5rem;
     align-items: center;
-    display: flex;
   }
   
   .service-sub-h-icn-main {
     color: #3A75C4 !important;
-    padding: clamp(1.5rem, 3vw, 3rem);
+  }
+  
+  .service-sub-h-icn-main {
+    padding: 3rem;
     border-radius: 1rem;
     background-color: #CDE4F9;
-    flex-shrink: 0;
   }
   
   .service-sub-h-icn {
-    height: clamp(20px, 3vw, 24px);
-    width: clamp(20px, 3vw, 24px);
+    height: fit-content;
+    width: fit-content;
     color: #0B487F;
   }
   
   .service-sub-h {
     color: #3A75C4;
-    font-size: clamp(1rem, 1.5vw, 1.25rem);
-    margin-bottom: 0;
   }
   
   .service-sub-con {
@@ -95,17 +61,19 @@
     gap: 1rem;
     color: #6B7280;
     padding-left: 1.8rem;
-    margin-bottom: clamp(1.5rem, 3vw, 2rem);
-    font-size: clamp(0.9rem, 1.2vw, 1rem);
-    line-height: clamp(1.3rem, 1.8vw, 1.5rem);
+  }
+  
+  .service-sub-r-col {
+    justify-content: center;
+    align-items: center;
   }
   
   .private-tutoring-img {
     height: auto;
-    width: clamp(300px, 35vw, 600px);
+    width: 600px;
     border-radius: 1rem;
-    transform: translate3d(15%, 0, 0);
-    max-width: 100%;
+    transform: translate3d(15%,0,0);
+
   }
 
   .private-tutoring-2 {
@@ -113,177 +81,27 @@
     z-index: -1;
     opacity: 30%;
     filter: blur(5px);
-    transform: translate3d(20%, 10%, 0);
+    transform: translate3d(20%,10%,0);
   }
   
   .bfs-img {
     transform: scale(100%);
     height: auto;
-    width: clamp(300px, 35vw, 600px);
+    width: 600px;
     margin-left: -40%;
     margin-top: -55%;
-    transform: translate3d(-30%, 20%, 0);
+    transform: translate3d(-30%,20%,0);
     border-radius: 1rem;
-    max-width: 100%;
   }
 
   .bfs-img-2 {
-    transform: translate3d(20%, 25%, 0);
+    transform: translate3d(20%,25%,0);
     z-index: -1;
     opacity: 30%;
     filter: blur(5px);
     border-radius: 1rem;
   }
   
-/* Specific styles for "Bring a Friend and Save!" section */
-.service-main:nth-child(2) .service-main-t {
-    align-items: flex-end; /* Align content to the right */
-}
 
-.service-main:nth-child(2) .service-main-h {
-    text-align: right;
-    margin-left: auto;
-    max-width: 58.333333%; /* Equivalent to col-7 */
-}
-
-.service-main:nth-child(2) .service-des {
-    text-align: right;
-    margin-left: auto;
-    max-width: 58.333333%; /* Equivalent to col-7 */
-}
-
-.service-main:nth-child(2) .service-sub-r-col {
-    padding-left: 1rem;
-    padding-right: 0;
-}
-
-.service-main:nth-child(2) .service-sub-l-col {
-    padding-right: 0;
-    padding-left: 1rem;
-}
-
-/* Responsive breakpoints */
-@media (max-width: 1200px) {
-    .service-main-t {
-        max-width: 75%; /* Slightly wider on medium screens */
-    }
-    
-    .service-sub-main {
-        max-width: 75%;
-    }
-    
-    .service-des {
-        max-width: 95%;
-    }
-    
-    .service-main:nth-child(2) .service-main-h,
-    .service-main:nth-child(2) .service-des {
-        max-width: 70%;
-    }
-}
-
-@media (max-width: 992px) {
-    .service-main-t {
-        max-width: 90%;
-    }
-    
-    .service-sub-main {
-        max-width: 90%;
-        flex-direction: column;
-    }
-    
-    .service-sub-l-col,
-    .service-sub-r-col {
-        flex: 0 0 100%;
-        max-width: 100%;
-        padding-right: 0;
-        padding-left: 0;
-    }
-    
-    .service-sub-r-col {
-        margin-top: 2rem;
-        order: -1; /* Put image first on mobile */
-    }
-    
-    /* Reset "Bring a Friend and Save!" specific positioning on mobile */
-    .service-main:nth-child(2) .service-main-t {
-        align-items: center;
-    }
-    
-    .service-main:nth-child(2) .service-main-h,
-    .service-main:nth-child(2) .service-des {
-        text-align: center;
-        margin-left: 0;
-        max-width: 100%;
-    }
-    
-    .service-main:nth-child(2) .service-sub-r-col {
-        order: -1; /* Image first for both sections on mobile */
-    }
-    
-    .private-tutoring-img,
-    .bfs-img {
-        width: clamp(250px, 60vw, 500px);
-        transform: translate3d(0, 0, 0);
-        margin: 0;
-    }
-    
-    .private-tutoring-2,
-    .bfs-img-2 {
-        transform: translate3d(5%, 5%, 0);
-    }
-}
-
-@media (max-width: 768px) {
-    .service-main-t {
-        max-width: 95%;
-    }
-    
-    .service-sub-main {
-        max-width: 95%;
-    }
-    
-    .service-des {
-        max-width: 100%;
-    }
-    
-    .service-sub-con {
-        padding-left: 1rem;
-    }
-    
-    .service-sub-h-main {
-        gap: 1rem;
-    }
-    
-    .service-sub-h-icn-main {
-        padding: 1.5rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .service-main {
-        padding: 0 0.5rem;
-    }
-    
-    .service-main-t,
-    .service-sub-main {
-        max-width: 100%;
-    }
-    
-    .private-tutoring-img,
-    .bfs-img {
-        width: clamp(200px, 80vw, 400px);
-    }
-    
-    .service-sub-h-main {
-        flex-direction: column;
-        text-align: center;
-        gap: 0.5rem;
-    }
-    
-    .service-sub-con {
-        padding-left: 0;
-        text-align: center;
-    }
-}
+  /* test */
 

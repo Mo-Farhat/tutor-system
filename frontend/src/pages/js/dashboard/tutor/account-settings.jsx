@@ -6,14 +6,13 @@ import "../../../css/dashboards/tutor/account-settings.css"
 
 const AccountSettingsPage = () => {
     return (
-      <div className="tutor-account-settings-page-main d-flex">
-        <div className="tutor-account-settings-nav-bar w-auto">
+      <div className="tutor-account-settings-page-main">
+        <div className="tutor-account-settings-nav-bar">
           {/* tutor navbar */}
-          <Snippets.TutorNavbar />
+          <Snippets.TutorNavbar2 />
         </div>
         <div className="tutor-account-settinngs-content w-100">
           {/* tutor account-settings */}
-          <TutorAccountSettings />
         </div>
         
       </div>

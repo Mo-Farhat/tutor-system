@@ -1,0 +1,241 @@
+/* Tutor Earnings Container */
+.tutor-earnings-dashboard {
+    padding: 30px;
+    min-height: 100dvh;
+    background-color: #f8f9fa;
+    transition: margin-left 0.3s ease;
+    overflow-y: auto;
+}
+
+/* Content Area */
+.tutor-earnings-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Section Styling */
+.tutor-earnings-section {
+    margin-bottom: 40px;
+}
+
+.tutor-earnings-section-title,
+.tutor-earnings-chart-title,
+.tutor-earnings-sessions-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+/* Card Styling */
+.tutor-earnings-card,
+.tutor-earnings-summary,
+.tutor-earnings-chart-card,
+.tutor-earnings-sessions-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+.tutor-earnings-card:hover,
+.tutor-earnings-summary:hover,
+.tutor-earnings-chart-card:hover,
+.tutor-earnings-sessions-card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+.tutor-earnings-card-body,
+.tutor-earnings-chart-card .card-body,
+.tutor-earnings-sessions-card .card-body {
+    padding: 25px;
+}
+
+.tutor-earnings-summary-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 8px;
+}
+.tutor-earnings-summary-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #222;
+}
+.tutor-earnings-summary-sub {
+    font-size: 0.85rem;
+    color: #4caf50;
+    margin-top: 0.25rem;
+}
+.tutor-earnings-info-icon {
+    font-size: 1rem;
+    color: #bbb;
+    margin-left: 0.25rem;
+}
+
+/* Chart Range Buttons */
+.tutor-earnings-chart-range .btn {
+    border-radius: 20px !important;
+    font-size: 0.85rem;
+    padding: 0.25rem 0.75rem;
+}
+.tutor-earnings-chart-range .btn.active {
+    background: #212529;
+    color: #fff;
+    border-color: #212529;
+}
+
+/* Bar Graph */
+.tutor-earnings-bargraph {
+    width: 100%;
+    height: 180px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    gap: 18px;
+    padding-bottom: 1.5rem;
+}
+.tutor-earnings-bar-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 32px;
+}
+.tutor-earnings-bar {
+    width: 100%;
+    border-radius: 8px 8px 0 0;
+    background: #e0e0e0;
+    transition: background 0.2s;
+}
+.tutor-earnings-bar-col.active .tutor-earnings-bar {
+    background: #212529;
+}
+.tutor-earnings-bar-label {
+    font-size: 0.85rem;
+    color: #888;
+    margin-top: 0.5rem;
+}
+
+/* Sessions Table */
+.tutor-earnings-sessions-table {
+    margin-bottom: 0;
+}
+.tutor-earnings-sessions-table th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    color: #495057;
+    padding: 15px;
+}
+.tutor-earnings-sessions-table td {
+    padding: 15px;
+    vertical-align: middle;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 0.97rem;
+    color: #222;
+    background: transparent;
+}
+.tutor-earnings-sessions-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+.tutor-earnings-avatar img {
+    border-radius: 50%;
+    border: 2px solid #eee;
+    object-fit: cover;
+}
+.tutor-earnings-status {
+    font-size: 0.85rem;
+    padding: 0.35em 0.9em;
+    border-radius: 12px;
+}
+.tutor-earnings-view-link {
+    color: #212529;
+    font-weight: 500;
+    text-decoration: underline;
+    font-size: 0.97rem;
+}
+.tutor-earnings-view-link:hover {
+    color: #4caf50;
+}
+
+/* Responsive Design */
+@media (max-width: 991.98px) {
+    .tutor-earnings-dashboard {
+        padding: 20px 15px;
+        margin-left: 0;
+        height: auto;
+        min-height: 100dvh;
+    }
+    .tutor-earnings-section-title,
+    .tutor-earnings-chart-title,
+    .tutor-earnings-sessions-title {
+        font-size: 20px;
+    }
+    .tutor-earnings-card-body,
+    .tutor-earnings-chart-card .card-body,
+    .tutor-earnings-sessions-card .card-body {
+        padding: 20px;
+    }
+    .tutor-earnings-bargraph {
+        height: 120px;
+        gap: 8px;
+    }
+    .tutor-earnings-bar-col {
+        width: 18px;
+    }
+    .tutor-earnings-sessions-table th,
+    .tutor-earnings-sessions-table td {
+        padding: 10px 8px;
+        font-size: 0.85rem;
+    }
+    .tutor-earnings-avatar img {
+        width: 22px !important;
+        height: 22px !important;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .tutor-earnings-dashboard {
+        padding: 15px 10px;
+    }
+    .tutor-earnings-section {
+        margin-bottom: 30px;
+    }
+    .tutor-earnings-card-body,
+    .tutor-earnings-chart-card .card-body,
+    .tutor-earnings-sessions-card .card-body {
+        padding: 15px;
+    }
+    .tutor-earnings-section-title,
+    .tutor-earnings-chart-title,
+    .tutor-earnings-sessions-title {
+        font-size: 16px;
+    }
+    .tutor-earnings-bargraph {
+        height: 90px;
+        gap: 4px;
+    }
+    .tutor-earnings-bar-col {
+        width: 12px;
+    }
+    .tutor-earnings-sessions-table th,
+    .tutor-earnings-sessions-table td {
+        padding: 8px 5px;
+        font-size: 0.75rem;
+    }
+    .tutor-earnings-avatar img {
+        width: 18px !important;
+        height: 18px !important;
+    }
+}
+
+@media (min-width: 992px) {
+    .tutor-earnings-dashboard {
+        margin-left: 80px;
+        transition: margin-left 0.3s ease;
+        overflow-y: auto;
+    }
+}

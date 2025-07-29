@@ -28,7 +28,7 @@ function TutorNavbar() {
       // Fetch document status
       const documentsResult = await getTutorDocuments();
       if (documentsResult.success) {
-        setDocumentStatus(documentsResult.data);
+        setDocumentStatus(documentsResult.data); 
       }
     } catch (error) {
       console.error('Error fetching tutor data:', error);

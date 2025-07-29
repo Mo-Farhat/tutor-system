@@ -1,4 +1,4 @@
-import React from 'react';
+ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ContactFormProvider } from './components/snippets/contact-form-overlay';
 import { AuthProvider } from './contexts/AuthContext';
@@ -21,7 +21,16 @@ import SignupPage from './pages/js/signup';
 import TutorContactPage from './pages/js/tutor-contact';
 import PrivacyPage from './pages/js/privacy';
 import ContactusPage from './pages/js/contact-us';
-import AccountSettingsPage from './pages/js/dashboard/tutor/account-settings';
+import TutorSettingsPage from './pages/js/dashboard/tutor/settings';
+import TutorNotificationsPage from './pages/js/dashboard/tutor/notifications';
+import TutorHomePage from './pages/js/dashboard/tutor/home';
+import TutorEarningsPage from './pages/js/dashboard/tutor/earnings';
+import TutorProgressPage from './pages/js/dashboard/tutor/progress';
+import TutorCalendarPage from './pages/js/dashboard/tutor/calendar';
+import TutorStudentsPage from './pages/js/dashboard/tutor/students';
+import TutorProfilePage from './pages/js/dashboard/tutor/profile';
+
+
 import TutorDocumentsPage from './pages/js/dashboard/tutor/documents';
 import TutorPaymentDetailsPage from './pages/js/dashboard/tutor/payment-details';
 import TutorPasswordSetup from './components/TutorPasswordSetup';
@@ -52,7 +61,16 @@ const App = () => {
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/contact-us" element={<ContactusPage />} />
             <Route path="/tutor/setup-password/:token" element={<TutorPasswordSetup />} />
-            <Route path="/tutor/account-settings" element={<AccountSettingsPage />} />
+            <Route path="/dashboard/tutor/home" element={<TutorHomePage />} />
+            <Route path="/dashboard/tutor/settings" element={<TutorSettingsPage />} />
+            <Route path="/dashboard/tutor/notifications" element={<TutorNotificationsPage />} />
+            <Route path="/dashboard/tutor/earnings" element={<TutorEarningsPage />} />
+            <Route path="/dashboard/tutor/progress" element={<TutorProgressPage />} />
+            <Route path="/dashboard/tutor/calendar" element={<TutorCalendarPage />} />
+            <Route path="/dashboard/tutor/students" element={<TutorStudentsPage />} />
+            <Route path="/dashboard/tutor/profile" element={<TutorProfilePage />} />
+            
+
             <Route path="/tutor/documents" element={<TutorDocumentsPage />} />
             <Route path="/tutor/payment-details" element={<TutorPaymentDetailsPage />} />
           </Routes>

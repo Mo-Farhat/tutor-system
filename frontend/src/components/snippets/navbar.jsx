@@ -29,7 +29,7 @@ function Navbar() {
     <div className="row w-100 d-flex nav-main g-0">
       <div className="col-12 g-0 nav-sec">
         <nav className="navbar navbar-expand-lg">
-          <div className="container-fluid p-0">
+          <div className="container-fluid p-0 col-9">
             <Link className="navbar-brand" to="/" onClick={handleNavigation('/')}>
               <img src="/Images/logo/logo-h/logo-h-gr.svg" alt="" className="nav-logo" />
             </Link>
@@ -92,7 +92,7 @@ function Navbar() {
                   >
                     Tutoring
                   </a>
-                  <ul className="dropdown-menu nav-item-drop-down" id="nav-Tu-dd">
+                  <ul className="dropdown-menu nav-item-drop-down" id="nav-Tu-5">
                     <li><Link className="dropdown-item nav-item-drop-down-item" to="/find-a-tutor" onClick={handleNavigation('/find-a-tutor')}>Private Tutoring</Link></li>
                     <li><Link className="dropdown-item nav-item-drop-down-item" to="/bring-a-friend-and-save" onClick={handleNavigation('/bring-a-friend-and-save')}>Bring a Friend & Save</Link></li>
                   </ul>

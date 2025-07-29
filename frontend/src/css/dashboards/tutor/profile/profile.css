@@ -1,0 +1,906 @@
+/* Tutor Profile Container */
+.tutor-profile-container {
+    padding: 30px;
+    min-height: 100dvh;
+    background-color: #f8f9fa;
+    transition: margin-left 0.3s ease;
+    overflow-y: auto;
+}
+
+/* Content Area */
+.tutor-profile-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Page Title */
+.tutor-profile-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 30px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+/* Section Styling */
+.tutor-profile-section {
+    margin-bottom: 40px;
+}
+
+.tutor-profile-section-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.tutor-profile-section-description {
+    color: #6c757d;
+    font-size: 16px;
+    margin-bottom: 30px;
+    line-height: 1.5;
+}
+
+.tutor-profile-section-description {
+    color: #6c757d;
+    font-size: 16px;
+    margin-bottom: 30px;
+    line-height: 1.5;
+}
+
+/* Card Styling */
+.tutor-profile-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.tutor-profile-card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+.tutor-profile-card-body {
+    padding: 25px;
+}
+
+.tutor-profile-card-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 8px;
+}
+
+/* Upload Area Styling */
+.tutor-profile-upload-area {
+    margin: 20px 0;
+}
+
+.tutor-profile-upload-placeholder {
+    border: 2px dashed #dee2e6;
+    border-radius: 12px;
+    padding: 40px 20px;
+    text-align: center;
+    background-color: #f8f9fa;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.tutor-profile-upload-placeholder:hover {
+    border-color: #212529;
+    background-color: #e9ecef;
+}
+
+.tutor-profile-file-input {
+    display: none;
+}
+
+.tutor-profile-upload-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    color: #495057;
+}
+
+.tutor-profile-upload-label i {
+    font-size: 2.5rem;
+    color: #6c757d;
+}
+
+.tutor-profile-upload-label span {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.tutor-profile-upload-label small {
+    font-size: 12px;
+    color: #6c757d;
+}
+
+/* File Preview Styling */
+.tutor-profile-file-preview {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.tutor-profile-file-preview:hover {
+    background-color: #e9ecef;
+}
+
+/* Badge Styling */
+.badge {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 20px;
+}
+
+.badge.bg-warning {
+    background-color: #ffc107 !important;
+    color: #212529 !important;
+}
+
+.badge.bg-danger {
+    background-color: #dc3545 !important;
+    color: white !important;
+}
+
+/* Upload Area Styling */
+.tutor-profile-upload-area {
+    margin: 20px 0;
+}
+
+.tutor-profile-upload-placeholder {
+    border: 2px dashed #dee2e6;
+    border-radius: 12px;
+    padding: 40px 20px;
+    text-align: center;
+    background-color: #f8f9fa;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.tutor-profile-upload-placeholder:hover {
+    border-color: #212529;
+    background-color: #e9ecef;
+}
+
+.tutor-profile-file-input {
+    display: none;
+}
+
+.tutor-profile-upload-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    color: #495057;
+}
+
+.tutor-profile-upload-label i {
+    font-size: 2.5rem;
+    color: #6c757d;
+}
+
+.tutor-profile-upload-label span {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.tutor-profile-upload-label small {
+    font-size: 12px;
+    color: #6c757d;
+}
+
+/* File Preview Styling */
+.tutor-profile-file-preview {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.tutor-profile-file-preview:hover {
+    background-color: #e9ecef;
+}
+
+/* Badge Styling */
+.badge {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 20px;
+}
+
+.badge.bg-warning {
+    background-color: #ffc107 !important;
+    color: #212529 !important;
+}
+
+.badge.bg-danger {
+    background-color: #dc3545 !important;
+    color: white !important;
+}
+
+/* Profile Summary */
+.tutor-profile-summary {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.tutor-profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid white;
+    background-color: #e9ecef;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.tutor-profile-avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tutor-profile-avatar-placeholder i {
+    font-size: 3rem;
+    color: #CBD5E0;
+}
+
+.tutor-profile-avatar-upload {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30%;
+    background-color: rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.tutor-profile-avatar-upload:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.tutor-profile-avatar-upload i {
+    font-size: 1.25rem;
+    color: white;
+}
+
+.tutor-profile-info {
+    flex-grow: 1;
+    padding-top: 10px;
+}
+
+.tutor-profile-info h2 {
+    margin: 0 0 10px 0;
+    font-size: 24px;
+    color: #333;
+    font-weight: 600;
+}
+
+.tutor-profile-badges {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.tutor-profile-badge-gold,
+.tutor-profile-badge-atr {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.tutor-profile-badge-gold {
+    background-color: rgba(255, 215, 0, 0.1);
+    color: #B8860B;
+}
+
+.tutor-profile-badge-atr {
+    background-color: rgba(255, 99, 71, 0.1);
+    color: #FF6347;
+}
+
+.tutor-profile-meta {
+    display: flex;
+    gap: 20px;
+    color: #666;
+    font-size: 14px;
+}
+
+.tutor-profile-meta i {
+    margin-right: 5px;
+}
+
+.tutor-profile-edit-btn {
+    padding: 10px 20px;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.tutor-profile-edit-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Form Groups */
+.tutor-profile-form-group {
+    margin-bottom: 20px;
+}
+
+.tutor-profile-form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #495057;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.tutor-profile-form-group label i {
+    margin-right: 8px;
+    color: #6c757d;
+}
+
+/* Input Fields */
+.tutor-profile-input,
+.tutor-profile-textarea,
+.tutor-profile-select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #495057;
+    background-color: white;
+    transition: all 0.3s ease;
+}
+
+.tutor-profile-input:focus,
+.tutor-profile-textarea:focus,
+.tutor-profile-select:focus {
+    outline: none;
+    border-color: #212529;
+    box-shadow: 0 0 0 0.2rem rgba(33, 37, 41, 0.25);
+}
+
+.tutor-profile-input::placeholder,
+.tutor-profile-textarea::placeholder {
+    color: #6c757d;
+}
+
+.tutor-profile-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Password Container */
+.tutor-profile-password-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.tutor-profile-password-container .tutor-profile-input {
+    padding-right: 40px;
+}
+
+.tutor-profile-password-toggle {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    color: #6c757d;
+    padding: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.tutor-profile-password-toggle:hover {
+    color: #495057;
+}
+
+.tutor-profile-password-toggle i {
+    font-size: 16px;
+}
+
+/* Video Upload */
+.tutor-profile-video-upload {
+    margin-top: 10px;
+}
+
+.tutor-profile-video-placeholder {
+    border: 2px dashed #dee2e6;
+    border-radius: 12px;
+    padding: 40px 20px;
+    text-align: center;
+    background-color: #f8f9fa;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tutor-profile-video-placeholder:hover {
+    border-color: #212529;
+    background-color: #e9ecef;
+}
+
+.tutor-profile-video-input {
+    display: none;
+}
+
+.tutor-profile-video-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    color: #495057;
+}
+
+.tutor-profile-video-label i {
+    font-size: 2.5rem;
+    color: #6c757d;
+}
+
+.tutor-profile-video-hint {
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.tutor-profile-video-preview {
+    position: relative;
+    margin-top: 10px;
+}
+
+.tutor-profile-video {
+    width: 100%;
+    max-width: 500px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tutor-profile-video-remove {
+    margin-top: 10px;
+    padding: 8px 16px;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.tutor-profile-video-remove:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Locations */
+.tutor-profile-locations {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.tutor-profile-location-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background-color: #e9ecef;
+    border-radius: 20px;
+    font-size: 12px;
+    color: #495057;
+}
+
+.tutor-profile-location-tag i:first-child {
+    color: #6c757d;
+}
+
+.tutor-profile-location-remove {
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.tutor-profile-location-remove:hover {
+    color: #dc3545;
+}
+
+.tutor-profile-location-remove i {
+    font-size: 10px;
+}
+
+/* Subjects */
+.tutor-profile-subjects {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.tutor-profile-subject-entry {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    position: relative;
+}
+
+.tutor-profile-subject-entry .tutor-profile-remove-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.tutor-profile-subject-entry .tutor-profile-remove-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Education */
+.tutor-profile-education-subsection {
+    margin-bottom: 30px;
+}
+
+.tutor-profile-education-subsection:last-child {
+    margin-bottom: 0;
+}
+
+.tutor-profile-education-title {
+    color: #495057;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tutor-profile-education-title i {
+    color: #6c757d;
+}
+
+.tutor-profile-education-entries {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.tutor-profile-education-entry {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.tutor-profile-education-entry .tutor-profile-input {
+    flex: 1;
+}
+
+/* Buttons */
+.tutor-profile-add-btn {
+    padding: 12px 20px;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.tutor-profile-add-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.tutor-profile-remove-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.tutor-profile-remove-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Payment Method Styling */
+.tutor-profile-payment-method-toggle {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.tutor-profile-payment-method-btn {
+    flex: 1;
+    padding: 12px 20px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    background-color: white;
+    color: #495057;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.tutor-profile-payment-method-btn:hover {
+    border-color: #212529;
+    background-color: #f8f9fa;
+}
+
+.tutor-profile-payment-method-btn.active {
+    background-color: #e9ecef;
+    border-color: #212529;
+    color: #212529;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tutor-profile-payment-method-btn i {
+    font-size: 16px;
+}
+
+.tutor-profile-bank-account-details,
+.tutor-profile-paypal-account-details {
+    margin-top: 20px;
+}
+
+.tutor-profile-paypal-account-details {
+    text-align: center;
+    padding: 30px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.tutor-profile-paypal-account-details p {
+    color: #6c757d;
+    margin-bottom: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 991.98px) {
+    .tutor-profile-container {
+        padding: 20px 15px;
+        margin-left: 0;
+        height: auto;
+        min-height: 100dvh;
+    }
+    
+    .tutor-profile-section-title {
+        font-size: 20px;
+    }
+    
+    .tutor-profile-card-body {
+        padding: 20px;
+    }
+    
+    .tutor-profile-summary {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 15px;
+    }
+    
+    .tutor-profile-avatar {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .tutor-profile-info h2 {
+        font-size: 20px;
+    }
+    
+    .tutor-profile-badges {
+        justify-content: center;
+    }
+    
+    .tutor-profile-meta {
+        flex-direction: column;
+        gap: 8px;
+        align-items: center;
+    }
+    
+    .tutor-profile-subject-entry {
+        padding: 15px;
+    }
+    
+    .tutor-profile-subject-entry .row {
+        margin: 0;
+    }
+    
+    .tutor-profile-subject-entry .col-md-4 {
+        margin-bottom: 15px;
+    }
+    
+    .tutor-profile-subject-entry .tutor-profile-remove-btn {
+        position: static;
+        margin-top: 10px;
+        align-self: flex-start;
+    }
+    
+    .tutor-profile-education-entry {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    
+    .tutor-profile-education-entry .tutor-profile-remove-btn {
+        align-self: flex-start;
+    }
+    
+    .tutor-profile-upload-placeholder {
+        padding: 30px 15px;
+    }
+    
+    .tutor-profile-upload-label {
+        gap: 8px;
+    }
+    
+    .tutor-profile-upload-label i {
+        font-size: 2rem;
+    }
+
+    .tutor-profile-payment-method-toggle {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .tutor-profile-payment-method-btn {
+        padding: 10px 16px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .tutor-profile-container {
+        padding: 15px 10px;
+    }
+    
+    .tutor-profile-section {
+        margin-bottom: 30px;
+    }
+    
+    .tutor-profile-card-body {
+        padding: 15px;
+    }
+    
+    .tutor-profile-title {
+        font-size: 20px;
+    }
+    
+    .tutor-profile-section-title {
+        font-size: 18px;
+    }
+    
+    .tutor-profile-avatar {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .tutor-profile-info h2 {
+        font-size: 18px;
+    }
+    
+    .tutor-profile-badges {
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .tutor-profile-badge-gold,
+    .tutor-profile-badge-atr {
+        font-size: 11px;
+        padding: 3px 10px;
+    }
+    
+    .tutor-profile-input,
+    .tutor-profile-textarea,
+    .tutor-profile-select {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+    
+    .tutor-profile-form-group label {
+        font-size: 13px;
+    }
+    
+    .tutor-profile-add-btn,
+    .tutor-profile-remove-btn {
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+    
+    .tutor-profile-location-tag {
+        font-size: 11px;
+        padding: 4px 8px;
+    }
+    
+    .tutor-profile-video-placeholder {
+        padding: 25px 10px;
+    }
+    
+    .tutor-profile-video-label span {
+        font-size: 14px;
+    }
+    
+    .tutor-profile-video-label small {
+        font-size: 11px;
+    }
+    
+    .tutor-profile-upload-placeholder {
+        padding: 25px 10px;
+    }
+    
+    .tutor-profile-upload-label span {
+        font-size: 14px;
+    }
+    
+    .tutor-profile-upload-label small {
+        font-size: 11px;
+    }
+
+    .tutor-profile-payment-method-btn {
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+    
+    .tutor-profile-payment-method-btn i {
+        font-size: 14px;
+    }
+    
+    .tutor-profile-paypal-account-details {
+        padding: 20px;
+    }
+}
+
+/* Desktop navbar responsive adjustments */
+@media (min-width: 992px) {
+    .tutor-profile-container {
+        margin-left: 80px;
+        transition: margin-left 0.3s ease;
+        overflow-y: auto;
+    }
+    
+    .navbar2-expanded ~ .tutor-profile-content .tutor-profile-container {
+        margin-left: 280px;
+    }
+}

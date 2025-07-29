@@ -13,20 +13,19 @@
 }
 
 .nav-sec {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 1rem;
+  /* max-width: 1200px !important; */
 }
 
 .navbar-expand-lg {
   padding: 1rem !important;
+  
 }
+
 
 .nav-logo {
   height: 10px;
   width: auto;
   transform: scale(3000%);
-  transform-origin: left center;
 }
 
 .navbar-collapse {
@@ -34,12 +33,18 @@
 }
 
 .navbar-nav {
-  gap: clamp(2.5rem, 3.5vw, 4rem);
+  gap: 4rem;
+  /* mobile
+  gap: 0; */
 }
 
 .nav-item {
   display: flex;
   align-items: center;
+  /* mobile 
+  display: block;
+  justify-content: center;
+  padding: 1rem; */
 }
 
 .login-signup-links {
@@ -53,7 +58,7 @@
 
 .nav-link {
   color: #333333 !important;
-  font-size: clamp(18px, 1.2vw, 20px) !important;
+  font-size: 20px !important;
   border-radius: 1rem !important;
 }
 
@@ -70,21 +75,29 @@
 }
 
 #nav-au-dd {
-  transform: translateX(-28%);
+  margin-left: -28%;
+  /* mobile
+  margin-left: 0; */
 }
 
 #nav-Tu-dd {
-  transform: translateX(-60%);
+  margin-left: -60%;
+  /* mobile
+  margin-left: 0; */
 }
 
 #nav-me-dd {
-  transform: translateX(-5%);
+  margin-left: -5%;
+  /* mobile
+  margin-left: 0; */
 }
 
 .nav-item-drop-down {
   border-radius: 1rem !important;
   padding: 0 !important;
   overflow: hidden;
+  /* mobile
+  border-radius: 0; */
 }
 
 .nav-item-drop-down-item {
@@ -100,13 +113,15 @@
   color: white !important;
 }
 
+
+
 .nav-f-t-btn {
   border: 3px solid rgb(255, 58, 58) !important;
   border-radius: 1rem !important;
   padding: .5rem 1.25rem !important;
   color: rgb(255, 58, 58) !important;
   font-weight: 800 !important;
-  font-size: clamp(18px, 1.2vw, 20px) !important;
+  font-size: 20px !important;
 }
 
 .nav-f-t-btn:hover {
@@ -120,95 +135,4 @@
   top: 100%;
   left: 0;
   margin-top: 0;
-}
-
-/* Responsive breakpoints for different desktop sizes */
-@media (max-width: 1200px) {
-  .navbar-nav {
-    gap: clamp(2rem, 3vw, 3.5rem);
-  }
-  
-  .nav-link {
-    font-size: clamp(16px, 1.3vw, 19px) !important;
-  }
-  
-  .nav-f-t-btn {
-    font-size: clamp(16px, 1.3vw, 19px) !important;
-    padding: .45rem 1.1rem !important;
-  }
-}
-
-@media (max-width: 992px) {
-  .navbar-nav {
-    gap: clamp(1.5rem, 2.5vw, 3rem);
-  }
-  
-  .nav-link {
-    font-size: clamp(15px, 1.5vw, 18px) !important;
-  }
-  
-  .nav-f-t-btn {
-    font-size: clamp(15px, 1.5vw, 18px) !important;
-    padding: .4rem 1rem !important;
-  }
-  
-  /* Adjust dropdown positioning for smaller screens */
-  #nav-au-dd {
-    transform: translateX(-20%);
-  }
-
-  #nav-Tu-dd {
-    transform: translateX(-50%);
-  }
-
-  #nav-me-dd {
-    transform: translateX(0%);
-  }
-}
-
-@media (min-width: 1400px) {
-  .nav-sec {
-    max-width: 1600px;
-  }
-  
-  .navbar-nav {
-    gap: clamp(4rem, 4.5vw, 5rem);
-  }
-}
-
-@media (min-width: 1600px) {
-  .nav-sec {
-    max-width: 1800px;
-  }
-  
-  .navbar-nav {
-    gap: clamp(4rem, 5vw, 6rem);
-  }
-}
-
-/* Ensure 1080p (1920x1080) maintains exact same appearance */
-@media (min-width: 1920px) and (max-width: 1920px) {
-  .navbar-nav {
-    gap: 4rem;
-  }
-  
-  .nav-link {
-    font-size: 20px !important;
-  }
-  
-  .nav-f-t-btn {
-    font-size: 20px !important;
-  }
-  
-  #nav-au-dd {
-    transform: translateX(-28%);
-  }
-
-  #nav-Tu-dd {
-    transform: translateX(-60%);
-  }
-
-  #nav-me-dd {
-    transform: translateX(-5%);
-  }
 }

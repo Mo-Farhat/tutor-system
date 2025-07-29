@@ -1,0 +1,142 @@
+/* Progress Dashboard Container */
+.tutor-progress-container {
+    padding: 30px;
+    min-height: 100dvh;
+    transition: margin-left 0.3s ease;
+    overflow-y: auto;
+}
+
+.tutor-progress-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.tutor-progress-section {
+    margin-bottom: 56px; /* Increased from 40px */
+    padding: 32px 24px;
+    border-radius: 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+}
+
+.tutor-progress-section-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 24px; /* Increased from 20px */
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.tutor-progress-tier-card {
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    border: 1px solid #e9ecef;
+    min-width: 180px;
+    min-height: 120px;
+    transition: all 0.3s;
+    margin-bottom: 12px;
+}
+.tutor-progress-tier-card:hover {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    transform: translateY(-2px);
+}
+.tutor-progress-tier-icon {
+    font-size: 2rem;
+    color: #212529;
+}
+.tutor-progress-tier-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+.tutor-progress-tier-desc {
+    font-size: 0.95rem;
+    color: #888;
+}
+
+.tutor-progress-milestone-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+    min-height: 110px;
+    margin-bottom: 8px;
+}
+
+.tutor-progress-exp-card {
+    background: #fff;
+    border-radius: 10px;
+    min-height: 110px;
+    margin-bottom: 8px;
+}
+
+.tutor-progress-benefit-card {
+    background: #fff;
+    border-radius: 10px;
+    min-height: 180px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    border: 1px solid #e9ecef;
+    margin-bottom: 8px;
+}
+
+.tutor-progress-next-steps-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+    margin-bottom: 8px;
+}
+
+/* Responsive Design */
+@media (max-width: 991.98px) {
+    .tutor-progress-container {
+        padding: 20px 6px;
+        margin-left: 0;
+        min-height: 100dvh;
+    }
+    .tutor-progress-section {
+        margin-bottom: 36px;
+        padding: 20px 8px;
+        border-radius: 12px;
+    }
+    .tutor-progress-section-title {
+        font-size: 20px;
+        margin-bottom: 16px;
+    }
+    .tutor-progress-tier-card,
+    .tutor-progress-milestone-card,
+    .tutor-progress-exp-card,
+    .tutor-progress-benefit-card {
+        min-width: unset;
+        min-height: 90px;
+        padding: 1rem 0.5rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .tutor-progress-container {
+        padding: 8px 0;
+    }
+    .tutor-progress-section {
+        margin-bottom: 18px;
+        padding: 12px 2px;
+        border-radius: 8px;
+    }
+    .tutor-progress-section-title {
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+    .tutor-progress-tier-card,
+    .tutor-progress-milestone-card,
+    .tutor-progress-exp-card,
+    .tutor-progress-benefit-card {
+        min-width: unset;
+        min-height: 70px;
+        padding: 0.5rem 0.25rem;
+    }
+}
+
+@media (min-width: 992px) {
+    .tutor-progress-container {
+        margin-left: 80px;
+        transition: margin-left 0.3s ease;
+        overflow-y: auto;
+    }
+}

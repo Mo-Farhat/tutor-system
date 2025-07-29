@@ -4,7 +4,7 @@ import { useAuth } from '../../../../contexts/AuthContext';
 import { getUserProfile, getSubjectSelectionData, getTutorSubjects, updateTutorSubjects, updateUserProfile, updateUserProfileWithFiles, updateTutorProfile, updateTutorVideoSubmission } from '../../../../services/authService';
 import "../../../../css/dashboards/tutor/account-settings/account-settings.css";
 
-function TutorAccountSettings() {
+function TutorSettingsTutorAccountSettings() {
     const { user } = useAuth();
     const location = useLocation();
     const welcomeMessage = location.state?.message;
