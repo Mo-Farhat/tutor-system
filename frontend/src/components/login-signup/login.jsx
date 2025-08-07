@@ -93,7 +93,7 @@ function Login() {
         setIsSubmitting(true);
 
         try {
-            // Determine if input is email or phone and format accordingly
+            // Determine if input is email, username, or phone and format accordingly
             const loginData = {
                 password: formData.password
             };
@@ -102,15 +102,17 @@ function Login() {
             const isEmail = /\S+@\S+\.\S+/.test(value);
             
             if (isEmail) {
-                loginData.email = value;
+                loginData.username = value; // Use email as username for now
             } else {
-                loginData.phone_number = value;
+                loginData.username = value; // Use as username
             }
 
+            console.log('Login data being sent:', loginData); // Debug log
             const response = await login(loginData);
+            console.log('Login response:', response); // Debug log
 
             // Redirect based on user role
-            const userRole = response.user.role;
+            const userRole = response.user?.role || 'tutor'; // Default to tutor for approved users
             const isNewTutor = location.state?.isNewTutor;
             
             switch (userRole) {
@@ -118,7 +120,7 @@ function Login() {
                     navigate('/');
                     break;
                 case 'tutor':
-                    navigate('/tutor/account-settings', {
+                    navigate('/dashboard/tutor/profile', {
                         state: isNewTutor ? { 
                             message: 'Welcome to Strive Academy! Please complete your profile setup.'
                         } : undefined

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ContactFormProvider } from './components/snippets/contact-form-overlay';
 import { AuthProvider } from './contexts/AuthContext';
 import ScrollToTop from './components/ScrollToTop';
+import ProtectedTutorRoute from './components/ProtectedTutorRoute';
 
 import HomePage from './pages/js/home';
 import AboutusPage from './pages/js/aboutus';
@@ -29,8 +30,6 @@ import TutorProgressPage from './pages/js/dashboard/tutor/progress';
 import TutorCalendarPage from './pages/js/dashboard/tutor/calendar';
 import TutorStudentsPage from './pages/js/dashboard/tutor/students';
 import TutorProfilePage from './pages/js/dashboard/tutor/profile';
-
-
 import TutorDocumentsPage from './pages/js/dashboard/tutor/documents';
 import TutorPaymentDetailsPage from './pages/js/dashboard/tutor/payment-details';
 import TutorPasswordSetup from './components/TutorPasswordSetup';
@@ -61,18 +60,50 @@ const App = () => {
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/contact-us" element={<ContactusPage />} />
             <Route path="/tutor/setup-password/:token" element={<TutorPasswordSetup />} />
-            <Route path="/dashboard/tutor/home" element={<TutorHomePage />} />
-            <Route path="/dashboard/tutor/settings" element={<TutorSettingsPage />} />
-            <Route path="/dashboard/tutor/notifications" element={<TutorNotificationsPage />} />
-            <Route path="/dashboard/tutor/earnings" element={<TutorEarningsPage />} />
-            <Route path="/dashboard/tutor/progress" element={<TutorProgressPage />} />
-            <Route path="/dashboard/tutor/calendar" element={<TutorCalendarPage />} />
-            <Route path="/dashboard/tutor/students" element={<TutorStudentsPage />} />
-            <Route path="/dashboard/tutor/profile" element={<TutorProfilePage />} />
             
-
-            <Route path="/tutor/documents" element={<TutorDocumentsPage />} />
-            <Route path="/tutor/payment-details" element={<TutorPaymentDetailsPage />} />
+            {/* Tutor Dashboard Routes - Protected by completion status */}
+            <Route path="/dashboard/tutor/home" element={
+              <ProtectedTutorRoute>
+                <TutorHomePage />
+              </ProtectedTutorRoute>
+            } />
+            <Route path="/dashboard/tutor/settings" element={<TutorSettingsPage />} />
+            <Route path="/dashboard/tutor/notifications" element={
+              <ProtectedTutorRoute>
+                <TutorNotificationsPage />
+              </ProtectedTutorRoute>
+            } />
+            <Route path="/dashboard/tutor/earnings" element={
+              <ProtectedTutorRoute>
+                <TutorEarningsPage />
+              </ProtectedTutorRoute>
+            } />
+            <Route path="/dashboard/tutor/progress" element={
+              <ProtectedTutorRoute>
+                <TutorProgressPage />
+              </ProtectedTutorRoute>
+            } />
+            <Route path="/dashboard/tutor/calendar" element={
+              <ProtectedTutorRoute>
+                <TutorCalendarPage />
+              </ProtectedTutorRoute>
+            } />
+            <Route path="/dashboard/tutor/students" element={
+              <ProtectedTutorRoute>
+                <TutorStudentsPage />
+              </ProtectedTutorRoute>
+            } />
+            <Route path="/dashboard/tutor/profile" element={<TutorProfilePage />} />
+            <Route path="/tutor/documents" element={
+              <ProtectedTutorRoute allowedRoutes={['/tutor/documents']}>
+                <TutorDocumentsPage />
+              </ProtectedTutorRoute>
+            } />
+            <Route path="/tutor/payment-details" element={
+              <ProtectedTutorRoute allowedRoutes={['/tutor/payment-details']}>
+                <TutorPaymentDetailsPage />
+              </ProtectedTutorRoute>
+            } />
           </Routes>
         </ContactFormProvider>
       </Router>

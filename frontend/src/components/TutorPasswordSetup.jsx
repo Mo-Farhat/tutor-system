@@ -25,10 +25,10 @@ const TutorPasswordSetup = () => {
     setLoading(true);
     const result = await verifyPasswordSetupToken(token);
     
-    if (result.success && result.data.valid) {
+    if (result.success) {
       setTutorInfo(result.data);
     } else {
-      setError(result.data?.message || 'Invalid or expired setup link');
+      setError(result.message || 'Invalid or expired setup link');
     }
     
     setLoading(false);
@@ -85,8 +85,9 @@ const TutorPasswordSetup = () => {
       // Redirect to login page with success message
       navigate('/login', { 
         state: { 
-          message: result.data.message || 'Password set successfully! Please log in with your new password.',
+          message: 'Password set successfully! Please log in with your new password.',
           email: result.data.email,
+          username: result.data.username,
           isNewTutor: true
         }
       });
@@ -154,15 +155,15 @@ const TutorPasswordSetup = () => {
               <div className="card-body p-4">
                 {tutorInfo && (
                   <div className="alert alert-success" role="alert">
-                    <strong>Congratulations {tutorInfo.first_name}!</strong> Your application has been approved.
+                    <strong>Congratulations {tutorInfo.data?.first_name}!</strong> Your application has been approved.
                   </div>
                 )}
                 
                 <div className="mb-3">
                   <h6 className="text-muted">Account Details:</h6>
-                  <p className="mb-1"><strong>Name:</strong> {tutorInfo?.first_name} {tutorInfo?.last_name}</p>
-                  <p className="mb-1"><strong>Email:</strong> {tutorInfo?.email}</p>
-                  <p className="mb-3"><strong>University:</strong> {tutorInfo?.university}</p>
+                  <p className="mb-1"><strong>Name:</strong> {tutorInfo?.data?.first_name} {tutorInfo?.data?.last_name}</p>
+                  <p className="mb-1"><strong>Email:</strong> {tutorInfo?.data?.email}</p>
+                  <p className="mb-3"><strong>University:</strong> {tutorInfo?.data?.university}</p>
                 </div>
 
                 <form onSubmit={handleSubmit}>

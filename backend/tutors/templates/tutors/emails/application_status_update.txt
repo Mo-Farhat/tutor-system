@@ -1,0 +1,46 @@
+Tutor Application Status Update - Strive Academy
+
+Dear {{ full_name }},
+
+Your tutor application has been reviewed and the status has been updated.
+
+APPLICATION DETAILS:
+- Application ID: {{ application_id }}
+- New Status: {{ status_display }}
+
+{% if status == 'approved' %}
+🎉 CONGRATULATIONS!
+
+Your application has been approved! We're excited to welcome you to the Strive Academy team.
+
+NEXT STEPS:
+1. You will receive a separate email with login credentials for your tutor dashboard.
+2. Complete your profile setup and upload required documents.
+3. Complete the mandatory training modules.
+4. Set your availability and start accepting students.
+
+{% elif status == 'rejected' %}
+APPLICATION UPDATE
+
+After careful review, we regret to inform you that your application has not been approved at this time.
+
+This decision does not reflect on your qualifications or abilities. We receive many applications and have limited positions available.
+
+You are welcome to apply again in the future if your circumstances change.
+
+{% else %}
+APPLICATION UPDATE
+
+Your application status has been updated to: {{ status_display }}
+
+We will contact you with further instructions or updates as needed.
+{% endif %}
+
+If you have any questions about this update, please don't hesitate to contact us.
+
+Best regards,
+The Strive Academy Team
+
+---
+© 2024 Strive Academy. All rights reserved.
+This email was sent to {{ application.email }} regarding your tutor application. 
