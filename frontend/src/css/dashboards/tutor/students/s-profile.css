@@ -1,0 +1,486 @@
+/* Student Profile Container - Following Settings Design */
+.s-profile-container {
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.s-profile-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* Section Styling - Matching Settings */
+.s-profile-section {
+    margin-bottom: 2rem;
+}
+
+.s-profile-section-title {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Card Styling - Identical to Settings */
+.s-profile-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.s-profile-card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+.s-profile-card-body {
+    padding: 2rem;
+}
+
+.s-profile-card-title {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.s-profile-card-description {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+/* Button Styling - Matching Settings */
+.s-profile-btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.s-profile-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Avatar Styling - Following Settings Pattern */
+.s-profile-avatar {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+/* Info Lists */
+.s-profile-info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.s-profile-info-item {
+    color: #495057;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+}
+
+.s-profile-info-item i {
+    color: #6c757d;
+    width: 20px;
+}
+
+/* Statistics Numbers */
+.s-profile-stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    line-height: 1;
+    margin-top: 0.5rem;
+}
+
+/* Badge Cards */
+.s-profile-badge-card {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.s-profile-badge-card:hover {
+    background: #e3f2fd;
+    border-color: #2196f3;
+    transform: translateY(-2px);
+}
+
+.s-profile-badge-icon {
+    position: relative;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.s-profile-badge-icon i {
+    font-size: 2rem;
+    color: #ffc107;
+}
+
+.s-profile-badge-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #dc3545;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.s-profile-badge-content {
+    flex: 1;
+}
+
+.s-profile-badge-name {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+/* Report Cards */
+.s-profile-report-card {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.s-profile-report-card:hover {
+    background: white;
+    border-color: #007bff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.s-profile-report-header {
+    margin-bottom: 1rem;
+}
+
+.s-profile-report-title {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.s-profile-report-rating {
+    display: flex;
+    gap: 0.2rem;
+}
+
+.s-profile-report-rating i {
+    font-size: 0.8rem;
+}
+
+.s-profile-report-summary {
+    margin-bottom: 1rem;
+}
+
+.s-profile-report-summary p {
+    color: #495057;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.s-profile-report-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Empty State */
+.s-profile-empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+}
+
+.s-profile-empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.s-profile-empty-state p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* Modal Styling */
+.s-profile-modal-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.s-profile-modal-item {
+    padding: 1rem;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.s-profile-modal-item:has(.form-check-input:checked) {
+    background: #e8f5e8;
+    border-color: #28a745;
+}
+
+.s-profile-rating-selector {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.s-profile-rating-selector .btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+}
+
+.s-profile-rating-selector .btn.active {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: white;
+}
+
+/* Badge Categories in Modal */
+.s-profile-badge-categories {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.s-profile-badge-category {
+    margin-bottom: 1.5rem;
+}
+
+.s-profile-badge-category-title {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 1rem;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.s-profile-badge-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.s-profile-badge-option {
+    padding: 0.75rem;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    background: #fafafa;
+    transition: all 0.3s ease;
+}
+
+.s-profile-badge-option:has(.form-check-input:checked) {
+    background: #fff3cd;
+    border-color: #ffc107;
+}
+
+.s-profile-badge-option .form-check-label {
+    cursor: pointer;
+    margin-bottom: 0;
+    font-size: 0.9rem;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .s-profile-container {
+        padding: 1rem 0;
+    }
+
+    .s-profile-content {
+        padding: 0 0.5rem;
+    }
+
+    .s-profile-section-title {
+        font-size: 1.3rem;
+    }
+
+    .s-profile-card-body {
+        padding: 1.5rem;
+    }
+
+    .s-profile-avatar {
+        width: 50px;
+        height: 50px;
+        font-size: 1.25rem;
+    }
+
+    .s-profile-stat-number {
+        font-size: 2rem;
+    }
+
+    .s-profile-badge-card,
+    .s-profile-report-card {
+        margin-bottom: 1rem;
+    }
+
+    .s-profile-badge-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .s-profile-badge-icon {
+        margin-right: 0;
+        margin-bottom: 0.5rem;
+    }
+
+    .s-profile-report-actions {
+        flex-direction: column;
+    }
+
+    .s-profile-report-actions .btn {
+        width: 100%;
+    }
+
+    .modal-dialog {
+        margin: 0.5rem;
+        max-width: calc(100% - 1rem);
+    }
+
+    .modal-body {
+        padding: 1rem;
+    }
+
+    .s-profile-rating-selector {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .s-profile-section-title {
+        font-size: 1.2rem;
+    }
+
+    .s-profile-card-body {
+        padding: 1rem;
+    }
+
+    .s-profile-empty-state {
+        padding: 2rem 0.5rem;
+    }
+
+    .s-profile-empty-state i {
+        font-size: 2.5rem;
+    }
+
+    .s-profile-stat-number {
+        font-size: 1.75rem;
+    }
+
+    .s-profile-badge-card,
+    .s-profile-report-card {
+        padding: 1rem;
+    }
+}
+
+/* Form Elements - Matching Settings */
+.s-profile-container .form-control,
+.s-profile-container .form-select {
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    padding: 0.75rem;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.s-profile-container .form-control:focus,
+.s-profile-container .form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.s-profile-container .form-check-input:checked {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.s-profile-container .form-check-label {
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+/* Button Variants - Following Settings Pattern */
+.s-profile-container .btn-dark {
+    background-color: #343a40;
+    border-color: #343a40;
+}
+
+.s-profile-container .btn-outline-primary {
+    color: #007bff;
+    border-color: #007bff;
+}
+
+.s-profile-container .btn-outline-secondary {
+    color: #6c757d;
+    border-color: #6c757d;
+}
+
+.s-profile-container .btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+/* Hover Effects */
+.s-profile-container .btn:hover {
+    transform: translateY(-1px);
+}
+
+.s-profile-container .btn-dark:hover {
+    background-color: #23272b;
+    border-color: #1d2124;
+}
+
+.s-profile-container .btn-outline-primary:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+.s-profile-container .btn-outline-secondary:hover {
+    background-color: #6c757d;
+    color: white;
+}
+
+.s-profile-container .btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}

@@ -33,6 +33,8 @@ import TutorProfilePage from './pages/js/dashboard/tutor/profile';
 import TutorDocumentsPage from './pages/js/dashboard/tutor/documents';
 import TutorPaymentDetailsPage from './pages/js/dashboard/tutor/payment-details';
 import TutorPasswordSetup from './components/TutorPasswordSetup';
+import StudentProfilePage from './pages/js/dashboard/tutor/s-profile';
+
 
 const App = () => {
   return (
@@ -104,6 +106,8 @@ const App = () => {
                 <TutorPaymentDetailsPage />
               </ProtectedTutorRoute>
             } />
+            <Route path="/dashboard/tutor/s-profile" element={<StudentProfilePage />} />
+
           </Routes>
         </ContactFormProvider>
       </Router>

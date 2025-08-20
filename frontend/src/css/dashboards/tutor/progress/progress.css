@@ -1,142 +1,449 @@
-/* Progress Dashboard Container */
+/* Tutor Progress Container - Following Settings Design */
 .tutor-progress-container {
-    padding: 30px;
-    min-height: 100dvh;
-    transition: margin-left 0.3s ease;
-    overflow-y: auto;
+    min-height: 100vh;
+    padding: 2rem 0;
 }
 
 .tutor-progress-content {
     max-width: 1200px;
     margin: 0 auto;
+    padding: 0 1rem;
 }
 
+/* Section Styling - Matching Settings */
 .tutor-progress-section {
-    margin-bottom: 56px; /* Increased from 40px */
-    padding: 32px 24px;
-    border-radius: 16px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    margin-bottom: 2rem;
 }
 
 .tutor-progress-section-title {
-    font-size: 24px;
+    color: #2c3e50;
     font-weight: 600;
-    color: #212529;
-    margin-bottom: 24px; /* Increased from 20px */
-    padding-bottom: 10px;
-    border-bottom: 2px solid #e9ecef;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
 }
 
-.tutor-progress-tier-card {
+/* Card Styling - Identical to Settings */
+.tutor-progress-card {
+    background: white;
     border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
     border: 1px solid #e9ecef;
-    min-width: 180px;
-    min-height: 120px;
-    transition: all 0.3s;
-    margin-bottom: 12px;
+    transition: all 0.3s ease;
 }
-.tutor-progress-tier-card:hover {
-    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+
+.tutor-progress-card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
     transform: translateY(-2px);
 }
-.tutor-progress-tier-icon {
-    font-size: 2rem;
-    color: #212529;
+
+.tutor-progress-card-body {
+    padding: 2rem;
 }
-.tutor-progress-tier-title {
-    font-size: 1.1rem;
+
+.tutor-progress-card-title {
+    color: #2c3e50;
     font-weight: 600;
-}
-.tutor-progress-tier-desc {
-    font-size: 0.95rem;
-    color: #888;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
 }
 
-.tutor-progress-milestone-card {
+.tutor-progress-card-description {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+/* Button Styling - Matching Settings */
+.tutor-progress-btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.tutor-progress-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Tier Badge */
+.tutor-progress-tier-badge {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+/* Probation Notice */
+.tutor-progress-probation-notice {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    color: #856404;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+/* Overall Progress Section */
+.tutor-progress-overall-section {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
     background: #f8f9fa;
-    border-radius: 10px;
-    border: 1px solid #e9ecef;
-    min-height: 110px;
-    margin-bottom: 8px;
+    border-radius: 8px;
 }
 
-.tutor-progress-exp-card {
-    background: #fff;
-    border-radius: 10px;
-    min-height: 110px;
-    margin-bottom: 8px;
+/* Progress Bars */
+.tutor-progress-bar {
+    height: 12px;
+    border-radius: 6px;
+    background-color: #e9ecef;
 }
 
-.tutor-progress-benefit-card {
-    background: #fff;
-    border-radius: 10px;
-    min-height: 180px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-    border: 1px solid #e9ecef;
-    margin-bottom: 8px;
+.tutor-progress-bar .progress-bar {
+    border-radius: 6px;
+    transition: width 0.6s ease;
 }
 
-.tutor-progress-next-steps-card {
+/* Requirement Met Indicator */
+.tutor-progress-met-indicator {
+    margin-top: 0.75rem;
+    color: #28a745;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Metric Display */
+.tutor-progress-metric-display {
+    text-align: center;
+    margin: 1rem 0;
+}
+
+.tutor-progress-metric-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    line-height: 1;
+}
+
+.tutor-progress-metric-requirement {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+/* Status Indicators */
+.tutor-progress-status-met {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    border-radius: 6px;
+    color: #155724;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.tutor-progress-status-pending {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 6px;
+    color: #856404;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+/* Tier Icons in Benefits Section */
+.tutor-progress-tier-icon {
+    font-size: 3rem;
+}
+
+/* Current Tier Highlighting */
+.tutor-progress-current-tier {
+    border: 2px solid #343a40;
+    box-shadow: 0 4px 20px rgba(52, 58, 64, 0.2);
+}
+
+/* Tier Benefits */
+.tutor-progress-tier-benefits {
+    text-align: left;
+}
+
+.tutor-progress-tier-benefits ul {
+    margin: 0;
+    padding-left: 0;
+}
+
+.tutor-progress-tier-benefits li {
+    color: #495057;
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+    padding-left: 1rem;
+    position: relative;
+}
+
+.tutor-progress-tier-benefits li:before {
+    content: "•";
+    color: #6c757d;
+    position: absolute;
+    left: 0;
+}
+
+/* Next Steps */
+.tutor-progress-next-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.tutor-progress-next-step {
+    padding: 1rem;
     background: #f8f9fa;
-    border-radius: 10px;
-    border: 1px solid #e9ecef;
-    margin-bottom: 8px;
+    border-radius: 8px;
+    border-left: 4px solid #6c757d;
+    font-size: 0.9rem;
 }
 
-/* Responsive Design */
-@media (max-width: 991.98px) {
+/* Eligible Notice */
+.tutor-progress-eligible-notice {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 8px;
+    padding: 1rem;
+    color: #856404;
+}
+
+/* Modal Styling */
+.tutor-progress-modal-content {
+    text-align: center;
+}
+
+.tutor-progress-celebration-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.tutor-progress-completed-criteria {
+    text-align: left;
+    margin-top: 2rem;
+}
+
+.tutor-progress-completed-criteria h6 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.tutor-progress-completed-criteria .list-group-item {
+    background: transparent;
+    border-left: none;
+    border-right: none;
+    padding: 0.75rem 0;
+    font-size: 0.9rem;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
     .tutor-progress-container {
-        padding: 20px 6px;
-        margin-left: 0;
-        min-height: 100dvh;
+        padding: 1rem 0;
     }
-    .tutor-progress-section {
-        margin-bottom: 36px;
-        padding: 20px 8px;
-        border-radius: 12px;
+
+    .tutor-progress-content {
+        padding: 0 0.5rem;
     }
+
     .tutor-progress-section-title {
-        font-size: 20px;
-        margin-bottom: 16px;
+        font-size: 1.3rem;
     }
-    .tutor-progress-tier-card,
-    .tutor-progress-milestone-card,
-    .tutor-progress-exp-card,
-    .tutor-progress-benefit-card {
-        min-width: unset;
-        min-height: 90px;
-        padding: 1rem 0.5rem;
+
+    .tutor-progress-card-body {
+        padding: 1.5rem;
+    }
+
+    .tutor-progress-tier-badge {
+        width: 50px;
+        height: 50px;
+        font-size: 1.25rem;
+    }
+
+    .tutor-progress-metric-value {
+        font-size: 2rem;
+    }
+
+    .tutor-progress-tier-icon {
+        font-size: 2.5rem;
+    }
+
+    .tutor-progress-overall-section {
+        padding: 1rem;
+    }
+
+    .tutor-progress-probation-notice {
+        margin-top: 1rem;
+        text-align: center;
+    }
+
+    .modal-dialog {
+        margin: 0.5rem;
+        max-width: calc(100% - 1rem);
+    }
+
+    .modal-body {
+        padding: 1rem;
     }
 }
 
-@media (max-width: 767.98px) {
-    .tutor-progress-container {
-        padding: 8px 0;
-    }
-    .tutor-progress-section {
-        margin-bottom: 18px;
-        padding: 12px 2px;
-        border-radius: 8px;
-    }
+@media (max-width: 576px) {
     .tutor-progress-section-title {
-        font-size: 16px;
-        margin-bottom: 10px;
+        font-size: 1.2rem;
     }
-    .tutor-progress-tier-card,
-    .tutor-progress-milestone-card,
-    .tutor-progress-exp-card,
-    .tutor-progress-benefit-card {
-        min-width: unset;
-        min-height: 70px;
-        padding: 0.5rem 0.25rem;
+
+    .tutor-progress-card-body {
+        padding: 1rem;
+    }
+
+    .tutor-progress-metric-value {
+        font-size: 1.75rem;
+    }
+
+    .tutor-progress-tier-icon {
+        font-size: 2rem;
+    }
+
+    .tutor-progress-celebration-icon {
+        font-size: 3rem;
+    }
+
+    .tutor-progress-next-step {
+        padding: 0.75rem;
     }
 }
 
-@media (min-width: 992px) {
-    .tutor-progress-container {
-        margin-left: 80px;
-        transition: margin-left 0.3s ease;
-        overflow-y: auto;
-    }
+/* Form Elements - Matching Settings */
+.tutor-progress-container .form-control,
+.tutor-progress-container .form-select {
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    padding: 0.75rem;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.tutor-progress-container .form-control:focus,
+.tutor-progress-container .form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Button Variants - Following Settings Pattern */
+.tutor-progress-container .btn-dark {
+    background-color: #343a40;
+    border-color: #343a40;
+}
+
+.tutor-progress-container .btn-outline-primary {
+    color: #007bff;
+    border-color: #007bff;
+}
+
+.tutor-progress-container .btn-outline-secondary {
+    color: #6c757d;
+    border-color: #6c757d;
+}
+
+.tutor-progress-container .btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+/* Hover Effects */
+.tutor-progress-container .btn:hover {
+    transform: translateY(-1px);
+}
+
+.tutor-progress-container .btn-dark:hover {
+    background-color: #23272b;
+    border-color: #1d2124;
+}
+
+.tutor-progress-container .btn-outline-primary:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+.tutor-progress-container .btn-outline-secondary:hover {
+    background-color: #6c757d;
+    color: white;
+}
+
+.tutor-progress-container .btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+/* Progress Bar Color Variants */
+.tutor-progress-bar .bg-success {
+    background-color: #28a745 !important;
+}
+
+.tutor-progress-bar .bg-secondary {
+    background-color: #6c757d !important;
+}
+
+.tutor-progress-bar .bg-warning {
+    background-color: #ffc107 !important;
+}
+
+.tutor-progress-bar .bg-dark {
+    background-color: #343a40 !important;
+}
+
+/* Animation for Progress Bars */
+@keyframes progressFill {
+    from { width: 0%; }
+    to { width: var(--progress-width); }
+}
+
+.tutor-progress-bar .progress-bar {
+    animation: progressFill 1s ease-in-out;
+}
+
+/* Tooltip Styles */
+.tutor-progress-tooltip {
+    position: relative;
+    cursor: help;
+}
+
+.tutor-progress-tooltip:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2c3e50;
+    color: white;
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    z-index: 1000;
+}
+
+/* Badge Color Overrides */
+.badge.bg-light {
+    background-color: #f8f9fa !important;
+    color: #495057 !important;
+}
+
+.badge.bg-dark {
+    background-color: #343a40 !important;
+    color: white !important;
 }

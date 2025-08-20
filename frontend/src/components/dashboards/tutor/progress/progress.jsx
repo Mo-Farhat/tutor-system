@@ -1,154 +1,473 @@
-import React from 'react';
+import React, { useState } from 'react';
 import '../../../../css/dashboards/tutor/progress/progress.css';
 
 function TutorProgress() {
+    // Tutor progress state
+    const [tutorData] = useState({
+        currentTier: 'Gold',
+        yearsOfExperience: 1.5,
+        initialExperience: 0.5, // When they started
+        fiveStarReviews: 2,
+        studentRetention: 88,
+        onboardingRate: 97,
+        professionalCommunication: true,
+        contributionsBeyondTutoring: false,
+        probationEndDate: '2024-06-15', // 3 months from start
+        isEligibleForReview: false
+    });
+
+    const [showEligibilityModal, setShowEligibilityModal] = useState(false);
+
+    // Tier requirements
+    const tierRequirements = {
+        Premium: {
+            experience: 2,
+            reviews: 3,
+            retention: 90,
+            onboarding: 95,
+            communication: true,
+            contributions: false
+        },
+        Elite: {
+            experience: 4,
+            reviews: 8,
+            retention: 90,
+            onboarding: 95,
+            communication: true,
+            contributions: true
+        }
+    };
+
+    // Calculate progress percentages
+    const calculateExperienceProgress = () => {
+        if (tutorData.currentTier === 'Gold') {
+            return Math.min((tutorData.yearsOfExperience / 2) * 100, 100);
+        } else if (tutorData.currentTier === 'Premium') {
+            return Math.min(((tutorData.yearsOfExperience - 2) / 2) * 100, 100);
+        }
+        return 100;
+    };
+
+    const calculateReviewsProgress = () => {
+        if (tutorData.currentTier === 'Gold') {
+            return Math.min((tutorData.fiveStarReviews / 3) * 100, 100);
+        } else if (tutorData.currentTier === 'Premium') {
+            return Math.min((tutorData.fiveStarReviews / 8) * 100, 100);
+        }
+        return 100;
+    };
+
+    const calculateOverallProgress = () => {
+        const expProgress = calculateExperienceProgress();
+        const reviewProgress = calculateReviewsProgress();
+        return (expProgress + reviewProgress) / 2;
+    };
+
+    const getNextTierRequirement = (type) => {
+        const nextTier = tutorData.currentTier === 'Gold' ? 'Premium' : 'Elite';
+        return tierRequirements[nextTier][type];
+    };
+
+    const isRequirementMet = (type) => {
+        const requirement = getNextTierRequirement(type);
+        switch (type) {
+            case 'experience':
+                return tutorData.yearsOfExperience >= requirement;
+            case 'reviews':
+                return tutorData.fiveStarReviews >= requirement;
+            case 'retention':
+                return tutorData.studentRetention >= requirement;
+            case 'onboarding':
+                return tutorData.onboardingRate >= requirement;
+            case 'communication':
+                return tutorData.professionalCommunication === requirement;
+            case 'contributions':
+                return tutorData.contributionsBeyondTutoring === requirement;
+            default:
+                return false;
+        }
+    };
+
+    const checkEligibilityForReview = () => {
+        return ['experience', 'reviews', 'retention', 'onboarding', 'communication', 'contributions']
+            .every(req => isRequirementMet(req));
+    };
+
+    const getTierColor = (tier) => {
+        switch (tier) {
+            case 'Gold':
+                return '#ffd700';
+            case 'Premium':
+                return '#c0392b';
+            case 'Elite':
+                return '#8e44ad';
+            default:
+                return '#6c757d';
+        }
+    };
+
+    const getTierIcon = (tier) => {
+        switch (tier) {
+            case 'Gold':
+                return 'fas fa-medal';
+            case 'Premium':
+                return 'fas fa-crown';
+            case 'Elite':
+                return 'fas fa-gem';
+            default:
+                return 'fas fa-user';
+        }
+    };
+
+    const isProbationPeriod = () => {
+        const today = new Date();
+        const probationEnd = new Date(tutorData.probationEndDate);
+        return today < probationEnd;
+    };
+
+    const getDaysUntilProbationEnd = () => {
+        const today = new Date();
+        const probationEnd = new Date(tutorData.probationEndDate);
+        const diffTime = probationEnd - today;
+        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    };
+
     return (
         <div className="tutor-progress-container">
             <div className="container-fluid">
                 <div className="row">
                     <div className="col-12">
                         <div className="tutor-progress-content">
+                            
                             {/* Current Tier Status */}
-                            <div className="tutor-progress-section mb-4">
+                            <div className="tutor-progress-section">
                                 <h4 className="tutor-progress-section-title">Current Tier Status</h4>
-                                <div className="d-flex flex-wrap align-items-center gap-3 mb-2">
-                                    <div className="tutor-progress-tier-card text-center flex-fill p-3">
-                                        <div className="tutor-progress-tier-icon mb-2"><i className="fas fa-medal"></i></div>
-                                        <div className="tutor-progress-tier-title">Gold</div>
-                                        <div className="tutor-progress-tier-desc">Starting Level</div>
-                                        <span className="badge bg-light text-dark mt-2">Gold Tier</span>
-                                    </div>
-                                    <div className="tutor-progress-tier-card text-center flex-fill p-3">
-                                        <div className="tutor-progress-tier-icon mb-2"><i className="fas fa-crown"></i></div>
-                                        <div className="tutor-progress-tier-title">Premium</div>
-                                        <div className="tutor-progress-tier-desc">Next Level</div>
-                                    </div>
-                                    <div className="tutor-progress-tier-card text-center flex-fill p-3">
-                                        <div className="tutor-progress-tier-icon mb-2"><i className="fas fa-gem"></i></div>
-                                        <div className="tutor-progress-tier-title">Elite</div>
-                                        <div className="tutor-progress-tier-desc">Highest Level</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Stellar Student Reviews */}
-                            <div className="tutor-progress-section mb-4">
-                                <h4 className="tutor-progress-section-title">Stellar Student Reviews</h4>
-                                <div className="mb-2">Current: 1 five-star review <span className="float-end">Next milestone: 3 reviews</span></div>
-                                <div className="progress mb-3" style={{height: '18px'}}>
-                                    <div className="progress-bar bg-dark" role="progressbar" style={{width: '16%'}} aria-valuenow="1" aria-valuemin="0" aria-valuemax="6"></div>
-                                </div>
-                                <div className="row g-2">
-                                    <div className="col-6 col-md-4">
-                                        <div className="tutor-progress-milestone-card p-3 h-100">
-                                            <div className="fw-bold">Premium Tier</div>
-                                            <div className="small">3+ reviews</div>
-                                            <div className="small text-muted">Subject to approval after reaching milestone</div>
-                                            <span className="badge bg-secondary mt-2">2 more needed</span>
+                                <div className="tutor-progress-card">
+                                    <div className="tutor-progress-card-body">
+                                        <div className="row">
+                                            <div className="col-lg-8 col-md-12 mb-4">
+                                                <div className="d-flex align-items-center">
+                                                    <div className="tutor-progress-tier-badge me-3" style={{ backgroundColor: getTierColor(tutorData.currentTier) }}>
+                                                        <i className={getTierIcon(tutorData.currentTier)}></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 className="tutor-progress-card-title">{tutorData.currentTier} Tier</h6>
+                                                        <p className="tutor-progress-card-description">
+                                                            Your current membership level
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="col-lg-4 col-md-12 mb-4">
+                                                {isProbationPeriod() && (
+                                                    <div className="tutor-progress-probation-notice">
+                                                        <i className="fas fa-clock me-2"></i>
+                                                        <span>Probation ends in {getDaysUntilProbationEnd()} days</span>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="col-6 col-md-4">
-                                        <div className="tutor-progress-milestone-card p-3 h-100">
-                                            <div className="fw-bold">Elite Tier</div>
-                                            <div className="small">6+ reviews</div>
-                                            <div className="small text-muted">Subject to approval after reaching milestone</div>
-                                            <span className="badge bg-secondary mt-2">5 more needed</span>
+                                        
+                                        {/* Overall Progress */}
+                                        <div className="tutor-progress-overall-section">
+                                            <div className="d-flex justify-content-between align-items-center mb-2">
+                                                <span>Overall Progress to Next Tier</span>
+                                                <span>{Math.round(calculateOverallProgress())}%</span>
+                                            </div>
+                                            <div className="progress tutor-progress-bar">
+                                                <div 
+                                                    className="progress-bar bg-dark" 
+                                                    style={{ width: `${calculateOverallProgress()}%` }}
+                                                ></div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Years of Experience */}
-                            <div className="tutor-progress-section mb-4">
-                                <h4 className="tutor-progress-section-title">Years of Experience</h4>
-                                <div className="mb-2">Current: 1.5 years <span className="float-end">Next milestone: 2 years</span></div>
-                                <div className="progress mb-3" style={{height: '18px'}}>
-                                    <div className="progress-bar bg-dark" role="progressbar" style={{width: '30%'}} aria-valuenow="1.5" aria-valuemin="0" aria-valuemax="5"></div>
+                            {/* Progress Criteria */}
+                            <div className="tutor-progress-section">
+                                <h4 className="tutor-progress-section-title">Progress Criteria</h4>
+                                
+                                {/* Time-Based Progress */}
+                                <div className="row mb-4">
+                                    <div className="col-lg-6 col-md-12 mb-4">
+                                        <div className="tutor-progress-card">
+                                            <div className="tutor-progress-card-body">
+                                                <h6 className="tutor-progress-card-title">Years of Experience</h6>
+                                                <p className="tutor-progress-card-description">Auto-calculated from your start date</p>
+                                                
+                                                <div className="d-flex justify-content-between align-items-center mb-2">
+                                                    <span>Current: {tutorData.yearsOfExperience} years</span>
+                                                    <span>Required: {getNextTierRequirement('experience')} years</span>
+                                                </div>
+                                                <div className="progress tutor-progress-bar">
+                                                    <div 
+                                                        className={`progress-bar ${isRequirementMet('experience') ? 'bg-success' : 'bg-secondary'}`}
+                                                        style={{ width: `${calculateExperienceProgress()}%` }}
+                                                    ></div>
+                                                </div>
+                                                {isRequirementMet('experience') && (
+                                                    <div className="tutor-progress-met-indicator">
+                                                        <i className="fas fa-check-circle text-success me-2"></i>
+                                                        Requirement met
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="col-lg-6 col-md-12 mb-4">
+                                        <div className="tutor-progress-card">
+                                            <div className="tutor-progress-card-body">
+                                                <h6 className="tutor-progress-card-title">Five-Star Reviews</h6>
+                                                <p className="tutor-progress-card-description">From completed student feedback</p>
+                                                
+                                                <div className="d-flex justify-content-between align-items-center mb-2">
+                                                    <span>Current: {tutorData.fiveStarReviews} reviews</span>
+                                                    <span>Required: {getNextTierRequirement('reviews')} reviews</span>
+                                                </div>
+                                                <div className="progress tutor-progress-bar">
+                                                    <div 
+                                                        className={`progress-bar ${isRequirementMet('reviews') ? 'bg-success' : 'bg-secondary'}`}
+                                                        style={{ width: `${calculateReviewsProgress()}%` }}
+                                                    ></div>
+                                                </div>
+                                                {isRequirementMet('reviews') && (
+                                                    <div className="tutor-progress-met-indicator">
+                                                        <i className="fas fa-check-circle text-success me-2"></i>
+                                                        Requirement met
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="row g-2">
-                                    <div className="col-4">
-                                        <div className="tutor-progress-exp-card p-3 h-100 border border-dark border-2">
-                                            <div className="fw-bold">Gold Tier</div>
-                                            <div className="small">0-2 years</div>
-                                            <span className="badge bg-dark mt-2">Current</span>
+
+                                {/* Performance Milestones */}
+                                <div className="row">
+                                    <div className="col-lg-6 col-md-12 mb-4">
+                                        <div className="tutor-progress-card">
+                                            <div className="tutor-progress-card-body">
+                                                <h6 className="tutor-progress-card-title">Student Retention</h6>
+                                                <p className="tutor-progress-card-description">Students with 5+ completed sessions</p>
+                                                
+                                                <div className="tutor-progress-metric-display">
+                                                    <div className="tutor-progress-metric-value">
+                                                        {tutorData.studentRetention}%
+                                                    </div>
+                                                    <div className="tutor-progress-metric-requirement">
+                                                        Required: ≥{getNextTierRequirement('retention')}%
+                                                    </div>
+                                                </div>
+                                                
+                                                {isRequirementMet('retention') ? (
+                                                    <div className="tutor-progress-status-met">
+                                                        <i className="fas fa-check-circle me-2"></i>
+                                                        Requirement met
+                                                    </div>
+                                                ) : (
+                                                    <div className="tutor-progress-status-pending">
+                                                        <i className="fas fa-clock me-2"></i>
+                                                        {getNextTierRequirement('retention') - tutorData.studentRetention}% more needed
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="col-4">
-                                        <div className="tutor-progress-exp-card p-3 h-100 border border-secondary">
-                                            <div className="fw-bold">Premium Tier</div>
-                                            <div className="small">2-4 years</div>
-                                            <span className="badge bg-secondary mt-2">6 months remaining</span>
+                                    
+                                    <div className="col-lg-6 col-md-12 mb-4">
+                                        <div className="tutor-progress-card">
+                                            <div className="tutor-progress-card-body">
+                                                <h6 className="tutor-progress-card-title">24-Hour Onboarding</h6>
+                                                <p className="tutor-progress-card-description">Students onboarded within 24 hours</p>
+                                                
+                                                <div className="tutor-progress-metric-display">
+                                                    <div className="tutor-progress-metric-value">
+                                                        {tutorData.onboardingRate}%
+                                                    </div>
+                                                    <div className="tutor-progress-metric-requirement">
+                                                        Required: ≥{getNextTierRequirement('onboarding')}%
+                                                    </div>
+                                                </div>
+                                                
+                                                {isRequirementMet('onboarding') ? (
+                                                    <div className="tutor-progress-status-met">
+                                                        <i className="fas fa-check-circle me-2"></i>
+                                                        Requirement met
+                                                    </div>
+                                                ) : (
+                                                    <div className="tutor-progress-status-pending">
+                                                        <i className="fas fa-clock me-2"></i>
+                                                        {getNextTierRequirement('onboarding') - tutorData.onboardingRate}% more needed
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="col-4">
-                                        <div className="tutor-progress-exp-card p-3 h-100 border border-secondary">
-                                            <div className="fw-bold">Elite Tier</div>
-                                            <div className="small">5+ years</div>
-                                            <span className="badge bg-secondary mt-2">3.5 years remaining</span>
+                                </div>
+
+                                {/* Manual Assessments */}
+                                <div className="row">
+                                    <div className="col-lg-6 col-md-12 mb-4">
+                                        <div className="tutor-progress-card">
+                                            <div className="tutor-progress-card-body">
+                                                <h6 className="tutor-progress-card-title">Professional Communication</h6>
+                                                <p className="tutor-progress-card-description">Admin-assessed communication standards</p>
+                                                
+                                                {isRequirementMet('communication') ? (
+                                                    <div className="tutor-progress-status-met">
+                                                        <i className="fas fa-check-circle me-2"></i>
+                                                        Assessment passed
+                                                    </div>
+                                                ) : (
+                                                    <div className="tutor-progress-status-pending">
+                                                        <i className="fas fa-clock me-2"></i>
+                                                        Pending admin assessment
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="col-lg-6 col-md-12 mb-4">
+                                        <div className="tutor-progress-card">
+                                            <div className="tutor-progress-card-body">
+                                                <h6 className="tutor-progress-card-title">Contributions Beyond Tutoring</h6>
+                                                <p className="tutor-progress-card-description">Admin-assessed additional contributions</p>
+                                                
+                                                {isRequirementMet('contributions') ? (
+                                                    <div className="tutor-progress-status-met">
+                                                        <i className="fas fa-check-circle me-2"></i>
+                                                        Assessment passed
+                                                    </div>
+                                                ) : (
+                                                    <div className="tutor-progress-status-pending">
+                                                        <i className="fas fa-clock me-2"></i>
+                                                        {tutorData.currentTier === 'Premium' ? 'Required for Elite tier' : 'Not required for next tier'}
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Tier Benefits & Requirements */}
-                            <div className="tutor-progress-section mb-4">
+                            {/* Tier Benefits */}
+                            <div className="tutor-progress-section">
                                 <h4 className="tutor-progress-section-title">Tier Benefits & Requirements</h4>
-                                <div className="row g-3">
-                                    <div className="col-12 col-md-4">
-                                        <div className="tutor-progress-benefit-card p-3 h-100 text-center">
-                                            <div className="tutor-progress-tier-icon mb-2"><i className="fas fa-medal"></i></div>
-                                            <div className="fw-bold mb-2">Gold Tier</div>
-                                            <ul className="list-unstyled small mb-0">
-                                                <li>Basic profile visibility</li>
-                                                <li>Standard commission rate</li>
-                                                <li>0-2 years experience</li>
-                                                <li>No review requirement</li>
-                                            </ul>
+                                <div className="row">
+                                    {['Gold', 'Premium', 'Elite'].map((tier, index) => (
+                                        <div key={tier} className="col-lg-4 col-md-12 mb-4">
+                                            <div className={`tutor-progress-card ${tutorData.currentTier === tier ? 'tutor-progress-current-tier' : ''}`}>
+                                                <div className="tutor-progress-card-body text-center">
+                                                    <div className="tutor-progress-tier-icon mb-3" style={{ color: getTierColor(tier) }}>
+                                                        <i className={getTierIcon(tier)}></i>
+                                                    </div>
+                                                    <h6 className="tutor-progress-card-title">{tier} Tier</h6>
+                                                    {tutorData.currentTier === tier && (
+                                                        <span className="badge bg-dark mb-3">Current Tier</span>
+                                                    )}
+                                                    
+                                                    <div className="tutor-progress-tier-benefits">
+                                                        {tier === 'Gold' && (
+                                                            <ul className="list-unstyled">
+                                                                <li>Basic profile visibility</li>
+                                                                <li>Standard commission rate</li>
+                                                                <li>0-2 years experience</li>
+                                                                <li>No review requirement</li>
+                                                            </ul>
+                                                        )}
+                                                        {tier === 'Premium' && (
+                                                            <ul className="list-unstyled">
+                                                                <li>Enhanced profile features</li>
+                                                                <li>Better commission rate</li>
+                                                                <li>2+ years experience</li>
+                                                                <li>3+ five-star reviews</li>
+                                                                <li>90%+ retention & onboarding</li>
+                                                            </ul>
+                                                        )}
+                                                        {tier === 'Elite' && (
+                                                            <ul className="list-unstyled">
+                                                                <li>Premium profile placement</li>
+                                                                <li>Highest commission rate</li>
+                                                                <li>4+ years experience</li>
+                                                                <li>8+ five-star reviews</li>
+                                                                <li>All performance metrics</li>
+                                                                <li>Additional contributions</li>
+                                                            </ul>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="col-12 col-md-4">
-                                        <div className="tutor-progress-benefit-card p-3 h-100 text-center">
-                                            <div className="tutor-progress-tier-icon mb-2"><i className="fas fa-crown"></i></div>
-                                            <div className="fw-bold mb-2">Premium Tier</div>
-                                            <ul className="list-unstyled small mb-0">
-                                                <li>Enhanced profile features</li>
-                                                <li>Better commission rate</li>
-                                                <li>2-4 years experience</li>
-                                                <li>3+ five-star reviews</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    <div className="col-12 col-md-4">
-                                        <div className="tutor-progress-benefit-card p-3 h-100 text-center">
-                                            <div className="tutor-progress-tier-icon mb-2"><i className="fas fa-gem"></i></div>
-                                            <div className="fw-bold mb-2">Elite Tier</div>
-                                            <ul className="list-unstyled small mb-0">
-                                                <li>Premium profile placement</li>
-                                                <li>Highest commission rate</li>
-                                                <li>5+ years experience</li>
-                                                <li>6+ five-star reviews</li>
-                                            </ul>
-                                        </div>
-                                    </div>
+                                    ))}
                                 </div>
                             </div>
 
-                            {/* Next Steps to Advance */}
-                            <div className="tutor-progress-section mb-4">
-                                <h4 className="tutor-progress-section-title">Next Steps to Advance</h4>
-                                <div className="tutor-progress-next-steps-card p-3 mb-2">
-                                    <div className="d-flex align-items-center mb-2">
-                                        <i className="fas fa-star text-warning me-2"></i>
-                                        <span className="fw-bold">Collect 2 more five-star reviews</span>
+                            {/* Next Steps or Eligibility */}
+                            <div className="tutor-progress-section">
+                                <h4 className="tutor-progress-section-title">Next Steps</h4>
+                                <div className="tutor-progress-card">
+                                    <div className="tutor-progress-card-body">
+                                        {checkEligibilityForReview() ? (
+                                            <div className="text-center">
+                                                <div className="tutor-progress-eligible-notice mb-3">
+                                                    <i className="fas fa-trophy text-warning me-2"></i>
+                                                    <span className="fw-bold">Congratulations! You're eligible for tier review.</span>
+                                                </div>
+                                                <button 
+                                                    className="btn btn-dark tutor-progress-btn"
+                                                    onClick={() => setShowEligibilityModal(true)}
+                                                >
+                                                    <i className="fas fa-star me-2"></i>
+                                                    Request Tier Review
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <div>
+                                                <h6 className="tutor-progress-card-title">Requirements to Complete</h6>
+                                                <div className="tutor-progress-next-steps">
+                                                    {!isRequirementMet('experience') && (
+                                                        <div className="tutor-progress-next-step">
+                                                            <i className="fas fa-clock text-secondary me-2"></i>
+                                                            <span>Continue gaining experience ({getNextTierRequirement('experience') - tutorData.yearsOfExperience} years remaining)</span>
+                                                        </div>
+                                                    )}
+                                                    {!isRequirementMet('reviews') && (
+                                                        <div className="tutor-progress-next-step">
+                                                            <i className="fas fa-star text-warning me-2"></i>
+                                                            <span>Collect {getNextTierRequirement('reviews') - tutorData.fiveStarReviews} more five-star reviews</span>
+                                                        </div>
+                                                    )}
+                                                    {!isRequirementMet('retention') && (
+                                                        <div className="tutor-progress-next-step">
+                                                            <i className="fas fa-users text-info me-2"></i>
+                                                            <span>Improve student retention to {getNextTierRequirement('retention')}%</span>
+                                                        </div>
+                                                    )}
+                                                    {!isRequirementMet('onboarding') && (
+                                                        <div className="tutor-progress-next-step">
+                                                            <i className="fas fa-handshake text-info me-2"></i>
+                                                            <span>Improve onboarding rate to {getNextTierRequirement('onboarding')}%</span>
+                                                        </div>
+                                                    )}
+                                                    {!isRequirementMet('communication') && (
+                                                        <div className="tutor-progress-next-step">
+                                                            <i className="fas fa-comments text-primary me-2"></i>
+                                                            <span>Complete professional communication assessment</span>
+                                                        </div>
+                                                    )}
+                                                    {tutorData.currentTier === 'Premium' && !isRequirementMet('contributions') && (
+                                                        <div className="tutor-progress-next-step">
+                                                            <i className="fas fa-hands-helping text-success me-2"></i>
+                                                            <span>Complete contributions beyond tutoring assessment</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
-                                    <div className="small text-muted ms-4">Focus on delivering exceptional tutoring sessions</div>
-                                </div>
-                                <div className="tutor-progress-next-steps-card p-3">
-                                    <div className="d-flex align-items-center mb-2">
-                                        <i className="fas fa-clock text-secondary me-2"></i>
-                                        <span className="fw-bold">Continue gaining experience</span>
-                                    </div>
-                                    <div className="small text-muted ms-4">6 months until Premium tier eligibility</div>
                                 </div>
                             </div>
 
@@ -156,6 +475,90 @@ function TutorProgress() {
                     </div>
                 </div>
             </div>
+
+            {/* Eligibility Modal */}
+            {showEligibilityModal && (
+                <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                    <div className="modal-dialog modal-lg">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">
+                                    <i className="fas fa-trophy me-2"></i>
+                                    Tier Review Request
+                                </h5>
+                                <button 
+                                    type="button" 
+                                    className="btn-close"
+                                    onClick={() => setShowEligibilityModal(false)}
+                                ></button>
+                            </div>
+                            <div className="modal-body">
+                                <div className="tutor-progress-modal-content">
+                                    <div className="text-center mb-4">
+                                        <div className="tutor-progress-celebration-icon">
+                                            <i className="fas fa-star text-warning"></i>
+                                        </div>
+                                        <h6>Congratulations on meeting all requirements!</h6>
+                                        <p className="text-muted">Your progress will be reviewed by our team within 3-5 business days.</p>
+                                    </div>
+                                    
+                                    <div className="tutor-progress-completed-criteria">
+                                        <h6>Completed Criteria:</h6>
+                                        <div className="list-group list-group-flush">
+                                            <div className="list-group-item d-flex justify-content-between align-items-center">
+                                                <span>Years of Experience</span>
+                                                <i className="fas fa-check-circle text-success"></i>
+                                            </div>
+                                            <div className="list-group-item d-flex justify-content-between align-items-center">
+                                                <span>Five-Star Reviews</span>
+                                                <i className="fas fa-check-circle text-success"></i>
+                                            </div>
+                                            <div className="list-group-item d-flex justify-content-between align-items-center">
+                                                <span>Student Retention</span>
+                                                <i className="fas fa-check-circle text-success"></i>
+                                            </div>
+                                            <div className="list-group-item d-flex justify-content-between align-items-center">
+                                                <span>24-Hour Onboarding</span>
+                                                <i className="fas fa-check-circle text-success"></i>
+                                            </div>
+                                            <div className="list-group-item d-flex justify-content-between align-items-center">
+                                                <span>Professional Communication</span>
+                                                <i className="fas fa-check-circle text-success"></i>
+                                            </div>
+                                            {tutorData.currentTier === 'Premium' && (
+                                                <div className="list-group-item d-flex justify-content-between align-items-center">
+                                                    <span>Contributions Beyond Tutoring</span>
+                                                    <i className="fas fa-check-circle text-success"></i>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="modal-footer">
+                                <button 
+                                    type="button" 
+                                    className="btn btn-secondary"
+                                    onClick={() => setShowEligibilityModal(false)}
+                                >
+                                    Close
+                                </button>
+                                <button 
+                                    type="button" 
+                                    className="btn btn-primary"
+                                    onClick={() => {
+                                        console.log('Tier review requested');
+                                        setShowEligibilityModal(false);
+                                    }}
+                                >
+                                    <i className="fas fa-paper-plane me-2"></i>
+                                    Submit Review Request
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
