@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import authService from '../services/authService';
+import React, { createContext, useContext, useReducer, useEffect } from "react";
+import authService from "../services/authService";
 
 // Initial state
 const initialState = {
@@ -11,13 +11,13 @@ const initialState = {
 
 // Action types
 const ActionTypes = {
-  LOGIN_START: 'LOGIN_START',
-  LOGIN_SUCCESS: 'LOGIN_SUCCESS',
-  LOGIN_FAILURE: 'LOGIN_FAILURE',
-  LOGOUT: 'LOGOUT',
-  SET_LOADING: 'SET_LOADING',
-  SET_USER: 'SET_USER',
-  CLEAR_ERROR: 'CLEAR_ERROR',
+  LOGIN_START: "LOGIN_START",
+  LOGIN_SUCCESS: "LOGIN_SUCCESS",
+  LOGIN_FAILURE: "LOGIN_FAILURE",
+  LOGOUT: "LOGOUT",
+  SET_LOADING: "SET_LOADING",
+  SET_USER: "SET_USER",
+  CLEAR_ERROR: "CLEAR_ERROR",
 };
 
 // Reducer function
@@ -102,7 +102,7 @@ export function AuthProvider({ children }) {
         });
       }
     } catch (error) {
-      console.error('Auth check failed:', error);
+      console.error("Auth check failed:", error);
       dispatch({
         type: ActionTypes.LOGOUT,
       });
@@ -111,7 +111,7 @@ export function AuthProvider({ children }) {
 
   const login = async (credentials) => {
     dispatch({ type: ActionTypes.LOGIN_START });
-    
+
     try {
       const response = await authService.login(credentials);
       dispatch({
@@ -120,9 +120,11 @@ export function AuthProvider({ children }) {
       });
       return response;
     } catch (error) {
+      const errorMessage =
+        error.response?.data?.error || error.message || "Login failed";
       dispatch({
         type: ActionTypes.LOGIN_FAILURE,
-        payload: { error: error.message },
+        payload: { error: errorMessage },
       });
       throw error;
     }
@@ -130,7 +132,7 @@ export function AuthProvider({ children }) {
 
   const register = async (userData) => {
     dispatch({ type: ActionTypes.LOGIN_START });
-    
+
     try {
       const response = await authService.registerStudent(userData);
       dispatch({
@@ -139,9 +141,11 @@ export function AuthProvider({ children }) {
       });
       return response;
     } catch (error) {
+      const errorMessage =
+        error.response?.data?.error || error.message || "Registration failed";
       dispatch({
         type: ActionTypes.LOGIN_FAILURE,
-        payload: { error: error.message },
+        payload: { error: errorMessage },
       });
       throw error;
     }
@@ -151,7 +155,7 @@ export function AuthProvider({ children }) {
     try {
       await authService.logout();
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error("Logout failed:", error);
     } finally {
       dispatch({ type: ActionTypes.LOGOUT });
     }
@@ -170,20 +174,16 @@ export function AuthProvider({ children }) {
     refreshAuth: checkAuthStatus,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 // Custom hook to use auth context
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }
 
-export default AuthContext; 
+export default AuthContext;
