@@ -22,6 +22,10 @@ app.use(express.urlencoded({ extended: true }));
 const tutorRoutes = require("./routes/tutor");
 app.use("/api/auth/tutor", tutorRoutes);
 
+// Routes - Profile Management
+const profileRoutes = require("./routes/profile");
+app.use("/api/auth", profileRoutes);
+
 // Login route (shared between tutors and students)
 const tutorController = require("./controllers/tutorController");
 app.post("/api/auth/login", tutorController.login);

@@ -364,16 +364,26 @@ exports.setupTutorPassword = async (req, res) => {
       userId: user.id,
     });
 
-    // Create initial tutor profile
+    // Create initial tutor profile with all required fields
     store.createTutorProfile(user.id, {
       applicationId: application.id,
-      phoneNumber: application.phone,
+      phone_number: application.phone,
       bio: "",
+      hourly_rate: 45.0,
+      university: "",
+      current_studies: [],
       subjects: [],
-      isProfileComplete: false,
-      documentsUploaded: false,
-      isLive: false,
+      subjects_selected: [],
+      locations: [],
+      preferred_locations: [],
+      schools_attended: [],
+      is_profile_complete: false,
+      documents_uploaded: false,
+      is_live: false,
       tier: "gold",
+      rating: 0.0,
+      atar: application.atar || 0.0,
+      approved_at: new Date().toISOString(),
     });
 
     // Delete setup token
