@@ -51,11 +51,7 @@ class InMemoryStore {
   updateUser(id, updateData) {
     const user = this.users.get(id);
     if (user) {
-      const updatedUser = {
-        ...user,
-        ...updateData,
-        updatedAt: new Date(),
-      };
+      const updatedUser = { ...user, ...updateData, updatedAt: new Date() };
       this.users.set(id, updatedUser);
       return updatedUser;
     }
