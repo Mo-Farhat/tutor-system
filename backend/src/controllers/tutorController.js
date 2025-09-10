@@ -46,7 +46,7 @@ exports.apply = async (req, res) => {
     }
 
     // Check for duplicate application
-    const existingUser = store.getUserByEmail(email);
+    const existingUser = await store.getUserByEmail(email);
     if (existingUser && existingUser.role === "tutor") {
       return res
         .status(400)
@@ -99,7 +99,7 @@ exports.apply = async (req, res) => {
       },
     };
 
-    const application = store.createTutorApplication(applicationData);
+    const application = await store.createTutorApplication(applicationData);
 
     // Send confirmation email to applicant
     try {
@@ -132,7 +132,7 @@ exports.approve = async (req, res) => {
     const { id } = req.params;
     const applicationId = parseInt(id);
 
-    const application = store.getTutorApplicationById(applicationId);
+    const application = await store.getTutorApplicationById(applicationId);
     if (!application) {
       return res.status(404).json({ error: "Application not found" });
     }
@@ -150,15 +150,15 @@ exports.approve = async (req, res) => {
     tokenExpiry.setDate(tokenExpiry.getDate() + 7); // 7 days expiry
 
     // Update application status
-    const updatedApplication = store.updateTutorApplication(applicationId, {
+    const updatedApplication = await store.updateTutorApplication(applicationId, {
       status: "approved",
       approvedAt: new Date(),
       setupToken,
       setupTokenExpiry: tokenExpiry,
     });
 
-    // Store setup token
-    store.createSetupToken({
+    // await store setup token
+    await store.createSetupToken({
       token: setupToken,
       applicationId: applicationId,
       email: application.email,
@@ -193,18 +193,18 @@ exports.verifySetupToken = async (req, res) => {
   try {
     const { token } = req.params;
 
-    const tokenData = store.getSetupToken(token);
+    const tokenData = await store.getSetupToken(token);
     if (!tokenData) {
       return res.status(400).json({ error: "Invalid or expired token" });
     }
 
     // Check if token is expired
     if (new Date() > new Date(tokenData.expiresAt)) {
-      store.deleteSetupToken(token);
+      await store.deleteSetupToken(token);
       return res.status(400).json({ error: "Token has expired" });
     }
 
-    const application = store.getTutorApplicationById(tokenData.applicationId);
+    const application = await store.getTutorApplicationById(tokenData.applicationId);
     if (!application) {
       return res.status(400).json({ error: "Application not found" });
     }
@@ -242,17 +242,17 @@ exports.setPassword = async (req, res) => {
     }
 
     // Verify token
-    const tokenData = store.getSetupToken(token);
+    const tokenData = await store.getSetupToken(token);
     if (!tokenData) {
       return res.status(400).json({ error: "Invalid or expired token" });
     }
 
     if (new Date() > new Date(tokenData.expiresAt)) {
-      store.deleteSetupToken(token);
+      await store.deleteSetupToken(token);
       return res.status(400).json({ error: "Token has expired" });
     }
 
-    const application = store.getTutorApplicationById(tokenData.applicationId);
+    const application = await store.getTutorApplicationById(tokenData.applicationId);
     if (!application) {
       return res.status(400).json({ error: "Application not found" });
     }
@@ -266,7 +266,7 @@ exports.setPassword = async (req, res) => {
     const [firstName, ...lastNameParts] = application.fullName.split(" ");
     const lastName = lastNameParts.join(" ");
 
-    const user = store.createUser({
+    const user = await store.createUser({
       firstName,
       lastName,
       email: application.email,
@@ -278,14 +278,14 @@ exports.setPassword = async (req, res) => {
     });
 
     // Update application status
-    store.updateTutorApplication(application.id, {
+    await store.updateTutorApplication(application.id, {
       status: "onboarded",
       setupCompletedAt: new Date(),
       userId: user.id,
     });
 
     // Create initial tutor profile with all required fields
-    store.createTutorProfile(user.id, {
+    await store.createTutorProfile(user.id, {
       applicationId: application.id,
       phone_number: application.phone,
       bio: "",
@@ -307,7 +307,7 @@ exports.setPassword = async (req, res) => {
     });
 
     // Delete setup token
-    store.deleteSetupToken(token);
+    await store.deleteSetupToken(token);
 
     // Generate login tokens
     const tokens = authService.generateTokens(user);
@@ -336,7 +336,7 @@ exports.login = async (req, res) => {
     }
 
     // Find user by email
-    const user = store.getUserByEmail(email);
+    const user = await store.getUserByEmail(email);
     if (!user) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
@@ -447,13 +447,13 @@ exports.getTutorProfile = async (req, res) => {
 // Get Application Stats - GET /api/auth/stats
 exports.getStats = async (req, res) => {
   try {
-    const stats = store.getStats();
-    const pendingApplications = store.getAllPendingApplications();
+    const stats = await store.getStats();
+    const pendingApplications = await store.getAllPendingApplications();
 
     res.json({
       ...stats,
       pendingApplications: pendingApplications.length,
-      applications: Array.from(store.tutorApplications.values()).map((app) => ({
+      applications: Array.from(await store.tutorApplications.values()).map((app) => ({
         id: app.id,
         applicationId: app.applicationId,
         fullName: app.fullName,

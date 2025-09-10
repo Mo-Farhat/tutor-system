@@ -25,7 +25,7 @@ exports.registerStudent = async (req, res) => {
     }
 
     // Check if user already exists
-    const existingUser = store.getUserByEmail(email);
+    const existingUser = await store.getUserByEmail(email);
     if (existingUser) {
       return res
         .status(400)
@@ -36,7 +36,7 @@ exports.registerStudent = async (req, res) => {
     const hashedPassword = await authService.hashPassword(password);
     const username = email.split("@")[0] + Math.floor(Math.random() * 1000);
 
-    const user = store.createUser({
+    const user = await store.createUser({
       firstName,
       lastName,
       email,
@@ -72,7 +72,7 @@ exports.login = async (req, res) => {
     }
 
     // Find user by email
-    const user = store.getUserByEmail(email);
+    const user = await store.getUserByEmail(email);
     if (!user) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
@@ -145,7 +145,7 @@ exports.submitTutorApplication = async (req, res) => {
     }
 
     // Check for duplicate application
-    const existingUser = store.getUserByEmail(email);
+    const existingUser = await store.getUserByEmail(email);
     if (existingUser && existingUser.role === "tutor") {
       return res
         .status(400)
@@ -179,7 +179,7 @@ exports.submitTutorApplication = async (req, res) => {
       motivation,
     };
 
-    const application = store.createTutorApplication(applicationData);
+    const application = await store.createTutorApplication(applicationData);
 
     // Send confirmation email to applicant
     try {
@@ -212,7 +212,7 @@ exports.approveTutorApplication = async (req, res) => {
     const { id } = req.params;
     const applicationId = parseInt(id);
 
-    const application = store.getTutorApplicationById(applicationId);
+    const application = await store.getTutorApplicationById(applicationId);
     if (!application) {
       return res.status(404).json({ error: "Application not found" });
     }
@@ -230,15 +230,15 @@ exports.approveTutorApplication = async (req, res) => {
     tokenExpiry.setDate(tokenExpiry.getDate() + 7); // 7 days expiry
 
     // Update application status
-    const updatedApplication = store.updateTutorApplication(applicationId, {
+    const updatedApplication = await store.updateTutorApplication(applicationId, {
       status: "approved",
       approvedAt: new Date(),
       setupToken,
       setupTokenExpiry: tokenExpiry,
     });
 
-    // Store setup token
-    store.createSetupToken({
+    // await store setup token
+    await store.createSetupToken({
       token: setupToken,
       applicationId: applicationId,
       email: application.email,
@@ -273,18 +273,18 @@ exports.verifyPasswordSetupToken = async (req, res) => {
   try {
     const { token } = req.params;
 
-    const tokenData = store.getSetupToken(token);
+    const tokenData = await store.getSetupToken(token);
     if (!tokenData) {
       return res.status(400).json({ error: "Invalid or expired token" });
     }
 
     // Check if token is expired
     if (new Date() > new Date(tokenData.expiresAt)) {
-      store.deleteSetupToken(token);
+      await store.deleteSetupToken(token);
       return res.status(400).json({ error: "Token has expired" });
     }
 
-    const application = store.getTutorApplicationById(tokenData.applicationId);
+    const application = await store.getTutorApplicationById(tokenData.applicationId);
     if (!application) {
       return res.status(400).json({ error: "Application not found" });
     }
@@ -322,17 +322,17 @@ exports.setupTutorPassword = async (req, res) => {
     }
 
     // Verify token
-    const tokenData = store.getSetupToken(token);
+    const tokenData = await store.getSetupToken(token);
     if (!tokenData) {
       return res.status(400).json({ error: "Invalid or expired token" });
     }
 
     if (new Date() > new Date(tokenData.expiresAt)) {
-      store.deleteSetupToken(token);
+      await store.deleteSetupToken(token);
       return res.status(400).json({ error: "Token has expired" });
     }
 
-    const application = store.getTutorApplicationById(tokenData.applicationId);
+    const application = await store.getTutorApplicationById(tokenData.applicationId);
     if (!application) {
       return res.status(400).json({ error: "Application not found" });
     }
@@ -346,7 +346,7 @@ exports.setupTutorPassword = async (req, res) => {
     const [firstName, ...lastNameParts] = application.fullName.split(" ");
     const lastName = lastNameParts.join(" ");
 
-    const user = store.createUser({
+    const user = await store.createUser({
       firstName,
       lastName,
       email: application.email,
@@ -358,14 +358,14 @@ exports.setupTutorPassword = async (req, res) => {
     });
 
     // Update application status
-    store.updateTutorApplication(application.id, {
+    await store.updateTutorApplication(application.id, {
       status: "onboarded",
       setupCompletedAt: new Date(),
       userId: user.id,
     });
 
     // Create initial tutor profile with all required fields
-    store.createTutorProfile(user.id, {
+    await store.createTutorProfile(user.id, {
       applicationId: application.id,
       phone_number: application.phone,
       bio: "",
@@ -387,7 +387,7 @@ exports.setupTutorPassword = async (req, res) => {
     });
 
     // Delete setup token
-    store.deleteSetupToken(token);
+    await store.deleteSetupToken(token);
 
     // Generate login tokens
     const tokens = authService.generateTokens(user);
@@ -414,7 +414,7 @@ exports.getUserProfile = async (req, res) => {
       return res.status(401).json({ error: "Authentication required" });
     }
 
-    const user = store.getUserById(userInfo.userId);
+    const user = await store.getUserById(userInfo.userId);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
@@ -440,7 +440,7 @@ exports.checkAuthStatus = async (req, res) => {
       return res.status(401).json({ error: "Not authenticated" });
     }
 
-    const user = store.getUserById(userInfo.userId);
+    const user = await store.getUserById(userInfo.userId);
     if (!user) {
       return res.status(401).json({ error: "User not found" });
     }
@@ -460,13 +460,13 @@ exports.checkAuthStatus = async (req, res) => {
 // Get Application Stats (Debug endpoint)
 exports.getStats = async (req, res) => {
   try {
-    const stats = store.getStats();
-    const pendingApplications = store.getAllPendingApplications();
+    const stats = await store.getStats();
+    const pendingApplications = await store.getAllPendingApplications();
 
     res.json({
       ...stats,
       pendingApplications: pendingApplications.length,
-      applications: Array.from(store.tutorApplications.values()).map((app) => ({
+      applications: Array.from(await store.tutorApplications.values()).map((app) => ({
         id: app.id,
         applicationId: app.applicationId,
         fullName: app.fullName,

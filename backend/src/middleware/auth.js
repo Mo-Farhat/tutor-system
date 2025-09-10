@@ -5,7 +5,7 @@ const JWT_SECRET =
   process.env.JWT_SECRET || "your-super-secret-jwt-key-change-in-production";
 
 // Middleware to authenticate JWT tokens
-const authenticateToken = (req, res, next) => {
+const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1]; // Bearer TOKEN
 
@@ -18,7 +18,7 @@ const authenticateToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    const user = store.getUserById(decoded.userId);
+    const user = await store.getUserById(decoded.userId);
 
     if (!user) {
       return res.status(401).json({

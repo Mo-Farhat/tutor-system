@@ -1,186 +1,122 @@
-// In-memory storage for development
-class InMemoryStore {
-  constructor() {
-    this.users = new Map();
-    this.tutorApplications = new Map();
-    this.tutorProfiles = new Map();
-    this.setupTokens = new Map();
+const prisma = require("../db/prisma");
 
-    // Counters for generating IDs
-    this.userIdCounter = 1;
-    this.applicationIdCounter = 1;
-
-    console.log("📚 In-memory storage initialized");
+class DbStore {
+  // ---------- Users ----------
+  async createUser(userData) {
+    return prisma.user.create({ data: userData });
+  }
+  async getUserById(id) {
+    return prisma.user.findUnique({ where: { id: Number(id) } });
+  }
+  async getUserByEmail(email) {
+    return prisma.user.findUnique({ where: { email } });
+  }
+  async getUserByUsername(username) {
+    return prisma.user.findUnique({ where: { username } });
+  }
+  async updateUser(id, updateData) {
+    return prisma.user.update({ where: { id: Number(id) }, data: updateData });
   }
 
-  // User operations
-  createUser(userData) {
-    const id = this.userIdCounter++;
-    const user = {
-      id,
-      ...userData,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    this.users.set(id, user);
-    return user;
+  // ---------- Tutor Applications ----------
+  async createTutorApplication(data) {
+    const ts = Date.now();
+    const count = await prisma.tutorApplication.count();
+    const applicationId = `APP-${ts}-${count + 1}`;
+    return prisma.tutorApplication.create({
+      data: { applicationId, ...data },
+    });
   }
-
-  getUserById(id) {
-    return this.users.get(id);
+  async getTutorApplicationById(id) {
+    return prisma.tutorApplication.findUnique({ where: { id: Number(id) } });
   }
-
-  getUserByEmail(email) {
-    for (let user of this.users.values()) {
-      if (user.email === email) {
-        return user;
-      }
-    }
-    return null;
+  async getTutorApplicationByApplicationId(applicationId) {
+    return prisma.tutorApplication.findUnique({ where: { applicationId } });
   }
-
-  getUserByUsername(username) {
-    for (let user of this.users.values()) {
-      if (user.username === username) {
-        return user;
-      }
-    }
-    return null;
+  async updateTutorApplication(id, updateData) {
+    return prisma.tutorApplication.update({
+      where: { id: Number(id) },
+      data: updateData,
+    });
   }
-
-  updateUser(id, updateData) {
-    const user = this.users.get(id);
-    if (user) {
-      const updatedUser = { ...user, ...updateData, updatedAt: new Date() };
-      this.users.set(id, updatedUser);
-      return updatedUser;
-    }
-    return null;
-  }
-
-  // Tutor application operations
-  createTutorApplication(applicationData) {
-    const id = this.applicationIdCounter++;
-    const applicationId = `APP-${Date.now()}-${id}`;
-
-    const application = {
-      id,
-      applicationId,
-      ...applicationData,
-      status: "pending",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    this.tutorApplications.set(id, application);
-    return application;
-  }
-
-  getTutorApplicationById(id) {
-    return this.tutorApplications.get(id);
-  }
-
-  getTutorApplicationByApplicationId(applicationId) {
-    for (let app of this.tutorApplications.values()) {
-      if (app.applicationId === applicationId) {
-        return app;
-      }
-    }
-    return null;
-  }
-
-  updateTutorApplication(id, updateData) {
-    const application = this.tutorApplications.get(id);
-    if (application) {
-      const updated = {
-        ...application,
-        ...updateData,
-        updatedAt: new Date(),
-      };
-      this.tutorApplications.set(id, updated);
-      return updated;
-    }
-    return null;
-  }
-
-  getAllPendingApplications() {
-    const pending = [];
-    for (let app of this.tutorApplications.values()) {
-      if (app.status === "pending") {
-        pending.push(app);
-      }
-    }
-    return pending;
-  }
-
-  // Setup token operations
-  createSetupToken(tokenData) {
-    this.setupTokens.set(tokenData.token, {
-      ...tokenData,
-      createdAt: new Date(),
+  async getAllPendingApplications() {
+    return prisma.tutorApplication.findMany({
+      where: { status: "pending" },
+      orderBy: { createdAt: "desc" },
     });
   }
 
-  getSetupToken(token) {
-    return this.setupTokens.get(token);
+  // ---------- Setup Tokens ----------
+  async createSetupToken({ token, applicationId, email, expiresAt }) {
+    await prisma.setupToken.create({
+      data: {
+        token,
+        applicationId: Number(applicationId),
+        email,
+        expiresAt,
+      },
+    });
+  }
+  async getSetupToken(token) {
+    return prisma.setupToken.findUnique({ where: { token } });
+  }
+  async deleteSetupToken(token) {
+    await prisma.setupToken.delete({ where: { token } });
+    return true;
   }
 
-  deleteSetupToken(token) {
-    return this.setupTokens.delete(token);
+  // ---------- Tutor Profiles ----------
+  async createTutorProfile(userId, profileData) {
+    return prisma.tutorProfile.create({
+      data: {
+        userId: Number(userId),
+        phone_number: profileData.phone_number ?? null,
+        bio: profileData.bio ?? "",
+        hourly_rate: profileData.hourly_rate ?? 45.0,
+        university: profileData.university ?? "",
+        current_studies: profileData.current_studies ?? [],
+        subjects: profileData.subjects ?? [],
+        subjects_selected: profileData.subjects_selected ?? [],
+        locations: profileData.locations ?? [],
+        preferred_locations: profileData.preferred_locations ?? [],
+        schools_attended: profileData.schools_attended ?? [],
+        is_profile_complete: profileData.is_profile_complete ?? false,
+        documents_uploaded: profileData.documents_uploaded ?? false,
+        is_live: profileData.is_live ?? false,
+        tier: profileData.tier ?? "gold",
+        rating: profileData.rating ?? 0.0,
+        atar: profileData.atar ?? null,
+        approved_at: profileData.approved_at
+          ? new Date(profileData.approved_at)
+          : null,
+      },
+    });
+  }
+  async getTutorProfileByUserId(userId) {
+    return prisma.tutorProfile.findUnique({ where: { userId: Number(userId) } });
+  }
+  async updateTutorProfile(userId, updateData) {
+    return prisma.tutorProfile.update({
+      where: { userId: Number(userId) },
+      data: updateData,
+    });
   }
 
-  // Tutor profile operations
-  createTutorProfile(userId, profileData) {
-    const profile = {
-      userId,
-      ...profileData,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    this.tutorProfiles.set(userId, profile);
-    return profile;
+  // ---------- Stats ----------
+  async getStats() {
+    const [users, applications, profiles, setupTokens] = await Promise.all([
+      prisma.user.count(),
+      prisma.tutorApplication.count(),
+      prisma.tutorProfile.count(),
+      prisma.setupToken.count(),
+    ]);
+    return { users, applications, profiles, setupTokens };
   }
 
-  getTutorProfileByUserId(userId) {
-    return this.tutorProfiles.get(userId);
-  }
-
-  updateTutorProfile(userId, updateData) {
-    const profile = this.tutorProfiles.get(userId);
-    if (profile) {
-      const updated = {
-        ...profile,
-        ...updateData,
-        updatedAt: new Date(),
-      };
-      this.tutorProfiles.set(userId, updated);
-      return updated;
-    }
-    return null;
-  }
-
-  // Debug methods
-  getStats() {
-    return {
-      users: this.users.size,
-      applications: this.tutorApplications.size,
-      profiles: this.tutorProfiles.size,
-      setupTokens: this.setupTokens.size,
-    };
-  }
-
+  // in-memory clear() no longer applies
   clear() {
-    this.users.clear();
-    this.tutorApplications.clear();
-    this.tutorProfiles.clear();
-    this.setupTokens.clear();
-    this.userIdCounter = 1;
-    this.applicationIdCounter = 1;
-    console.log("🗑️ In-memory storage cleared");
+    throw new Error("Not supported on DB store.");
   }
 }
 
-// Singleton instance
-const store = new InMemoryStore();
-
-module.exports = store;
+module.exports = new DbStore();

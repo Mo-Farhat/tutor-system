@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  student
+  tutor
+  admin
+}
+
+enum Tier {
+  gold
+  silver
+  bronze
+}
+
+enum AppStatus {
+  pending
+  approved
+  onboarded
+  rejected
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  firstName String
+  lastName  String
+  email     String   @unique
+  username  String   @unique
+  password  String
+  role      Role     @default(student)
+  status    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile      TutorProfile?
+  applications TutorApplication[]
+}
+
+model TutorApplication {
+  id                          Int       @id @default(autoincrement())
+  applicationId               String    @unique
+  fullName                    String
+  phone                       String
+  email                       String
+  currentStudy                String?
+  year12State                 String?
+  year12CompletionYear        Int?
+  currentState                String?
+  atar                        Decimal?  @db.Decimal(4, 2)
+  canCommit3Hours             Boolean?  @default(false)
+  canCommit1Year              Boolean?  @default(false)
+  canTutorMostWeeks           Boolean?  @default(false)
+  canTutorGroups              Boolean?  @default(false)
+  subjectsToTutor             String?
+  hasWorkingWithChildrenCheck Boolean?  @default(false)
+  motivation                  String
+  status                      AppStatus @default(pending)
+  approvedAt                  DateTime?
+  setupToken                  String?
+  setupTokenExpiry            DateTime?
+  files                       Json?
+
+  userId Int?
+  user   User? @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+}
+
+model SetupToken {
+  token         String   @id
+  applicationId Int
+  email         String
+  expiresAt     DateTime
+  createdAt     DateTime @default(now())
+}
+
+model TutorProfile {
+  userId Int  @id
+  user   User @relation(fields: [userId], references: [id])
+
+  phone_number        String?
+  bio                 String?
+  hourly_rate         Decimal? @db.Decimal(10, 2)
+  university          String?
+  current_studies     String[]
+  subjects            String[]
+  subjects_selected   Json
+  locations           String[]
+  preferred_locations String[]
+  schools_attended    String[]
+
+  is_profile_complete Boolean   @default(false)
+  documents_uploaded  Boolean   @default(false)
+  is_live             Boolean   @default(false)
+  tier                Tier      @default(gold)
+  rating              Decimal   @default(0.0) @db.Decimal(3, 2)
+  atar                Decimal?  @db.Decimal(4, 2)
+  approved_at         DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

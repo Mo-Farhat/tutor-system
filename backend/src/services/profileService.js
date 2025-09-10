@@ -3,13 +3,13 @@ const bcrypt = require("bcrypt");
 
 class ProfileService {
   // Get tutor profile by user ID
-  getTutorProfileByUserId(userId) {
-    const user = store.getUserById(userId);
+  async getTutorProfileByUserId(userId) {
+    const user = await store.getUserById(userId);
     if (!user || user.role !== "tutor") {
       return { success: false, error: "Tutor profile not found" };
     }
 
-    const tutorProfile = store.getTutorProfileByUserId(user.id);
+    const tutorProfile = await store.getTutorProfileByUserId(user.id);
     if (!tutorProfile) {
       return { success: false, error: "Tutor profile not found" };
     }
@@ -17,7 +17,7 @@ class ProfileService {
     // Calculate profile completion
     const completionStatus = this.calculateCompletionStatus(tutorProfile, user);
 
-    return {
+    return { 
       success: true,
       data: {
         user: {
@@ -36,13 +36,13 @@ class ProfileService {
   }
 
   // Get tutor profile by username
-  getTutorProfile(username) {
-    const user = store.getUserByUsername(username);
+  async getTutorProfile(username) {
+    const user = await store.getUserByUsername(username);
     if (!user || user.role !== "tutor") {
       return { success: false, error: "Tutor profile not found" };
     }
 
-    const tutorProfile = store.getTutorProfileByUserId(user.id);
+    const tutorProfile = await store.getTutorProfileByUserId(user.id);
     if (!tutorProfile) {
       return { success: false, error: "Tutor profile not found" };
     }
@@ -69,13 +69,13 @@ class ProfileService {
   }
 
   // Update tutor profile
-  updateTutorProfile(userId, updateData) {
-    const user = store.getUserById(userId);
+  async updateTutorProfile(userId, updateData) {
+    const user = await store.getUserById(userId);
     if (!user || user.role !== "tutor") {
       return { success: false, error: "Tutor not found" };
     }
 
-    const tutorProfile = store.getTutorProfileByUserId(userId);
+    const tutorProfile = await store.getTutorProfileByUserId(userId);
     if (!tutorProfile) {
       return { success: false, error: "Tutor profile not found" };
     }
@@ -91,7 +91,7 @@ class ProfileService {
     updatedProfile.is_profile_complete = this.isProfileComplete(updatedProfile);
 
     // Save updated profile
-    store.updateTutorProfile(userId, updatedProfile);
+    await store.updateTutorProfile(userId, updatedProfile);
 
     return {
       success: true,
@@ -102,7 +102,7 @@ class ProfileService {
 
   // Change password
   async changePassword(userId, currentPassword, newPassword) {
-    const user = store.getUserById(userId);
+    const user = await store.getUserById(userId);
     if (!user) {
       return { success: false, error: "User not found" };
     }
@@ -120,7 +120,7 @@ class ProfileService {
     const hashedPassword = await bcrypt.hash(newPassword, 12);
 
     // Update password
-    store.updateUser(userId, { password: hashedPassword });
+    await store.updateUser(userId, { password: hashedPassword });
 
     return {
       success: true,
@@ -187,13 +187,13 @@ class ProfileService {
   }
 
   // Get profile completion status by user ID
-  getCompletionStatusByUserId(userId) {
-    const user = store.getUserById(userId);
+  async getCompletionStatusByUserId(userId) {
+    const user = await store.getUserById(userId);
     if (!user || user.role !== "tutor") {
       return { success: false, error: "Tutor not found" };
     }
 
-    const tutorProfile = store.getTutorProfileByUserId(user.id);
+    const tutorProfile = await store.getTutorProfileByUserId(user.id);
     if (!tutorProfile) {
       return { success: false, error: "Tutor profile not found" };
     }
@@ -207,13 +207,13 @@ class ProfileService {
   }
 
   // Get profile completion status by username
-  getCompletionStatus(username) {
-    const user = store.getUserByUsername(username);
+  async getCompletionStatus(username) {
+    const user = await store.getUserByUsername(username);
     if (!user || user.role !== "tutor") {
       return { success: false, error: "Tutor not found" };
     }
 
-    const tutorProfile = store.getTutorProfileByUserId(user.id);
+    const tutorProfile = await store.getTutorProfileByUserId(user.id);
     if (!tutorProfile) {
       return { success: false, error: "Tutor profile not found" };
     }
