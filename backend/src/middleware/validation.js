@@ -1,8 +1,23 @@
 // Validation middleware for tutor profile
 
 const validateProfileUpdate = (req, res, next) => {
-  const { bio, hourly_rate, university, phone_number, locations, subjects } =
-    req.body;
+  console.log(
+    "🔍 Validating profile update request:",
+    JSON.stringify(req.body, null, 2)
+  );
+
+  const {
+    bio,
+    hourly_rate,
+    university,
+    phone_number,
+    locations,
+    subjects,
+    preferred_locations,
+    subjects_selected,
+    current_studies,
+    schools_attended,
+  } = req.body;
   const errors = [];
 
   // Validate bio
@@ -28,17 +43,51 @@ const validateProfileUpdate = (req, res, next) => {
     errors.push("University name must be at least 2 characters");
   }
 
-  // Validate locations
+  // Validate locations (legacy field)
   if (locations && !Array.isArray(locations)) {
     errors.push("Locations must be an array");
   }
 
-  // Validate subjects
+  // Validate subjects (legacy field)
   if (subjects && !Array.isArray(subjects)) {
     errors.push("Subjects must be an array");
   }
 
+  // Validate preferred_locations (current field)
+  if (preferred_locations && !Array.isArray(preferred_locations)) {
+    errors.push("Preferred locations must be an array");
+  }
+
+  // Validate subjects_selected (current field)
+  if (subjects_selected && !Array.isArray(subjects_selected)) {
+    errors.push("Selected subjects must be an array");
+  }
+
+  // Validate current_studies
+  if (current_studies && !Array.isArray(current_studies)) {
+    errors.push("Current studies must be an array");
+  }
+
+  // Validate schools_attended
+  if (schools_attended && !Array.isArray(schools_attended)) {
+    errors.push("Schools attended must be an array");
+  }
+
+  // Validate subjects_selected structure if provided
+  if (subjects_selected && Array.isArray(subjects_selected)) {
+    subjects_selected.forEach((subject, index) => {
+      if (!subject.year_level || !subject.curriculum || !subject.subject) {
+        errors.push(
+          `Subject entry ${
+            index + 1
+          } must have year_level, curriculum, and subject`
+        );
+      }
+    });
+  }
+
   if (errors.length > 0) {
+    console.log("❌ Validation errors found:", errors);
     return res.status(400).json({
       success: false,
       error: "Validation failed",
@@ -46,6 +95,7 @@ const validateProfileUpdate = (req, res, next) => {
     });
   }
 
+  console.log("✅ Profile validation passed");
   next();
 };
 

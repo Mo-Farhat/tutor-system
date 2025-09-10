@@ -3,7 +3,7 @@ const profileService = require("../services/profileService");
 // Get tutor profile
 exports.getTutorProfile = async (req, res) => {
   try {
-    const { username } = req.query;
+    const username = req.query?.username;
 
     // If no username provided, use authenticated user (requires auth middleware)
     if (!username && req.user) {
@@ -89,7 +89,7 @@ exports.changePassword = async (req, res) => {
 // Get profile completion status
 exports.getCompletionStatus = async (req, res) => {
   try {
-    const { username } = req.query;
+    const username = req.query?.username;
 
     // If no username provided, use authenticated user (requires auth middleware)
     if (!username && req.user) {

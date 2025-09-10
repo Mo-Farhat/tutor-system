@@ -781,6 +781,16 @@ function TutorProfile() {
                         <button
                           className="btn btn-outline-primary"
                           type="button"
+                          onClick={(e) => {
+                            const select =
+                              document.getElementById("locationSelect");
+                            if (select.value) {
+                              handleLocationSelect({
+                                target: { value: select.value },
+                              });
+                              select.value = "";
+                            }
+                          }}
                         >
                           <i className="fas fa-plus"></i>
                         </button>

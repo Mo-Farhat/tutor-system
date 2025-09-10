@@ -1,0 +1,70 @@
+{
+  "users": {
+    "1": {
+      "id": 1,
+      "firstName": "Persistent",
+      "lastName": "Tutor",
+      "email": "persistent.tutor@example.com",
+      "username": "persistenttutor",
+      "password": "hashedpassword",
+      "role": "tutor",
+      "status": "active",
+      "createdAt": "2025-09-10T09:09:57.573Z",
+      "updatedAt": "2025-09-10T09:09:57.573Z"
+    }
+  },
+  "tutorApplications": {},
+  "tutorProfiles": {
+    "1": {
+      "userId": 1,
+      "applicationId": "PERSIST-001",
+      "phone_number": "+61400000000",
+      "bio": "Updated bio - testing persistence across sessions",
+      "hourly_rate": 75,
+      "university": "Persistence University",
+      "current_studies": [
+        "Master of Persistence",
+        "PhD in Data Storage"
+      ],
+      "subjects": [],
+      "subjects_selected": [
+        {
+          "year_level": "11-12",
+          "curriculum": "VCE",
+          "subject": "Persistence Studies"
+        },
+        {
+          "year_level": "11-12",
+          "curriculum": "VCE",
+          "subject": "Data Management"
+        }
+      ],
+      "locations": [
+        "Online"
+      ],
+      "preferred_locations": [
+        "Online",
+        "Melbourne",
+        "Sydney"
+      ],
+      "schools_attended": [
+        "Persistence High School"
+      ],
+      "is_profile_complete": true,
+      "documents_uploaded": false,
+      "is_live": false,
+      "tier": "gold",
+      "rating": 0,
+      "atar": 96,
+      "approved_at": "2025-09-10T09:09:57.574Z",
+      "createdAt": "2025-09-10T09:09:57.574Z",
+      "updatedAt": "2025-09-10T09:09:57.575Z"
+    }
+  },
+  "setupTokens": {},
+  "counters": {
+    "userIdCounter": 2,
+    "applicationIdCounter": 1
+  },
+  "lastSaved": "2025-09-10T09:15:44.803Z"
+}
