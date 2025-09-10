@@ -44,7 +44,7 @@ npm install
 
 ### 2. Environment Configuration
 
-Create a `.env` file in the backend directory:
+Create a `.env` file in the backend directory (copy from `.env.example`):
 
 ```env
 PORT=8000
@@ -55,7 +55,30 @@ REFRESH_TOKEN_EXPIRES_IN=7d
 ADMIN_EMAIL=admin@striveacademy.com
 FRONTEND_URL=http://localhost:3000
 BACKEND_URL=http://localhost:8000
+
+# Email Configuration
+EMAIL_FROM=Strive Academy <noreply@striveacademy.com>
+EMAIL_USER=your-gmail@gmail.com
+EMAIL_PASSWORD=your-gmail-app-password
+
+# Development Email (Ethereal Email - optional)
+ETHEREAL_USER=ethereal.user@ethereal.email
+ETHEREAL_PASS=ethereal.pass
 ```
+
+#### Email Setup Instructions
+
+**For Production (Gmail SMTP):**
+
+1. Enable 2-Factor Authentication on your Gmail account
+2. Generate an App Password: Google Account → Security → App passwords
+3. Use your Gmail address and the app password in `.env`
+
+**For Development (Ethereal Email):**
+
+1. Visit https://ethereal.email/create
+2. Copy the generated credentials to your `.env` file
+3. Emails will be sent to Ethereal (test service) with preview URLs
 
 ### 3. Start the Server
 
