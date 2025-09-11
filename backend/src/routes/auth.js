@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const authController = require("../controllers/authController");
+const { authenticateToken, requireRole } = require("../middleware/auth");
 const {
   tutorApplicationUpload,
   handleUploadError,
@@ -21,7 +22,13 @@ router.post(
 );
 
 // Admin: Approve tutor application
-router.post("/tutor/approve/:id", authController.approveTutorApplication);
+// router.post("/tutor/approve/:id", authController.approveTutorApplication);
+router.post(
+  "/tutor/approve/:id",
+  authenticateToken,
+  requireRole("admin"),
+  authController.approveTutorApplication
+);
 
 // Password setup endpoints
 router.get(
@@ -47,5 +54,7 @@ router.get("/health", (req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+router.get("/tutor/stats", authController.getStats);
 
 module.exports = router;

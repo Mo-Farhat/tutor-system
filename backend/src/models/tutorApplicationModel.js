@@ -2,18 +2,9 @@ const prisma = require("../db/prisma");
 
 class TutorApplicationModel {
   // Create a new tutor application
-  async create(data) {
-    const ts = Date.now();
-    const count = await prisma.tutorApplication.count();
-    const applicationId = `APP-${ts}-${count + 1}`;
-
-    return await prisma.tutorApplication.create({
-      data: {
-        applicationId,
-        ...data,
-      },
-    });
-  }
+   async create(data) {
+    return prisma.tutorApplication.create({ data });
+ }
 
   // Find application by ID
   async findById(id) {

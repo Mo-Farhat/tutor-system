@@ -8,12 +8,7 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(
-  cors({
-    origin: "http://localhost:3000", // Frontend URL
-    credentials: true,
-  })
-);
+app.use(cors({ origin: process.env.FRONTEND_URL || "http://localhost:3000", credentials: true }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -22,9 +17,6 @@ app.use(express.urlencoded({ extended: true }));
 const authRoutes = require("./routes/auth");
 app.use("/api/auth", authRoutes);
 
-// Routes - Tutor Verification Flow
-const tutorRoutes = require("./routes/tutor");
-app.use("/api/auth/tutor", tutorRoutes);
 
 // Routes - Profile Management
 const profileRoutes = require("./routes/profile");

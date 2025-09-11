@@ -6,6 +6,8 @@ const {
 } = require("../models");
 const authService = require("../services/authService");
 const emailService = require("../services/emailService");
+const { generateUniqueUsername } = require("../services/usernameService");
+
 
 // Student Registration
 exports.registerStudent = async (req, res) => {
@@ -39,7 +41,7 @@ exports.registerStudent = async (req, res) => {
 
     // Hash password and create user
     const hashedPassword = await authService.hashPassword(password);
-    const username = email.split("@")[0] + Math.floor(Math.random() * 1000);
+    const username = await generateUniqueUsername(email.split("@")[0]);c
 
     const user = await userModel.create({
       firstName,
@@ -82,28 +84,31 @@ exports.login = async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
+    // If the tutor hasn't activated (no password yet), short-circuit
+    if (user.role === "tutor" && !user.password) {
+      return res.status(403).json({
+        error: "Account not activated",
+        message: "Please use the setup link from your email to set a password.",
+      });
+    }
+
+    // Tutors must be active before login
+    if (user.role === "tutor" && user.status !== "active") {
+      return res.status(403).json({
+        error: "Account not activated",
+        message: "Please use the setup link from your email to activate your account.",
+      });
+    }
+
     // Check password
-    const isValidPassword = await authService.comparePassword(
-      password,
-      user.password
-    );
+    const isValidPassword = await authService.comparePassword(password, user.password);
     if (!isValidPassword) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    // For tutors, check if they're active
-    if (user.role === "tutor" && user.status !== "active") {
-      return res.status(403).json({
-        error: "Account not activated",
-        message: "Please complete your account setup or wait for approval",
-      });
-    }
-
-    // Generate tokens
+    // Generate tokens and return user (without password)
     const tokens = authService.generateTokens(user);
-
-    // Return response without password
-    const { password: _, ...userWithoutPassword } = user;
+    const { password: _omit, ...userWithoutPassword } = user;
 
     res.json({
       message: "Login successful",
@@ -115,6 +120,7 @@ exports.login = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 
 // Submit Tutor Application
 exports.submitTutorApplication = async (req, res) => {
@@ -204,10 +210,12 @@ exports.submitTutorApplication = async (req, res) => {
       },
     };
 
-    const application = await tutorApplicationModel.create(applicationData);
+    const applicationId = authService.generateApplicationId();
+    const application = await tutorApplicationModel.create({ applicationId, ...applicationData });
+
 
     // Create user account (without password - will be set during password setup)
-    const username = email.split("@")[0] + Math.floor(Math.random() * 1000);
+    const username = await generateUniqueUsername(email.split("@")[0]);
     const [firstName, ...lastNameParts] = fullName.split(" ");
     const lastName = lastNameParts.join(" ");
 
@@ -516,7 +524,12 @@ exports.checkAuthStatus = async (req, res) => {
 // Get Application Stats (Debug endpoint)
 exports.getStats = async (req, res) => {
   try {
-    const [users, applications, profiles, setupTokens] = await Promise.all([
+    const [
+      usersCount,
+      applicationsCount,
+      profilesCount,
+      setupTokensCount,
+    ] = await Promise.all([
       userModel.count(),
       tutorApplicationModel.count(),
       tutorProfileModel.count(),
@@ -527,10 +540,10 @@ exports.getStats = async (req, res) => {
     const allApplications = await tutorApplicationModel.findAll();
 
     res.json({
-      users,
-      applications,
-      profiles,
-      setupTokens,
+      usersCount,
+      applicationsCount,
+      profilesCount,
+      setupTokensCount,
       pendingApplications: pendingApplications.length,
       applications: allApplications.map((app) => ({
         id: app.id,
@@ -546,3 +559,4 @@ exports.getStats = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
