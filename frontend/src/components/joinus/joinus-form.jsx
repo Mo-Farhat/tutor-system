@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import tutorService from "../../services/tutorService";
+import VideoRecorder from "../VideoRecorder";
 import "../../css/joinus/joinus-form.css";
 
 function JoinusForm({ isOpen, onClose }) {
@@ -84,6 +85,37 @@ function JoinusForm({ isOpen, onClose }) {
     ) {
       setShowTerminationMessage("");
     }
+
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "",
+      }));
+    }
+  };
+
+  const handleVideoReady = (videoBlob) => {
+    setFormData((prev) => ({
+      ...prev,
+      videoSubmission: videoBlob,
+    }));
+
+    // Clear any video-related errors
+    if (errors.videoSubmission) {
+      setErrors((prev) => ({
+        ...prev,
+        videoSubmission: "",
+      }));
+    }
+  };
+
+  const handleVideoError = (error) => {
+    console.error("Video recording error:", error);
+    setErrors((prev) => ({
+      ...prev,
+      videoSubmission: "Failed to record video. Please try again.",
+    }));
   };
 
   // Validate the current step
@@ -197,7 +229,7 @@ function JoinusForm({ isOpen, onClose }) {
 
       case 6: // Video Submission
         if (!formData.videoSubmission) {
-          stepErrors.videoSubmission = "Please upload your video submission";
+          stepErrors.videoSubmission = "Please record your video submission";
           isValid = false;
         }
         break;
@@ -810,8 +842,7 @@ function JoinusForm({ isOpen, onClose }) {
 
               <div className="mb-4">
                 <h5>
-                  🎥 Please record and upload a 1-2 minute video answering the
-                  following:
+                  🎥 Please record a 1-2 minute video answering the following:
                 </h5>
                 <ol>
                   <li className="mb-2">
@@ -837,25 +868,16 @@ function JoinusForm({ isOpen, onClose }) {
               </div>
 
               <div className="mb-3">
-                <label htmlFor="videoSubmission" className="form-label">
-                  Upload your video (max 100MB)
-                </label>
-                <input
-                  type="file"
-                  className={`form-control ${
-                    errors.videoSubmission ? "is-invalid" : ""
-                  }`}
-                  id="videoSubmission"
-                  name="videoSubmission"
-                  accept="video/*"
-                  onChange={handleChange}
+                <VideoRecorder
+                  onVideoReady={handleVideoReady}
+                  onError={handleVideoError}
+                  className={errors.videoSubmission ? "is-invalid" : ""}
                 />
                 {errors.videoSubmission && (
                   <div className="invalid-feedback">
                     {errors.videoSubmission}
                   </div>
                 )}
-                <div className="form-text">Accepted formats: MP4, MOV, AVI</div>
               </div>
             </div>
           )}
