@@ -1,6 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const authController = require("../controllers/authController");
+const {
+  tutorApplicationUpload,
+  handleUploadError,
+} = require("../middleware/upload");
 
 // Student registration
 router.post("/register", authController.registerStudent);
@@ -9,7 +13,12 @@ router.post("/register", authController.registerStudent);
 router.post("/login", authController.login);
 
 // Tutor application submission
-router.post("/tutor/apply", authController.submitTutorApplication);
+router.post(
+  "/tutor/apply",
+  tutorApplicationUpload,
+  handleUploadError,
+  authController.submitTutorApplication
+);
 
 // Admin: Approve tutor application
 router.post("/tutor/approve/:id", authController.approveTutorApplication);

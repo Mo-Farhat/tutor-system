@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const store = require("../models/inMemoryStore");
+const { userModel } = require("../models");
 
 const JWT_SECRET =
   process.env.JWT_SECRET || "your-super-secret-jwt-key-change-in-production";
@@ -18,7 +18,7 @@ const authenticateToken = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    const user = await store.getUserById(decoded.userId);
+    const user = await userModel.findById(decoded.userId);
 
     if (!user) {
       return res.status(401).json({

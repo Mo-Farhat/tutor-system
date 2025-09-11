@@ -100,10 +100,12 @@ const TutorPasswordSetup = () => {
 
         // Auto-login the user with the returned tokens
         if (result.data.user && result.data.tokens) {
-          // Use tutor service for login to avoid context conflicts
-          await tutorService.login({
-            email: result.data.user.email,
-            password: formData.password,
+          // Store tokens (already done in tutorService.setupPassword)
+          // Update auth context with user data
+          contextLogin({
+            user: result.data.user,
+            access: result.data.tokens.access,
+            refresh: result.data.tokens.refresh,
           });
 
           // Redirect to tutor dashboard
@@ -112,6 +114,16 @@ const TutorPasswordSetup = () => {
               state: {
                 message: "Welcome! Please complete your profile setup.",
                 isNewTutor: true,
+              },
+            });
+          }, 2000);
+        } else {
+          // If no tokens, redirect to login
+          setTimeout(() => {
+            navigate("/login", {
+              state: {
+                message:
+                  "Password set successfully! Please log in to continue.",
               },
             });
           }, 2000);

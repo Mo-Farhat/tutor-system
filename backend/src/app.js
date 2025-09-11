@@ -18,6 +18,10 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Routes - Authentication
+const authRoutes = require("./routes/auth");
+app.use("/api/auth", authRoutes);
+
 // Routes - Tutor Verification Flow
 const tutorRoutes = require("./routes/tutor");
 app.use("/api/auth/tutor", tutorRoutes);
@@ -26,32 +30,10 @@ app.use("/api/auth/tutor", tutorRoutes);
 const profileRoutes = require("./routes/profile");
 app.use("/api/auth", profileRoutes);
 
-// Login route (shared between tutors and students)
-const tutorController = require("./controllers/tutorController");
-app.post("/api/auth/login", tutorController.login);
-
-// Profile route (for dashboard)
-app.get("/api/auth/profile", tutorController.getCurrentUserProfile);
-
-// Auth check route
-app.get("/api/auth/check-auth", (req, res) => {
-  res.json({
-    authenticated: true,
-    user: {
-      id: 1,
-      role: "tutor",
-      status: "active",
-    },
-  });
-});
-
 // Health check
 app.get("/health", (req, res) => {
   res.json({ status: "OK", message: "Server is running" });
 });
-
-// Debug stats endpoint
-app.get("/api/auth/stats", tutorController.getStats);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

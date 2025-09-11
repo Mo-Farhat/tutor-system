@@ -7,7 +7,7 @@ exports.getTutorProfile = async (req, res) => {
 
     // If no username provided, use authenticated user (requires auth middleware)
     if (!username && req.user) {
-      const result = profileService.getTutorProfileByUserId(req.user.id);
+      const result = await profileService.getTutorProfileByUserId(req.user.id);
       if (!result.success) {
         return res.status(404).json(result);
       }
@@ -22,7 +22,7 @@ exports.getTutorProfile = async (req, res) => {
       });
     }
 
-    const result = profileService.getTutorProfile(username);
+    const result = await profileService.getTutorProfile(username);
 
     if (!result.success) {
       return res.status(404).json(result);
@@ -44,7 +44,7 @@ exports.updateTutorProfile = async (req, res) => {
     const userId = req.user.id;
     const updateData = req.body;
 
-    const result = profileService.updateTutorProfile(userId, updateData);
+    const result = await profileService.updateTutorProfile(userId, updateData);
 
     if (!result.success) {
       return res.status(400).json(result);
@@ -93,7 +93,9 @@ exports.getCompletionStatus = async (req, res) => {
 
     // If no username provided, use authenticated user (requires auth middleware)
     if (!username && req.user) {
-      const result = profileService.getCompletionStatusByUserId(req.user.id);
+      const result = await profileService.getCompletionStatusByUserId(
+        req.user.id
+      );
       if (!result.success) {
         return res.status(404).json(result);
       }
@@ -108,7 +110,7 @@ exports.getCompletionStatus = async (req, res) => {
       });
     }
 
-    const result = profileService.getCompletionStatus(username);
+    const result = await profileService.getCompletionStatus(username);
 
     if (!result.success) {
       return res.status(404).json(result);

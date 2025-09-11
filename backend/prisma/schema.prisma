@@ -7,39 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  student
-  tutor
-  admin
-}
-
-enum Tier {
-  gold
-  silver
-  bronze
-}
-
-enum AppStatus {
-  pending
-  approved
-  onboarded
-  rejected
-}
-
 model User {
-  id        Int      @id @default(autoincrement())
-  firstName String
-  lastName  String
-  email     String   @unique
-  username  String   @unique
-  password  String
-  role      Role     @default(student)
-  status    String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  profile      TutorProfile?
+  id           Int                @id @default(autoincrement())
+  firstName    String
+  lastName     String
+  email        String             @unique
+  username     String             @unique
+  password     String
+  role         Role               @default(student)
+  status       String?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
   applications TutorApplication[]
+  profile      TutorProfile?
 }
 
 model TutorApplication {
@@ -65,12 +45,10 @@ model TutorApplication {
   setupToken                  String?
   setupTokenExpiry            DateTime?
   files                       Json?
-
-  userId Int?
-  user   User? @relation(fields: [userId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  userId                      Int?
+  createdAt                   DateTime  @default(now())
+  updatedAt                   DateTime  @updatedAt
+  user                        User?     @relation(fields: [userId], references: [id])
 
   @@index([email])
 }
@@ -84,12 +62,10 @@ model SetupToken {
 }
 
 model TutorProfile {
-  userId Int  @id
-  user   User @relation(fields: [userId], references: [id])
-
+  userId              Int       @id
   phone_number        String?
   bio                 String?
-  hourly_rate         Decimal? @db.Decimal(10, 2)
+  hourly_rate         Decimal?  @db.Decimal(10, 2)
   university          String?
   current_studies     String[]
   subjects            String[]
@@ -97,7 +73,6 @@ model TutorProfile {
   locations           String[]
   preferred_locations String[]
   schools_attended    String[]
-
   is_profile_complete Boolean   @default(false)
   documents_uploaded  Boolean   @default(false)
   is_live             Boolean   @default(false)
@@ -105,7 +80,9 @@ model TutorProfile {
   rating              Decimal   @default(0.0) @db.Decimal(3, 2)
   atar                Decimal?  @db.Decimal(4, 2)
   approved_at         DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  user                User      @relation(fields: [userId], references: [id])
 }
+
+

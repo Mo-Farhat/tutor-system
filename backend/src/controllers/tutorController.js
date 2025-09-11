@@ -1,4 +1,9 @@
-const store = require("../models/inMemoryStore");
+const {
+  userModel,
+  tutorApplicationModel,
+  tutorProfileModel,
+  setupTokenModel,
+} = require("../models");
 const authService = require("../services/authService");
 const emailService = require("../services/emailService");
 
@@ -46,7 +51,7 @@ exports.apply = async (req, res) => {
     }
 
     // Check for duplicate application
-    const existingUser = await store.getUserByEmail(email);
+    const existingUser = await userModel.findByEmail(email);
     if (existingUser && existingUser.role === "tutor") {
       return res
         .status(400)
@@ -99,7 +104,7 @@ exports.apply = async (req, res) => {
       },
     };
 
-    const application = await store.createTutorApplication(applicationData);
+    const application = await tutorApplicationModel.create(applicationData);
 
     // Send confirmation email to applicant
     try {
@@ -132,7 +137,7 @@ exports.approve = async (req, res) => {
     const { id } = req.params;
     const applicationId = parseInt(id);
 
-    const application = await store.getTutorApplicationById(applicationId);
+    const application = await tutorApplicationModel.findById(applicationId);
     if (!application) {
       return res.status(404).json({ error: "Application not found" });
     }
@@ -150,15 +155,18 @@ exports.approve = async (req, res) => {
     tokenExpiry.setDate(tokenExpiry.getDate() + 7); // 7 days expiry
 
     // Update application status
-    const updatedApplication = await store.updateTutorApplication(applicationId, {
-      status: "approved",
-      approvedAt: new Date(),
-      setupToken,
-      setupTokenExpiry: tokenExpiry,
-    });
+    const updatedApplication = await tutorApplicationModel.update(
+      applicationId,
+      {
+        status: "approved",
+        approvedAt: new Date(),
+        setupToken,
+        setupTokenExpiry: tokenExpiry,
+      }
+    );
 
     // await store setup token
-    await store.createSetupToken({
+    await setupTokenModel.create({
       token: setupToken,
       applicationId: applicationId,
       email: application.email,
@@ -193,18 +201,20 @@ exports.verifySetupToken = async (req, res) => {
   try {
     const { token } = req.params;
 
-    const tokenData = await store.getSetupToken(token);
+    const tokenData = await setupTokenModel.findByToken(token);
     if (!tokenData) {
       return res.status(400).json({ error: "Invalid or expired token" });
     }
 
     // Check if token is expired
     if (new Date() > new Date(tokenData.expiresAt)) {
-      await store.deleteSetupToken(token);
+      await setupTokenModel.delete(token);
       return res.status(400).json({ error: "Token has expired" });
     }
 
-    const application = await store.getTutorApplicationById(tokenData.applicationId);
+    const application = await tutorApplicationModel.findById(
+      tokenData.applicationId
+    );
     if (!application) {
       return res.status(400).json({ error: "Application not found" });
     }
@@ -242,51 +252,57 @@ exports.setPassword = async (req, res) => {
     }
 
     // Verify token
-    const tokenData = await store.getSetupToken(token);
+    const tokenData = await setupTokenModel.findByToken(token);
     if (!tokenData) {
       return res.status(400).json({ error: "Invalid or expired token" });
     }
 
     if (new Date() > new Date(tokenData.expiresAt)) {
-      await store.deleteSetupToken(token);
+      await setupTokenModel.delete(token);
       return res.status(400).json({ error: "Token has expired" });
     }
 
-    const application = await store.getTutorApplicationById(tokenData.applicationId);
+    const application = await tutorApplicationModel.findById(
+      tokenData.applicationId
+    );
     if (!application) {
       return res.status(400).json({ error: "Application not found" });
+    }
+
+    // Get existing user (should already exist from application submission)
+    const user = await userModel.findByEmail(application.email);
+    if (!user) {
+      return res.status(400).json({
+        error: "User account not found. Please contact support.",
+      });
+    }
+
+    // Check if password is already set
+    if (user.password && user.password !== "") {
+      return res.status(400).json({
+        error:
+          "Password already set for this account. Please try logging in instead.",
+      });
     }
 
     // Hash password
     const hashedPassword = await authService.hashPassword(password);
 
-    // Create tutor user account
-    const username =
-      application.email.split("@")[0] + Math.floor(Math.random() * 1000);
-    const [firstName, ...lastNameParts] = application.fullName.split(" ");
-    const lastName = lastNameParts.join(" ");
-
-    const user = await store.createUser({
-      firstName,
-      lastName,
-      email: application.email,
-      username,
+    // Update user with password
+    await userModel.update(user.id, {
       password: hashedPassword,
-      role: "tutor",
       status: "active",
-      applicationId: application.id,
     });
 
     // Update application status
-    await store.updateTutorApplication(application.id, {
+    await tutorApplicationModel.update(application.id, {
       status: "onboarded",
-      setupCompletedAt: new Date(),
+      approvedAt: new Date(),
       userId: user.id,
     });
 
     // Create initial tutor profile with all required fields
-    await store.createTutorProfile(user.id, {
-      applicationId: application.id,
+    await tutorProfileModel.create(user.id, {
       phone_number: application.phone,
       bio: "",
       hourly_rate: 45.0,
@@ -303,11 +319,11 @@ exports.setPassword = async (req, res) => {
       tier: "gold",
       rating: 0.0,
       atar: application.atar || 0.0,
-      approved_at: new Date().toISOString(),
+      approved_at: new Date(),
     });
 
     // Delete setup token
-    await store.deleteSetupToken(token);
+    await setupTokenModel.delete(token);
 
     // Generate login tokens
     const tokens = authService.generateTokens(user);
@@ -336,7 +352,7 @@ exports.login = async (req, res) => {
     }
 
     // Find user by email
-    const user = await store.getUserByEmail(email);
+    const user = await userModel.findByEmail(email);
     if (!user) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
@@ -378,21 +394,23 @@ exports.login = async (req, res) => {
 // Get Current User Profile - GET /api/auth/profile
 exports.getCurrentUserProfile = async (req, res) => {
   try {
-    // This would normally be extracted from JWT token
-    // For now, return a basic profile structure
-    const mockProfile = {
-      id: 1,
-      fullName: "Tutor User",
-      email: "tutor@example.com",
-      role: "tutor",
-      status: "active",
-      profileCompleted: false,
-      subjects: [],
-      experience: "",
-      availability: {},
-    };
+    // Extract user info from JWT token (requires auth middleware)
+    if (!req.user) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
 
-    res.json(mockProfile);
+    const user = await userModel.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Return user without password
+    const { password: _, ...userWithoutPassword } = user;
+
+    res.json({
+      success: true,
+      data: userWithoutPassword,
+    });
   } catch (error) {
     console.error("Profile fetch error:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -403,41 +421,44 @@ exports.getCurrentUserProfile = async (req, res) => {
 exports.getTutorProfile = async (req, res) => {
   try {
     const { username } = req.query;
+
+    if (!username) {
+      return res.status(400).json({
+        success: false,
+        error: "Username is required",
+      });
+    }
+
     console.log("Fetching tutor profile for username:", username);
 
-    // Mock tutor profile data that matches frontend expectations
-    const mockTutorProfile = {
+    const user = await userModel.findByUsername(username);
+    if (!user || user.role !== "tutor") {
+      return res.status(404).json({
+        success: false,
+        error: "Tutor profile not found",
+      });
+    }
+
+    const tutorProfile = await tutorProfileModel.findByUserId(user.id);
+    if (!tutorProfile) {
+      return res.status(404).json({
+        success: false,
+        error: "Tutor profile not found",
+      });
+    }
+
+    res.json({
       success: true,
       data: {
         user: {
-          first_name: "Test",
-          last_name: "Tutor",
-          email: "tutor@example.com",
-          username: username || "testtutor",
+          first_name: user.firstName,
+          last_name: user.lastName,
+          email: user.email,
+          username: user.username,
         },
-        phone_number: "+61 400 000 000",
-        bio: "I'm a passionate tutor ready to help students succeed!",
-        hourly_rate: "45",
-        university: "University of Sydney",
-        preferred_locations: ["Sydney", "Online"],
-        subjects_selected: [
-          {
-            year_level: "Year 12",
-            curriculum: "NSW HSC",
-            subject: "Mathematics Advanced",
-          },
-        ],
-        schools_attended: ["Sydney High School"],
-        current_studies: ["Bachelor of Mathematics"],
-        completion_status: {
-          profile_completed: 20,
-          total_steps: 5,
-          completed_steps: 1,
-        },
+        ...tutorProfile,
       },
-    };
-
-    res.json(mockTutorProfile);
+    });
   } catch (error) {
     console.error("Tutor profile fetch error:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -447,13 +468,23 @@ exports.getTutorProfile = async (req, res) => {
 // Get Application Stats - GET /api/auth/stats
 exports.getStats = async (req, res) => {
   try {
-    const stats = await store.getStats();
-    const pendingApplications = await store.getAllPendingApplications();
+    const [users, applications, profiles, setupTokens] = await Promise.all([
+      userModel.count(),
+      tutorApplicationModel.count(),
+      tutorProfileModel.count(),
+      setupTokenModel.count(),
+    ]);
+
+    const pendingApplications = await tutorApplicationModel.findPending();
+    const allApplications = await tutorApplicationModel.findAll();
 
     res.json({
-      ...stats,
+      users,
+      applications,
+      profiles,
+      setupTokens,
       pendingApplications: pendingApplications.length,
-      applications: Array.from(await store.tutorApplications.values()).map((app) => ({
+      applications: allApplications.map((app) => ({
         id: app.id,
         applicationId: app.applicationId,
         fullName: app.fullName,
