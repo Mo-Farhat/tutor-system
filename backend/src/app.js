@@ -1,7 +1,10 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
-
+const userRoutes = require("./routes/users");
+const applicationRoutes = require("./routes/applications");
+const profilesAdminRoutes = require("./routes/profilesAdmin");
+const tokenRoutes = require("./routes/tokens");
 // Load environment variables
 dotenv.config();
 
@@ -40,5 +43,11 @@ app.use((err, req, res, next) => {
 app.use((req, res) => {
   res.status(404).json({ error: "Route not found" });
 });
+
+app.use("/api", userRoutes);
+app.use("/api", applicationRoutes);
+app.use("/api", profilesAdminRoutes);
+app.use("/api", tokenRoutes);
+
 
 module.exports = app;

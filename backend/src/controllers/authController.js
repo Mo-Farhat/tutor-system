@@ -41,7 +41,7 @@ exports.registerStudent = async (req, res) => {
 
     // Hash password and create user
     const hashedPassword = await authService.hashPassword(password);
-    const username = await generateUniqueUsername(email.split("@")[0]);c
+    const username = await generateUniqueUsername(email.split("@")[0]);
 
     const user = await userModel.create({
       firstName,
