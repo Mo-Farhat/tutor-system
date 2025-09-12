@@ -123,12 +123,13 @@ export function AuthProvider({ children }) {
 
     try {
       const response = await authService.login(credentials);
-      if (response.success) {
+      // Backend returns user and tokens directly, not wrapped in success
+      if (response.user && response.tokens) {
         dispatch({
           type: ActionTypes.LOGIN_SUCCESS,
           payload: { user: response.user },
         });
-        return response;
+        return { success: true, user: response.user, tokens: response.tokens };
       } else {
         throw new Error(response.message || "Login failed");
       }
@@ -146,12 +147,13 @@ export function AuthProvider({ children }) {
 
     try {
       const response = await authService.registerStudent(userData);
-      if (response.success) {
+      // Backend returns user and tokens directly, not wrapped in success
+      if (response.user && response.tokens) {
         dispatch({
           type: ActionTypes.LOGIN_SUCCESS,
           payload: { user: response.user },
         });
-        return response;
+        return { success: true, user: response.user, tokens: response.tokens };
       } else {
         throw new Error(response.message || "Registration failed");
       }

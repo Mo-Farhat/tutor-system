@@ -16,16 +16,22 @@ const authenticateToken = async (req, res, next) => {
 
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
-  if (!token) return res.status(401).json({ success: false, error: "Access token required" });
+  if (!token)
+    return res
+      .status(401)
+      .json({ success: false, error: "Access token required" });
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     const user = await userModel.findById(decoded.userId);
-    if (!user) return res.status(401).json({ success: false, error: "User not found" });
+    if (!user)
+      return res.status(401).json({ success: false, error: "User not found" });
     req.user = user;
     next();
   } catch {
-    return res.status(403).json({ success: false, error: "Invalid or expired token" });
+    return res
+      .status(403)
+      .json({ success: false, error: "Invalid or expired token" });
   }
 };
 
@@ -33,7 +39,20 @@ const authenticateToken = async (req, res, next) => {
 const requireTutor = (req, res, next) => {
   if (BYPASS_AUTH) return next();
   if (req.user.role !== "tutor") {
-    return res.status(403).json({ success: false, error: "Tutor access required" });
+    return res
+      .status(403)
+      .json({ success: false, error: "Tutor access required" });
+  }
+  next();
+};
+
+// Require student role
+const requireStudent = (req, res, next) => {
+  if (BYPASS_AUTH) return next();
+  if (req.user.role !== "student") {
+    return res
+      .status(403)
+      .json({ success: false, error: "Student access required" });
   }
   next();
 };
@@ -42,7 +61,9 @@ const requireTutor = (req, res, next) => {
 const requireRole = (role) => (req, res, next) => {
   if (BYPASS_AUTH) return next();
   if (!req.user || req.user.role !== role) {
-    return res.status(403).json({ success: false, error: `${role} access required` });
+    return res
+      .status(403)
+      .json({ success: false, error: `${role} access required` });
   }
   next();
 };
@@ -52,9 +73,17 @@ const requireOwnProfile = (req, res, next) => {
   if (BYPASS_AUTH) return next();
   const requestedUsername = req.params.username || req.query.username;
   if (requestedUsername && requestedUsername !== req.user.username) {
-    return res.status(403).json({ success: false, error: "Can only access your own profile" });
+    return res
+      .status(403)
+      .json({ success: false, error: "Can only access your own profile" });
   }
   next();
 };
 
-module.exports = { authenticateToken, requireTutor, requireOwnProfile, requireRole };
+module.exports = {
+  authenticateToken,
+  requireTutor,
+  requireStudent,
+  requireOwnProfile,
+  requireRole,
+};

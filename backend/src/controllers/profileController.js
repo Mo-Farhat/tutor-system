@@ -125,3 +125,50 @@ exports.getCompletionStatus = async (req, res) => {
     });
   }
 };
+
+// Student Profile Endpoints
+
+// Get student profile
+exports.getStudentProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const result = await profileService.getStudentProfile(userId);
+
+    if (!result.success) {
+      return res.status(404).json(result);
+    }
+
+    res.json(result);
+  } catch (error) {
+    console.error("Get student profile error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+};
+
+// Update student profile
+exports.updateStudentProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const updateData = req.body;
+
+    const result = await profileService.updateStudentProfile(
+      userId,
+      updateData
+    );
+
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+
+    res.json(result);
+  } catch (error) {
+    console.error("Update student profile error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+};

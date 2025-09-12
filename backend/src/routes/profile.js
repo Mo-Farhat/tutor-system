@@ -4,6 +4,7 @@ const profileController = require("../controllers/profileController");
 const {
   authenticateToken,
   requireTutor,
+  requireStudent,
   requireOwnProfile,
 } = require("../middleware/auth");
 const {
@@ -47,6 +48,34 @@ router.put(
   "/tutor/change-password",
   authenticateToken,
   requireTutor,
+  validatePasswordChange,
+  profileController.changePassword
+);
+
+// Student Profile Routes
+
+// Get student profile (protected - students only)
+router.get(
+  "/student/profile",
+  authenticateToken,
+  requireStudent,
+  profileController.getStudentProfile
+);
+
+// Update student profile (protected - students only)
+router.put(
+  "/student/profile",
+  authenticateToken,
+  requireStudent,
+  validateProfileUpdate,
+  profileController.updateStudentProfile
+);
+
+// Change password (protected - students only)
+router.put(
+  "/student/change-password",
+  authenticateToken,
+  requireStudent,
   validatePasswordChange,
   profileController.changePassword
 );
