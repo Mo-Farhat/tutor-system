@@ -22,7 +22,9 @@ function TutorNavbar() {
       // Fetch profile data from our new API
       const username = user?.username || "notmanu23"; // Use logged in user or fallback to existing user
       const response = await fetch(
-        `http://localhost:8000/api/auth/tutor/profile/?username=${username}`
+        `${
+          process.env.REACT_APP_BACKEND_URL || "http://localhost:8000"
+        }/api/auth/tutor/profile/?username=${username}`
       );
       const data = await response.json();
 
@@ -34,7 +36,9 @@ function TutorNavbar() {
 
       // Fetch completion status
       const completionResponse = await fetch(
-        `http://localhost:8000/api/auth/tutor/completion-status/?username=${username}`
+        `${
+          process.env.REACT_APP_BACKEND_URL || "http://localhost:8000"
+        }/api/auth/tutor/completion-status/?username=${username}`
       );
       const completionData = await completionResponse.json();
 

@@ -20,7 +20,9 @@ const ProtectedTutorRoute = ({ children, allowedRoutes = [] }) => {
       try {
         const username = user?.username || "notmanu23";
         const response = await fetch(
-          `http://localhost:8000/api/auth/tutor/completion-status/?username=${username}`
+          `${
+            process.env.REACT_APP_BACKEND_URL || "http://localhost:8000"
+          }/api/auth/tutor/completion-status/?username=${username}`
         );
         const data = await response.json();
 

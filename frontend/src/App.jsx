@@ -65,6 +65,8 @@ const App = () => {
               path="/tutor/setup-password/:token"
               element={<TutorPasswordSetup />}
             />
+            <Route path="/admin" element={<AdminTestPanel />} />
+            <Route path="/admin/panel" element={<AdminTestPanel />} />
             <Route path="/api/auth/stats" element={<AdminTestPanel />} />
 
             {/* Tutor Dashboard Routes - Protected by completion status */}

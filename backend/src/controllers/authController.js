@@ -8,7 +8,6 @@ const authService = require("../services/authService");
 const emailService = require("../services/emailService");
 const { generateUniqueUsername } = require("../services/usernameService");
 
-
 // Student Registration
 exports.registerStudent = async (req, res) => {
   try {
@@ -41,7 +40,8 @@ exports.registerStudent = async (req, res) => {
 
     // Hash password and create user
     const hashedPassword = await authService.hashPassword(password);
-    const username = await generateUniqueUsername(email.split("@")[0]);c
+    const username = await generateUniqueUsername(email.split("@")[0]);
+    c;
 
     const user = await userModel.create({
       firstName,
@@ -96,12 +96,16 @@ exports.login = async (req, res) => {
     if (user.role === "tutor" && user.status !== "active") {
       return res.status(403).json({
         error: "Account not activated",
-        message: "Please use the setup link from your email to activate your account.",
+        message:
+          "Please use the setup link from your email to activate your account.",
       });
     }
 
     // Check password
-    const isValidPassword = await authService.comparePassword(password, user.password);
+    const isValidPassword = await authService.comparePassword(
+      password,
+      user.password
+    );
     if (!isValidPassword) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
@@ -120,7 +124,6 @@ exports.login = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
 
 // Submit Tutor Application
 exports.submitTutorApplication = async (req, res) => {
@@ -211,8 +214,10 @@ exports.submitTutorApplication = async (req, res) => {
     };
 
     const applicationId = authService.generateApplicationId();
-    const application = await tutorApplicationModel.create({ applicationId, ...applicationData });
-
+    const application = await tutorApplicationModel.create({
+      applicationId,
+      ...applicationData,
+    });
 
     // Create user account (without password - will be set during password setup)
     const username = await generateUniqueUsername(email.split("@")[0]);
@@ -524,17 +529,13 @@ exports.checkAuthStatus = async (req, res) => {
 // Get Application Stats (Debug endpoint)
 exports.getStats = async (req, res) => {
   try {
-    const [
-      usersCount,
-      applicationsCount,
-      profilesCount,
-      setupTokensCount,
-    ] = await Promise.all([
-      userModel.count(),
-      tutorApplicationModel.count(),
-      tutorProfileModel.count(),
-      setupTokenModel.count(),
-    ]);
+    const [usersCount, applicationsCount, profilesCount, setupTokensCount] =
+      await Promise.all([
+        userModel.count(),
+        tutorApplicationModel.count(),
+        tutorProfileModel.count(),
+        setupTokenModel.count(),
+      ]);
 
     const pendingApplications = await tutorApplicationModel.findPending();
     const allApplications = await tutorApplicationModel.findAll();
@@ -559,4 +560,3 @@ exports.getStats = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-

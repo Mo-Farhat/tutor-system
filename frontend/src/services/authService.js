@@ -1,4 +1,6 @@
-const API_BASE_URL = "http://localhost:8000/api/auth";
+const API_BASE_URL = `${
+  process.env.REACT_APP_BACKEND_URL || "http://localhost:8000"
+}/api/auth`;
 
 class AuthService {
   // Helper method to make API calls
