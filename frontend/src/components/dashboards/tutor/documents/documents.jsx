@@ -17,7 +17,7 @@ function TutorDocuments() {
     try {
       setLoading(true);
       const username = user?.username || 'notmanu23'; // Use logged in user or fallback to existing user
-      const response = await fetch(`http://localhost:8000/api/auth/tutor/documents/?username=${username}`);
+      const response = await fetch(`http://localhost:8000/api/auth/tutor/documents/?username=${encodeURIComponent(username)}`);
       const data = await response.json();
       
       if (data.success) {
@@ -45,7 +45,7 @@ function TutorDocuments() {
       formData.append('document_type', documentType);
       formData.append('file', file);
 
-      const response = await fetch(`http://localhost:8000/api/auth/tutor/documents/?username=${username}`, {
+      const response = await fetch(`http://localhost:8000/api/auth/tutor/documents/?username=${encodeURIComponent(username)}`, {
         method: 'POST',
         body: formData
       });

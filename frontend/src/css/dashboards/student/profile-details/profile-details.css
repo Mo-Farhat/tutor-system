@@ -1,0 +1,465 @@
+/* Student Profile Details Container - Following Settings Design */
+.student-profile-details-container {
+    min-height: 100vh;
+    padding: 2rem 0;
+    background-color: #ffffff;
+    transition: margin-left 0.3s ease;
+    overflow-y: auto;
+}
+
+.student-profile-details-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* Section Styling - Matching Settings */
+.student-profile-details-section {
+    margin-bottom: 2rem;
+}
+
+.student-profile-details-section-title {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Card Styling - Identical to Settings */
+.student-profile-details-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.student-profile-details-card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+.student-profile-details-card-body {
+    padding: 2rem;
+}
+
+.student-profile-details-card-title {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.student-profile-details-card-description {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+/* Button Styling - Matching Settings */
+.student-profile-details-btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.student-profile-details-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Avatar Styling - Following Settings Pattern */
+.student-profile-details-avatar {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+/* Info Lists */
+.student-profile-details-info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.student-profile-details-info-item {
+    color: #495057;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+}
+
+.student-profile-details-info-item i {
+    color: #6c757d;
+    width: 20px;
+}
+
+/* Statistics Numbers */
+.student-profile-details-stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    line-height: 1;
+    margin-top: 0.5rem;
+}
+
+/* Badge Cards */
+.student-profile-details-badge-card {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.student-profile-details-badge-card:hover {
+    background: #e3f2fd;
+    border-color: #2196f3;
+    transform: translateY(-2px);
+}
+
+.student-profile-details-badge-icon {
+    position: relative;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.student-profile-details-badge-icon i {
+    font-size: 2rem;
+    color: #ffc107;
+}
+
+.student-profile-details-badge-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #dc3545;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.student-profile-details-badge-content {
+    flex: 1;
+}
+
+.student-profile-details-badge-name {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.student-profile-details-badge-notes {
+    margin-top: 0.5rem;
+}
+
+/* Report Cards */
+.student-profile-details-report-card {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.student-profile-details-report-card:hover {
+    background: white;
+    border-color: #007bff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.student-profile-details-report-header {
+    margin-bottom: 1rem;
+}
+
+.student-profile-details-report-title {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.student-profile-details-report-rating {
+    display: flex;
+    gap: 0.2rem;
+}
+
+.student-profile-details-report-rating i {
+    font-size: 0.8rem;
+}
+
+.student-profile-details-report-summary {
+    margin-bottom: 1rem;
+}
+
+.student-profile-details-report-summary p {
+    color: #495057;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.student-profile-details-report-achievements {
+    margin-bottom: 1rem;
+}
+
+.student-profile-details-report-achievements h6 {
+    color: #2c3e50;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.student-profile-details-report-achievements ul {
+    margin: 0;
+    padding-left: 1.2rem;
+}
+
+.student-profile-details-report-achievements li {
+    color: #495057;
+    font-size: 0.8rem;
+    margin-bottom: 0.25rem;
+}
+
+.student-profile-details-report-achievements p {
+    color: #495057;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.student-profile-details-report-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Empty State */
+.student-profile-details-empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+}
+
+.student-profile-details-empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.student-profile-details-empty-state p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .student-profile-details-container {
+        padding: 1rem 0;
+    }
+
+    .student-profile-details-content {
+        padding: 0 0.5rem;
+    }
+
+    .student-profile-details-section-title {
+        font-size: 1.3rem;
+    }
+
+    .student-profile-details-card-body {
+        padding: 1.5rem;
+    }
+
+    .student-profile-details-avatar {
+        width: 50px;
+        height: 50px;
+        font-size: 1.25rem;
+    }
+
+    .student-profile-details-stat-number {
+        font-size: 2rem;
+    }
+
+    .student-profile-details-badge-card,
+    .student-profile-details-report-card {
+        margin-bottom: 1rem;
+    }
+
+    .student-profile-details-badge-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .student-profile-details-badge-icon {
+        margin-right: 0;
+        margin-bottom: 0.5rem;
+    }
+
+    .student-profile-details-report-actions {
+        flex-direction: column;
+    }
+
+    .student-profile-details-report-actions .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .student-profile-details-section-title {
+        font-size: 1.2rem;
+    }
+
+    .student-profile-details-card-body {
+        padding: 1rem;
+    }
+
+    .student-profile-details-empty-state {
+        padding: 2rem 0.5rem;
+    }
+
+    .student-profile-details-empty-state i {
+        font-size: 2.5rem;
+    }
+
+    .student-profile-details-stat-number {
+        font-size: 1.75rem;
+    }
+
+    .student-profile-details-badge-card,
+    .student-profile-details-report-card {
+        padding: 1rem;
+    }
+}
+
+/* Desktop navbar responsive adjustments */
+@media (min-width: 992px) {
+    .student-profile-details-container {
+        margin-left: 80px;
+        transition: margin-left 0.3s ease;
+        overflow-y: auto;
+    }
+    
+    .navbar2-expanded ~ .student-profile-details-content .student-profile-details-container {
+        margin-left: 280px;
+    }
+}
+
+/* Form Elements - Matching Settings */
+.student-profile-details-container .form-control,
+.student-profile-details-container .form-select {
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    padding: 0.75rem;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.student-profile-details-container .form-control:focus,
+.student-profile-details-container .form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.student-profile-details-container .form-check-input:checked {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.student-profile-details-container .form-check-label {
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+/* Button Variants - Following Settings Pattern */
+.student-profile-details-container .btn-dark {
+    background-color: #343a40;
+    border-color: #343a40;
+}
+
+.student-profile-details-container .btn-outline-primary {
+    color: #007bff;
+    border-color: #007bff;
+}
+
+.student-profile-details-container .btn-outline-secondary {
+    color: #6c757d;
+    border-color: #6c757d;
+}
+
+.student-profile-details-container .btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+/* Hover Effects */
+.student-profile-details-container .btn:hover {
+    transform: translateY(-1px);
+}
+
+.student-profile-details-container .btn-dark:hover {
+    background-color: #23272b;
+    border-color: #1d2124;
+}
+
+.student-profile-details-container .btn-outline-primary:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+.student-profile-details-container .btn-outline-secondary:hover {
+    background-color: #6c757d;
+    color: white;
+}
+
+.student-profile-details-container .btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+/* Animation for badges */
+@keyframes student-profile-details-badge-glow {
+    0% {
+        box-shadow: 0 0 5px rgba(255, 193, 7, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(255, 193, 7, 0.6);
+    }
+    100% {
+        box-shadow: 0 0 5px rgba(255, 193, 7, 0.3);
+    }
+}
+
+.student-profile-details-badge-card:hover .student-profile-details-badge-icon {
+    animation: student-profile-details-badge-glow 2s infinite;
+}
+
+/* Focus states for accessibility */
+.student-profile-details-card:focus-within {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+.student-profile-details-btn:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
