@@ -536,6 +536,7 @@ exports.checkAuthStatus = async (req, res) => {
     const { password: _, ...userWithoutPassword } = user;
 
     res.json({
+      success: true,
       authenticated: true,
       user: userWithoutPassword,
     });
