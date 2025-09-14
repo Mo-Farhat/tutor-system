@@ -29,6 +29,8 @@ import TutorHomePage from "./pages/js/dashboard/tutor/home";
 import TutorEarningsPage from "./pages/js/dashboard/tutor/earnings";
 import TutorProgressPage from "./pages/js/dashboard/tutor/progress";
 import TutorCalendarPage from "./pages/js/dashboard/tutor/calendar";
+import MockAdminPage from "./pages/MockAdminPage";
+import AdminTestPanel from "./components/AdminTestPanel";
 import TutorStudentsPage from "./pages/js/dashboard/tutor/students";
 import TutorProfilePage from "./pages/js/dashboard/tutor/profile";
 import TutorDocumentsPage from "./pages/js/dashboard/tutor/documents";
@@ -75,6 +77,10 @@ const App = () => {
               path="/tutor/setup-password/:token"
               element={<TutorPasswordSetup />}
             />
+            <Route path="/admin" element={<AdminTestPanel />} />
+            <Route path="/admin/panel" element={<AdminTestPanel />} />
+            <Route path="/api/auth/stats" element={<AdminTestPanel />} />
+            <Route path="/mock-admin" element={<MockAdminPage />} />
 
             {/* Tutor Dashboard Routes - Protected by completion status */}
             <Route

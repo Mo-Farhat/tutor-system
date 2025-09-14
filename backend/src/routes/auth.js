@@ -21,14 +21,16 @@ router.post(
   authController.submitTutorApplication
 );
 
-// Admin: Approve tutor application
-// router.post("/tutor/approve/:id", authController.approveTutorApplication);
+// Admin: Approve tutor application (protected)
 router.post(
   "/tutor/approve/:id",
   authenticateToken,
   requireRole("admin"),
   authController.approveTutorApplication
 );
+
+// Mock admin: Approve tutor application (unprotected for development)
+router.post("/tutor/approve-mock/:id", authController.approveTutorApplication);
 
 // Password setup endpoints
 router.get(
@@ -42,6 +44,9 @@ router.get("/profile", authController.getUserProfile);
 
 // Auth status check
 router.get("/check-auth", authenticateToken, authController.checkAuthStatus);
+
+// Create admin user (development endpoint)
+router.post("/create-admin", authController.createAdmin);
 
 // Debug endpoint for development
 router.get("/stats", authController.getStats);

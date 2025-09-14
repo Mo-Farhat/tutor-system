@@ -22,12 +22,16 @@ function TutorNavbar() {
       // Fetch profile data from our new API
       const userInfo = user || JSON.parse(localStorage.getItem('user_info') || '{}');
       const userId = userInfo?.id || userInfo?.userId;
-      const username = userInfo?.username;
+      const username = userInfo?.username || user?.username;
       
       console.log('Navbar: Fetching data for user:', { userId, username });
       
-      if (userId) {
-        const response = await fetch(`http://localhost:8000/api/auth/tutor/profile/?username=${encodeURIComponent(username)}`);
+      if (userId && username) {
+        const response = await fetch(
+          `${
+            process.env.REACT_APP_BACKEND_URL || "http://localhost:8000"
+          }/api/auth/tutor/profile/?username=${encodeURIComponent(username)}`
+        );
         const data = await response.json();
         
         if (data.success) {
@@ -37,7 +41,11 @@ function TutorNavbar() {
         }
 
         // Fetch completion status
-        const completionResponse = await fetch(`http://localhost:8000/api/auth/tutor/completion-status/?username=${encodeURIComponent(username)}`);
+        const completionResponse = await fetch(
+          `${
+            process.env.REACT_APP_BACKEND_URL || "http://localhost:8000"
+          }/api/auth/tutor/completion-status/?username=${encodeURIComponent(username)}`
+        );
         const completionData = await completionResponse.json();
         
         if (completionData.success) {
@@ -49,7 +57,7 @@ function TutorNavbar() {
         // For now, set empty document status since we don't have that API yet
         setDocumentStatus(null);
       } else {
-        console.error('No user ID available for fetching profile data');
+        console.error('No user ID or username available for fetching profile data');
       }
     } catch (error) {
       console.error('Error fetching tutor data:', error);

@@ -72,13 +72,20 @@ class ProfileService {
 
   // Update tutor profile
   async updateTutorProfile(userId, updateData) {
+    console.log("🔍 ProfileService updateTutorProfile called with:", {
+      userId,
+      updateData: JSON.stringify(updateData, null, 2),
+    });
+
     const user = await userModel.findById(userId);
     if (!user || user.role !== "tutor") {
+      console.log("❌ Tutor not found:", { userId, userRole: user?.role });
       return { success: false, error: "Tutor not found" };
     }
 
     const tutorProfile = await tutorProfileModel.findByUserId(userId);
     if (!tutorProfile) {
+      console.log("❌ Tutor profile not found for user:", userId);
       return { success: false, error: "Tutor profile not found" };
     }
 
@@ -161,8 +168,15 @@ class ProfileService {
       }
     });
 
+    console.log("🔍 Data to update in database:", {
+      userId,
+      dataToUpdate: JSON.stringify(dataToUpdate, null, 2),
+    });
+
     // Save updated profile
     await tutorProfileModel.update(userId, dataToUpdate);
+
+    console.log("✅ Database update completed successfully");
 
     return {
       success: true,

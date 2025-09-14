@@ -280,7 +280,9 @@ const getApplicationConfirmationTemplate = (applicationData) => {
         </div>
         
         <div class="message">
-            <p>If you have any questions about your application or our process, please don't hesitate to contact us at <strong>support@striveacademy.com</strong>.</p>
+            <p>If you have any questions about your application or our process, please don't hesitate to contact us at <strong>${
+              process.env.SUPPORT_EMAIL || "support@striveacademy.com"
+            }</strong>.</p>
         </div>
     `;
 
@@ -330,12 +332,16 @@ const getAdminNotificationTemplate = (applicationData) => {
         
         <div class="message">
             <h3 style="color: #2c3e50; margin-bottom: 15px;">Subjects to Tutor</h3>
-            <p style="background-color: #f8f9fa; padding: 15px; border-radius: 6px;">${applicationData.subjectsToTutor}</p>
+            <p style="background-color: #f8f9fa; padding: 15px; border-radius: 6px;">${
+              applicationData.subjectsToTutor
+            }</p>
         </div>
         
         <div class="message">
             <h3 style="color: #2c3e50; margin-bottom: 15px;">Motivation Statement</h3>
-            <p style="background-color: #f8f9fa; padding: 15px; border-radius: 6px; font-style: italic;">"${applicationData.motivation}"</p>
+            <p style="background-color: #f8f9fa; padding: 15px; border-radius: 6px; font-style: italic;">"${
+              applicationData.motivation
+            }"</p>
         </div>
         
         <div class="message">
@@ -343,8 +349,14 @@ const getAdminNotificationTemplate = (applicationData) => {
             <p>Review the full application details and make your decision:</p>
             <ul style="padding-left: 20px; margin-top: 10px;">
                 <li>Application submitted: ${applicationData.createdAt}</li>
-                <li>Review application: <a href="http://localhost:8000/admin/applications/${applicationData.id}">View Full Application</a></li>
-                <li>Approve: <code>POST /api/auth/tutor/approve/${applicationData.id}</code></li>
+                <li>Review application: <a href="${
+                  process.env.BACKEND_URL || "http://localhost:8000"
+                }/admin/applications/${
+    applicationData.id
+  }">View Full Application</a></li>
+                <li>Approve: <code>POST ${
+                  process.env.BACKEND_URL || "http://localhost:8000"
+                }/api/auth/tutor/approve/${applicationData.id}</code></li>
             </ul>
         </div>
     `;
@@ -395,7 +407,9 @@ const getApprovalNotificationTemplate = (tutorData, setupToken) => {
             <ul style="padding-left: 20px; line-height: 1.8;">
                 <li><strong>Setup Link Expires:</strong> 7 days from now</li>
                 <li><strong>Keep this email safe</strong> - You'll need it to access your account</li>
-                <li><strong>Need help?</strong> Contact us at support@striveacademy.com</li>
+                <li><strong>Need help?</strong> Contact us at ${
+                  process.env.SUPPORT_EMAIL || "support@striveacademy.com"
+                }</li>
             </ul>
         </div>
         
@@ -453,7 +467,9 @@ const getRejectionNotificationTemplate = (tutorData, reason = "") => {
         
         <div class="message">
             <p>If you have any questions about this decision or would like to discuss your application further, 
-            please feel free to contact us at <strong>support@striveacademy.com</strong>.</p>
+            please feel free to contact us at <strong>${
+              process.env.SUPPORT_EMAIL || "support@striveacademy.com"
+            }</strong>.</p>
         </div>
         
         <div class="message">
@@ -505,8 +521,10 @@ const getSetupReminderTemplate = (tutorData, setupToken) => {
             <h3 style="color: #2c3e50; margin-bottom: 15px;">Need Help?</h3>
             <p>If you're experiencing any issues with the setup process, please contact our support team:</p>
             <ul style="padding-left: 20px; line-height: 1.8; margin-top: 10px;">
-                <li>Email: support@striveacademy.com</li>
-                <li>Phone: (02) 1234 5678</li>
+                <li>Email: ${
+                  process.env.SUPPORT_EMAIL || "support@striveacademy.com"
+                }</li>
+                <li>Phone: ${process.env.SUPPORT_PHONE || "(02) 1234 5678"}</li>
                 <li>Available: Monday-Friday, 9 AM - 5 PM</li>
             </ul>
         </div>

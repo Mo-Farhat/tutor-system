@@ -44,7 +44,14 @@ exports.updateTutorProfile = async (req, res) => {
     const userId = req.user.id;
     const updateData = req.body;
 
+    console.log("🔍 Update tutor profile request:", {
+      userId,
+      updateData: JSON.stringify(updateData, null, 2),
+    });
+
     const result = await profileService.updateTutorProfile(userId, updateData);
+
+    console.log("🔍 Update result:", result);
 
     if (!result.success) {
       return res.status(400).json(result);
