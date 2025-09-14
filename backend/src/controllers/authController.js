@@ -526,6 +526,50 @@ exports.checkAuthStatus = async (req, res) => {
   }
 };
 
+// Create Admin User (Development endpoint)
+exports.createAdmin = async (req, res) => {
+  try {
+    const adminEmail = "admin@striveacademy.com";
+    const adminPassword = "admin123"; // Change this in production!
+
+    // Check if admin already exists
+    const existingAdmin = await userModel.findByEmail(adminEmail);
+    if (existingAdmin) {
+      return res.json({
+        message: "Admin user already exists",
+        email: adminEmail,
+        note: "You can log in with this email and password: admin123",
+      });
+    }
+
+    // Hash password and create admin user
+    const hashedPassword = await authService.hashPassword(adminPassword);
+    const { generateUniqueUsername } = require("../services/usernameService");
+    const username = await generateUniqueUsername("admin");
+
+    const admin = await userModel.create({
+      firstName: "Admin",
+      lastName: "User",
+      email: adminEmail,
+      username,
+      password: hashedPassword,
+      role: "admin",
+      status: "active",
+    });
+
+    res.json({
+      message: "Admin user created successfully",
+      email: adminEmail,
+      password: adminPassword,
+      note: "Save these credentials and change the password after first login",
+      adminId: admin.id,
+    });
+  } catch (error) {
+    console.error("Create admin error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 // Get Application Stats (Debug endpoint)
 exports.getStats = async (req, res) => {
   try {
