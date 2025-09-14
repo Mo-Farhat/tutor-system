@@ -2,17 +2,22 @@ const {
   userModel,
   tutorApplicationModel,
   tutorProfileModel,
+  studentProfileModel,
   setupTokenModel,
 } = require("../models");
 const authService = require("../services/authService");
 const emailService = require("../services/emailService");
 const { generateUniqueUsername } = require("../services/usernameService");
 
-
 // Student Registration
 exports.registerStudent = async (req, res) => {
   try {
-    const { firstName, lastName, email, password, role } = req.body;
+    // Handle both camelCase and snake_case field names
+    const firstName = req.body.firstName || req.body.first_name;
+    const lastName = req.body.lastName || req.body.last_name;
+    const email = req.body.email;
+    const password = req.body.password;
+    const role = req.body.role;
 
     // Validation
     if (!firstName || !lastName || !email || !password) {
@@ -52,6 +57,18 @@ exports.registerStudent = async (req, res) => {
       role: role || "student",
     });
 
+    // Create initial student profile
+    await studentProfileModel.create(user.id, {
+      phone_number: null,
+      bio: "",
+      current_school: "",
+      year_level: "",
+      subjects_interested: [],
+      preferred_locations: [],
+      learning_goals: "",
+      is_profile_complete: false,
+    });
+
     // Generate tokens
     const tokens = authService.generateTokens(user);
 
@@ -72,13 +89,15 @@ exports.registerStudent = async (req, res) => {
 // User Login
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    // Handle both email and username fields
+    const email = req.body.email || req.body.username;
+    const password = req.body.password;
 
     if (!email || !password) {
       return res.status(400).json({ error: "Email and password are required" });
     }
 
-    // Find user by email
+    // Find user by email (since both email and username can be used as login)
     const user = await userModel.findByEmail(email);
     if (!user) {
       return res.status(401).json({ error: "Invalid credentials" });
@@ -96,12 +115,16 @@ exports.login = async (req, res) => {
     if (user.role === "tutor" && user.status !== "active") {
       return res.status(403).json({
         error: "Account not activated",
-        message: "Please use the setup link from your email to activate your account.",
+        message:
+          "Please use the setup link from your email to activate your account.",
       });
     }
 
     // Check password
-    const isValidPassword = await authService.comparePassword(password, user.password);
+    const isValidPassword = await authService.comparePassword(
+      password,
+      user.password
+    );
     if (!isValidPassword) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
@@ -120,7 +143,6 @@ exports.login = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
 
 // Submit Tutor Application
 exports.submitTutorApplication = async (req, res) => {
@@ -211,8 +233,10 @@ exports.submitTutorApplication = async (req, res) => {
     };
 
     const applicationId = authService.generateApplicationId();
-    const application = await tutorApplicationModel.create({ applicationId, ...applicationData });
-
+    const application = await tutorApplicationModel.create({
+      applicationId,
+      ...applicationData,
+    });
 
     // Create user account (without password - will be set during password setup)
     const username = await generateUniqueUsername(email.split("@")[0]);
@@ -512,6 +536,7 @@ exports.checkAuthStatus = async (req, res) => {
     const { password: _, ...userWithoutPassword } = user;
 
     res.json({
+      success: true,
       authenticated: true,
       user: userWithoutPassword,
     });
@@ -524,17 +549,13 @@ exports.checkAuthStatus = async (req, res) => {
 // Get Application Stats (Debug endpoint)
 exports.getStats = async (req, res) => {
   try {
-    const [
-      usersCount,
-      applicationsCount,
-      profilesCount,
-      setupTokensCount,
-    ] = await Promise.all([
-      userModel.count(),
-      tutorApplicationModel.count(),
-      tutorProfileModel.count(),
-      setupTokenModel.count(),
-    ]);
+    const [usersCount, applicationsCount, profilesCount, setupTokensCount] =
+      await Promise.all([
+        userModel.count(),
+        tutorApplicationModel.count(),
+        tutorProfileModel.count(),
+        setupTokenModel.count(),
+      ]);
 
     const pendingApplications = await tutorApplicationModel.findPending();
     const allApplications = await tutorApplicationModel.findAll();
@@ -559,4 +580,3 @@ exports.getStats = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-

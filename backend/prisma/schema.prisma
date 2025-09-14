@@ -39,6 +39,7 @@ model User {
   updatedAt    DateTime           @updatedAt
   applications TutorApplication[]
   profile      TutorProfile?
+  studentProfile StudentProfile?
 }
 
 model TutorApplication {
@@ -105,6 +106,21 @@ model TutorProfile {
   rating              Decimal   @default(0.0) @db.Decimal(3, 2)
   atar                Decimal?  @db.Decimal(4, 2)
   approved_at         DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  user                User      @relation(fields: [userId], references: [id])
+}
+
+model StudentProfile {
+  userId              Int       @id
+  phone_number        String?
+  bio                 String?
+  current_school      String?
+  year_level          String?
+  subjects_interested String[]
+  preferred_locations String[]
+  learning_goals      String?
+  is_profile_complete Boolean   @default(false)
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
   user                User      @relation(fields: [userId], references: [id])

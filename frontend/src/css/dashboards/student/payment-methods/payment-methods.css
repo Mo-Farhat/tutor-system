@@ -1,0 +1,700 @@
+/* Student Payment Methods Container */
+.student-payment-methods-dashboard {
+    padding: 30px;
+    min-height: 100dvh;
+    background-color: #f8f9fa;
+    transition: margin-left 0.3s ease;
+    overflow-y: auto;
+}
+
+/* Content Area */
+.student-payment-methods-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Section Styling */
+.student-payment-methods-section {
+    margin-bottom: 40px;
+}
+
+.student-payment-methods-section-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #212529;
+    margin-bottom: 8px;
+}
+
+.student-payment-methods-section-subtitle {
+    font-size: 16px;
+    color: #6c757d;
+    margin-bottom: 30px;
+    font-weight: 400;
+}
+
+.student-payment-methods-subsection-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 20px;
+}
+
+/* Cards */
+.student-payment-methods-method-card,
+.student-payment-methods-history-card,
+.student-payment-methods-upcoming-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+    margin-bottom: 15px;
+}
+
+.student-payment-methods-method-card:hover,
+.student-payment-methods-history-card:hover,
+.student-payment-methods-upcoming-card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+.student-payment-methods-method-card .card-body,
+.student-payment-methods-history-card .card-body,
+.student-payment-methods-upcoming-card .card-body {
+    padding: 20px;
+}
+
+/* Add New Method Button */
+.student-payment-methods-btn-add {
+    background-color: #4285f4;
+    border-color: #4285f4;
+    color: white;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.student-payment-methods-btn-add:hover {
+    background-color: #3367d6;
+    border-color: #3367d6;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.student-payment-methods-plus-icon {
+    font-size: 16px;
+    font-weight: bold;
+    margin-right: 8px;
+}
+
+/* Payment Method Cards */
+.student-payment-methods-card-icon {
+    width: 50px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    margin-right: 15px;
+}
+
+.student-payment-methods-visa-icon {
+    background-color: #1a1f71;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.student-payment-methods-mastercard-icon {
+    background-color: #eb001b;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.student-payment-methods-card-info {
+    flex-grow: 1;
+}
+
+.student-payment-methods-card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 4px;
+}
+
+.student-payment-methods-card-subtitle {
+    font-size: 14px;
+    color: #6c757d;
+    margin-bottom: 0;
+}
+
+/* Default Badge */
+.student-payment-methods-default-badge {
+    background-color: #d4edda;
+    color: #155724;
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+/* Menu Button */
+.student-payment-methods-menu-btn {
+    background: none;
+    border: none;
+    color: #6c757d;
+    font-size: 20px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.student-payment-methods-menu-btn:hover {
+    background-color: #f8f9fa;
+    color: #212529;
+}
+
+/* Payment History Table */
+.student-payment-methods-table {
+    margin-bottom: 0;
+}
+
+.student-payment-methods-table th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    color: #495057;
+    padding: 15px;
+    font-size: 14px;
+}
+
+.student-payment-methods-table td {
+    padding: 15px;
+    vertical-align: middle;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 14px;
+    color: #212529;
+    background: transparent;
+}
+
+.student-payment-methods-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Status Badge */
+.student-payment-methods-status-paid {
+    background-color: #d4edda;
+    color: #155724;
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+/* Download Link */
+.student-payment-methods-download-link {
+    color: #4285f4;
+    font-weight: 500;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+
+.student-payment-methods-download-link:hover {
+    color: #3367d6;
+    text-decoration: underline;
+}
+
+/* Upcoming Payments */
+.student-payment-methods-upcoming-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 4px;
+}
+
+.student-payment-methods-upcoming-subtitle {
+    font-size: 14px;
+    color: #6c757d;
+    margin-bottom: 0;
+}
+
+.student-payment-methods-upcoming-amount {
+    font-size: 20px;
+    font-weight: 700;
+    color: #212529;
+    text-align: right;
+}
+
+.student-payment-methods-upcoming-frequency {
+    font-size: 12px;
+    color: #6c757d;
+    text-align: right;
+    margin-top: 2px;
+}
+
+/* Modal Styles */
+.student-payment-methods-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+}
+
+.student-payment-methods-modal {
+    background: white;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.student-payment-methods-modal-header {
+    padding: 24px 24px 0 24px;
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    border-bottom: 1px solid #e9ecef;
+    margin-bottom: 24px;
+}
+
+.student-payment-methods-modal-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 0;
+    flex-grow: 1;
+}
+
+.student-payment-methods-close-btn {
+    background: none;
+    border: none;
+    font-size: 32px;
+    color: #6c757d;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    margin-left: 15px;
+}
+
+.student-payment-methods-close-btn:hover {
+    background-color: #f8f9fa;
+    color: #212529;
+}
+
+.student-payment-methods-modal-body {
+    padding: 0 24px 24px 24px;
+}
+
+/* Form Styles */
+.student-payment-methods-form-group {
+    margin-bottom: 20px;
+}
+
+.student-payment-methods-form-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 8px;
+}
+
+.student-payment-methods-input-group {
+    position: relative;
+}
+
+.student-payment-methods-form-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #212529;
+    background-color: #fff;
+    transition: all 0.3s ease;
+}
+
+.student-payment-methods-form-input:focus {
+    outline: none;
+    border-color: #4285f4;
+    box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+}
+
+.student-payment-methods-form-input.error {
+    border-color: #dc3545;
+}
+
+.student-payment-methods-form-input.error:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.student-payment-methods-card-type-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.student-payment-methods-visa-small {
+    background-color: #1a1f71;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.student-payment-methods-mastercard-small {
+    background-color: #eb001b;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.student-payment-methods-error-text {
+    display: block;
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 6px;
+    font-weight: 500;
+}
+
+/* Checkbox Styles */
+.student-payment-methods-checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.student-payment-methods-checkbox {
+    width: 18px;
+    height: 18px;
+    accent-color: #4285f4;
+    cursor: pointer;
+}
+
+.student-payment-methods-checkbox-label {
+    font-size: 14px;
+    color: #212529;
+    cursor: pointer;
+    margin-bottom: 0;
+}
+
+/* Modal Actions */
+.student-payment-methods-modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+}
+
+.student-payment-methods-btn-cancel {
+    background-color: transparent;
+    border: 2px solid #e9ecef;
+    color: #6c757d;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.student-payment-methods-btn-cancel:hover {
+    border-color: #6c757d;
+    color: #495057;
+    background-color: #f8f9fa;
+}
+
+.student-payment-methods-btn-save {
+    background-color: #4285f4;
+    border: 2px solid #4285f4;
+    color: white;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.student-payment-methods-btn-save:hover {
+    background-color: #3367d6;
+    border-color: #3367d6;
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* Responsive Design */
+@media (max-width: 991.98px) {
+    .student-payment-methods-dashboard {
+        padding: 20px 15px;
+        margin-left: 0;
+        height: auto;
+        min-height: 100dvh;
+    }
+    
+    .student-payment-methods-section-title {
+        font-size: 24px;
+    }
+    
+    .student-payment-methods-section-subtitle {
+        font-size: 15px;
+    }
+    
+    .student-payment-methods-subsection-title {
+        font-size: 18px;
+    }
+    
+    .student-payment-methods-method-card .card-body,
+    .student-payment-methods-history-card .card-body,
+    .student-payment-methods-upcoming-card .card-body {
+        padding: 15px;
+    }
+    
+    .student-payment-methods-table th,
+    .student-payment-methods-table td {
+        padding: 10px 8px;
+        font-size: 13px;
+    }
+    
+    .student-payment-methods-btn-add {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .student-payment-methods-dashboard {
+        padding: 15px 10px;
+    }
+    
+    .student-payment-methods-section {
+        margin-bottom: 30px;
+    }
+    
+    .student-payment-methods-section-title {
+        font-size: 22px;
+    }
+    
+    .student-payment-methods-section-subtitle {
+        font-size: 14px;
+    }
+    
+    .student-payment-methods-subsection-title {
+        font-size: 16px;
+        margin-bottom: 15px;
+    }
+    
+    .student-payment-methods-method-card .card-body,
+    .student-payment-methods-history-card .card-body,
+    .student-payment-methods-upcoming-card .card-body {
+        padding: 12px;
+    }
+    
+    .student-payment-methods-card-title {
+        font-size: 14px;
+    }
+    
+    .student-payment-methods-card-subtitle {
+        font-size: 12px;
+    }
+    
+    .student-payment-methods-upcoming-title {
+        font-size: 14px;
+    }
+    
+    .student-payment-methods-upcoming-subtitle {
+        font-size: 12px;
+    }
+    
+    .student-payment-methods-upcoming-amount {
+        font-size: 16px;
+    }
+    
+    .student-payment-methods-upcoming-frequency {
+        font-size: 11px;
+    }
+    
+    .student-payment-methods-table th,
+    .student-payment-methods-table td {
+        padding: 8px 5px;
+        font-size: 12px;
+    }
+    
+    .student-payment-methods-table th:nth-child(2),
+    .student-payment-methods-table td:nth-child(2) {
+        min-width: 120px;
+    }
+    
+    .student-payment-methods-download-link {
+        font-size: 12px;
+    }
+    
+    .student-payment-methods-btn-add {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+    
+    .student-payment-methods-default-badge {
+        font-size: 10px;
+        padding: 4px 8px;
+    }
+    
+    .student-payment-methods-status-paid {
+        font-size: 10px;
+        padding: 4px 8px;
+    }
+    
+    /* Modal responsive adjustments */
+    .student-payment-methods-modal-overlay {
+        padding: 10px;
+    }
+    
+    .student-payment-methods-modal {
+        max-width: 100%;
+    }
+    
+    .student-payment-methods-modal-header {
+        padding: 20px 20px 0 20px;
+        margin-bottom: 20px;
+    }
+    
+    .student-payment-methods-modal-body {
+        padding: 0 20px 20px 20px;
+    }
+    
+    .student-payment-methods-modal-title {
+        font-size: 18px;
+    }
+    
+    .student-payment-methods-modal-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .student-payment-methods-btn-cancel,
+    .student-payment-methods-btn-save {
+        width: 100%;
+        padding: 10px 20px;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .student-payment-methods-method-card,
+    .student-payment-methods-upcoming-card {
+        margin-bottom: 10px;
+    }
+    
+    .student-payment-methods-card-icon {
+        width: 40px;
+        height: 28px;
+    }
+    
+    .student-payment-methods-visa-icon,
+    .student-payment-methods-mastercard-icon {
+        padding: 6px 8px;
+        font-size: 9px;
+    }
+    
+    .student-payment-methods-table {
+        font-size: 10px;
+    }
+    
+    .student-payment-methods-table th,
+    .student-payment-methods-table td {
+        padding: 6px 3px;
+    }
+    
+    /* Stack payment method info vertically on very small screens */
+    .student-payment-methods-method-card .row {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .student-payment-methods-method-card .col-auto {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .student-payment-methods-btn-add {
+        width: 100%;
+        margin-top: 10px;
+    }
+    
+    /* Modal adjustments for very small screens */
+    .student-payment-methods-modal-overlay {
+        padding: 5px;
+    }
+    
+    .student-payment-methods-modal-header {
+        padding: 15px 15px 0 15px;
+        margin-bottom: 15px;
+    }
+    
+    .student-payment-methods-modal-body {
+        padding: 0 15px 15px 15px;
+    }
+    
+    .student-payment-methods-form-group {
+        margin-bottom: 15px;
+    }
+    
+    .student-payment-methods-form-input {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+    
+    .student-payment-methods-form-label {
+        font-size: 13px;
+    }
+}
+
+@media (min-width: 992px) {
+    .student-payment-methods-dashboard {
+        margin-left: 80px;
+        transition: margin-left 0.3s ease;
+        overflow-y: auto;
+    }
+}

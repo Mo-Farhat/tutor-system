@@ -41,7 +41,7 @@ router.post("/tutor/setup-password/:token", authController.setupTutorPassword);
 router.get("/profile", authController.getUserProfile);
 
 // Auth status check
-router.get("/check-auth", authController.checkAuthStatus);
+router.get("/check-auth", authenticateToken, authController.checkAuthStatus);
 
 // Debug endpoint for development
 router.get("/stats", authController.getStats);

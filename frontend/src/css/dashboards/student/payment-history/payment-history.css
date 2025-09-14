@@ -1,0 +1,364 @@
+/* Student Payment History Container */
+.student-payment-history-dashboard {
+    padding: 30px;
+    min-height: 100dvh;
+    background-color: #f8f9fa;
+    transition: margin-left 0.3s ease;
+    overflow-y: auto;
+}
+
+/* Content Area */
+.student-payment-history-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Section Styling */
+.student-payment-history-section {
+    margin-bottom: 40px;
+}
+
+.student-payment-history-section-title,
+.student-payment-history-subsection-title,
+.student-payment-history-history-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.student-payment-history-subsection-title {
+    font-size: 20px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.student-payment-history-history-title {
+    font-size: 18px;
+    margin-bottom: 15px;
+    border-bottom: none;
+}
+
+/* Package Cards */
+.student-payment-history-package-card,
+.student-payment-history-active-card,
+.student-payment-history-history-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.student-payment-history-package-card:hover,
+.student-payment-history-active-card:hover,
+.student-payment-history-history-card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+.student-payment-history-package-card .card-body,
+.student-payment-history-active-card .card-body,
+.student-payment-history-history-card .card-body {
+    padding: 25px;
+}
+
+/* Package Icons */
+.student-payment-history-package-icon {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.student-payment-history-math-icon {
+    font-size: 24px;
+    color: #4285f4;
+    font-weight: bold;
+}
+
+.student-payment-history-english-icon {
+    font-size: 24px;
+    color: #34a853;
+}
+
+.student-payment-history-science-icon {
+    font-size: 24px;
+    color: #9c27b0;
+}
+
+/* Package Content */
+.student-payment-history-package-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.student-payment-history-package-description {
+    font-size: 14px;
+    color: #6c757d;
+    text-align: center;
+    margin-bottom: 15px;
+    line-height: 1.4;
+}
+
+.student-payment-history-package-price {
+    font-size: 28px;
+    font-weight: 700;
+    color: #212529;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Package Buttons */
+.student-payment-history-btn-math {
+    background-color: #4285f4;
+    border-color: #4285f4;
+    color: white;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.student-payment-history-btn-math:hover {
+    background-color: #3367d6;
+    border-color: #3367d6;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.student-payment-history-btn-english {
+    background-color: #34a853;
+    border-color: #34a853;
+    color: white;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.student-payment-history-btn-english:hover {
+    background-color: #2d8e47;
+    border-color: #2d8e47;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.student-payment-history-btn-science {
+    background-color: #9c27b0;
+    border-color: #9c27b0;
+    color: white;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.student-payment-history-btn-science:hover {
+    background-color: #8e24aa;
+    border-color: #8e24aa;
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* Active Packages */
+.student-payment-history-active-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #212529;
+}
+
+.student-payment-history-remaining {
+    font-size: 14px;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+/* Progress Bars */
+.student-payment-history-progress-container {
+    margin-top: 10px;
+}
+
+.student-payment-history-progress {
+    height: 8px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.student-payment-history-progress-math {
+    background-color: #4285f4;
+    transition: width 0.6s ease;
+}
+
+.student-payment-history-progress-english {
+    background-color: #34a853;
+    transition: width 0.6s ease;
+}
+
+/* Payment History Table */
+.student-payment-history-table {
+    margin-bottom: 0;
+}
+
+.student-payment-history-table th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    color: #495057;
+    padding: 15px;
+    font-size: 14px;
+}
+
+.student-payment-history-table td {
+    padding: 15px;
+    vertical-align: middle;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 14px;
+    color: #212529;
+    background: transparent;
+}
+
+.student-payment-history-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.student-payment-history-download-link {
+    color: #4285f4;
+    font-weight: 500;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+
+.student-payment-history-download-link:hover {
+    color: #3367d6;
+    text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 991.98px) {
+    .student-payment-history-dashboard {
+        padding: 20px 15px;
+        margin-left: 0;
+        height: auto;
+        min-height: 100dvh;
+    }
+    
+    .student-payment-history-section-title,
+    .student-payment-history-subsection-title,
+    .student-payment-history-history-title {
+        font-size: 20px;
+    }
+    
+    .student-payment-history-package-card .card-body,
+    .student-payment-history-active-card .card-body,
+    .student-payment-history-history-card .card-body {
+        padding: 20px;
+    }
+    
+    .student-payment-history-package-price {
+        font-size: 24px;
+    }
+    
+    .student-payment-history-table th,
+    .student-payment-history-table td {
+        padding: 10px 8px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .student-payment-history-dashboard {
+        padding: 15px 10px;
+    }
+    
+    .student-payment-history-section {
+        margin-bottom: 30px;
+    }
+    
+    .student-payment-history-package-card .card-body,
+    .student-payment-history-active-card .card-body,
+    .student-payment-history-history-card .card-body {
+        padding: 15px;
+    }
+    
+    .student-payment-history-section-title,
+    .student-payment-history-subsection-title {
+        font-size: 18px;
+    }
+    
+    .student-payment-history-history-title {
+        font-size: 16px;
+    }
+    
+    .student-payment-history-package-title {
+        font-size: 16px;
+    }
+    
+    .student-payment-history-package-price {
+        font-size: 22px;
+    }
+    
+    .student-payment-history-package-description {
+        font-size: 13px;
+    }
+    
+    .student-payment-history-active-title {
+        font-size: 15px;
+    }
+    
+    .student-payment-history-remaining {
+        font-size: 13px;
+        margin-top: 5px;
+    }
+    
+    .student-payment-history-table th,
+    .student-payment-history-table td {
+        padding: 8px 5px;
+        font-size: 12px;
+    }
+    
+    .student-payment-history-table th:nth-child(2),
+    .student-payment-history-table td:nth-child(2) {
+        min-width: 150px;
+    }
+    
+    .student-payment-history-download-link {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .student-payment-history-package-card {
+        margin-bottom: 15px;
+    }
+    
+    .student-payment-history-active-card {
+        margin-bottom: 15px;
+    }
+    
+    .student-payment-history-progress {
+        height: 6px;
+    }
+    
+    .student-payment-history-table {
+        font-size: 11px;
+    }
+    
+    .student-payment-history-table th,
+    .student-payment-history-table td {
+        padding: 6px 3px;
+    }
+}
+
+@media (min-width: 992px) {
+    .student-payment-history-dashboard {
+        margin-left: 80px;
+        transition: margin-left 0.3s ease;
+        overflow-y: auto;
+    }
+}

@@ -1,4 +1,8 @@
-const { userModel, tutorProfileModel } = require("../models");
+const {
+  userModel,
+  tutorProfileModel,
+  studentProfileModel,
+} = require("../models");
 const bcrypt = require("bcrypt");
 
 class ProfileService {
@@ -288,6 +292,109 @@ class ProfileService {
     return {
       success: true,
       data: completionStatus,
+    };
+  }
+
+  // Student Profile Methods
+
+  // Get student profile
+  async getStudentProfile(userId) {
+    const user = await userModel.findById(userId);
+    if (!user || user.role !== "student") {
+      return { success: false, error: "Student profile not found" };
+    }
+
+    // Get student profile if it exists
+    const studentProfile = await studentProfileModel.findByUserId(userId);
+
+    return {
+      success: true,
+      data: {
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          first_name: user.firstName,
+          last_name: user.lastName,
+          role: user.role,
+          created_at: user.createdAt,
+        },
+        ...(studentProfile || {}),
+      },
+    };
+  }
+
+  // Update student profile
+  async updateStudentProfile(userId, updateData) {
+    const user = await userModel.findById(userId);
+    if (!user || user.role !== "student") {
+      return { success: false, error: "Student not found" };
+    }
+
+    // Separate user fields from profile fields
+    const userFields = ["firstName", "lastName", "email"];
+    const profileFields = [
+      "phone_number",
+      "bio",
+      "current_school",
+      "year_level",
+      "subjects_interested",
+      "preferred_locations",
+      "learning_goals",
+    ];
+
+    const userUpdateData = {};
+    const profileUpdateData = {};
+
+    // Filter user fields
+    userFields.forEach((field) => {
+      if (updateData[field] !== undefined) {
+        userUpdateData[field] = updateData[field];
+      }
+    });
+
+    // Filter profile fields
+    profileFields.forEach((field) => {
+      if (updateData[field] !== undefined) {
+        profileUpdateData[field] = updateData[field];
+      }
+    });
+
+    // Update user data if there are user fields to update
+    if (Object.keys(userUpdateData).length > 0) {
+      await userModel.update(userId, userUpdateData);
+    }
+
+    // Update or create student profile
+    if (Object.keys(profileUpdateData).length > 0) {
+      const profileExists = await studentProfileModel.exists(userId);
+
+      if (profileExists) {
+        await studentProfileModel.update(userId, profileUpdateData);
+      } else {
+        await studentProfileModel.create(userId, profileUpdateData);
+      }
+    }
+
+    // Get updated data
+    const updatedUser = await userModel.findById(userId);
+    const studentProfile = await studentProfileModel.findByUserId(userId);
+
+    return {
+      success: true,
+      data: {
+        user: {
+          id: updatedUser.id,
+          username: updatedUser.username,
+          email: updatedUser.email,
+          first_name: updatedUser.firstName,
+          last_name: updatedUser.lastName,
+          role: updatedUser.role,
+          created_at: updatedUser.createdAt,
+        },
+        ...(studentProfile || {}),
+      },
+      message: "Profile updated successfully",
     };
   }
 }
