@@ -1,33 +1,35 @@
-const store = require("../models/inMemoryStore");
+const {
+  userModel,
+  tutorProfileModel,
+  studentProfileModel,
+} = require("../models");
 const bcrypt = require("bcrypt");
 
 class ProfileService {
   // Get tutor profile by user ID
-  getTutorProfileByUserId(userId) {
-    const user = store.getUserById(userId);
-    if (!user || user.role !== "tutor") {
-      return { success: false, error: "Tutor profile not found" };
-    }
-
-    const tutorProfile = store.getTutorProfileByUserId(user.id);
-    if (!tutorProfile) {
+  async getTutorProfileByUserId(userId) {
+    const tutorProfile = await tutorProfileModel.findByUserId(userId);
+    if (!tutorProfile || tutorProfile.user.role !== "tutor") {
       return { success: false, error: "Tutor profile not found" };
     }
 
     // Calculate profile completion
-    const completionStatus = this.calculateCompletionStatus(tutorProfile, user);
+    const completionStatus = this.calculateCompletionStatus(
+      tutorProfile,
+      tutorProfile.user
+    );
 
     return {
       success: true,
       data: {
         user: {
-          id: user.id,
-          username: user.username,
-          email: user.email,
-          first_name: user.firstName,
-          last_name: user.lastName,
-          role: user.role,
-          created_at: user.createdAt,
+          id: tutorProfile.user.id,
+          username: tutorProfile.user.username,
+          email: tutorProfile.user.email,
+          first_name: tutorProfile.user.firstName,
+          last_name: tutorProfile.user.lastName,
+          role: tutorProfile.user.role,
+          created_at: tutorProfile.user.createdAt,
         },
         ...tutorProfile,
         completion_status: completionStatus,
@@ -36,13 +38,13 @@ class ProfileService {
   }
 
   // Get tutor profile by username
-  getTutorProfile(username) {
-    const user = store.getUserByUsername(username);
+  async getTutorProfile(username) {
+    const user = await userModel.findByUsername(username);
     if (!user || user.role !== "tutor") {
       return { success: false, error: "Tutor profile not found" };
     }
 
-    const tutorProfile = store.getTutorProfileByUserId(user.id);
+    const tutorProfile = await tutorProfileModel.findByUserId(user.id);
     if (!tutorProfile) {
       return { success: false, error: "Tutor profile not found" };
     }
@@ -69,29 +71,112 @@ class ProfileService {
   }
 
   // Update tutor profile
-  updateTutorProfile(userId, updateData) {
-    const user = store.getUserById(userId);
+  async updateTutorProfile(userId, updateData) {
+    console.log("🔍 ProfileService updateTutorProfile called with:", {
+      userId,
+      updateData: JSON.stringify(updateData, null, 2),
+    });
+
+    const user = await userModel.findById(userId);
     if (!user || user.role !== "tutor") {
+      console.log("❌ Tutor not found:", { userId, userRole: user?.role });
       return { success: false, error: "Tutor not found" };
     }
 
-    const tutorProfile = store.getTutorProfileByUserId(userId);
+    const tutorProfile = await tutorProfileModel.findByUserId(userId);
     if (!tutorProfile) {
+      console.log("❌ Tutor profile not found for user:", userId);
       return { success: false, error: "Tutor profile not found" };
     }
+
+    // Transform data types to match Prisma schema
+    const transformedData = { ...updateData };
+
+    // Transform subjects array from objects to strings (for subjects field)
+    if (transformedData.subjects && Array.isArray(transformedData.subjects)) {
+      transformedData.subjects = transformedData.subjects.map((subject) => {
+        if (typeof subject === "object") {
+          return `${subject.year_level} ${subject.curriculum} ${subject.subject}`;
+        }
+        return subject;
+      });
+    }
+
+    // Convert numeric fields
+    if (transformedData.hourly_rate !== undefined) {
+      transformedData.hourly_rate = Number(transformedData.hourly_rate);
+    }
+    if (transformedData.rating !== undefined) {
+      transformedData.rating = Number(transformedData.rating);
+    }
+    if (transformedData.atar !== undefined) {
+      transformedData.atar = Number(transformedData.atar);
+    }
+
+    // Convert boolean fields
+    if (transformedData.is_profile_complete !== undefined) {
+      transformedData.is_profile_complete = Boolean(
+        transformedData.is_profile_complete
+      );
+    }
+    if (transformedData.documents_uploaded !== undefined) {
+      transformedData.documents_uploaded = Boolean(
+        transformedData.documents_uploaded
+      );
+    }
+    if (transformedData.is_live !== undefined) {
+      transformedData.is_live = Boolean(transformedData.is_live);
+    }
+
+    // Keep subjects_selected as JSON (already correct format)
+    // Keep other array fields as string arrays
 
     // Update profile data
     const updatedProfile = {
       ...tutorProfile,
-      ...updateData,
-      updated_at: new Date().toISOString(),
+      ...transformedData,
     };
 
     // Recalculate completion status
     updatedProfile.is_profile_complete = this.isProfileComplete(updatedProfile);
 
+    // Filter only valid TutorProfile fields for Prisma update
+    const validFields = [
+      "phone_number",
+      "bio",
+      "hourly_rate",
+      "university",
+      "current_studies",
+      "subjects",
+      "subjects_selected",
+      "locations",
+      "preferred_locations",
+      "schools_attended",
+      "is_profile_complete",
+      "documents_uploaded",
+      "is_live",
+      "tier",
+      "rating",
+      "atar",
+      "approved_at",
+    ];
+
+    const dataToUpdate = {};
+    validFields.forEach((field) => {
+      if (updatedProfile[field] !== undefined) {
+        dataToUpdate[field] = updatedProfile[field];
+      }
+    });
+
+    console.log("🔍 Data to update in database:", {
+      userId,
+      dataToUpdate: JSON.stringify(dataToUpdate, null, 2),
+    });
+
     // Save updated profile
-    store.updateTutorProfile(userId, updatedProfile);
+    await tutorProfileModel.update(userId, dataToUpdate);
+
+    console.log("✅ Database update completed successfully");
 
     return {
       success: true,
@@ -102,7 +187,7 @@ class ProfileService {
 
   // Change password
   async changePassword(userId, currentPassword, newPassword) {
-    const user = store.getUserById(userId);
+    const user = await userModel.findById(userId);
     if (!user) {
       return { success: false, error: "User not found" };
     }
@@ -120,7 +205,7 @@ class ProfileService {
     const hashedPassword = await bcrypt.hash(newPassword, 12);
 
     // Update password
-    store.updateUser(userId, { password: hashedPassword });
+    await userModel.update(userId, { password: hashedPassword });
 
     return {
       success: true,
@@ -187,13 +272,31 @@ class ProfileService {
   }
 
   // Get profile completion status by user ID
-  getCompletionStatusByUserId(userId) {
-    const user = store.getUserById(userId);
+  async getCompletionStatusByUserId(userId) {
+    const tutorProfile = await tutorProfileModel.findByUserId(userId);
+    if (!tutorProfile || tutorProfile.user.role !== "tutor") {
+      return { success: false, error: "Tutor profile not found" };
+    }
+
+    const completionStatus = this.calculateCompletionStatus(
+      tutorProfile,
+      tutorProfile.user
+    );
+
+    return {
+      success: true,
+      data: completionStatus,
+    };
+  }
+
+  // Get profile completion status by username
+  async getCompletionStatus(username) {
+    const user = await userModel.findByUsername(username);
     if (!user || user.role !== "tutor") {
       return { success: false, error: "Tutor not found" };
     }
 
-    const tutorProfile = store.getTutorProfileByUserId(user.id);
+    const tutorProfile = await tutorProfileModel.findByUserId(user.id);
     if (!tutorProfile) {
       return { success: false, error: "Tutor profile not found" };
     }
@@ -206,23 +309,106 @@ class ProfileService {
     };
   }
 
-  // Get profile completion status by username
-  getCompletionStatus(username) {
-    const user = store.getUserByUsername(username);
-    if (!user || user.role !== "tutor") {
-      return { success: false, error: "Tutor not found" };
+  // Student Profile Methods
+
+  // Get student profile
+  async getStudentProfile(userId) {
+    const user = await userModel.findById(userId);
+    if (!user || user.role !== "student") {
+      return { success: false, error: "Student profile not found" };
     }
 
-    const tutorProfile = store.getTutorProfileByUserId(user.id);
-    if (!tutorProfile) {
-      return { success: false, error: "Tutor profile not found" };
-    }
-
-    const completionStatus = this.calculateCompletionStatus(tutorProfile, user);
+    // Get student profile if it exists
+    const studentProfile = await studentProfileModel.findByUserId(userId);
 
     return {
       success: true,
-      data: completionStatus,
+      data: {
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          first_name: user.firstName,
+          last_name: user.lastName,
+          role: user.role,
+          created_at: user.createdAt,
+        },
+        ...(studentProfile || {}),
+      },
+    };
+  }
+
+  // Update student profile
+  async updateStudentProfile(userId, updateData) {
+    const user = await userModel.findById(userId);
+    if (!user || user.role !== "student") {
+      return { success: false, error: "Student not found" };
+    }
+
+    // Separate user fields from profile fields
+    const userFields = ["firstName", "lastName", "email"];
+    const profileFields = [
+      "phone_number",
+      "bio",
+      "current_school",
+      "year_level",
+      "subjects_interested",
+      "preferred_locations",
+      "learning_goals",
+    ];
+
+    const userUpdateData = {};
+    const profileUpdateData = {};
+
+    // Filter user fields
+    userFields.forEach((field) => {
+      if (updateData[field] !== undefined) {
+        userUpdateData[field] = updateData[field];
+      }
+    });
+
+    // Filter profile fields
+    profileFields.forEach((field) => {
+      if (updateData[field] !== undefined) {
+        profileUpdateData[field] = updateData[field];
+      }
+    });
+
+    // Update user data if there are user fields to update
+    if (Object.keys(userUpdateData).length > 0) {
+      await userModel.update(userId, userUpdateData);
+    }
+
+    // Update or create student profile
+    if (Object.keys(profileUpdateData).length > 0) {
+      const profileExists = await studentProfileModel.exists(userId);
+
+      if (profileExists) {
+        await studentProfileModel.update(userId, profileUpdateData);
+      } else {
+        await studentProfileModel.create(userId, profileUpdateData);
+      }
+    }
+
+    // Get updated data
+    const updatedUser = await userModel.findById(userId);
+    const studentProfile = await studentProfileModel.findByUserId(userId);
+
+    return {
+      success: true,
+      data: {
+        user: {
+          id: updatedUser.id,
+          username: updatedUser.username,
+          email: updatedUser.email,
+          first_name: updatedUser.firstName,
+          last_name: updatedUser.lastName,
+          role: updatedUser.role,
+          created_at: updatedUser.createdAt,
+        },
+        ...(studentProfile || {}),
+      },
+      message: "Profile updated successfully",
     };
   }
 }

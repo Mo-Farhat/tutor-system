@@ -1,62 +1,69 @@
 const jwt = require("jsonwebtoken");
-const store = require("../models/inMemoryStore");
+const { userModel } = require("../models");
 
 const JWT_SECRET =
   process.env.JWT_SECRET || "your-super-secret-jwt-key-change-in-production";
 
 // Middleware to authenticate JWT tokens
-const authenticateToken = (req, res, next) => {
+const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1]; // Bearer TOKEN
-
-  if (!token) {
-    return res.status(401).json({
-      success: false,
-      error: "Access token required",
-    });
-  }
+  const token = authHeader && authHeader.split(" ")[1];
+  if (!token)
+    return res
+      .status(401)
+      .json({ success: false, error: "Access token required" });
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    const user = store.getUserById(decoded.userId);
-
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        error: "User not found",
-      });
-    }
-
+    const user = await userModel.findById(decoded.userId);
+    if (!user)
+      return res.status(401).json({ success: false, error: "User not found" });
     req.user = user;
     next();
-  } catch (error) {
-    return res.status(403).json({
-      success: false,
-      error: "Invalid or expired token",
-    });
+  } catch {
+    return res
+      .status(403)
+      .json({ success: false, error: "Invalid or expired token" });
   }
 };
 
-// Middleware to check if user is a tutor
+// Require tutor role
 const requireTutor = (req, res, next) => {
   if (req.user.role !== "tutor") {
-    return res.status(403).json({
-      success: false,
-      error: "Tutor access required",
-    });
+    return res
+      .status(403)
+      .json({ success: false, error: "Tutor access required" });
   }
   next();
 };
 
-// Middleware to check if user can access their own profile
+// Require student role
+const requireStudent = (req, res, next) => {
+  if (req.user.role !== "student") {
+    return res
+      .status(403)
+      .json({ success: false, error: "Student access required" });
+  }
+  next();
+};
+
+// Require specific role (e.g., admin)
+const requireRole = (role) => (req, res, next) => {
+  if (!req.user || req.user.role !== role) {
+    return res
+      .status(403)
+      .json({ success: false, error: `${role} access required` });
+  }
+  next();
+};
+
+// Only if you use this elsewhere:
 const requireOwnProfile = (req, res, next) => {
   const requestedUsername = req.params.username || req.query.username;
-
   if (requestedUsername && requestedUsername !== req.user.username) {
-    return res.status(403).json({
-      success: false,
-      error: "Can only access your own profile",
-    });
+    return res
+      .status(403)
+      .json({ success: false, error: "Can only access your own profile" });
   }
   next();
 };
@@ -64,5 +71,7 @@ const requireOwnProfile = (req, res, next) => {
 module.exports = {
   authenticateToken,
   requireTutor,
+  requireStudent,
   requireOwnProfile,
+  requireRole,
 };

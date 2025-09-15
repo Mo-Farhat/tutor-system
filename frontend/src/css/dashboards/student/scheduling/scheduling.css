@@ -1,0 +1,576 @@
+/* Container and Content */
+.student-scheduling-container {
+  padding: 30px;
+  min-height: 100dvh;
+  background-color: #f8f9fa;
+  transition: margin-left 0.3s ease;
+  overflow-y: auto;
+}
+
+.student-scheduling-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header Styling */
+.student-scheduling-header {
+  gap: 1rem;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.student-scheduling-page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #212529;
+}
+
+.student-scheduling-view-toggle .student-scheduling-view-btn {
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.student-scheduling-view-toggle .student-scheduling-view-btn:first-child {
+  border-radius: 8px 0 0 8px;
+}
+
+.student-scheduling-view-toggle .student-scheduling-view-btn:last-child {
+  border-radius: 0 8px 8px 0;
+}
+
+/* Section Styling */
+.student-scheduling-section {
+  margin-bottom: 40px;
+}
+
+.student-scheduling-section-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e9ecef;
+}
+
+/* Card Styling */
+.student-scheduling-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  border: 1px solid #e9ecef;
+  margin-bottom: 20px;
+}
+
+.student-scheduling-card-body {
+  padding: 25px;
+}
+
+/* Upcoming Sessions Styling */
+.student-scheduling-upcoming-item {
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+}
+
+.student-scheduling-upcoming-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.student-scheduling-upcoming-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.student-scheduling-dot-confirmed {
+  background: #28a745;
+}
+
+.student-scheduling-dot-pending {
+  background: #ffc107;
+}
+
+.student-scheduling-upcoming-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 4px;
+}
+
+.student-scheduling-upcoming-tutor {
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.student-scheduling-upcoming-time {
+  font-size: 13px;
+}
+
+.student-scheduling-upcoming-subject {
+  font-size: 12px;
+}
+
+.student-scheduling-status-badge {
+  font-size: 12px;
+  padding: 4px 8px;
+}
+
+.student-scheduling-join-btn {
+  border-radius: 8px;
+  font-weight: 500;
+  padding: 6px 16px;
+  font-size: 14px;
+}
+
+/* Booking Slots Styling */
+.student-scheduling-slot-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.student-scheduling-slot-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+}
+
+.student-scheduling-slot-header {
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 12px;
+}
+
+.student-scheduling-slot-date {
+  font-size: 16px;
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 6px;
+}
+
+.student-scheduling-slot-tutor {
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.student-scheduling-slot-subject {
+  margin-top: 6px;
+}
+
+.student-scheduling-time-slots {
+  padding-top: 12px;
+}
+
+.student-scheduling-time-slot-btn {
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  min-width: 80px;
+}
+
+.student-scheduling-time-slot-btn:hover {
+  background-color: #212529;
+  color: #fff;
+  border-color: #212529;
+}
+
+/* Calendar Styling */
+.student-scheduling-calendar-header {
+  gap: 1rem;
+}
+
+.student-scheduling-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #212529;
+}
+
+.student-scheduling-nav-btn {
+  color: #212529;
+  font-size: 20px;
+  padding: 0 10px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.student-scheduling-nav-btn:hover {
+  background: #e9ecef;
+}
+
+.student-scheduling-table {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  border: 1px solid #e9ecef;
+  overflow: hidden;
+  min-width: 600px;
+}
+
+.student-scheduling-th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #495057;
+  padding: 15px 0;
+  border-bottom: 2px solid #dee2e6;
+  font-size: 16px;
+}
+
+.student-scheduling-td {
+  min-width: 100px;
+  height: 90px;
+  vertical-align: top;
+  padding: 8px 4px 4px 4px;
+  border-bottom: 1px solid #e9ecef;
+  border-right: 1px solid #e9ecef;
+  background: #fff;
+  position: relative;
+}
+
+.student-scheduling-td:last-child {
+  border-right: none;
+}
+
+.student-scheduling-table tr:last-child .student-scheduling-td {
+  border-bottom: none;
+}
+
+.student-scheduling-empty {
+  background: #f8f9fa;
+}
+
+.student-scheduling-date-cell {
+  min-height: 60px;
+}
+
+.student-scheduling-date-num {
+  font-size: 16px;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 2px;
+}
+
+.student-scheduling-session-card {
+  background: #d4edda;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 13px;
+  color: #155724;
+  display: flex;
+  align-items: center;
+  margin-bottom: 2px;
+  gap: 4px;
+  font-weight: 500;
+}
+
+.student-scheduling-session-title {
+  font-weight: 600;
+}
+
+.student-scheduling-session-time {
+  color: #495057;
+  font-size: 12px;
+}
+
+.student-scheduling-session-icon {
+  color: #28a745;
+  font-size: 12px;
+}
+
+/* Modal Styling */
+.modal-content {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+}
+
+.modal-header {
+  border-bottom: 1px solid #e9ecef;
+  padding: 20px 25px;
+}
+
+.modal-body {
+  padding: 25px;
+}
+
+.modal-footer {
+  border-top: 1px solid #e9ecef;
+  padding: 20px 25px;
+}
+
+/* Responsive Design */
+@media (max-width: 991.98px) {
+  .student-scheduling-container {
+    padding: 20px 10px;
+    margin-left: 0;
+    height: auto;
+    min-height: 100dvh;
+  }
+  
+  .student-scheduling-page-title {
+    font-size: 24px;
+  }
+  
+  .student-scheduling-section-title {
+    font-size: 20px;
+  }
+  
+  .student-scheduling-card-body {
+    padding: 18px;
+  }
+  
+  .student-scheduling-title {
+    font-size: 20px;
+  }
+  
+  .student-scheduling-table {
+    min-width: 500px;
+    font-size: 14px;
+  }
+  
+  .student-scheduling-th {
+    font-size: 14px;
+    padding: 10px 0;
+  }
+  
+  .student-scheduling-td {
+    min-width: 70px;
+    height: 70px;
+    padding: 6px 2px 2px 2px;
+  }
+  
+  .student-scheduling-view-toggle {
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  
+  .student-scheduling-view-btn {
+    border-radius: 8px !important;
+    margin-bottom: 5px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .student-scheduling-container {
+    padding: 10px 5px;
+  }
+  
+  .student-scheduling-section {
+    margin-bottom: 24px;
+  }
+  
+  .student-scheduling-header {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 15px;
+  }
+  
+  .student-scheduling-page-title {
+    font-size: 20px;
+  }
+  
+  .student-scheduling-card-body {
+    padding: 15px;
+  }
+  
+  .student-scheduling-title {
+    font-size: 18px;
+  }
+  
+  .student-scheduling-section-title {
+    font-size: 18px;
+    padding-bottom: 6px;
+    margin-bottom: 15px;
+  }
+  
+  .student-scheduling-table {
+    min-width: 350px;
+    font-size: 12px;
+  }
+  
+  .student-scheduling-th {
+    font-size: 12px;
+    padding: 8px 0;
+  }
+  
+  .student-scheduling-td {
+    min-width: 50px;
+    height: 50px;
+    padding: 3px 1px 1px 1px;
+  }
+  
+  .student-scheduling-date-num {
+    font-size: 12px;
+  }
+  
+  .student-scheduling-session-card {
+    font-size: 10px;
+    padding: 1px 4px;
+  }
+  
+  .student-scheduling-upcoming-title {
+    font-size: 14px;
+  }
+  
+  .student-scheduling-upcoming-tutor {
+    font-size: 12px;
+  }
+  
+  .student-scheduling-upcoming-time {
+    font-size: 11px;
+  }
+  
+  .student-scheduling-upcoming-subject {
+    font-size: 10px;
+  }
+  
+  .student-scheduling-join-btn {
+    font-size: 12px;
+    padding: 4px 10px;
+  }
+  
+  .student-scheduling-slot-date {
+    font-size: 14px;
+  }
+  
+  .student-scheduling-time-slot-btn {
+    font-size: 12px;
+    padding: 4px 8px;
+    min-width: 65px;
+  }
+  
+  .student-scheduling-upcoming-item {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px;
+  }
+  
+  .student-scheduling-upcoming-item .d-flex:last-child {
+    align-self: stretch;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .student-scheduling-container {
+    padding: 8px 3px;
+  }
+  
+  .student-scheduling-table {
+    min-width: 100%;
+    font-size: 10px;
+  }
+  
+  .student-scheduling-th, .student-scheduling-td {
+    padding: 2px 0;
+  }
+  
+  .student-scheduling-date-num {
+    font-size: 10px;
+  }
+  
+  .student-scheduling-card-body {
+    padding: 12px;
+  }
+  
+  .student-scheduling-upcoming-item {
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+  }
+  
+  .student-scheduling-view-toggle {
+    width: 100%;
+  }
+  
+  .student-scheduling-view-btn {
+    flex: 1;
+    font-size: 12px;
+  }
+  
+  .student-scheduling-page-title {
+    font-size: 18px;
+    margin-bottom: 15px;
+  }
+  
+  .student-scheduling-section-title {
+    font-size: 16px;
+  }
+  
+  .modal-header, .modal-body, .modal-footer {
+    padding: 15px;
+  }
+}
+
+/* Desktop navbar responsive adjustments */
+@media (min-width: 992px) {
+  .student-scheduling-container {
+    margin-left: 80px;
+    transition: margin-left 0.3s ease;
+    overflow-y: auto;
+  }
+  
+  .navbar2-expanded ~ .student-scheduling-content .student-scheduling-container {
+    margin-left: 280px;
+  }
+}
+
+/* Additional animations and interactions */
+.student-scheduling-time-slot-btn:active {
+  transform: scale(0.98);
+}
+
+.student-scheduling-join-btn:hover {
+  transform: translateY(-1px);
+}
+
+.student-scheduling-slot-card {
+  cursor: pointer;
+}
+
+.student-scheduling-upcoming-dot {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Focus states for accessibility */
+.student-scheduling-time-slot-btn:focus,
+.student-scheduling-join-btn:focus,
+.student-scheduling-nav-btn:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+/* Loading states */
+.student-scheduling-loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.student-scheduling-loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #212529;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

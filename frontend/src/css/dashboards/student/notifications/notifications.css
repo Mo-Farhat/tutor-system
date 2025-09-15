@@ -1,0 +1,355 @@
+/* Student Notifications Container */
+.student-notifications-container {
+    padding: 30px;
+    min-height: 100dvh;
+    background-color: #f8f9fa;
+    transition: margin-left 0.3s ease;
+    overflow-y: auto;
+}
+
+/* Content Area */
+.student-notifications-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Section Styling */
+.student-notifications-section {
+    margin-bottom: 40px;
+}
+
+.student-notifications-section-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.student-notifications-subtitle {
+    color: #6c757d;
+    font-size: 14px;
+    margin-bottom: 0;
+}
+
+/* Card Styling */
+.student-notifications-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.student-notifications-card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+.student-notifications-card-body {
+    padding: 25px;
+}
+
+.student-notifications-card-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 8px;
+}
+
+.student-notifications-card-description {
+    color: #6c757d;
+    font-size: 14px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+/* Button Styling */
+.student-notifications-btn {
+    padding: 10px 20px;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.student-notifications-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Search Input Styling */
+.student-notifications-search {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.student-notifications-search:focus {
+    border-color: #212529;
+    box-shadow: 0 0 0 0.2rem rgba(33, 37, 41, 0.25);
+}
+
+/* Notifications List */
+.student-notifications-list {
+    margin: 0;
+    padding: 0;
+}
+
+.student-notifications-item {
+    padding: 20px 0;
+    border-bottom: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.student-notifications-item:last-child {
+    border-bottom: none;
+}
+
+.student-notifications-item:hover {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-left: -10px;
+    margin-right: -10px;
+}
+
+.student-notifications-unread {
+    background-color: #f0f8ff;
+    border-left: 4px solid #212529;
+    padding-left: 16px;
+    margin-left: -16px;
+}
+
+/* Notification Icon */
+.student-notifications-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-right: 15px;
+}
+
+.student-notifications-icon-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.student-notifications-icon-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.student-notifications-icon-warning {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.student-notifications-icon-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Notification Content */
+.student-notifications-item-title {
+    color: #212529;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 5px;
+}
+
+.student-notifications-item-message {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+
+.student-notifications-item-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+/* Badge Styling */
+.student-notifications-item .badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    background-color: #212529;
+}
+
+/* Pagination Styling */
+.student-notifications-card .pagination {
+    margin-bottom: 0;
+}
+
+.student-notifications-card .page-link {
+    color: #212529;
+    border-color: #dee2e6;
+    padding: 0.5rem 0.75rem;
+}
+
+.student-notifications-card .page-item.active .page-link {
+    background-color: #212529;
+    border-color: #212529;
+}
+
+.student-notifications-card .page-link:hover {
+    color: #212529;
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
+
+/* Responsive Design */
+@media (max-width: 991.98px) {
+    .student-notifications-container {
+        padding: 20px 15px;
+        margin-left: 0;
+        height: auto;
+        min-height: 100dvh;
+    }
+    
+    .student-notifications-section-title {
+        font-size: 20px;
+    }
+    
+    .student-notifications-card-body {
+        padding: 20px;
+    }
+    
+    .student-notifications-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+    
+    .student-notifications-item-title {
+        font-size: 15px;
+    }
+    
+    .student-notifications-item-message {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .student-notifications-container {
+        padding: 15px 10px;
+    }
+    
+    .student-notifications-section {
+        margin-bottom: 30px;
+    }
+    
+    .student-notifications-card-body {
+        padding: 15px;
+    }
+    
+    .student-notifications-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+    }
+    
+    .student-notifications-item-title {
+        font-size: 14px;
+    }
+    
+    .student-notifications-item-message {
+        font-size: 12px;
+    }
+    
+    .student-notifications-item-actions .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .btn-group {
+        flex-direction: column;
+    }
+    
+    .btn-group .btn {
+        border-radius: 0.375rem !important;
+        margin-bottom: 0.25rem;
+    }
+}
+
+/* Desktop navbar responsive adjustments */
+@media (min-width: 992px) {
+    .student-notifications-container {
+        margin-left: 80px;
+        transition: margin-left 0.3s ease;
+        overflow-y: auto;
+    }
+    
+    .navbar2-expanded ~ .student-notifications-content .student-notifications-container {
+        margin-left: 280px;
+    }
+}
+
+/* Animation for new notifications */
+@keyframes student-notifications-pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.02);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.student-notifications-unread {
+    animation: student-notifications-pulse 2s infinite;
+}
+
+/* Hover effects for buttons */
+.student-notifications-item-actions .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Focus states for accessibility */
+.student-notifications-item:focus-within {
+    outline: 2px solid #212529;
+    outline-offset: 2px;
+}
+
+.student-notifications-search:focus,
+.student-notifications-item-actions .btn:focus {
+    outline: 2px solid #212529;
+    outline-offset: 2px;
+}
+
+/* Loading state */
+.student-notifications-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+.student-notifications-loading .spinner-border {
+    width: 3rem;
+    height: 3rem;
+    color: #212529;
+}
+
+/* Empty state styling */
+.student-notifications-empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+}
+
+.student-notifications-empty i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}

@@ -1,6 +1,10 @@
 import React, { useState } from "react";
+
 import tutorService from "../../services/tutorService";
 import VideoRecorder from "../VideoRecorder";
+
+import authService from "../../services/authService";
+
 import "../../css/joinus/joinus-form.css";
 
 function JoinusForm({ isOpen, onClose }) {
@@ -128,6 +132,15 @@ function JoinusForm({ isOpen, onClose }) {
         if (!formData.fullName.trim()) {
           stepErrors.fullName = "Full name is required";
           isValid = false;
+        } else {
+          const nameParts = formData.fullName
+            .trim()
+            .split(/\s+/)
+            .filter(Boolean);
+          if (nameParts.length < 2) {
+            stepErrors.fullName = "Please provide both first and last name";
+            isValid = false;
+          }
         }
 
         if (!formData.phone.trim()) {
@@ -173,10 +186,8 @@ function JoinusForm({ isOpen, onClose }) {
         if (!formData.atar.trim()) {
           stepErrors.atar = "ATAR is required";
           isValid = false;
-        } else if (isNaN(formData.atar) || parseFloat(formData.atar) < 97) {
-          setShowTerminationMessage(
-            "Unfortunately, we require an ATAR of 97+ for our tutors. Thank you for your interest."
-          );
+        } else if (isNaN(formData.atar)) {
+          stepErrors.atar = "Please enter a valid number";
           isValid = false;
         }
         break;
@@ -265,18 +276,30 @@ function JoinusForm({ isOpen, onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validateStep(currentStep)) {
+    // Validate all steps before submitting (ensures required fields like full name are present)
+    const stepsToValidate = [1, 2, 3, 4, 5, 6, 7];
+    let firstInvalidStep = null;
+    for (const step of stepsToValidate) {
+      const valid = validateStep(step);
+      if (!valid && firstInvalidStep === null) {
+        firstInvalidStep = step;
+      }
+    }
+    if (firstInvalidStep !== null) {
+      setCurrentStep(firstInvalidStep);
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      const response = await tutorService.submitApplication(formData);
+      console.log("Form data being submitted:", formData);
+      const response = await authService.submitTutorApplication(formData);
+      console.log("Response received:", response);
 
       // Show success message
       alert(
-        `${response.message}\n\nApplication ID: ${response.applicationId}\nStatus: ${response.status}\n\nYou will receive an email confirmation shortly.`
+        `${response.message}\n\nApplication ID: ${response.applicationId}\nStatus: ${response.status}`
       );
 
       // Reset form and close modal

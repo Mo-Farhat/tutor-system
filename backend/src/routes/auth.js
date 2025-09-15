@@ -1,6 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const authController = require("../controllers/authController");
+const { authenticateToken, requireRole } = require("../middleware/auth");
+const {
+  tutorApplicationUpload,
+  handleUploadError,
+} = require("../middleware/upload");
 
 // Student registration
 router.post("/register", authController.registerStudent);
@@ -9,10 +14,23 @@ router.post("/register", authController.registerStudent);
 router.post("/login", authController.login);
 
 // Tutor application submission
-router.post("/tutor/apply", authController.submitTutorApplication);
+router.post(
+  "/tutor/apply",
+  tutorApplicationUpload,
+  handleUploadError,
+  authController.submitTutorApplication
+);
 
-// Admin: Approve tutor application
-router.post("/tutor/approve/:id", authController.approveTutorApplication);
+// Admin: Approve tutor application (protected)
+router.post(
+  "/tutor/approve/:id",
+  authenticateToken,
+  requireRole("admin"),
+  authController.approveTutorApplication
+);
+
+// Mock admin: Approve tutor application (unprotected for development)
+router.post("/tutor/approve-mock/:id", authController.approveTutorApplication);
 
 // Password setup endpoints
 router.get(
@@ -25,7 +43,10 @@ router.post("/tutor/setup-password/:token", authController.setupTutorPassword);
 router.get("/profile", authController.getUserProfile);
 
 // Auth status check
-router.get("/check-auth", authController.checkAuthStatus);
+router.get("/check-auth", authenticateToken, authController.checkAuthStatus);
+
+// Create admin user (development endpoint)
+router.post("/create-admin", authController.createAdmin);
 
 // Debug endpoint for development
 router.get("/stats", authController.getStats);
@@ -38,5 +59,7 @@ router.get("/health", (req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+router.get("/tutor/stats", authController.getStats);
 
 module.exports = router;

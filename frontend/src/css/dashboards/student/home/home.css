@@ -1,0 +1,242 @@
+/* Container and Content */
+.student-home-container {
+  padding: 30px;
+  background-color: #f8f9fa;
+  min-height: 100dvh;
+  transition: margin-left 0.3s ease;
+  overflow-y: auto;
+}
+.student-home-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Section Title */
+.student-home-section-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e9ecef;
+}
+
+/* Card Styling */
+.student-home-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+  margin-bottom: 0;
+  min-height: 140px;
+}
+.student-home-card:hover {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+}
+.student-home-card-body {
+  width: 100%;
+}
+.student-home-card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #212529;
+}
+.student-home-card-degree {
+  color: #6c757d;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+.student-home-card-contact {
+  font-size: 14px;
+  color: #495057;
+  gap: 1.5rem;
+}
+.student-home-card-email, .student-home-card-phone {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Status Badge */
+.student-home-status-badge {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background-color: #d4edda;
+  color: #155724;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Next Session */
+.student-home-next-session {
+  font-size: 14px;
+  color: #495057;
+  background-color: #f8f9fa;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border-left: 3px solid #007bff;
+}
+.student-home-next-session i {
+  color: #007bff;
+}
+
+/* Avatar */
+.student-home-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.student-home-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+/* Tags */
+.student-home-tag {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-right: 4px;
+  margin-bottom: 2px;
+  background: #e9ecef;
+  color: #212529;
+}
+.student-home-tag-primary {
+  background: #e3eafd;
+  color: #2c3e90;
+}
+.student-home-tag-success {
+  background: #d6f5e7;
+  color: #218c5b;
+}
+.student-home-tag-danger {
+  background: #fbe3e3;
+  color: #b94a48;
+}
+.student-home-tag-purple {
+  background: #ede3fb;
+  color: #764ba2;
+}
+
+/* Responsive Design */
+@media (max-width: 991.98px) {
+  .student-home-container {
+    padding: 20px 10px;
+    margin-left: 0;
+    min-height: 100dvh;
+  }
+  .student-home-section-title {
+    font-size: 20px;
+  }
+  .student-home-card-title {
+    font-size: 16px;
+  }
+  .student-home-card-degree {
+    font-size: 13px;
+  }
+  .student-home-card-contact {
+    font-size: 13px;
+  }
+  .student-home-avatar {
+    width: 48px;
+    height: 48px;
+  }
+  .student-home-next-session {
+    font-size: 13px;
+  }
+}
+@media (max-width: 767.98px) {
+  .student-home-container {
+    padding: 10px 2px;
+  }
+  .student-home-section-title {
+    font-size: 16px;
+    padding-bottom: 6px;
+    margin-bottom: 10px;
+  }
+  .student-home-card {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    padding: 10px !important;
+  }
+  .student-home-avatar {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 8px;
+  }
+  .student-home-card-title {
+    font-size: 14px;
+  }
+  .student-home-card-degree {
+    font-size: 12px;
+  }
+  .student-home-tag {
+    font-size: 11px;
+    padding: 2px 7px;
+  }
+  .student-home-card-contact {
+    font-size: 11px;
+    gap: 0.5rem;
+  }
+  .student-home-next-session {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+  .student-home-status-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+}
+@media (max-width: 575.98px) {
+  .student-home-card {
+    padding: 6px !important;
+  }
+  .student-home-avatar {
+    width: 32px;
+    height: 32px;
+  }
+  .student-home-card-title {
+    font-size: 12px;
+  }
+  .student-home-card-degree {
+    font-size: 10px;
+  }
+  .student-home-tag {
+    font-size: 9px;
+    padding: 1px 5px;
+  }
+  .student-home-next-session {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+  .student-home-status-badge {
+    font-size: 9px;
+    padding: 1px 4px;
+  }
+}
+
+/* Desktop navbar responsive adjustments */
+@media (min-width: 992px) {
+  .student-home-container {
+    margin-left: 80px;
+    transition: margin-left 0.3s ease;
+    min-height: 100dvh;
+    overflow-y: auto;
+  }
+  .student-navbar-expanded ~ .student-home-container {
+    margin-left: 280px;
+  }
+}

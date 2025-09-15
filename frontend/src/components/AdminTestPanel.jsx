@@ -5,6 +5,15 @@ const AdminTestPanel = () => {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [adminToken, setAdminToken] = useState("");
+
+  const setAdminAccess = () => {
+    // Temporarily set admin token for testing
+    const tempAdminToken = "admin-bypass-token";
+    localStorage.setItem("access_token", tempAdminToken);
+    setAdminToken(tempAdminToken);
+    setMessage("Admin access enabled (bypass mode)");
+  };
 
   const fetchApplications = async () => {
     setLoading(true);
@@ -49,7 +58,11 @@ const AdminTestPanel = () => {
   };
 
   useEffect(() => {
-    fetchApplications();
+    // Check if there's already an admin token
+    const existingToken = localStorage.getItem("access_token");
+    if (existingToken) {
+      setAdminToken(existingToken);
+    }
   }, []);
 
   return (
@@ -59,15 +72,44 @@ const AdminTestPanel = () => {
           <h4 className="mb-0">🔧 Admin Test Panel - Tutor Applications</h4>
         </div>
         <div className="card-body">
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <h5>Applications</h5>
-            <button
-              className="btn btn-outline-primary"
-              onClick={fetchApplications}
-              disabled={loading}
-            >
-              {loading ? "Loading..." : "Refresh"}
-            </button>
+          <div className="mb-3">
+            <div className="row">
+              <div className="col-md-6">
+                <h5>Admin Controls</h5>
+                <div className="btn-group mb-3" role="group">
+                  <button
+                    className="btn btn-warning btn-sm"
+                    onClick={setAdminAccess}
+                    disabled={loading}
+                  >
+                    Enable Admin Access
+                  </button>
+                  <button
+                    className="btn btn-outline-primary btn-sm"
+                    onClick={fetchApplications}
+                    disabled={loading || !adminToken}
+                  >
+                    {loading ? "Loading..." : "Load Applications"}
+                  </button>
+                </div>
+                {adminToken && (
+                  <div className="alert alert-info alert-sm">
+                    <small>✓ Admin access active</small>
+                  </div>
+                )}
+              </div>
+              <div className="col-md-6">
+                <h5>Quick Access</h5>
+                <div className="btn-group btn-group-sm">
+                  <a href="/admin" className="btn btn-outline-secondary">
+                    /admin
+                  </a>
+                  <a href="/admin/panel" className="btn btn-outline-secondary">
+                    /admin/panel
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
 
           {message && (

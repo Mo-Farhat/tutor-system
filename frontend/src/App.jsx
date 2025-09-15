@@ -4,6 +4,7 @@ import { ContactFormProvider } from "./components/snippets/contact-form-overlay"
 import { AuthProvider } from "./contexts/AuthContext";
 import ScrollToTop from "./components/ScrollToTop";
 import ProtectedTutorRoute from "./components/ProtectedTutorRoute";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 import HomePage from "./pages/js/home";
 import AboutusPage from "./pages/js/aboutus";
@@ -28,13 +29,24 @@ import TutorHomePage from "./pages/js/dashboard/tutor/home";
 import TutorEarningsPage from "./pages/js/dashboard/tutor/earnings";
 import TutorProgressPage from "./pages/js/dashboard/tutor/progress";
 import TutorCalendarPage from "./pages/js/dashboard/tutor/calendar";
+import MockAdminPage from "./pages/MockAdminPage";
+import AdminTestPanel from "./components/AdminTestPanel";
 import TutorStudentsPage from "./pages/js/dashboard/tutor/students";
 import TutorProfilePage from "./pages/js/dashboard/tutor/profile";
 import TutorDocumentsPage from "./pages/js/dashboard/tutor/documents";
 import TutorPaymentDetailsPage from "./pages/js/dashboard/tutor/payment-details";
 import TutorPasswordSetup from "./components/TutorPasswordSetup";
-import AdminTestPanel from "./components/AdminTestPanel";
 import StudentProfilePage from "./pages/js/dashboard/tutor/s-profile";
+
+import StudentHomePage from "./pages/js/dashboard/student/home";
+import StudentSchedulingPage from "./pages/js/dashboard/student/scheduling";
+import StudentPaymentHistoryPage from "./pages/js/dashboard/student/payment-history";
+import StudentPaymentMethodsPage from "./pages/js/dashboard/student/payment-methods";
+import StudentReferralAndOffersPage from "./pages/js/dashboard/student/referrals";
+import StudentProgressMilestonesPage from "./pages/js/dashboard/student/progress";
+import StudentProfileManagementPage from "./pages/js/dashboard/student/profile";
+import StudentNotificationsPage from "./pages/js/dashboard/student/notifications";
+import StudentProfileDetailsPage from "./pages/js/dashboard/student/profile-details";
 
 const App = () => {
   return (
@@ -65,7 +77,10 @@ const App = () => {
               path="/tutor/setup-password/:token"
               element={<TutorPasswordSetup />}
             />
-            <Route path="/admin/test" element={<AdminTestPanel />} />
+            <Route path="/admin" element={<AdminTestPanel />} />
+            <Route path="/admin/panel" element={<AdminTestPanel />} />
+            <Route path="/api/auth/stats" element={<AdminTestPanel />} />
+            <Route path="/mock-admin" element={<MockAdminPage />} />
 
             {/* Tutor Dashboard Routes - Protected by completion status */}
             <Route
@@ -83,9 +98,9 @@ const App = () => {
             <Route
               path="/dashboard/tutor/notifications"
               element={
-                <ProtectedTutorRoute>
-                  <TutorNotificationsPage />
-                </ProtectedTutorRoute>
+                // <ProtectedTutorRoute>
+                <TutorNotificationsPage />
+                // </ProtectedTutorRoute>
               }
             />
             <Route
@@ -114,11 +129,7 @@ const App = () => {
             />
             <Route
               path="/dashboard/tutor/students"
-              element={
-                <ProtectedTutorRoute>
-                  <TutorStudentsPage />
-                </ProtectedTutorRoute>
-              }
+              element={<TutorStudentsPage />}
             />
             <Route
               path="/dashboard/tutor/profile"
@@ -143,6 +154,80 @@ const App = () => {
             <Route
               path="/dashboard/tutor/s-profile"
               element={<StudentProfilePage />}
+            />
+
+            {/* Student Dashboard Routes - Protected by student role */}
+            <Route
+              path="/dashboard/student/home"
+              element={
+                <ProtectedRoute allowedRoles={["student"]}>
+                  <StudentHomePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/student/scheduling"
+              element={
+                <ProtectedRoute allowedRoles={["student"]}>
+                  <StudentSchedulingPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/student/payment-history"
+              element={
+                <ProtectedRoute allowedRoles={["student"]}>
+                  <StudentPaymentHistoryPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/student/payment-methods"
+              element={
+                <ProtectedRoute allowedRoles={["student"]}>
+                  <StudentPaymentMethodsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/student/referral-and-offers"
+              element={
+                <ProtectedRoute allowedRoles={["student"]}>
+                  <StudentReferralAndOffersPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/student/progress-milestones"
+              element={
+                <ProtectedRoute allowedRoles={["student"]}>
+                  <StudentProgressMilestonesPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/student/profile-management"
+              element={
+                <ProtectedRoute allowedRoles={["student"]}>
+                  <StudentProfileManagementPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/student/notifications"
+              element={
+                <ProtectedRoute allowedRoles={["student"]}>
+                  <StudentNotificationsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/student/t-profile"
+              element={
+                <ProtectedRoute allowedRoles={["student"]}>
+                  <StudentProfileDetailsPage />
+                </ProtectedRoute>
+              }
             />
           </Routes>
         </ContactFormProvider>
