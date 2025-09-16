@@ -10,7 +10,14 @@ const {
 const {
   validateProfileUpdate,
   validatePasswordChange,
+  validatePaymentInfo,  
 } = require("../middleware/validation");
+
+const {
+  tutorVideoUpload,               // NEW
+  tutorDocsUpload,                // NEW
+  handleUploadError,
+} = require("../middleware/upload");
 
 // Get tutor profile (public endpoint for profile viewing)
 router.get("/tutor/profile", profileController.getTutorProfile);
@@ -78,6 +85,50 @@ router.put(
   requireStudent,
   validatePasswordChange,
   profileController.changePassword
+);
+
+// Video Introduction
+router.post(
+  "/tutor/upload/video-intro",
+  authenticateToken,
+  requireTutor,
+  tutorVideoUpload,
+  handleUploadError,
+  profileController.uploadVideoIntro
+);
+
+// Required Documents (contract, wwcc)
+router.post(
+  "/tutor/upload/documents",
+  authenticateToken,
+  requireTutor,
+  tutorDocsUpload,
+  handleUploadError,
+  profileController.uploadRequiredDocuments
+);
+
+// Payment Info
+router.get(
+  "/tutor/payment",
+  authenticateToken,
+  requireTutor,
+  profileController.getPaymentInfo
+);
+
+router.put(
+  "/tutor/payment",
+  authenticateToken,
+  requireTutor,
+  validatePaymentInfo,
+  profileController.updatePaymentInfo
+);
+
+// List uploaded documents
+router.get(
+  "/tutor/documents",
+  authenticateToken,
+  requireTutor,
+  profileController.getDocuments
 );
 
 module.exports = router;

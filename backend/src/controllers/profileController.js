@@ -1,4 +1,5 @@
 const profileService = require("../services/profileService");
+const { tutorProfileModel, tutorDocumentModel } = require("../models");
 
 // Get tutor profile
 exports.getTutorProfile = async (req, res) => {
@@ -178,4 +179,76 @@ exports.updateStudentProfile = async (req, res) => {
       error: "Internal server error",
     });
   }
+};
+
+// Upload video intro
+exports.uploadVideoIntro = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const file = req.files?.videoIntro?.[0];
+    if (!file) return res.status(400).json({ success: false, error: "videoIntro file is required" });
+
+    await tutorProfileModel.update(userId, { intro_video_path: file.path });
+    res.json({ success: true, message: "Video intro uploaded", path: file.path });
+  } catch (e) {
+    console.error("Upload video intro error:", e);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};
+
+// Upload required documents
+exports.uploadRequiredDocuments = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const contract = req.files?.contract?.[0];
+    const wwcc = req.files?.wwcc?.[0];
+
+    if (!contract && !wwcc) {
+      return res.status(400).json({ success: false, error: "No documents uploaded" });
+    }
+
+    const created = [];
+    if (contract) {
+      const doc = await tutorDocumentModel.create(userId, "contract", contract.path);
+      created.push(doc);
+    }
+    if (wwcc) {
+      const doc = await tutorDocumentModel.create(userId, "wwcc", wwcc.path);
+      created.push(doc);
+    }
+
+    await profileService.markDocumentsFlag(userId);
+    res.json({ success: true, message: "Documents uploaded", data: created });
+  } catch (e) {
+    console.error("Upload documents error:", e);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};
+
+// Payment info
+exports.getPaymentInfo = async (req, res) => {
+  const result = await profileService.getPaymentInfo(req.user.id);
+  const code = result.success ? 200 : 404;
+  res.status(code).json(result);
+};
+
+exports.updatePaymentInfo = async (req, res) => {
+  const payload = {
+    abnNumber: req.body.abnNumber ?? null,
+    paymentMethod: req.body.paymentMethod ?? null,
+    accountName: req.body.accountName ?? null,
+    bsb: req.body.bsb ?? null,
+    accountNumber: req.body.accountNumber ?? null,
+    paypalEmail: req.body.paypalEmail ?? null,
+  };
+  const result = await profileService.upsertPaymentInfo(req.user.id, payload);
+  const code = result.success ? 200 : 400;
+  res.status(code).json(result);
+};
+
+// List uploaded documents
+exports.getDocuments = async (req, res) => {
+  const result = await profileService.listDocuments(req.user.id);
+  const code = result.success ? 200 : 404;
+  res.status(code).json(result);
 };

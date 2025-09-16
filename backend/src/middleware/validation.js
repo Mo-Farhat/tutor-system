@@ -128,7 +128,42 @@ const validatePasswordChange = (req, res, next) => {
   next();
 };
 
+const validatePaymentInfo = (req, res, next) => {
+  const { abnNumber, paymentMethod, accountName, bsb, accountNumber, paypalEmail } = req.body;
+  const errors = [];
+
+  // ABN: 11 digits (basic check)
+  if (abnNumber && !/^\d{11}$/.test(String(abnNumber))) {
+    errors.push("ABN must be 11 digits");
+  }
+
+  // Payment method
+  if (paymentMethod && !["bank_transfer", "paypal"].includes(paymentMethod)) {
+    errors.push("paymentMethod must be 'bank_transfer' or 'paypal'");
+  }
+
+  if (paymentMethod === "bank_transfer") {
+    if (!accountName) errors.push("accountName is required for bank transfer");
+    if (bsb && !/^\d{3}-?\d{3}$/.test(bsb)) errors.push("BSB must be like 000-000 or 000000");
+    if (accountNumber && !/^\d{5,12}$/.test(String(accountNumber))) errors.push("accountNumber must be 5-12 digits");
+  }
+
+  if (paymentMethod === "paypal") {
+    if (!paypalEmail) errors.push("paypalEmail is required for PayPal");
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(paypalEmail)) errors.push("paypalEmail is invalid");
+  }
+
+  if (errors.length) {
+    return res.status(400).json({ success: false, error: "Payment validation failed", details: errors });
+  }
+  next();
+};
+
 module.exports = {
   validateProfileUpdate,
   validatePasswordChange,
+  validatePaymentInfo,          
 };
+
+
+

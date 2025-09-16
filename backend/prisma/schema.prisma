@@ -7,6 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum PaymentMethod {
+  bank_transfer
+  paypal
+}
+
 enum Role {
   student
   tutor
@@ -26,20 +31,29 @@ enum AppStatus {
   rejected
 }
 
+enum DocumentType {
+  contract
+  wwcc
+}
+
 model User {
-  id           Int                @id @default(autoincrement())
-  firstName    String
-  lastName     String
-  email        String             @unique
-  username     String             @unique
-  password     String
-  role         Role               @default(student)
-  status       String?
-  createdAt    DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
-  applications TutorApplication[]
-  profile      TutorProfile?
-  studentProfile StudentProfile?
+  id               Int                @id @default(autoincrement())
+  firstName        String
+  lastName         String
+  email            String             @unique
+  username         String             @unique
+  password         String
+  role             Role               @default(student)
+  status           String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  applications     TutorApplication[]
+  profile          TutorProfile?
+  studentProfile   StudentProfile?
+  TutorPaymentInfo TutorPaymentInfo[]
+  TutorDocument    TutorDocument[]
+
+  @@index([role, createdAt])
 }
 
 model TutorApplication {
@@ -73,6 +87,7 @@ model TutorApplication {
   setupTokenRel SetupToken?
 
   @@index([email])
+  @@index([status, createdAt])
 }
 
 model SetupToken {
@@ -99,6 +114,7 @@ model TutorProfile {
   locations           String[]
   preferred_locations String[]
   schools_attended    String[]
+  intro_video_path    String?
   is_profile_complete Boolean   @default(false)
   documents_uploaded  Boolean   @default(false)
   is_live             Boolean   @default(false)
@@ -112,7 +128,7 @@ model TutorProfile {
 }
 
 model StudentProfile {
-  userId              Int       @id
+  userId              Int      @id
   phone_number        String?
   bio                 String?
   current_school      String?
@@ -120,8 +136,35 @@ model StudentProfile {
   subjects_interested String[]
   preferred_locations String[]
   learning_goals      String?
-  is_profile_complete Boolean   @default(false)
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
-  user                User      @relation(fields: [userId], references: [id])
+  is_profile_complete Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  user                User     @relation(fields: [userId], references: [id])
+}
+
+model TutorPaymentInfo {
+  userId        Int            @id
+  abnNumber     String?
+  paymentMethod PaymentMethod?
+  accountName   String?
+  bsb           String? // e.g., 000-000
+  accountNumber String?
+  paypalEmail   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model TutorDocument {
+  id         Int          @id @default(autoincrement())
+  userId     Int
+  type       DocumentType
+  path       String
+  uploadedAt DateTime     @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type], name: "doc_user_type")
 }
