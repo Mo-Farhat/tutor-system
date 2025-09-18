@@ -2,7 +2,8 @@ const {
   userModel,
   tutorProfileModel,
   studentProfileModel,
-  tutorPaymentModel, tutorDocumentModel,
+  tutorPaymentModel,
+  tutorDocumentModel,
 } = require("../models");
 const bcrypt = require("bcrypt");
 
@@ -185,8 +186,6 @@ class ProfileService {
       message: "Profile updated successfully",
     };
   }
-
-
 
   // Change password
   async changePassword(userId, currentPassword, newPassword) {
@@ -434,23 +433,33 @@ class ProfileService {
   }
 
   async listDocuments(userId) {
+    console.log("🔍 ProfileService listDocuments called with userId:", userId);
     const user = await userModel.findById(userId);
     if (!user || user.role !== "tutor") {
+      console.log("❌ User not found or not a tutor:", { user: user?.role });
       return { success: false, error: "Tutor not found" };
     }
+    console.log("✅ User found, fetching documents...");
+    console.log("🔍 tutorDocumentModel:", typeof tutorDocumentModel);
+    console.log(
+      "🔍 tutorDocumentModel.findByUserId:",
+      typeof tutorDocumentModel?.findByUserId
+    );
     const docs = await tutorDocumentModel.findByUserId(userId);
+    console.log("✅ Documents fetched:", docs);
     return { success: true, data: docs };
   }
 
   async markDocumentsFlag(userId) {
     // If both contract and wwcc exist, mark documents_uploaded=true
-    const contractCount = await tutorDocumentModel.countByType(userId, "contract");
+    const contractCount = await tutorDocumentModel.countByType(
+      userId,
+      "contract"
+    );
     const wwccCount = await tutorDocumentModel.countByType(userId, "wwcc");
     const both = contractCount > 0 && wwccCount > 0;
     await tutorProfileModel.update(userId, { documents_uploaded: both });
   }
-
-
 }
 
 module.exports = new ProfileService();

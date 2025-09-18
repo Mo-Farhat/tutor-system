@@ -129,12 +129,31 @@ const validatePasswordChange = (req, res, next) => {
 };
 
 const validatePaymentInfo = (req, res, next) => {
-  const { abnNumber, paymentMethod, accountName, bsb, accountNumber, paypalEmail } = req.body;
+  const {
+    abnNumber,
+    paymentMethod,
+    accountName,
+    bsb,
+    accountNumber,
+    paypalEmail,
+  } = req.body;
+  console.log("🔍 Payment validation - received data:", {
+    abnNumber,
+    paymentMethod,
+    accountName,
+    bsb,
+    accountNumber,
+    paypalEmail,
+  });
   const errors = [];
 
-  // ABN: 11 digits (basic check)
-  if (abnNumber && !/^\d{11}$/.test(String(abnNumber))) {
-    errors.push("ABN must be 11 digits");
+  // ABN: 11 digits (basic check) - make it optional for now
+  if (
+    abnNumber &&
+    abnNumber.trim() !== "" &&
+    !/^\d{11}$/.test(String(abnNumber))
+  ) {
+    errors.push("ABN must be exactly 11 digits");
   }
 
   // Payment method
@@ -143,27 +162,39 @@ const validatePaymentInfo = (req, res, next) => {
   }
 
   if (paymentMethod === "bank_transfer") {
-    if (!accountName) errors.push("accountName is required for bank transfer");
-    if (bsb && !/^\d{3}-?\d{3}$/.test(bsb)) errors.push("BSB must be like 000-000 or 000000");
-    if (accountNumber && !/^\d{5,12}$/.test(String(accountNumber))) errors.push("accountNumber must be 5-12 digits");
+    if (!accountName || accountName.trim() === "")
+      errors.push("Account name is required for bank transfer");
+    if (bsb && bsb.trim() !== "" && !/^\d{3}-?\d{3}$/.test(bsb))
+      errors.push("BSB must be in format 000-000 or 000000");
+    if (
+      accountNumber &&
+      accountNumber.trim() !== "" &&
+      !/^\d{4,20}$/.test(String(accountNumber))
+    )
+      errors.push("Account number must be 4-20 digits");
   }
 
   if (paymentMethod === "paypal") {
-    if (!paypalEmail) errors.push("paypalEmail is required for PayPal");
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(paypalEmail)) errors.push("paypalEmail is invalid");
+    if (!paypalEmail || paypalEmail.trim() === "")
+      errors.push("PayPal email is required for PayPal");
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(paypalEmail))
+      errors.push("PayPal email format is invalid");
   }
 
   if (errors.length) {
-    return res.status(400).json({ success: false, error: "Payment validation failed", details: errors });
+    console.log("❌ Payment validation errors:", errors);
+    return res.status(400).json({
+      success: false,
+      error: "Payment validation failed",
+      details: errors,
+    });
   }
+  console.log("✅ Payment validation passed");
   next();
 };
 
 module.exports = {
   validateProfileUpdate,
   validatePasswordChange,
-  validatePaymentInfo,          
+  validatePaymentInfo,
 };
-
-
-

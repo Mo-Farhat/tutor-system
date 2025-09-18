@@ -1,31 +1,33 @@
-import '../../../../css/dashboards/tutor/profile/profile.css';
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../../../contexts/AuthContext';
-import authService from '../../../../services/authService';
+import "../../../../css/dashboards/tutor/profile/profile.css";
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../../../../contexts/AuthContext";
+import authService from "../../../../services/authService";
+import profileService from "../../../../services/profileService";
 
 function TutorProfile() {
   const { user } = useAuth();
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [completionStatus, setCompletionStatus] = useState(null);
 
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    username: '',
-    phoneNumber: '',
-    bio: '',
-    hourly_rate: '',
-    university: '',
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: '',
-    abnNumber: '',
-    paymentMethod: 'bank',
-    accountName: '',
-    bsb: '',
-    accountNumber: ''
+    fullName: "",
+    email: "",
+    username: "",
+    phoneNumber: "",
+    bio: "",
+    hourly_rate: "",
+    university: "",
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+    abnNumber: "",
+    paymentMethod: "bank_transfer",
+    accountName: "",
+    bsb: "",
+    accountNumber: "",
+    paypalEmail: "",
   });
 
   const [selectedLocations, setSelectedLocations] = useState([]);
@@ -35,11 +37,13 @@ function TutorProfile() {
   const [showPasswords, setShowPasswords] = useState({
     currentPassword: false,
     newPassword: false,
-    confirmPassword: false
+    confirmPassword: false,
   });
   const [introVideo, setIntroVideo] = useState(null);
   const [tutorContractFile, setTutorContractFile] = useState(null);
   const [wwccFile, setWwccFile] = useState(null);
+  const [paymentInfo, setPaymentInfo] = useState(null);
+  const [uploadedDocuments, setUploadedDocuments] = useState([]);
 
   // Fetch profile data on component mount
   useEffect(() => {
@@ -49,63 +53,77 @@ function TutorProfile() {
   const fetchProfileData = async () => {
     try {
       setLoading(true);
-      setError(''); // Clear any previous errors
-      
+      setError(""); // Clear any previous errors
+
       const userInfo = user || authService.getUserInfo();
       const userId = userInfo?.id || userInfo?.userId;
       const username = userInfo?.username;
-      console.log('Fetching profile for user:', { userId, username });
-      
+      console.log("Fetching profile for user:", { userId, username });
+
       if (!userId) {
-        throw new Error('No user ID available');
+        throw new Error("No user ID available");
       }
-      
+
       // Use the original fetch to bypass the interceptor
       const originalFetch = window.fetch.__original__ || window.fetch;
-      const response = await originalFetch(`http://localhost:8000/api/auth/tutor/profile/?username=${encodeURIComponent(username)}`, {
-        headers: {
-          'Authorization': `Bearer ${authService.getAccessToken()}`,
-          'Content-Type': 'application/json'
+      const response = await originalFetch(
+        `http://localhost:8000/api/auth/tutor/profile/?username=${encodeURIComponent(
+          username
+        )}`,
+        {
+          headers: {
+            Authorization: `Bearer ${authService.getAccessToken()}`,
+            "Content-Type": "application/json",
+          },
         }
-      });
-      console.log('Response status:', response.status);
-      console.log('Response ok:', response.ok);
-      console.log('Response headers:', response.headers);
-      console.log('Request URL:', `http://localhost:8000/api/auth/tutor/profile/?username=${encodeURIComponent(username)}`);
-      console.log('Access token:', authService.getAccessToken());
-      
+      );
+      console.log("Response status:", response.status);
+      console.log("Response ok:", response.ok);
+      console.log("Response headers:", response.headers);
+      console.log(
+        "Request URL:",
+        `http://localhost:8000/api/auth/tutor/profile/?username=${encodeURIComponent(
+          username
+        )}`
+      );
+      console.log("Access token:", authService.getAccessToken());
+
       if (!response.ok) {
         // If unauthorized, try to refresh token
         if (response.status === 401 && authService.getRefreshToken()) {
           try {
             await authService.refreshToken();
             // Retry the request with new token
-            const retryResponse = await originalFetch(`http://localhost:8000/api/auth/tutor/profile/?username=${encodeURIComponent(username)}`, {
-              headers: {
-                'Authorization': `Bearer ${authService.getAccessToken()}`,
-                'Content-Type': 'application/json'
+            const retryResponse = await originalFetch(
+              `http://localhost:8000/api/auth/tutor/profile/?username=${encodeURIComponent(
+                username
+              )}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${authService.getAccessToken()}`,
+                  "Content-Type": "application/json",
+                },
               }
-            });
+            );
             if (!retryResponse.ok) {
               throw new Error(`HTTP error! status: ${retryResponse.status}`);
             }
             const retryData = await retryResponse.json();
             return await processProfileData(retryData, userId, username);
           } catch (refreshError) {
-            console.error('Token refresh failed:', refreshError);
+            console.error("Token refresh failed:", refreshError);
             throw new Error(`HTTP error! status: ${response.status}`);
           }
         } else {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
       }
-      
+
       const data = await response.json();
-      console.log('Response data:', data);
+      console.log("Response data:", data);
       return await processProfileData(data, userId, username);
-      
     } catch (err) {
-      console.error('Error fetching profile data:', err);
+      console.error("Error fetching profile data:", err);
       setError(`Failed to load profile data: ${err.message}`);
     } finally {
       setLoading(false);
@@ -113,70 +131,79 @@ function TutorProfile() {
   };
 
   const processProfileData = async (data, userId, username) => {
-    console.log('API response:', data);
-    
+    console.log("API response:", data);
+
     if (data.success && data.data) {
       setProfileData(data.data);
-      
+
       // Update form data with real user data, using application data as fallback
       const userData = data.data.user || {};
       const appData = data.data.application_data || {};
-      
+
       // Parse full name from application if available
-      let firstName = userData.first_name || '';
-      let lastName = userData.last_name || '';
-      
+      let firstName = userData.first_name || "";
+      let lastName = userData.last_name || "";
+
       // If we have application full_name but no first/last name, try to parse it
       if (!firstName && !lastName && appData.full_name) {
-        const nameParts = appData.full_name.trim().split(' ');
-        firstName = nameParts[0] || '';
-        lastName = nameParts.slice(1).join(' ') || '';
+        const nameParts = appData.full_name.trim().split(" ");
+        firstName = nameParts[0] || "";
+        lastName = nameParts.slice(1).join(" ") || "";
       }
-      
+
       const newFormData = {
-        fullName: `${firstName} ${lastName}`.trim() || appData.full_name || '',
-        email: userData.email || appData.email || '',
-        username: userData.username || '',
-        phoneNumber: data.data.phone_number || appData.phone || '',
-        bio: data.data.bio || (appData.motivation ? `${appData.motivation}` : ''),
-        hourly_rate: data.data.hourly_rate || '45.00',
-        university: data.data.university || appData.current_study || '',
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: '',
-        abnNumber: '',
-        paymentMethod: 'bank',
-        accountName: `${firstName} ${lastName}`.trim() || appData.full_name || '',
-        bsb: '',
-        accountNumber: ''
+        fullName: `${firstName} ${lastName}`.trim() || appData.full_name || "",
+        email: userData.email || appData.email || "",
+        username: userData.username || "",
+        phoneNumber: data.data.phone_number || appData.phone || "",
+        bio:
+          data.data.bio || (appData.motivation ? `${appData.motivation}` : ""),
+        hourly_rate: data.data.hourly_rate || "45.00",
+        university: data.data.university || appData.current_study || "",
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+        abnNumber: "",
+        paymentMethod: "bank_transfer",
+        accountName:
+          `${firstName} ${lastName}`.trim() || appData.full_name || "",
+        bsb: "",
+        accountNumber: "",
       };
-      
-      console.log('Setting form data:', newFormData);
-      console.log('Application data:', appData);
+
+      console.log("Setting form data:", newFormData);
+      console.log("Application data:", appData);
       setFormData(newFormData);
 
       // Set locations
-      const locations = data.data.preferred_locations || data.data.locations || [];
+      const locations =
+        data.data.preferred_locations || data.data.locations || [];
       setSelectedLocations(Array.isArray(locations) ? locations : []);
 
       // Set subjects with enhanced parsing from application data
       const subjects = data.data.subjects_selected || data.data.subjects || [];
       const subjectsArray = Array.isArray(subjects) ? subjects : [];
-      
+
       // If no subjects but we have application data, create default entries
       if (subjectsArray.length === 0 && appData.subjects_to_tutor) {
-        const defaultSubjects = appData.subjects_to_tutor.split(/[,;]/).map(s => s.trim()).filter(s => s).map(subject => ({
-          yearLevel: 'Year 11/12',
-          curriculumOrState: 'VCE',
-          subject: subject
-        }));
+        const defaultSubjects = appData.subjects_to_tutor
+          .split(/[,;]/)
+          .map((s) => s.trim())
+          .filter((s) => s)
+          .map((subject) => ({
+            yearLevel: "Year 11/12",
+            curriculumOrState: "VCE",
+            subject: subject,
+          }));
         setSubjectEntries(defaultSubjects);
       } else {
-        setSubjectEntries(subjectsArray.map(subject => ({
-          yearLevel: subject.year_level || '',
-          curriculumOrState: subject.curriculum || '',
-          subject: subject.subject || ''
-        })));
+        setSubjectEntries(
+          subjectsArray.map((subject) => ({
+            yearLevel: subject.year_level || "",
+            curriculumOrState: subject.curriculum || "",
+            subject: subject.subject || "",
+          }))
+        );
       }
 
       // Set current studies
@@ -190,39 +217,83 @@ function TutorProfile() {
       // Set intro video from application if available
       if (appData.video_submission && !introVideo) {
         // Note: We can't set the file directly, but we can show that a video exists
-        console.log('Application video available at:', appData.video_submission);
+        console.log(
+          "Application video available at:",
+          appData.video_submission
+        );
       }
 
       // Fetch completion status
       try {
-        const completionResponse = await fetch(`http://localhost:8000/api/auth/tutor/completion-status/?username=${encodeURIComponent(username)}`, {
-          headers: {
-            'Authorization': `Bearer ${authService.getAccessToken()}`,
-            'Content-Type': 'application/json'
+        const completionResponse = await fetch(
+          `http://localhost:8000/api/auth/tutor/completion-status/?username=${encodeURIComponent(
+            username
+          )}`,
+          {
+            headers: {
+              Authorization: `Bearer ${authService.getAccessToken()}`,
+              "Content-Type": "application/json",
+            },
           }
-        });
+        );
         const completionData = await completionResponse.json();
-        
+
         if (completionData.success) {
           setCompletionStatus(completionData.data);
         } else {
-          console.error('Failed to fetch completion status:', completionData.message);
+          console.error(
+            "Failed to fetch completion status:",
+            completionData.message
+          );
         }
       } catch (completionError) {
-        console.error('Error fetching completion status:', completionError);
+        console.error("Error fetching completion status:", completionError);
       }
 
+      // Fetch payment info
+      try {
+        const paymentData = await profileService.getPaymentInfo();
+        if (paymentData.success) {
+          setPaymentInfo(paymentData.data);
+          // Update form data with payment info
+          setFormData((prev) => ({
+            ...prev,
+            abnNumber: paymentData.data.abnNumber || "",
+            paymentMethod: paymentData.data.paymentMethod || "bank_transfer",
+            accountName: paymentData.data.accountName || "",
+            bsb: paymentData.data.bsb || "",
+            accountNumber: paymentData.data.accountNumber || "",
+            paypalEmail: paymentData.data.paypalEmail || "",
+          }));
+        }
+      } catch (paymentError) {
+        console.error("Error fetching payment info:", paymentError);
+      }
+
+      // Fetch uploaded documents
+      try {
+        const documentsData = await profileService.getDocuments();
+        if (documentsData.success) {
+          setUploadedDocuments(documentsData.data);
+        }
+      } catch (documentsError) {
+        console.error("Error fetching documents:", documentsError);
+      }
     } else {
-      console.error('API Error:', data.message || 'No profile data received');
-      setError(`Failed to load profile data: ${data.message || 'No profile data received'}`);
+      console.error("API Error:", data.message || "No profile data received");
+      setError(
+        `Failed to load profile data: ${
+          data.message || "No profile data received"
+        }`
+      );
     }
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -234,11 +305,14 @@ function TutorProfile() {
   };
 
   const removeLocation = (location) => {
-    setSelectedLocations(selectedLocations.filter(loc => loc !== location));
+    setSelectedLocations(selectedLocations.filter((loc) => loc !== location));
   };
 
   const addSubjectEntry = () => {
-    setSubjectEntries([...subjectEntries, { yearLevel: '', curriculumOrState: '', subject: '' }]);
+    setSubjectEntries([
+      ...subjectEntries,
+      { yearLevel: "", curriculumOrState: "", subject: "" },
+    ]);
   };
 
   const removeSubjectEntry = (index) => {
@@ -252,7 +326,7 @@ function TutorProfile() {
   };
 
   const addSchool = () => {
-    setSchools([...schools, '']);
+    setSchools([...schools, ""]);
   };
 
   const removeSchool = (index) => {
@@ -266,7 +340,7 @@ function TutorProfile() {
   };
 
   const addCurrentStudy = () => {
-    setCurrentStudies([...currentStudies, '']);
+    setCurrentStudies([...currentStudies, ""]);
   };
 
   const removeCurrentStudy = (index) => {
@@ -283,13 +357,13 @@ function TutorProfile() {
     const file = e.target.files[0];
     if (file) {
       switch (type) {
-        case 'introVideo':
+        case "introVideo":
           setIntroVideo(file);
           break;
-        case 'tutorContract':
+        case "tutorContract":
           setTutorContractFile(file);
           break;
-        case 'wwcc':
+        case "wwcc":
           setWwccFile(file);
           break;
         default:
@@ -313,143 +387,171 @@ function TutorProfile() {
   const handleSaveProfile = async () => {
     try {
       setLoading(true);
-      const username = user?.username || 'notmanu23'; // Use logged in user or fallback to existing user
-      console.log('Attempting to update profile for username:', username);
-      
+      const username = user?.username || "notmanu23";
+      console.log("Attempting to update profile for username:", username);
+
       // Check if all required fields are filled
-      const isComplete = (
-        formData.bio && 
-        formData.hourly_rate && 
-        formData.university && 
+      const isComplete =
+        formData.bio &&
+        formData.hourly_rate &&
+        formData.university &&
         formData.phoneNumber &&
         currentStudies.length > 0 &&
         selectedLocations.length > 0 &&
-        subjectEntries.length > 0
-      );
-      
+        subjectEntries.length > 0;
+
       // Prepare the update data
       const updateData = {
         bio: formData.bio,
-        hourly_rate: parseFloat(formData.hourly_rate) || 45.00,
-        university: currentStudies[0] || '',
+        hourly_rate: parseFloat(formData.hourly_rate) || 45.0,
+        university: currentStudies[0] || "",
         current_studies: currentStudies,
         locations: selectedLocations,
-        subjects: subjectEntries.map(entry => ({
+        subjects: subjectEntries.map((entry) => ({
           year_level: entry.yearLevel,
           curriculum: entry.curriculumOrState,
-          subject: entry.subject
+          subject: entry.subject,
         })),
         schools_attended: schools,
         preferred_locations: selectedLocations,
-        subjects_selected: subjectEntries.map(entry => ({
+        subjects_selected: subjectEntries.map((entry) => ({
           year_level: entry.yearLevel,
           curriculum: entry.curriculumOrState,
-          subject: entry.subject
+          subject: entry.subject,
         })),
         phone_number: formData.phoneNumber,
-        is_profile_complete: isComplete
+        is_profile_complete: isComplete,
       };
-      
-      console.log('Update data being sent:', updateData);
 
-      // Use the original fetch to bypass the interceptor
-      const originalFetch = window.fetch.__original__ || window.fetch;
-      const response = await originalFetch(`http://localhost:8000/api/auth/tutor/profile/?username=${encodeURIComponent(username)}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${authService.getAccessToken()}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updateData)
-      });
+      console.log("Update data being sent:", updateData);
 
-      const data = await response.json();
-      
-      if (response.ok && data.success) {
-        console.log('Profile updated successfully, now uploading documents...');
-        
-        // Upload documents if they are selected
-        let documentsUploaded = 0;
-        let documentsToUpload = 0;
-        
-        if (tutorContractFile) documentsToUpload++;
-        if (wwccFile) documentsToUpload++;
-        
-        // Upload tutor contract if selected
-        if (tutorContractFile) {
-          try {
-            const contractFormData = new FormData();
-            contractFormData.append('file', tutorContractFile);
-            contractFormData.append('document_type', 'contract');
-            
-            const contractResponse = await originalFetch(`http://localhost:8000/api/auth/tutor/documents/?username=${encodeURIComponent(username)}`, {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${authService.getAccessToken()}`,
-              },
-              body: contractFormData
-            });
-            
-            if (contractResponse.ok) {
-              documentsUploaded++;
-              console.log('Tutor contract uploaded successfully');
-            } else {
-              console.error('Failed to upload tutor contract');
-            }
-          } catch (err) {
-            console.error('Error uploading tutor contract:', err);
-          }
+      // Track success/failure for each operation
+      const results = {
+        profile: false,
+        payment: false,
+        video: false,
+        documents: false,
+      };
+      const errors = [];
+
+      // 1. Update basic profile
+      try {
+        const profileResponse = await profileService.updateTutorProfile(
+          updateData
+        );
+        if (profileResponse.success) {
+          results.profile = true;
+          console.log("Profile updated successfully");
+        } else {
+          errors.push("Profile update failed");
         }
-        
-        // Upload WWCC if selected
-        if (wwccFile) {
-          try {
-            const wwccFormData = new FormData();
-            wwccFormData.append('file', wwccFile);
-            wwccFormData.append('document_type', 'wwcc');
-            
-            const wwccResponse = await originalFetch(`http://localhost:8000/api/auth/tutor/documents/?username=${encodeURIComponent(username)}`, {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${authService.getAccessToken()}`,
-              },
-              body: wwccFormData
-            });
-            
-            if (wwccResponse.ok) {
-              documentsUploaded++;
-              console.log('WWCC uploaded successfully');
-            } else {
-              console.error('Failed to upload WWCC');
-            }
-          } catch (err) {
-            console.error('Error uploading WWCC:', err);
-          }
-        }
-        
-        // Clear uploaded files from state
-        if (tutorContractFile) setTutorContractFile(null);
-        if (wwccFile) setWwccFile(null);
-        
-        const message = documentsToUpload > 0 
-          ? `Profile updated successfully! ${documentsUploaded} of ${documentsToUpload} documents uploaded.`
-          : 'Profile updated successfully!';
-        alert(message);
-        
-        fetchProfileData(); // Refresh the data including completion status
-      } else {
-        console.error('Profile update failed:', {
-          status: response.status,
-          statusText: response.statusText,
-          data: data
-        });
-        const errorMessage = data.message || `Failed to update profile (${response.status})`;
-        setError(errorMessage);
-        alert(`Failed to update profile: ${errorMessage}`);
+      } catch (err) {
+        console.error("Error updating profile:", err);
+        errors.push(`Profile update failed: ${err.message}`);
       }
+
+      // 2. Update payment info
+      try {
+        const paymentData = {
+          abnNumber:
+            formData.abnNumber && formData.abnNumber.trim() !== ""
+              ? formData.abnNumber
+              : null,
+          paymentMethod:
+            formData.paymentMethod && formData.paymentMethod.trim() !== ""
+              ? formData.paymentMethod
+              : null,
+          accountName:
+            formData.accountName && formData.accountName.trim() !== ""
+              ? formData.accountName
+              : null,
+          bsb: formData.bsb && formData.bsb.trim() !== "" ? formData.bsb : null,
+          accountNumber:
+            formData.accountNumber && formData.accountNumber.trim() !== ""
+              ? formData.accountNumber
+              : null,
+          paypalEmail:
+            formData.paypalEmail && formData.paypalEmail.trim() !== ""
+              ? formData.paypalEmail
+              : null,
+        };
+
+        const paymentResponse = await profileService.updatePaymentInfo(
+          paymentData
+        );
+        if (paymentResponse.success) {
+          results.payment = true;
+          console.log("Payment info updated successfully");
+        } else {
+          errors.push("Payment info update failed");
+        }
+      } catch (err) {
+        console.error("Error updating payment info:", err);
+        errors.push(`Payment info update failed: ${err.message}`);
+      }
+
+      // 3. Upload video intro if selected
+      if (introVideo) {
+        try {
+          const videoResponse = await profileService.uploadVideoIntro(
+            introVideo
+          );
+          if (videoResponse.success) {
+            results.video = true;
+            console.log("Video intro uploaded successfully");
+            setIntroVideo(null); // Clear from state
+          } else {
+            errors.push("Video intro upload failed");
+          }
+        } catch (err) {
+          console.error("Error uploading video intro:", err);
+          errors.push(`Video intro upload failed: ${err.message}`);
+        }
+      } else {
+        results.video = true; // No video to upload, consider success
+      }
+
+      // 4. Upload documents if selected
+      if (tutorContractFile || wwccFile) {
+        try {
+          const documentsResponse = await profileService.uploadDocuments(
+            tutorContractFile,
+            wwccFile
+          );
+          if (documentsResponse.success) {
+            results.documents = true;
+            console.log("Documents uploaded successfully");
+            setTutorContractFile(null); // Clear from state
+            setWwccFile(null); // Clear from state
+          } else {
+            errors.push("Documents upload failed");
+          }
+        } catch (err) {
+          console.error("Error uploading documents:", err);
+          errors.push(`Documents upload failed: ${err.message}`);
+        }
+      } else {
+        results.documents = true; // No documents to upload, consider success
+      }
+
+      // Show results to user
+      const successCount = Object.values(results).filter(Boolean).length;
+      const totalOperations = Object.keys(results).length;
+
+      if (successCount === totalOperations) {
+        alert("Profile updated successfully! All changes saved.");
+      } else {
+        const successMsg = `Profile updated successfully! ${successCount}/${totalOperations} operations completed.`;
+        const errorMsg =
+          errors.length > 0 ? `\n\nErrors:\n${errors.join("\n")}` : "";
+        alert(successMsg + errorMsg);
+      }
+
+      // Refresh the data
+      fetchProfileData();
     } catch (err) {
-      console.error('Error updating profile:', err);
-      const errorMessage = err.message || 'Network error occurred';
+      console.error("Error updating profile:", err);
+      const errorMessage = err.message || "Network error occurred";
       setError(`Failed to update profile: ${errorMessage}`);
       alert(`Failed to update profile: ${errorMessage}`);
     } finally {
@@ -488,10 +590,7 @@ function TutorProfile() {
                 <div className="alert alert-danger" role="alert">
                   {error}
                 </div>
-                <button 
-                  className="btn btn-primary" 
-                  onClick={fetchProfileData}
-                >
+                <button className="btn btn-primary" onClick={fetchProfileData}>
                   Retry Loading Profile
                 </button>
               </div>
@@ -508,7 +607,6 @@ function TutorProfile() {
         <div className="row">
           <div className="col-12">
             <div className="tutor-profile-content">
-              
               {/* Page Title */}
               <h1 className="tutor-profile-title">Account Management</h1>
 
@@ -521,7 +619,8 @@ function TutorProfile() {
                         <div>
                           <h3 className="mb-2">Profile Completion Status</h3>
                           <p className="text-muted mb-0">
-                            Complete your profile to access all dashboard features
+                            Complete your profile to access all dashboard
+                            features
                           </p>
                         </div>
                         <div className="text-end">
@@ -540,20 +639,26 @@ function TutorProfile() {
                           </div>
                         </div>
                       </div>
-                      
+
                       {/* Show missing items if incomplete */}
-                      {completionStatus && !completionStatus.fully_complete && completionStatus.missing_items && completionStatus.missing_items.length > 0 && (
-                        <div className="mt-3">
-                          <h6 className="text-danger mb-2">Missing Items:</h6>
-                          <ul className="list-unstyled">
-                            {completionStatus.missing_items.map((item, index) => (
-                              <li key={index} className="text-danger mb-1">
-                                <i className="fas fa-times me-2"></i>{item}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
+                      {completionStatus &&
+                        !completionStatus.fully_complete &&
+                        completionStatus.missing_items &&
+                        completionStatus.missing_items.length > 0 && (
+                          <div className="mt-3">
+                            <h6 className="text-danger mb-2">Missing Items:</h6>
+                            <ul className="list-unstyled">
+                              {completionStatus.missing_items.map(
+                                (item, index) => (
+                                  <li key={index} className="text-danger mb-1">
+                                    <i className="fas fa-times me-2"></i>
+                                    {item}
+                                  </li>
+                                )
+                              )}
+                            </ul>
+                          </div>
+                        )}
                     </div>
                   </div>
                 </div>
@@ -569,7 +674,10 @@ function TutorProfile() {
                           <div className="tutor-profile-avatar-placeholder">
                             <i className="fas fa-user"></i>
                           </div>
-                          <label htmlFor="profile-upload" className="tutor-profile-avatar-upload">
+                          <label
+                            htmlFor="profile-upload"
+                            className="tutor-profile-avatar-upload"
+                          >
                             <i className="fas fa-camera"></i>
                             <input
                               type="file"
@@ -580,17 +688,33 @@ function TutorProfile() {
                           </label>
                         </div>
                         <div className="tutor-profile-info">
-                          <h2>{formData.fullName || profileData?.user?.username || 'Tutor'}</h2>
+                          <h2>
+                            {formData.fullName ||
+                              profileData?.user?.username ||
+                              "Tutor"}
+                          </h2>
                           <div className="tutor-profile-badges">
-                            <span className="tutor-profile-badge-gold">Gold ({profileData?.rating || '0.00'}/5)</span>
-                            <span className="tutor-profile-badge-atr">ATR ({profileData?.atar || '96.45'})</span>
+                            <span className="tutor-profile-badge-gold">
+                              Gold ({profileData?.rating || "0.00"}/5)
+                            </span>
+                            <span className="tutor-profile-badge-atr">
+                              ATR ({profileData?.atar || "96.45"})
+                            </span>
                           </div>
                           <div className="tutor-profile-meta">
                             <span className="tutor-profile-location">
-                              <i className="fas fa-map-marker-alt"></i> {profileData?.preferred_locations?.[0] || profileData?.locations?.[0] || 'Location not specified'}
+                              <i className="fas fa-map-marker-alt"></i>{" "}
+                              {profileData?.preferred_locations?.[0] ||
+                                profileData?.locations?.[0] ||
+                                "Location not specified"}
                             </span>
                             <span className="tutor-profile-joined">
-                              <i className="fas fa-calendar-alt"></i> Joined {profileData?.approved_at ? new Date(profileData.approved_at).toLocaleDateString() : 'Recently'}
+                              <i className="fas fa-calendar-alt"></i> Joined{" "}
+                              {profileData?.approved_at
+                                ? new Date(
+                                    profileData.approved_at
+                                  ).toLocaleDateString()
+                                : "Recently"}
                             </span>
                           </div>
                         </div>
@@ -605,17 +729,21 @@ function TutorProfile() {
 
               {/* Personal Information Section */}
               <div className="tutor-profile-section">
-                <h2 className="tutor-profile-section-title">Personal Information</h2>
+                <h2 className="tutor-profile-section-title">
+                  Personal Information
+                </h2>
                 <p className="tutor-profile-section-description">
                   Update your personal information and contact details.
                 </p>
-                
+
                 <div className="tutor-profile-card">
                   <div className="tutor-profile-card-body">
                     <div className="row">
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label htmlFor="fullName" className="form-label">Full Name</label>
+                          <label htmlFor="fullName" className="form-label">
+                            Full Name
+                          </label>
                           <input
                             type="text"
                             className="form-control"
@@ -628,7 +756,9 @@ function TutorProfile() {
                       </div>
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label htmlFor="email" className="form-label">Email Address</label>
+                          <label htmlFor="email" className="form-label">
+                            Email Address
+                          </label>
                           <input
                             type="email"
                             className="form-control"
@@ -640,11 +770,13 @@ function TutorProfile() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="row">
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label htmlFor="username" className="form-label">Username</label>
+                          <label htmlFor="username" className="form-label">
+                            Username
+                          </label>
                           <input
                             type="text"
                             className="form-control"
@@ -657,7 +789,9 @@ function TutorProfile() {
                       </div>
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label htmlFor="phoneNumber" className="form-label">Phone Number</label>
+                          <label htmlFor="phoneNumber" className="form-label">
+                            Phone Number
+                          </label>
                           <input
                             type="tel"
                             className="form-control"
@@ -673,7 +807,9 @@ function TutorProfile() {
                     <div className="row">
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label htmlFor="hourly_rate" className="form-label">Hourly Rate ($)</label>
+                          <label htmlFor="hourly_rate" className="form-label">
+                            Hourly Rate ($)
+                          </label>
                           <input
                             type="number"
                             className="form-control"
@@ -687,7 +823,9 @@ function TutorProfile() {
                       </div>
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label htmlFor="university" className="form-label">University/Institution</label>
+                          <label htmlFor="university" className="form-label">
+                            University/Institution
+                          </label>
                           <input
                             type="text"
                             className="form-control"
@@ -700,9 +838,11 @@ function TutorProfile() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="mb-3">
-                      <label htmlFor="bio" className="form-label">Bio</label>
+                      <label htmlFor="bio" className="form-label">
+                        Bio
+                      </label>
                       <textarea
                         className="form-control"
                         id="bio"
@@ -723,7 +863,7 @@ function TutorProfile() {
                 <p className="tutor-profile-section-description">
                   Add your educational background and qualifications.
                 </p>
-                
+
                 <div className="tutor-profile-card">
                   <div className="tutor-profile-card-body">
                     <div className="mb-3">
@@ -734,7 +874,9 @@ function TutorProfile() {
                             type="text"
                             className="form-control"
                             value={study}
-                            onChange={(e) => updateCurrentStudy(index, e.target.value)}
+                            onChange={(e) =>
+                              updateCurrentStudy(index, e.target.value)
+                            }
                             placeholder="e.g., Bachelor of Science - Mathematics"
                           />
                           <button
@@ -754,7 +896,7 @@ function TutorProfile() {
                         <i className="fas fa-plus me-2"></i>Add Current Study
                       </button>
                     </div>
-                    
+
                     <div className="mb-3">
                       <label className="form-label">Schools Attended</label>
                       {schools.map((school, index) => (
@@ -763,7 +905,9 @@ function TutorProfile() {
                             type="text"
                             className="form-control"
                             value={school}
-                            onChange={(e) => updateSchool(index, e.target.value)}
+                            onChange={(e) =>
+                              updateSchool(index, e.target.value)
+                            }
                             placeholder="e.g., Melbourne High School"
                           />
                           <button
@@ -789,11 +933,13 @@ function TutorProfile() {
 
               {/* Tutoring Subjects Section */}
               <div className="tutor-profile-section">
-                <h2 className="tutor-profile-section-title">Tutoring Subjects</h2>
+                <h2 className="tutor-profile-section-title">
+                  Tutoring Subjects
+                </h2>
                 <p className="tutor-profile-section-description">
                   Specify the subjects you can tutor and your expertise levels.
                 </p>
-                
+
                 <div className="tutor-profile-card">
                   <div className="tutor-profile-card-body">
                     {subjectEntries.map((entry, index) => (
@@ -803,7 +949,13 @@ function TutorProfile() {
                           <select
                             className="form-select"
                             value={entry.yearLevel}
-                            onChange={(e) => updateSubjectEntry(index, 'yearLevel', e.target.value)}
+                            onChange={(e) =>
+                              updateSubjectEntry(
+                                index,
+                                "yearLevel",
+                                e.target.value
+                              )
+                            }
                           >
                             <option value="">Select Year Level</option>
                             <option value="Year 1-10">Year 1-10</option>
@@ -815,7 +967,13 @@ function TutorProfile() {
                           <select
                             className="form-select"
                             value={entry.curriculumOrState}
-                            onChange={(e) => updateSubjectEntry(index, 'curriculumOrState', e.target.value)}
+                            onChange={(e) =>
+                              updateSubjectEntry(
+                                index,
+                                "curriculumOrState",
+                                e.target.value
+                              )
+                            }
                           >
                             <option value="">Select Curriculum</option>
                             <option value="VCE">VCE</option>
@@ -834,7 +992,13 @@ function TutorProfile() {
                             type="text"
                             className="form-control"
                             value={entry.subject}
-                            onChange={(e) => updateSubjectEntry(index, 'subject', e.target.value)}
+                            onChange={(e) =>
+                              updateSubjectEntry(
+                                index,
+                                "subject",
+                                e.target.value
+                              )
+                            }
                             placeholder="e.g., Mathematics"
                           />
                         </div>
@@ -862,15 +1026,19 @@ function TutorProfile() {
 
               {/* Locations Section */}
               <div className="tutor-profile-section">
-                <h2 className="tutor-profile-section-title">Preferred Locations</h2>
+                <h2 className="tutor-profile-section-title">
+                  Preferred Locations
+                </h2>
                 <p className="tutor-profile-section-description">
                   Add locations where you're willing to tutor.
                 </p>
-                
+
                 <div className="tutor-profile-card">
                   <div className="tutor-profile-card-body">
                     <div className="mb-3">
-                      <label htmlFor="locationSelect" className="form-label">Add Location</label>
+                      <label htmlFor="locationSelect" className="form-label">
+                        Add Location
+                      </label>
                       <div className="input-group">
                         <select
                           className="form-select"
@@ -885,17 +1053,23 @@ function TutorProfile() {
                           <option value="Fitzroy">Fitzroy</option>
                           <option value="Online">Online</option>
                         </select>
-                        <button className="btn btn-outline-primary" type="button">
+                        <button
+                          className="btn btn-outline-primary"
+                          type="button"
+                        >
                           <i className="fas fa-plus"></i>
                         </button>
                       </div>
                     </div>
-                    
+
                     <div className="mb-3">
                       <label className="form-label">Selected Locations</label>
                       <div className="d-flex flex-wrap gap-2">
                         {selectedLocations.map((location, index) => (
-                          <span key={index} className="badge bg-primary d-flex align-items-center">
+                          <span
+                            key={index}
+                            className="badge bg-primary d-flex align-items-center"
+                          >
                             {location}
                             <button
                               type="button"
@@ -916,16 +1090,25 @@ function TutorProfile() {
                 <p className="tutor-profile-section-description">
                   Update your account password for security.
                 </p>
-                
+
                 <div className="tutor-profile-card">
                   <div className="tutor-profile-card-body">
                     <div className="row">
                       <div className="col-md-4">
                         <div className="mb-3">
-                          <label htmlFor="currentPassword" className="form-label">Current Password</label>
+                          <label
+                            htmlFor="currentPassword"
+                            className="form-label"
+                          >
+                            Current Password
+                          </label>
                           <div className="input-group">
                             <input
-                              type={showPasswords.currentPassword ? "text" : "password"}
+                              type={
+                                showPasswords.currentPassword
+                                  ? "text"
+                                  : "password"
+                              }
                               className="form-control"
                               id="currentPassword"
                               name="currentPassword"
@@ -935,19 +1118,34 @@ function TutorProfile() {
                             <button
                               type="button"
                               className="btn btn-outline-secondary"
-                              onClick={() => setShowPasswords(prev => ({ ...prev, currentPassword: !prev.currentPassword }))}
+                              onClick={() =>
+                                setShowPasswords((prev) => ({
+                                  ...prev,
+                                  currentPassword: !prev.currentPassword,
+                                }))
+                              }
                             >
-                              <i className={`fas fa-${showPasswords.currentPassword ? 'eye-slash' : 'eye'}`}></i>
+                              <i
+                                className={`fas fa-${
+                                  showPasswords.currentPassword
+                                    ? "eye-slash"
+                                    : "eye"
+                                }`}
+                              ></i>
                             </button>
                           </div>
                         </div>
                       </div>
                       <div className="col-md-4">
                         <div className="mb-3">
-                          <label htmlFor="newPassword" className="form-label">New Password</label>
+                          <label htmlFor="newPassword" className="form-label">
+                            New Password
+                          </label>
                           <div className="input-group">
                             <input
-                              type={showPasswords.newPassword ? "text" : "password"}
+                              type={
+                                showPasswords.newPassword ? "text" : "password"
+                              }
                               className="form-control"
                               id="newPassword"
                               name="newPassword"
@@ -957,19 +1155,39 @@ function TutorProfile() {
                             <button
                               type="button"
                               className="btn btn-outline-secondary"
-                              onClick={() => setShowPasswords(prev => ({ ...prev, newPassword: !prev.newPassword }))}
+                              onClick={() =>
+                                setShowPasswords((prev) => ({
+                                  ...prev,
+                                  newPassword: !prev.newPassword,
+                                }))
+                              }
                             >
-                              <i className={`fas fa-${showPasswords.newPassword ? 'eye-slash' : 'eye'}`}></i>
+                              <i
+                                className={`fas fa-${
+                                  showPasswords.newPassword
+                                    ? "eye-slash"
+                                    : "eye"
+                                }`}
+                              ></i>
                             </button>
                           </div>
                         </div>
                       </div>
                       <div className="col-md-4">
                         <div className="mb-3">
-                          <label htmlFor="confirmPassword" className="form-label">Confirm New Password</label>
+                          <label
+                            htmlFor="confirmPassword"
+                            className="form-label"
+                          >
+                            Confirm New Password
+                          </label>
                           <div className="input-group">
                             <input
-                              type={showPasswords.confirmPassword ? "text" : "password"}
+                              type={
+                                showPasswords.confirmPassword
+                                  ? "text"
+                                  : "password"
+                              }
                               className="form-control"
                               id="confirmPassword"
                               name="confirmPassword"
@@ -979,9 +1197,20 @@ function TutorProfile() {
                             <button
                               type="button"
                               className="btn btn-outline-secondary"
-                              onClick={() => setShowPasswords(prev => ({ ...prev, confirmPassword: !prev.confirmPassword }))}
+                              onClick={() =>
+                                setShowPasswords((prev) => ({
+                                  ...prev,
+                                  confirmPassword: !prev.confirmPassword,
+                                }))
+                              }
                             >
-                              <i className={`fas fa-${showPasswords.confirmPassword ? 'eye-slash' : 'eye'}`}></i>
+                              <i
+                                className={`fas fa-${
+                                  showPasswords.confirmPassword
+                                    ? "eye-slash"
+                                    : "eye"
+                                }`}
+                              ></i>
                             </button>
                           </div>
                         </div>
@@ -993,17 +1222,21 @@ function TutorProfile() {
 
               {/* Payment Information Section */}
               <div className="tutor-profile-section">
-                <h2 className="tutor-profile-section-title">Payment Information</h2>
+                <h2 className="tutor-profile-section-title">
+                  Payment Information
+                </h2>
                 <p className="tutor-profile-section-description">
                   Update your payment details for receiving payments.
                 </p>
-                
+
                 <div className="tutor-profile-card">
                   <div className="tutor-profile-card-body">
                     <div className="row">
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label htmlFor="abnNumber" className="form-label">ABN Number</label>
+                          <label htmlFor="abnNumber" className="form-label">
+                            ABN Number
+                          </label>
                           <input
                             type="text"
                             className="form-control"
@@ -1025,11 +1258,16 @@ function TutorProfile() {
                                 type="radio"
                                 name="paymentMethod"
                                 id="bankTransfer"
-                                value="bank"
-                                checked={formData.paymentMethod === 'bank'}
+                                value="bank_transfer"
+                                checked={
+                                  formData.paymentMethod === "bank_transfer"
+                                }
                                 onChange={handleInputChange}
                               />
-                              <label className="form-check-label" htmlFor="bankTransfer">
+                              <label
+                                className="form-check-label"
+                                htmlFor="bankTransfer"
+                              >
                                 Bank Transfer
                               </label>
                             </div>
@@ -1040,10 +1278,13 @@ function TutorProfile() {
                                 name="paymentMethod"
                                 id="paypal"
                                 value="paypal"
-                                checked={formData.paymentMethod === 'paypal'}
+                                checked={formData.paymentMethod === "paypal"}
                                 onChange={handleInputChange}
                               />
-                              <label className="form-check-label" htmlFor="paypal">
+                              <label
+                                className="form-check-label"
+                                htmlFor="paypal"
+                              >
                                 PayPal
                               </label>
                             </div>
@@ -1051,12 +1292,14 @@ function TutorProfile() {
                         </div>
                       </div>
                     </div>
-                    
-                    {formData.paymentMethod === 'bank' && (
+
+                    {formData.paymentMethod === "bank_transfer" && (
                       <div className="row">
                         <div className="col-md-6">
                           <div className="mb-3">
-                            <label htmlFor="accountName" className="form-label">Account Name</label>
+                            <label htmlFor="accountName" className="form-label">
+                              Account Name
+                            </label>
                             <input
                               type="text"
                               className="form-control"
@@ -1069,7 +1312,9 @@ function TutorProfile() {
                         </div>
                         <div className="col-md-6">
                           <div className="mb-3">
-                            <label htmlFor="bsb" className="form-label">BSB</label>
+                            <label htmlFor="bsb" className="form-label">
+                              BSB
+                            </label>
                             <input
                               type="text"
                               className="form-control"
@@ -1083,7 +1328,12 @@ function TutorProfile() {
                         </div>
                         <div className="col-md-6">
                           <div className="mb-3">
-                            <label htmlFor="accountNumber" className="form-label">Account Number</label>
+                            <label
+                              htmlFor="accountNumber"
+                              className="form-label"
+                            >
+                              Account Number
+                            </label>
                             <input
                               type="text"
                               className="form-control"
@@ -1096,42 +1346,71 @@ function TutorProfile() {
                         </div>
                       </div>
                     )}
+
+                    {formData.paymentMethod === "paypal" && (
+                      <div className="row">
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label htmlFor="paypalEmail" className="form-label">
+                              PayPal Email
+                            </label>
+                            <input
+                              type="email"
+                              className="form-control"
+                              id="paypalEmail"
+                              name="paypalEmail"
+                              value={formData.paypalEmail}
+                              onChange={handleInputChange}
+                              placeholder="your.email@example.com"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Video Introduction Section */}
               <div className="tutor-profile-section">
-                <h2 className="tutor-profile-section-title">Video Introduction</h2>
+                <h2 className="tutor-profile-section-title">
+                  Video Introduction
+                </h2>
                 <p className="tutor-profile-section-description">
-                  Upload a short video introducing yourself to potential students.
+                  Upload a short video introducing yourself to potential
+                  students.
                 </p>
-                
+
                 <div className="tutor-profile-card">
                   <div className="tutor-profile-card-body">
                     {/* Show existing application video if available */}
-                    {profileData?.application_data?.video_submission && !introVideo && (
-                      <div className="alert alert-info mb-3">
-                        <h6 className="alert-heading">
-                          <i className="fas fa-info-circle me-2"></i>
-                          Application Video Available
-                        </h6>
-                        <p className="mb-2">You uploaded a video during your application process.</p>
-                        <a 
-                          href={profileData.application_data.video_submission} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="btn btn-outline-primary btn-sm me-2"
-                        >
-                          <i className="fas fa-play me-1"></i>
-                          View Application Video
-                        </a>
-                        <small className="text-muted d-block mt-2">
-                          You can upload a new video below or continue using your application video.
-                        </small>
-                      </div>
-                    )}
-                    
+                    {profileData?.application_data?.video_submission &&
+                      !introVideo && (
+                        <div className="alert alert-info mb-3">
+                          <h6 className="alert-heading">
+                            <i className="fas fa-info-circle me-2"></i>
+                            Application Video Available
+                          </h6>
+                          <p className="mb-2">
+                            You uploaded a video during your application
+                            process.
+                          </p>
+                          <a
+                            href={profileData.application_data.video_submission}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn btn-outline-primary btn-sm me-2"
+                          >
+                            <i className="fas fa-play me-1"></i>
+                            View Application Video
+                          </a>
+                          <small className="text-muted d-block mt-2">
+                            You can upload a new video below or continue using
+                            your application video.
+                          </small>
+                        </div>
+                      )}
+
                     <div className="tutor-profile-upload-area">
                       {introVideo ? (
                         <div className="tutor-profile-file-preview">
@@ -1153,19 +1432,25 @@ function TutorProfile() {
                             type="file"
                             className="tutor-profile-file-input"
                             accept="video/*"
-                            onChange={(e) => handleFileUpload(e, 'introVideo')}
+                            onChange={(e) => handleFileUpload(e, "introVideo")}
                             id="intro-video-upload"
                           />
-                          <label htmlFor="intro-video-upload" className="tutor-profile-upload-label">
+                          <label
+                            htmlFor="intro-video-upload"
+                            className="tutor-profile-upload-label"
+                          >
                             <i className="fas fa-cloud-upload-alt fa-3x mb-3"></i>
                             <h5>
-                              {profileData?.application_data?.video_submission ? 
-                                'Upload New Video Introduction' : 
-                                'Upload Video Introduction'
-                              }
+                              {profileData?.application_data?.video_submission
+                                ? "Upload New Video Introduction"
+                                : "Upload Video Introduction"}
                             </h5>
-                            <p className="text-muted">Click to upload or drag and drop</p>
-                            <p className="text-muted small">MP4, AVI, MOV up to 100MB</p>
+                            <p className="text-muted">
+                              Click to upload or drag and drop
+                            </p>
+                            <p className="text-muted small">
+                              MP4, AVI, MOV up to 100MB
+                            </p>
                           </label>
                         </div>
                       )}
@@ -1176,11 +1461,13 @@ function TutorProfile() {
 
               {/* Documents Section */}
               <div className="tutor-profile-section">
-                <h2 className="tutor-profile-section-title">Required Documents</h2>
+                <h2 className="tutor-profile-section-title">
+                  Required Documents
+                </h2>
                 <p className="tutor-profile-section-description">
                   Upload required documents for verification.
                 </p>
-                
+
                 <div className="tutor-profile-card">
                   <div className="tutor-profile-card-body">
                     <div className="row">
@@ -1207,22 +1494,31 @@ function TutorProfile() {
                                 type="file"
                                 className="tutor-profile-file-input"
                                 accept=".pdf,.doc,.docx"
-                                onChange={(e) => handleFileUpload(e, 'tutorContract')}
+                                onChange={(e) =>
+                                  handleFileUpload(e, "tutorContract")
+                                }
                                 id="tutor-contract-upload"
                               />
-                              <label htmlFor="tutor-contract-upload" className="tutor-profile-upload-label">
+                              <label
+                                htmlFor="tutor-contract-upload"
+                                className="tutor-profile-upload-label"
+                              >
                                 <i className="fas fa-file-pdf fa-2x mb-2"></i>
                                 <p className="mb-0">Upload Tutor Contract</p>
-                                <p className="text-muted small">PDF, DOC, DOCX</p>
+                                <p className="text-muted small">
+                                  PDF, DOC, DOCX
+                                </p>
                               </label>
                             </div>
                           )}
                         </div>
                       </div>
-                      
+
                       <div className="col-md-6">
                         <div className="tutor-profile-upload-area">
-                          <label className="form-label">Working with Children Check</label>
+                          <label className="form-label">
+                            Working with Children Check
+                          </label>
                           {wwccFile ? (
                             <div className="tutor-profile-file-preview">
                               <div className="tutor-profile-file-info">
@@ -1243,13 +1539,18 @@ function TutorProfile() {
                                 type="file"
                                 className="tutor-profile-file-input"
                                 accept=".pdf,.doc,.docx"
-                                onChange={(e) => handleFileUpload(e, 'wwcc')}
+                                onChange={(e) => handleFileUpload(e, "wwcc")}
                                 id="wwcc-upload"
                               />
-                              <label htmlFor="wwcc-upload" className="tutor-profile-upload-label">
+                              <label
+                                htmlFor="wwcc-upload"
+                                className="tutor-profile-upload-label"
+                              >
                                 <i className="fas fa-file-pdf fa-2x mb-2"></i>
                                 <p className="mb-0">Upload WWCC</p>
-                                <p className="text-muted small">PDF, DOC, DOCX</p>
+                                <p className="text-muted small">
+                                  PDF, DOC, DOCX
+                                </p>
                               </label>
                             </div>
                           )}
@@ -1263,7 +1564,11 @@ function TutorProfile() {
               {/* Save Button */}
               <div className="tutor-profile-section">
                 <div className="d-flex justify-content-end">
-                  <button type="button" className="btn btn-primary btn-lg" onClick={handleSaveProfile}>
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-lg"
+                    onClick={handleSaveProfile}
+                  >
                     <i className="fas fa-save me-2"></i>Save Changes
                   </button>
                 </div>
