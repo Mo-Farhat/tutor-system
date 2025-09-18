@@ -1,61 +1,150 @@
 #aboutus-points {
-    justify-content: center;
+  justify-content: center;
 }
 .aboutus-points-sec {
-    max-width: 2000px !important;
+  max-width: 2000px !important;
 }
 
 .about-us-point-con {
-    flex-direction: column;
-    justify-content: center;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .about-us-point-main {
-    margin-bottom: 3rem;
+  margin-bottom: 3rem;
 }
 
 .aboutus-point-main-h {
-    color: #0C4DA2;
-    font-size: 2rem;
+  color: #0c4da2;
+  font-size: 2rem;
 }
 
-
 .aboutus-point-des {
-    font-size: 1.5rem;
-    color: #333333;
+  font-size: 1.5rem;
+  color: #333333;
 }
 
 .aboutus-point-img-main {
-    justify-content: center;
-    align-items: center;
+  justify-content: center;
+  align-items: center;
 }
 
 #aboutus-point1-img {
-    width: 600px;
-    height: auto;
+  width: 600px;
+  height: auto;
 }
 
 #aboutus-point2-img {
-    width: 600px;
-    height: auto;
+  width: 600px;
+  height: auto;
 }
 
 #aboutus-point3-img {
-    width: 600px;
-    height: auto;
+  width: 600px;
+  height: auto;
 }
 
 #aboutus-point4-img {
-    width: 600px;
-    height: auto;
+  width: 600px;
+  height: auto;
 }
 
 #aboutus-point5-img {
-    width: 600px;
-    height: auto;
+  width: 600px;
+  height: auto;
 }
 
 #aboutus-point-r {
-    justify-content: end;
-    text-align: end;
+  justify-content: end;
+  text-align: end;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .aboutus-points-sec {
+    max-width: 100% !important;
+  }
+
+  #aboutus-point1-img,
+  #aboutus-point2-img,
+  #aboutus-point3-img,
+  #aboutus-point4-img,
+  #aboutus-point5-img {
+    width: 500px;
+  }
+}
+
+@media (max-width: 992px) {
+  .aboutus-point-main-h {
+    font-size: 1.75rem;
+  }
+
+  .aboutus-point-des {
+    font-size: 1.25rem;
+  }
+
+  #aboutus-point1-img,
+  #aboutus-point2-img,
+  #aboutus-point3-img,
+  #aboutus-point4-img,
+  #aboutus-point5-img {
+    width: 400px;
+  }
+}
+
+@media (max-width: 768px) {
+  .about-us-point-main {
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  .about-us-point-con {
+    text-align: center !important;
+    justify-content: center !important;
+    margin-bottom: 1rem;
+  }
+
+  .aboutus-point-main-h {
+    font-size: 1.5rem;
+    text-align: center !important;
+    justify-content: center !important;
+  }
+
+  .aboutus-point-des {
+    font-size: 1.1rem;
+    text-align: center !important;
+    justify-content: center !important;
+  }
+
+  #aboutus-point1-img,
+  #aboutus-point2-img,
+  #aboutus-point3-img,
+  #aboutus-point4-img,
+  #aboutus-point5-img {
+    width: 300px;
+    margin: 0 auto;
+  }
+
+  #aboutus-point-r {
+    justify-content: center !important;
+    text-align: center !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .aboutus-point-main-h {
+    font-size: 1.25rem;
+  }
+
+  .aboutus-point-des {
+    font-size: 1rem;
+  }
+
+  #aboutus-point1-img,
+  #aboutus-point2-img,
+  #aboutus-point3-img,
+  #aboutus-point4-img,
+  #aboutus-point5-img {
+    width: 250px;
+  }
 }

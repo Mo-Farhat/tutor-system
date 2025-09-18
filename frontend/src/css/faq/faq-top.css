@@ -1,58 +1,129 @@
 .faq-top-main {
-     justify-content: center;
+  justify-content: center;
 }
 
 .faq-top-sec {
-    justify-content: center;
-    max-width: 1200px !important;
-    margin-top: 10rem !important;
+  justify-content: center;
+  max-width: 1200px !important;
+  margin-top: 10rem !important;
 }
 
 .faq-top-main-h {
-    text-align: center;
-    color: #132151;
-    margin-bottom: 3rem;
+  text-align: center;
+  color: #132151;
+  margin-bottom: 3rem;
 }
 
 .faq-top-q-main {
-    justify-content: center;
+  justify-content: center;
 }
 
 #faq-top-ac-item {
-    border-radius: 1rem !important;
-    border: 3px solid !important;
-    border-top: none !important;
-    overflow: hidden !important;
+  border-radius: 1rem !important;
+  border: 3px solid !important;
+  border-top: none !important;
+  overflow: hidden !important;
 }
 
-#faq-top-q-1 .accordion-item  {
-    border-color: #0C4DA2 !important;
+#faq-top-q-1 .accordion-item {
+  border-color: #0c4da2 !important;
 }
 
-#faq-top-q-2 .accordion-item  {
-    border-color: #ff3a3a !important;
+#faq-top-q-2 .accordion-item {
+  border-color: #ff3a3a !important;
 }
-#faq-top-q-3 .accordion-item  {
-    border-color: #0C4DA2 !important;
+#faq-top-q-3 .accordion-item {
+  border-color: #0c4da2 !important;
 }
 
 .faq-top-q {
-    padding: 1rem !important;
-    border-radius: .5rem !important;
-    font-size: 1.5rem !important;
+  padding: 1rem !important;
+  border-radius: 0.5rem !important;
+  font-size: 1.5rem !important;
 }
 
 #faq-top-q-1 button {
-    background-color: #0C4DA2;
-    color: white;
+  background-color: #0c4da2;
+  color: white;
 }
 
 #faq-top-q-2 button {
-    background-color: #ff3a3a !important;
-    color: white;
+  background-color: #ff3a3a !important;
+  color: white;
 }
 
 #faq-top-q-3 button {
-    background-color: #0C4DA2 !important;
-    color: white;
+  background-color: #0c4da2 !important;
+  color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .faq-top-sec {
+    max-width: 100% !important;
+    padding: 0 2rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .faq-top-q-main {
+    gap: 1.5rem;
+  }
+
+  .accordion {
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .faq-top-sec {
+    padding: 0 1.5rem;
+  }
+
+  .faq-top-main-h {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .faq-top-q {
+    font-size: 1.25rem !important;
+    padding: 0.75rem !important;
+  }
+
+  .faq-top-q-main {
+    gap: 2rem;
+  }
+
+  .accordion {
+    margin-bottom: 1.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .faq-top-sec {
+    padding: 0 1rem;
+  }
+
+  .faq-top-main-h {
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .faq-top-q {
+    font-size: 1.1rem !important;
+    padding: 0.6rem !important;
+  }
+
+  .accordion-body {
+    font-size: 0.9rem;
+    padding: 1rem !important;
+  }
+
+  .accordion-body h5 {
+    font-size: 1rem;
+  }
+
+  .accordion-body ul {
+    font-size: 0.85rem;
+  }
 }
