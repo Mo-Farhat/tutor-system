@@ -140,19 +140,34 @@ function TutorProfile() {
       const userData = data.data.user || {};
       const appData = data.data.application_data || {};
 
-      // Parse full name from application if available
-      let firstName = userData.first_name || "";
-      let lastName = userData.last_name || "";
+      console.log("🔍 Profile data received:", {
+        userData,
+        appData,
+        fullUserData: data.data,
+      });
 
-      // If we have application full_name but no first/last name, try to parse it
-      if (!firstName && !lastName && appData.full_name) {
-        const nameParts = appData.full_name.trim().split(" ");
-        firstName = nameParts[0] || "";
-        lastName = nameParts.slice(1).join(" ") || "";
-      }
+      // Get full name from backend data (firstName + lastName) or application data
+      const firstName = userData.first_name || "";
+      const lastName = userData.last_name || "";
+      const backendFullName = `${firstName} ${lastName}`.trim();
+      const appFullName = appData.full_name || "";
+
+      console.log("🔍 Name sources:", {
+        firstName,
+        lastName,
+        backendFullName,
+        appFullName,
+        currentFormFullName: formData.fullName,
+      });
+
+      // Use backend data if available, otherwise fall back to application data
+      const fullName =
+        backendFullName || appFullName || formData.fullName || "";
+
+      console.log("🔍 Final fullName:", fullName);
 
       const newFormData = {
-        fullName: `${firstName} ${lastName}`.trim() || appData.full_name || "",
+        fullName: fullName,
         email: userData.email || appData.email || "",
         username: userData.username || "",
         phoneNumber: data.data.phone_number || appData.phone || "",
@@ -165,8 +180,7 @@ function TutorProfile() {
         confirmPassword: "",
         abnNumber: "",
         paymentMethod: "bank_transfer",
-        accountName:
-          `${firstName} ${lastName}`.trim() || appData.full_name || "",
+        accountName: fullName,
         bsb: "",
         accountNumber: "",
       };
@@ -400,8 +414,17 @@ function TutorProfile() {
         selectedLocations.length > 0 &&
         subjectEntries.length > 0;
 
+      // Split fullName into firstName and lastName
+      const nameParts = formData.fullName.trim().split(" ");
+      const firstName = nameParts[0] || "";
+      const lastName = nameParts.slice(1).join(" ") || "";
+
       // Prepare the update data
       const updateData = {
+        // User model fields
+        firstName: firstName,
+        lastName: lastName,
+        // TutorProfile fields
         bio: formData.bio,
         hourly_rate: parseFloat(formData.hourly_rate) || 45.0,
         university: currentStudies[0] || "",
@@ -423,7 +446,8 @@ function TutorProfile() {
         is_profile_complete: isComplete,
       };
 
-      console.log("Update data being sent:", updateData);
+      console.log("🔍 Update data being sent:", updateData);
+      console.log("🔍 Form data before save:", formData);
 
       // Track success/failure for each operation
       const results = {

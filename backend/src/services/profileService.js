@@ -79,6 +79,11 @@ class ProfileService {
       updateData: JSON.stringify(updateData, null, 2),
     });
 
+    console.log("🔍 FirstName/LastName in updateData:", {
+      firstName: updateData.firstName,
+      lastName: updateData.lastName,
+    });
+
     const user = await userModel.findById(userId);
     if (!user || user.role !== "tutor") {
       console.log("❌ Tutor not found:", { userId, userRole: user?.role });
@@ -142,8 +147,9 @@ class ProfileService {
     // Recalculate completion status
     updatedProfile.is_profile_complete = this.isProfileComplete(updatedProfile);
 
-    // Filter only valid TutorProfile fields for Prisma update
-    const validFields = [
+    // Separate User model fields from TutorProfile fields
+    const userFields = ["firstName", "lastName"];
+    const tutorProfileFields = [
       "phone_number",
       "bio",
       "hourly_rate",
@@ -163,20 +169,44 @@ class ProfileService {
       "approved_at",
     ];
 
-    const dataToUpdate = {};
-    validFields.forEach((field) => {
+    // Prepare User model update data
+    const userDataToUpdate = {};
+    userFields.forEach((field) => {
       if (updatedProfile[field] !== undefined) {
-        dataToUpdate[field] = updatedProfile[field];
+        userDataToUpdate[field] = updatedProfile[field];
+      }
+    });
+
+    // Prepare TutorProfile update data
+    const profileDataToUpdate = {};
+    tutorProfileFields.forEach((field) => {
+      if (updatedProfile[field] !== undefined) {
+        profileDataToUpdate[field] = updatedProfile[field];
       }
     });
 
     console.log("🔍 Data to update in database:", {
       userId,
-      dataToUpdate: JSON.stringify(dataToUpdate, null, 2),
+      userDataToUpdate: JSON.stringify(userDataToUpdate, null, 2),
+      profileDataToUpdate: JSON.stringify(profileDataToUpdate, null, 2),
     });
 
-    // Save updated profile
-    await tutorProfileModel.update(userId, dataToUpdate);
+    // Update User model if there are user fields to update
+    if (Object.keys(userDataToUpdate).length > 0) {
+      console.log("🔍 Updating User model with:", userDataToUpdate);
+      await userModel.update(userId, userDataToUpdate);
+      console.log("✅ User model updated successfully");
+
+      // Verify the update by fetching the user again
+      const updatedUser = await userModel.findById(userId);
+      console.log("🔍 User after update:", {
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+      });
+    }
+
+    // Update TutorProfile model
+    await tutorProfileModel.update(userId, profileDataToUpdate);
 
     console.log("✅ Database update completed successfully");
 
