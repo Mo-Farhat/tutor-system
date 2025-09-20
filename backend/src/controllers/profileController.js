@@ -186,10 +186,17 @@ exports.uploadVideoIntro = async (req, res) => {
   try {
     const userId = req.user.id;
     const file = req.files?.videoIntro?.[0];
-    if (!file) return res.status(400).json({ success: false, error: "videoIntro file is required" });
+    if (!file)
+      return res
+        .status(400)
+        .json({ success: false, error: "videoIntro file is required" });
 
     await tutorProfileModel.update(userId, { intro_video_path: file.path });
-    res.json({ success: true, message: "Video intro uploaded", path: file.path });
+    res.json({
+      success: true,
+      message: "Video intro uploaded",
+      path: file.path,
+    });
   } catch (e) {
     console.error("Upload video intro error:", e);
     res.status(500).json({ success: false, error: "Internal server error" });
@@ -204,12 +211,18 @@ exports.uploadRequiredDocuments = async (req, res) => {
     const wwcc = req.files?.wwcc?.[0];
 
     if (!contract && !wwcc) {
-      return res.status(400).json({ success: false, error: "No documents uploaded" });
+      return res
+        .status(400)
+        .json({ success: false, error: "No documents uploaded" });
     }
 
     const created = [];
     if (contract) {
-      const doc = await tutorDocumentModel.create(userId, "contract", contract.path);
+      const doc = await tutorDocumentModel.create(
+        userId,
+        "contract",
+        contract.path
+      );
       created.push(doc);
     }
     if (wwcc) {
@@ -251,4 +264,23 @@ exports.getDocuments = async (req, res) => {
   const result = await profileService.listDocuments(req.user.id);
   const code = result.success ? 200 : 404;
   res.status(code).json(result);
+};
+
+// Get live tutors (public endpoint for find-tutor page)
+exports.getLiveTutors = async (req, res) => {
+  try {
+    const result = await profileService.getLiveTutors();
+
+    if (!result.success) {
+      return res.status(404).json(result);
+    }
+
+    res.json(result);
+  } catch (error) {
+    console.error("Get live tutors error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
 };

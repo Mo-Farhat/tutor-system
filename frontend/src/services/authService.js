@@ -488,7 +488,7 @@ class AuthService {
   // Public tutor search methods (keeping existing functionality)
   async getLiveTutors() {
     try {
-      const data = await this.makeRequest("/tutor/tutors/live/", {
+      const data = await this.makeRequest("/tutor/tutors/live", {
         method: "GET",
       });
 

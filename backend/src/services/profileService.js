@@ -460,6 +460,67 @@ class ProfileService {
     const both = contractCount > 0 && wwccCount > 0;
     await tutorProfileModel.update(userId, { documents_uploaded: both });
   }
+
+  // Get live tutors (approved tutors with documents uploaded)
+  async getLiveTutors() {
+    try {
+      const liveTutors = await tutorProfileModel.findLive({
+        where: {
+          is_live: true,
+          documents_uploaded: true,
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              username: true,
+              email: true,
+            },
+          },
+        },
+      });
+
+      // Transform the data to match frontend expectations
+      const transformedTutors = liveTutors.map((tutor) => ({
+        id: tutor.userId,
+        name: `${tutor.user.firstName} ${tutor.user.lastName}`,
+        username: tutor.user.username,
+        email: tutor.user.email,
+        bio: tutor.bio || "",
+        subjects: tutor.subjects || [],
+        preferred_locations: tutor.preferred_locations || [],
+        hourly_rate: tutor.hourly_rate ? parseFloat(tutor.hourly_rate) : null,
+        university: tutor.university || "",
+        current_studies: tutor.current_studies || [],
+        schools_attended: tutor.schools_attended || [],
+        tier: tutor.tier || "gold",
+        rating: tutor.rating ? parseFloat(tutor.rating) : 0,
+        atar: tutor.atar ? parseFloat(tutor.atar) : null,
+        approved_at: tutor.approved_at,
+        status: "approved", // Since we're only getting live tutors
+        goldPoints:
+          tutor.tier === "gold" ? 100 : tutor.tier === "premium" ? 200 : 300,
+        atrPoints: tutor.atar ? Math.round(tutor.atar) : 0,
+        image: null, // Placeholder for now
+      }));
+
+      return {
+        success: true,
+        data: {
+          tutors: transformedTutors,
+          count: transformedTutors.length,
+        },
+      };
+    } catch (error) {
+      console.error("Get live tutors error:", error);
+      return {
+        success: false,
+        error: "Failed to fetch live tutors",
+      };
+    }
+  }
 }
 
 module.exports = new ProfileService();
