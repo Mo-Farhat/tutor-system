@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { useAuth } from "../../../../contexts/AuthContext";
-import "../../../../css/dashboards/tutor/documents/documents.css";
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../../../contexts/AuthContext';
+import '../../../../css/dashboards/tutor/documents/documents.css';
 
 function TutorDocuments() {
   const { user } = useAuth();
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
@@ -16,22 +16,18 @@ function TutorDocuments() {
   const fetchDocuments = async () => {
     try {
       setLoading(true);
-      const username = user?.username; // Use logged in user
-      const response = await fetch(
-        `${
-          process.env.REACT_APP_BACKEND_URL || "http://localhost:8000"
-        }/api/auth/tutor/documents/?username=${encodeURIComponent(username)}`
-      );
+      const username = user?.username || 'notmanu23'; // Use logged in user or fallback to existing user
+      const response = await fetch(`http://localhost:8000/api/auth/tutor/documents/?username=${username}`);
       const data = await response.json();
-
+      
       if (data.success) {
         setDocuments(data.data);
       } else {
-        setError("Failed to load documents");
+        setError('Failed to load documents');
       }
     } catch (err) {
-      console.error("Error fetching documents:", err);
-      setError("Failed to load documents");
+      console.error('Error fetching documents:', err);
+      setError('Failed to load documents');
     } finally {
       setLoading(false);
     }
@@ -43,51 +39,46 @@ function TutorDocuments() {
 
     try {
       setUploading(true);
-      const username = user?.username; // Use logged in user or fallback to existing user
-
+      const username = user?.username || 'notmanu23'; // Use logged in user or fallback to existing user
+      
       const formData = new FormData();
-      formData.append("document_type", documentType);
-      formData.append("file", file);
+      formData.append('document_type', documentType);
+      formData.append('file', file);
 
-      const response = await fetch(
-        `${
-          process.env.REACT_APP_BACKEND_URL || "http://localhost:8000"
-        }/api/auth/tutor/documents/?username=${encodeURIComponent(username)}`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const response = await fetch(`http://localhost:8000/api/auth/tutor/documents/?username=${username}`, {
+        method: 'POST',
+        body: formData
+      });
 
       const data = await response.json();
-
+      
       if (data.success) {
-        alert("Document uploaded successfully!");
+        alert('Document uploaded successfully!');
         fetchDocuments(); // Refresh the documents list
       } else {
-        setError("Failed to upload document");
+        setError('Failed to upload document');
       }
     } catch (err) {
-      console.error("Error uploading document:", err);
-      setError("Failed to upload document");
+      console.error('Error uploading document:', err);
+      setError('Failed to upload document');
     } finally {
       setUploading(false);
     }
   };
 
   const getDocumentStatus = (documentType) => {
-    const doc = documents.find((d) => d.document_type === documentType);
-    if (!doc) return "not_uploaded";
-    return doc.is_verified ? "approved" : "pending";
+    const doc = documents.find(d => d.document_type === documentType);
+    if (!doc) return 'not_uploaded';
+    return doc.is_verified ? 'approved' : 'pending';
   };
 
   const getStatusBadge = (status) => {
     switch (status) {
-      case "approved":
+      case 'approved':
         return <span className="badge bg-success">Approved</span>;
-      case "pending":
+      case 'pending':
         return <span className="badge bg-warning">Pending</span>;
-      case "not_uploaded":
+      case 'not_uploaded':
         return <span className="badge bg-danger">Not Uploaded</span>;
       default:
         return <span className="badge bg-secondary">Unknown</span>;
@@ -139,6 +130,7 @@ function TutorDocuments() {
         <div className="row">
           <div className="col-12">
             <div className="tutor-documents-content">
+              
               {/* Page Title */}
               <h1 className="tutor-documents-title">Documents</h1>
               <p className="tutor-documents-description">
@@ -156,13 +148,12 @@ function TutorDocuments() {
                           <i className="fas fa-file-contract me-2"></i>
                           Tutor Contract
                         </h3>
-                        {getStatusBadge(getDocumentStatus("contract"))}
+                        {getStatusBadge(getDocumentStatus('contract'))}
                       </div>
                     </div>
                     <div className="tutor-documents-card-body">
                       <p className="tutor-documents-card-description">
-                        Please download, sign, and upload the tutor contract
-                        agreement.
+                        Please download, sign, and upload the tutor contract agreement.
                       </p>
                       <div className="tutor-documents-upload-area">
                         <input
@@ -170,17 +161,12 @@ function TutorDocuments() {
                           id="contract-upload"
                           className="tutor-documents-file-input"
                           accept=".pdf,.doc,.docx"
-                          onChange={(e) => handleFileUpload(e, "contract")}
+                          onChange={(e) => handleFileUpload(e, 'contract')}
                           disabled={uploading}
                         />
-                        <label
-                          htmlFor="contract-upload"
-                          className="tutor-documents-upload-label"
-                        >
+                        <label htmlFor="contract-upload" className="tutor-documents-upload-label">
                           <i className="fas fa-cloud-upload-alt"></i>
-                          <span>
-                            {uploading ? "Uploading..." : "Upload Contract"}
-                          </span>
+                          <span>{uploading ? 'Uploading...' : 'Upload Contract'}</span>
                         </label>
                       </div>
                     </div>
@@ -196,7 +182,7 @@ function TutorDocuments() {
                           <i className="fas fa-user-shield me-2"></i>
                           Working with Children Check
                         </h3>
-                        {getStatusBadge(getDocumentStatus("wwcc"))}
+                        {getStatusBadge(getDocumentStatus('wwcc'))}
                       </div>
                     </div>
                     <div className="tutor-documents-card-body">
@@ -209,17 +195,12 @@ function TutorDocuments() {
                           id="wwcc-upload"
                           className="tutor-documents-file-input"
                           accept=".pdf,.jpg,.jpeg,.png"
-                          onChange={(e) => handleFileUpload(e, "wwcc")}
+                          onChange={(e) => handleFileUpload(e, 'wwcc')}
                           disabled={uploading}
                         />
-                        <label
-                          htmlFor="wwcc-upload"
-                          className="tutor-documents-upload-label"
-                        >
+                        <label htmlFor="wwcc-upload" className="tutor-documents-upload-label">
                           <i className="fas fa-cloud-upload-alt"></i>
-                          <span>
-                            {uploading ? "Uploading..." : "Upload WWCC"}
-                          </span>
+                          <span>{uploading ? 'Uploading...' : 'Upload WWCC'}</span>
                         </label>
                       </div>
                     </div>
@@ -235,7 +216,7 @@ function TutorDocuments() {
                           <i className="fas fa-file-alt me-2"></i>
                           Other Documents
                         </h3>
-                        {getStatusBadge(getDocumentStatus("other"))}
+                        {getStatusBadge(getDocumentStatus('other'))}
                       </div>
                     </div>
                     <div className="tutor-documents-card-body">
@@ -248,17 +229,12 @@ function TutorDocuments() {
                           id="other-upload"
                           className="tutor-documents-file-input"
                           accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                          onChange={(e) => handleFileUpload(e, "other")}
+                          onChange={(e) => handleFileUpload(e, 'other')}
                           disabled={uploading}
                         />
-                        <label
-                          htmlFor="other-upload"
-                          className="tutor-documents-upload-label"
-                        >
+                        <label htmlFor="other-upload" className="tutor-documents-upload-label">
                           <i className="fas fa-cloud-upload-alt"></i>
-                          <span>
-                            {uploading ? "Uploading..." : "Upload Document"}
-                          </span>
+                          <span>{uploading ? 'Uploading...' : 'Upload Document'}</span>
                         </label>
                       </div>
                     </div>
@@ -269,9 +245,7 @@ function TutorDocuments() {
               {/* Uploaded Documents List */}
               {documents.length > 0 && (
                 <div className="tutor-documents-section">
-                  <h2 className="tutor-documents-section-title">
-                    Uploaded Documents
-                  </h2>
+                  <h2 className="tutor-documents-section-title">Uploaded Documents</h2>
                   <div className="tutor-documents-list">
                     {documents.map((doc, index) => (
                       <div key={index} className="tutor-documents-item">
@@ -279,22 +253,17 @@ function TutorDocuments() {
                           <i className="fas fa-file-pdf text-danger me-3"></i>
                           <div className="tutor-documents-item-details">
                             <h6 className="tutor-documents-item-title">
-                              {doc.document_type === "contract"
-                                ? "Tutor Contract"
-                                : doc.document_type === "wwcc"
-                                ? "Working with Children Check"
-                                : "Other Document"}
+                              {doc.document_type === 'contract' ? 'Tutor Contract' :
+                               doc.document_type === 'wwcc' ? 'Working with Children Check' :
+                               'Other Document'}
                             </h6>
                             <small className="text-muted">
-                              Uploaded:{" "}
-                              {new Date(doc.uploaded_at).toLocaleDateString()}
+                              Uploaded: {new Date(doc.uploaded_at).toLocaleDateString()}
                             </small>
                           </div>
                         </div>
                         <div className="tutor-documents-item-status">
-                          {getStatusBadge(
-                            doc.is_verified ? "approved" : "pending"
-                          )}
+                          {getStatusBadge(doc.is_verified ? 'approved' : 'pending')}
                         </div>
                       </div>
                     ))}
@@ -305,10 +274,7 @@ function TutorDocuments() {
               {/* Information Section */}
               <div className="tutor-documents-info">
                 <div className="alert alert-info">
-                  <h5>
-                    <i className="fas fa-info-circle me-2"></i>Important
-                    Information
-                  </h5>
+                  <h5><i className="fas fa-info-circle me-2"></i>Important Information</h5>
                   <ul className="mb-0">
                     <li>All documents must be clear and legible</li>
                     <li>PDF format is preferred for contracts</li>

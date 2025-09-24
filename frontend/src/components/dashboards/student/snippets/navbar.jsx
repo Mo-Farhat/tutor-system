@@ -69,12 +69,6 @@ function StudentNavbar() {
                             </a>
                         </li>
                         <li className="student-navbar-menu-item">
-                            <a href="/dashboard/student/notifications" className="student-navbar-menu-link" title="Notifications">
-                                <i className="fas fa-bell student-navbar-icon"></i>
-                                <span className={!isNavbarExpanded ? 'student-navbar-hidden' : ''}>Notifications</span>
-                            </a>
-                        </li>
-                        <li className="student-navbar-menu-item">
                             <a href="#" className="student-navbar-menu-link" title="Tutor Reports">
                                 <i className="fas fa-file-alt student-navbar-icon"></i>
                                 <span className={!isNavbarExpanded ? 'student-navbar-hidden' : ''}>Tutor Reports</span>
@@ -84,12 +78,6 @@ function StudentNavbar() {
                             <a href="/dashboard/student/profile-management" className="student-navbar-menu-link" title="Profile Management">
                                 <i className="fas fa-user-cog student-navbar-icon"></i>
                                 <span className={!isNavbarExpanded ? 'student-navbar-hidden' : ''}>Profile Management</span>
-                            </a>
-                        </li>
-                        <li className="student-navbar-menu-item">
-                            <a href="/dashboard/student/t-profile" className="student-navbar-menu-link" title="My Profile Details">
-                                <i className="fas fa-user-graduate student-navbar-icon"></i>
-                                <span className={!isNavbarExpanded ? 'student-navbar-hidden' : ''}>My Profile Details</span>
                             </a>
                         </li>
                         <li className="student-navbar-menu-item">
@@ -165,12 +153,6 @@ function StudentNavbar() {
                             </a>
                         </li>
                         <li className="student-navbar-menu-item">
-                            <a href="/dashboard/student/notifications" className="student-navbar-menu-link">
-                                <i className="fas fa-bell student-navbar-icon"></i>
-                                <span>Notifications</span>
-                            </a>
-                        </li>
-                        <li className="student-navbar-menu-item">
                             <a href="#" className="student-navbar-menu-link">
                                 <i className="fas fa-file-alt student-navbar-icon"></i>
                                 <span>Tutor Reports</span>
@@ -180,12 +162,6 @@ function StudentNavbar() {
                             <a href="#" className="student-navbar-menu-link">
                                 <i className="fas fa-user-cog student-navbar-icon"></i>
                                 <span>Profile Management</span>
-                            </a>
-                        </li>
-                        <li className="student-navbar-menu-item">
-                            <a href="/dashboard/student/t-profile" className="student-navbar-menu-link">
-                                <i className="fas fa-user-graduate student-navbar-icon"></i>
-                                <span>My Profile Details</span>
                             </a>
                         </li>
                         <li className="student-navbar-menu-item">

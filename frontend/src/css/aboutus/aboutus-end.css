@@ -1,190 +1,89 @@
 #aboutus_end {
-  justify-content: center;
-  margin: 5rem 0;
+    justify-content: center;
+    margin: 5rem 0;
 }
 
 .aboutus-end-sec {
-  flex-direction: column;
-  align-items: center;
-  max-width: 2000px !important;
-  padding: 0 2rem;
+    flex-direction: column;
+    align-items: center;
+    max-width: 2000px !important;
 }
 
 .aboutus-end-img {
-  transform: translateY(30rem);
-  z-index: -1;
+    transform: translateY(30rem);
+    z-index: -1;
 }
 
 .aboutus-end-main-h {
-  margin-bottom: 3rem;
-  color: #0d2371;
-  margin-top: -10rem;
+    margin-bottom: 3rem;
+    color: #0D2371;
+    margin-top: -10rem;
 }
 
 .aboutus-end-des {
-  font-size: 1.75rem;
-  margin-bottom: 10rem;
-  color: #333333;
-  text-align: center;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  hyphens: auto;
+    font-size: 1.75rem;
+    margin-bottom: 10rem;
+    color: #333333;
+    text-align: center;
 }
 
 .aboutus-end-slogan {
-  font-size: 2rem;
-  text-align: center;
-  justify-content: center;
-  white-space: normal;
-  margin-bottom: 5rem;
-  color: #0c4da2;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  hyphens: auto;
+    font-size: 2rem;
+    text-align: center;
+    justify-content: center;
+    white-space: pre;
+    margin-bottom: 5rem;
+    color: #0C4DA2;
 }
 
 .aboutus-end-slogan-bold {
-  color: #ff3a3a;
+    color: #ff3a3a;
 }
 
 .aboutus-end-btn-grp {
-  justify-content: center;
+    justify-content: center;
 }
 
 .aboutus-end-btn {
-  border-radius: 1rem !important;
-  padding: 1rem 1rem;
-  font-size: 1.5rem !important;
-  transition: 0.3s ease-in-out !important;
-  white-space: pre;
-  width: fit-content !important;
+    border-radius: 1rem !important;
+    padding: 1rem 1rem;
+    font-size: 1.5rem !important;
+    transition: 0.3s ease-in-out !important;
+    white-space: pre;
+    width: fit-content !important;
 }
 
 #aboutus-end-btn-1 {
-  border-color: #0d2371 !important;
-  color: #0d2371 !important;
+    border-color: #0D2371 !important;
+    color: #0D2371 !important;
 }
 
+
 #aboutus-end-btn-1:hover {
-  background-color: #0d2371 !important;
-  color: white !important;
-  transform: scale(105%);
+    background-color: #0D2371 !important;
+    color: white !important;
+    transform: scale(105%);
 }
 
 #aboutus-end-btn-2 {
-  border-color: #ff3a3a !important;
-  color: #ff3a3a !important;
+    border-color: #ff3a3a !important;
+    color: #ff3a3a !important;
 }
 
+
 #aboutus-end-btn-2:hover {
-  background-color: #ff3a3a !important;
-  color: white !important;
-  transform: scale(105%);
+    background-color: #ff3a3a !important;
+    color: white !important; 
+    transform: scale(105%);
 }
 
 #aboutus-end-btn-3 {
-  border-color: #0c4da2 !important;
-  color: #0c4da2 !important;
+    border-color: #0C4DA2 !important;
+    color: #0C4DA2 !important;
 }
 
 #aboutus-end-btn-3:hover {
-  background-color: #0c4da2 !important;
-  color: white !important;
-  transform: scale(105%);
-}
-
-/* Responsive Design */
-@media (max-width: 1200px) {
-  .aboutus-end-sec {
-    max-width: 100% !important;
-  }
-
-  .aboutus-end-des {
-    font-size: 1.5rem;
-  }
-
-  .aboutus-end-slogan {
-    font-size: 1.75rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .aboutus-end-sec {
-    padding: 0 3rem;
-    max-width: 100%;
-  }
-
-  .aboutus-end-main-h {
-    font-size: 2rem;
-    margin-top: -5rem;
-    text-align: center;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-  }
-
-  .aboutus-end-des {
-    font-size: 1.1rem;
-    margin-bottom: 5rem;
-    text-align: center;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    hyphens: auto;
-  }
-
-  .aboutus-end-slogan {
-    font-size: 1.25rem;
-    margin-bottom: 3rem;
-    text-align: center;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    hyphens: auto;
-  }
-
-  .aboutus-end-btn-grp {
-    flex-direction: column;
-    gap: 1rem !important;
-    align-items: center;
-  }
-
-  .aboutus-end-btn {
-    width: 100% !important;
-    max-width: 300px;
-    font-size: 1.1rem !important;
-    padding: 0.75rem 1rem !important;
-  }
-}
-
-@media (max-width: 576px) {
-  .aboutus-end-sec {
-    padding: 0 1rem;
-    max-width: 100%;
-  }
-
-  .aboutus-end-main-h {
-    font-size: 1.75rem;
-    margin-top: -3rem;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-  }
-
-  .aboutus-end-des {
-    font-size: 1rem;
-    margin-bottom: 3rem;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    hyphens: auto;
-  }
-
-  .aboutus-end-slogan {
-    font-size: 1.1rem;
-    margin-bottom: 2rem;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    hyphens: auto;
-  }
-
-  .aboutus-end-btn {
-    font-size: 1rem !important;
-    padding: 0.6rem 0.8rem !important;
-  }
+    background-color: #0C4DA2 !important;
+    color: white !important;
+    transform: scale(105%);
 }

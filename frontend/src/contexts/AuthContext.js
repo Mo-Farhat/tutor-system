@@ -18,7 +18,6 @@ const ActionTypes = {
   SET_LOADING: "SET_LOADING",
   SET_USER: "SET_USER",
   CLEAR_ERROR: "CLEAR_ERROR",
-  TOKEN_REFRESHED: "TOKEN_REFRESHED",
 };
 
 // Reducer function
@@ -71,12 +70,6 @@ function authReducer(state, action) {
         ...state,
         error: null,
       };
-    case ActionTypes.TOKEN_REFRESHED:
-      return {
-        ...state,
-        // Keep existing user data, just acknowledge token refresh
-        isAuthenticated: true,
-      };
     default:
       return state;
   }
@@ -96,25 +89,23 @@ export function AuthProvider({ children }) {
 
   const checkAuthStatus = async () => {
     try {
-      dispatch({ type: ActionTypes.SET_LOADING, payload: true });
-
       if (authService.isAuthenticated()) {
-        const response = await authService.checkAuthStatus();
-        if (response.success && response.user) {
-          dispatch({
-            type: ActionTypes.SET_USER,
-            payload: response.user,
-          });
-        } else {
-          // Token might be invalid, clear auth state
-          dispatch({ type: ActionTypes.LOGOUT });
-        }
+        const userData = await authService.checkAuthStatus();
+        dispatch({
+          type: ActionTypes.SET_USER,
+          payload: userData.user,
+        });
       } else {
-        dispatch({ type: ActionTypes.SET_LOADING, payload: false });
+        dispatch({
+          type: ActionTypes.SET_LOADING,
+          payload: false,
+        });
       }
     } catch (error) {
       console.error("Auth check failed:", error);
-      dispatch({ type: ActionTypes.LOGOUT });
+      dispatch({
+        type: ActionTypes.LOGOUT,
+      });
     }
   };
 
@@ -123,16 +114,30 @@ export function AuthProvider({ children }) {
 
     try {
       const response = await authService.login(credentials);
-      // Backend returns user and tokens directly, not wrapped in success
-      if (response.user && response.tokens) {
-        dispatch({
-          type: ActionTypes.LOGIN_SUCCESS,
-          payload: { user: response.user },
-        });
-        return { success: true, user: response.user, tokens: response.tokens };
-      } else {
-        throw new Error(response.message || "Login failed");
-      }
+      dispatch({
+        type: ActionTypes.LOGIN_SUCCESS,
+        payload: { user: response.user },
+      });
+      return response;
+    } catch (error) {
+      dispatch({
+        type: ActionTypes.LOGIN_FAILURE,
+        payload: { error: error.message },
+      });
+      throw error;
+    }
+  };
+
+  const mockAdminLogin = async (credentials) => {
+    dispatch({ type: ActionTypes.LOGIN_START });
+
+    try {
+      const response = await authService.mockAdminLogin(credentials);
+      dispatch({
+        type: ActionTypes.LOGIN_SUCCESS,
+        payload: { user: response.user },
+      });
+      return response;
     } catch (error) {
       dispatch({
         type: ActionTypes.LOGIN_FAILURE,
@@ -147,16 +152,11 @@ export function AuthProvider({ children }) {
 
     try {
       const response = await authService.registerStudent(userData);
-      // Backend returns user and tokens directly, not wrapped in success
-      if (response.user && response.tokens) {
-        dispatch({
-          type: ActionTypes.LOGIN_SUCCESS,
-          payload: { user: response.user },
-        });
-        return { success: true, user: response.user, tokens: response.tokens };
-      } else {
-        throw new Error(response.message || "Registration failed");
-      }
+      dispatch({
+        type: ActionTypes.LOGIN_SUCCESS,
+        payload: { user: response.user },
+      });
+      return response;
     } catch (error) {
       dispatch({
         type: ActionTypes.LOGIN_FAILURE,
@@ -180,81 +180,14 @@ export function AuthProvider({ children }) {
     dispatch({ type: ActionTypes.CLEAR_ERROR });
   };
 
-  // Helper function to get user-specific URLs
-  const getUserSpecificUrl = (basePath, userId = null) => {
-    return authService.getUserSpecificUrl(basePath, userId);
-  };
-
-  // Helper function to get user info from token or stored data
-  const getUserInfo = () => {
-    return authService.getUserInfo();
-  };
-
-  // Helper function to check if user has specific role
-  const hasRole = (role) => {
-    const userInfo = getUserInfo();
-    return userInfo && userInfo.role === role;
-  };
-
-  // Helper function to check if user is tutor
-  const isTutor = () => {
-    return hasRole("tutor") || (state.user && state.user.is_tutor);
-  };
-
-  // Helper function to check if user is student
-  const isStudent = () => {
-    return hasRole("student") || (state.user && state.user.is_student);
-  };
-
-  // Helper function to check if user is admin
-  const isAdmin = () => {
-    return hasRole("admin") || (state.user && state.user.is_admin);
-  };
-
-  // Function to refresh user data
-  const refreshUserData = async () => {
-    try {
-      const response = await authService.checkAuthStatus();
-      if (response.success && response.user) {
-        dispatch({
-          type: ActionTypes.SET_USER,
-          payload: response.user,
-        });
-        return response.user;
-      }
-    } catch (error) {
-      console.error("Failed to refresh user data:", error);
-    }
-  };
-
   const value = {
     ...state,
     login,
+    mockAdminLogin,
     register,
     logout,
     clearError,
     refreshAuth: checkAuthStatus,
-    refreshUserData,
-    getUserSpecificUrl,
-    getUserInfo,
-    hasRole,
-    isTutor,
-    isStudent,
-    isAdmin,
-    // Token management helpers
-    isTokenValid: () => authService.isAuthenticated(),
-    getAccessToken: () => authService.getAccessToken(),
-    refreshToken: async () => {
-      try {
-        await authService.refreshToken();
-        dispatch({ type: ActionTypes.TOKEN_REFRESHED });
-        return true;
-      } catch (error) {
-        console.error("Token refresh failed:", error);
-        dispatch({ type: ActionTypes.LOGOUT });
-        return false;
-      }
-    },
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -263,7 +196,7 @@ export function AuthProvider({ children }) {
 // Custom hook to use auth context
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;

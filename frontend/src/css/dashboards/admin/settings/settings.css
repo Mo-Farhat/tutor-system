@@ -1,0 +1,309 @@
+/* Admin Settings Container */
+.admin-settings-container {
+  padding: 2rem;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.admin-settings-content {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Header */
+.admin-settings-header {
+  margin-bottom: 2rem;
+}
+
+.admin-settings-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 0.5rem;
+}
+
+.admin-settings-subtitle {
+  font-size: 1.125rem;
+  margin-bottom: 1rem;
+}
+
+/* Tabs */
+.admin-settings-tabs {
+  margin-bottom: 2rem;
+}
+
+.admin-settings-tabs .nav-tabs {
+  border-bottom: 2px solid #e9ecef;
+}
+
+.admin-settings-tabs .nav-link {
+  color: #6c757d;
+  font-weight: 500;
+  border: none;
+  padding: 1rem 1.5rem;
+  border-bottom: 3px solid transparent;
+  background: none;
+}
+
+.admin-settings-tabs .nav-link.active {
+  color: #1a1a2e;
+  background-color: transparent;
+  border-bottom-color: #1a1a2e;
+}
+
+.admin-settings-tabs .nav-link:hover {
+  border-color: transparent;
+  color: #1a1a2e;
+}
+
+/* Content Area */
+.admin-settings-content-area {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e9ecef;
+}
+
+.admin-settings-section {
+  min-height: 500px;
+}
+
+.admin-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.admin-section-header h4 {
+  color: #1a1a2e;
+  margin: 0;
+}
+
+/* Subjects Table */
+.admin-subjects-table {
+  margin-bottom: 0;
+}
+
+.admin-subjects-table thead th {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #e9ecef;
+  font-weight: 600;
+  color: #495057;
+  padding: 1rem;
+  border-top: none;
+}
+
+.admin-subjects-table tbody td {
+  padding: 1rem;
+  vertical-align: middle;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.admin-subjects-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* Policy Management */
+.admin-policy-sidebar {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+  height: fit-content;
+}
+
+.admin-policy-sidebar h5 {
+  color: #1a1a2e;
+  margin-bottom: 1rem;
+}
+
+.admin-policy-sidebar .list-group-item {
+  border: none;
+  background-color: transparent;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+}
+
+.admin-policy-sidebar .list-group-item:hover,
+.admin-policy-sidebar .list-group-item.active {
+  background-color: #1a1a2e;
+  color: #ffffff;
+}
+
+.admin-policy-sidebar .list-group-item.active .badge {
+  background-color: #ffffff !important;
+  color: #1a1a2e !important;
+}
+
+.admin-policy-editor {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.admin-policy-editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.admin-policy-editor-header h5 {
+  color: #1a1a2e;
+  margin: 0;
+}
+
+.admin-policy-textarea {
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  border-radius: 6px;
+  resize: vertical;
+}
+
+.admin-policy-preview {
+  background-color: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 2rem;
+  min-height: 500px;
+  overflow-y: auto;
+}
+
+.admin-policy-preview h1,
+.admin-policy-preview h2,
+.admin-policy-preview h3 {
+  color: #1a1a2e;
+}
+
+.admin-policy-preview p {
+  color: #495057;
+  line-height: 1.6;
+}
+
+/* Configuration Cards */
+.admin-config-card {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+  height: 100%;
+}
+
+.admin-config-card h5 {
+  color: #1a1a2e;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.admin-config-card .form-label {
+  font-weight: 500;
+  color: #495057;
+}
+
+.admin-config-card .form-control,
+.admin-config-card .form-select {
+  border-radius: 6px;
+  border: 1px solid #ced4da;
+}
+
+.admin-config-card .form-check-label {
+  font-weight: 500;
+  color: #495057;
+}
+
+.admin-config-actions {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #f1f3f4;
+  text-align: center;
+}
+
+/* Modal Overrides */
+.modal-content {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+  border-bottom: 1px solid #f1f3f4;
+  padding: 1.5rem;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  border-top: 1px solid #f1f3f4;
+  padding: 1.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  .admin-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .admin-policy-editor-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .admin-policy-editor-header .btn-group {
+    align-self: stretch;
+  }
+
+  .admin-config-actions {
+    text-align: left;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-settings-container {
+    padding: 1rem;
+  }
+
+  .admin-settings-title {
+    font-size: 1.75rem;
+  }
+
+  .admin-settings-content-area {
+    padding: 1rem;
+  }
+
+  .admin-settings-tabs .nav-link {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .admin-policy-sidebar {
+    margin-bottom: 1.5rem;
+  }
+
+  .admin-subjects-table-section {
+    overflow-x: auto;
+  }
+
+  .admin-subjects-table {
+    min-width: 600px;
+  }
+
+  .admin-subjects-table thead th,
+  .admin-subjects-table tbody td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .admin-config-card {
+    margin-bottom: 1.5rem;
+  }
+}

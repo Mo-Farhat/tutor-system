@@ -767,6 +767,42 @@ class AuthService {
 
     return data;
   }
+
+  // Admin-specific methods
+  async adminLogin(credentials) {
+    try {
+      const response = await this.login(credentials);
+
+      // Verify admin role
+      if (response.user && response.user.role === "admin") {
+        return response;
+      } else {
+        this.logout();
+        throw new Error("Admin access required");
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  isAdmin() {
+    const user = this.getUserInfo();
+    return user && user.role === "admin";
+  }
+
+  getAdminInfo() {
+    if (!this.isAdmin()) {
+      return null;
+    }
+    return this.getUserInfo();
+  }
+
+  // Mock admin login for development (if needed)
+  async mockAdminLogin(credentials) {
+    // This can be used for development/testing
+    // In production, use adminLogin instead
+    return this.adminLogin(credentials);
+  }
 }
 
 // Create and export a singleton instance
@@ -815,3 +851,8 @@ export const updateTutorProfile = (profileData) =>
   authService.updateTutorProfile(profileData);
 export const updateTutorVideoSubmission = (videoFile) =>
   authService.updateTutorVideoSubmission(videoFile);
+export const adminLogin = (credentials) => authService.adminLogin(credentials);
+export const isAdmin = () => authService.isAdmin();
+export const getAdminInfo = () => authService.getAdminInfo();
+export const mockAdminLogin = (credentials) =>
+  authService.mockAdminLogin(credentials);

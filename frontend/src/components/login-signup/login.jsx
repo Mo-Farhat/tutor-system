@@ -118,7 +118,7 @@ function Login() {
 
       switch (userRole) {
         case "student":
-          navigate("/dashboard/student/home");
+          navigate("/");
           break;
         case "tutor":
           navigate("/dashboard/tutor/profile", {
@@ -131,7 +131,7 @@ function Login() {
           });
           break;
         case "admin":
-          navigate("/admin/dashboard");
+          navigate("/dashboard/admin/home");
           break;
         default:
           navigate("/");
@@ -142,6 +142,10 @@ function Login() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleAdminLogin = () => {
+    navigate("/admin/login");
   };
 
   return (
@@ -272,6 +276,27 @@ function Login() {
                     </Link>
                   </div>
                 </form>
+
+                {/* Admin Demo Login */}
+                <div className="mt-4 pt-4 border-top">
+                  <div className="text-center mb-3">
+                    <small className="text-muted">Demo Admin Access</small>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-outline-warning w-100"
+                    onClick={handleAdminLogin}
+                    disabled={isSubmitting || isLoading}
+                  >
+                    <i className="fas fa-user-shield me-2"></i>
+                    Login as Admin
+                  </button>
+                  <div className="text-center mt-2">
+                    <small className="text-muted">
+                      Click to access admin login page
+                    </small>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
