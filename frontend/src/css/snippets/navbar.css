@@ -22,7 +22,7 @@
   user-select: none;
   display: flex;
   align-items: center;
-
+  max-width: 100%;
   padding: 0 1rem;
 }
 
@@ -78,6 +78,7 @@
   align-items: center;
   flex-shrink: 0;
   white-space: nowrap;
+  max-width: 150px;
 }
 
 .login-signup-links {
@@ -93,7 +94,7 @@
 
 .nav-link {
   color: #333333 !important;
-  font-size: 20px !important;
+  font-size: 18px !important;
   border-radius: 1rem !important;
   position: relative;
 }
@@ -147,12 +148,21 @@
   padding: 0.5rem 1.25rem !important;
   color: rgb(255, 58, 58) !important;
   font-weight: 800 !important;
-  font-size: 20px !important;
+  font-size: 18px !important;
 }
 
 .nav-f-t-btn:hover {
   background-color: rgb(255, 58, 58) !important;
   color: white !important;
+}
+
+/* Reduce space between Find a Tutor button and Sign Up button */
+.nav-f-t-btn {
+  margin-left: 1rem !important;
+}
+
+.navbar-nav {
+  margin-left: 0rem !important;
 }
 
 .nav-item.dropdown:hover .dropdown-menu {
@@ -373,7 +383,7 @@
   }
 
   .nav-f-t-btn {
-    font-size: 20px !important;
+    font-size: 18px !important;
   }
 }
 
@@ -392,7 +402,7 @@
   }
 
   .nav-link {
-    font-size: 20px !important;
+    font-size: 18px !important;
   }
 }
 
@@ -402,12 +412,12 @@
   }
 
   .nav-link {
-    font-size: 18px !important; /* slightly smaller text */
+    font-size: 16px !important; /* slightly smaller text */
     padding: 0.25rem 0.5rem !important; /* reduce horizontal padding */
   }
 
   .nav-f-t-btn {
-    font-size: 18px !important;
+    font-size: 14px !important;
     padding: 0.4rem 0.8rem !important;
   }
 
