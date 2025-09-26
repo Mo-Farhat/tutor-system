@@ -225,16 +225,7 @@ function Navbar() {
                     </li>
                   </ul>
                 </li>
-                <li className="nav-item">
-                  <Link
-                    className="nav-link active"
-                    aria-current="page"
-                    to="/pricing"
-                    onClick={handleNavigation("/pricing")}
-                  >
-                    Pricing
-                  </Link>
-                </li>
+
                 <li className="nav-item dropdown">
                   <a
                     className="nav-link dropdown-toggle d-flex justify-content-between align-items-center"
@@ -285,6 +276,16 @@ function Navbar() {
                       </Link>
                     </li>
                   </ul>
+                </li>
+                <li className="nav-item">
+                  <Link
+                    className="nav-link active"
+                    aria-current="page"
+                    to="/pricing"
+                    onClick={handleNavigation("/pricing")}
+                  >
+                    Pricing
+                  </Link>
                 </li>
                 <Link
                   to="/find-a-tutor"
