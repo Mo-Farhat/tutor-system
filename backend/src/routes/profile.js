@@ -19,6 +19,8 @@ const {
   handleUploadError,
 } = require("../middleware/upload");
 
+const { studentPhotoUpload, handleUploadError } = require("../middleware/upload");
+
 // Get tutor profile (public endpoint for profile viewing)
 router.get("/tutor/profile", profileController.getTutorProfile);
 
@@ -129,6 +131,15 @@ router.get(
   authenticateToken,
   requireTutor,
   profileController.getDocuments
+);
+
+router.post(
+  "/student/profile/photo",
+  authenticateToken,
+  requireStudent,
+  studentPhotoUpload,
+  handleUploadError,
+  profileController.uploadStudentPhoto
 );
 
 // Get live tutors (public endpoint for find-tutor page)

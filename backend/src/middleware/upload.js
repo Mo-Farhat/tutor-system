@@ -31,6 +31,7 @@ const fileFilter = (req, file, cb) => {
       videoIntro: [".mp4", ".mov", ".avi", ".wmv", ".webm"],
   contract: [".pdf", ".doc", ".docx"],
   wwcc: [".pdf", ".doc", ".docx"],
+  studentPhoto: [".jpg", ".jpeg", ".png", ".webp"],
 
   };
 
@@ -72,6 +73,14 @@ const uploadDocs = multer({
   limits: { fileSize: 10 * 1024 * 1024, files: 2 }, // 10MB each
 });
 
+const uploadImage = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024, files: 1 },
+});
+
+const studentPhotoUpload = uploadImage.single("photo");
+
 // Middleware for tutor application uploads
 const tutorApplicationUpload = upload.fields([
   { name: "videoSubmission", maxCount: 1 },
@@ -112,4 +121,5 @@ module.exports = {
   tutorVideoUpload,    
   tutorDocsUpload,     
   handleUploadError,
+  studentPhotoUpload,
 };

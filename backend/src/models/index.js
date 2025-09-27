@@ -5,6 +5,14 @@ const studentProfileModel = require("./studentProfileModel");
 const setupTokenModel = require("./setupTokenModel");
 const tutorPaymentModel = require("./tutorPaymentModel");     
 const tutorDocumentModel = require("./tutorDocumentModel");  
+const studentParentModel = require("./studentParentModel");
+const lessonModel = require("./lessonModel");                              
+const packageModel = require("./packageModel");                           
+const reportModel = require("./reportModel");                              
+const achievementModel = require("./achievementModel");                  
+const goalModel = require("./goalModel");                                  
+const studentPaymentMethodModel = require("./studentPaymentMethodModel");  
+const supportTicketModel = require("./supportTicketModel");  
 
 module.exports = {
   userModel,
@@ -13,5 +21,14 @@ module.exports = {
   studentProfileModel,
   setupTokenModel,
   tutorPaymentModel,     
-  tutorDocumentModel,     
+  tutorDocumentModel,
+  studentParentModel,
+  lessonModel,
+  packageModel,
+  reportModel,
+  achievementModel,
+  goalModel,
+  studentPaymentMethodModel,
+  supportTicketModel,
+
 };

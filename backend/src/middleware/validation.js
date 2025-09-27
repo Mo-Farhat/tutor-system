@@ -193,8 +193,49 @@ const validatePaymentInfo = (req, res, next) => {
   next();
 };
 
+const validateParentContact = (req, res, next) => {
+  const {
+    firstName,
+    lastName,
+    email,
+    phone,
+    relation,
+    contactPreference,
+    isPrimary,
+    consentToContact,
+  } = req.body;
+
+  const errors = [];
+  if (!firstName || !lastName) errors.push("firstName and lastName are required");
+
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    errors.push("Invalid email");
+
+  if (phone && !/^[\+]?[0-9\s\-\(\)]{7,}$/.test(phone))
+    errors.push("Invalid phone number");
+
+  const REL = ["mother", "father", "guardian", "other"];
+  if (relation && !REL.includes(relation)) errors.push(`relation must be one of ${REL.join(", ")}`);
+
+  const PREF = ["email", "phone", "sms", "any"];
+  if (contactPreference && !PREF.includes(contactPreference))
+    errors.push(`contactPreference must be one of ${PREF.join(", ")}`);
+
+  if (typeof isPrimary !== "undefined" && typeof isPrimary !== "boolean")
+    errors.push("isPrimary must be boolean");
+
+  if (typeof consentToContact !== "undefined" && typeof consentToContact !== "boolean")
+    errors.push("consentToContact must be boolean");
+
+  if (errors.length) {
+    return res.status(400).json({ success: false, error: "Validation failed", details: errors });
+  }
+  next();
+};
+
 module.exports = {
   validateProfileUpdate,
   validatePasswordChange,
   validatePaymentInfo,
+  validateParentContact,
 };

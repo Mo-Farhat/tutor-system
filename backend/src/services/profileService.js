@@ -9,16 +9,22 @@ const bcrypt = require("bcrypt");
 
 class ProfileService {
   // Get tutor profile by user ID
-  async getTutorProfileByUserId(userId) {
+ async getTutorProfileByUserId(userId) {
     const tutorProfile = await tutorProfileModel.findByUserId(userId);
     if (!tutorProfile || tutorProfile.user.role !== "tutor") {
       return { success: false, error: "Tutor profile not found" };
     }
 
-    // Calculate profile completion
+    // NEW: compute WWCC status and include documents flag
+    const wwcc = await this.wwccStatus(tutorProfile.userId);
     const completionStatus = this.calculateCompletionStatus(
       tutorProfile,
-      tutorProfile.user
+      tutorProfile.user,
+      {
+        requireDocuments: true,
+        documentsUploaded: !!tutorProfile.documents_uploaded,
+        wwccStatus: wwcc.status,
+      }
     );
 
     return {
@@ -34,6 +40,7 @@ class ProfileService {
           created_at: tutorProfile.user.createdAt,
         },
         ...tutorProfile,
+        wwcc_status: wwcc,                 // ⬅️ convenient for the UI
         completion_status: completionStatus,
       },
     };
@@ -51,8 +58,16 @@ class ProfileService {
       return { success: false, error: "Tutor profile not found" };
     }
 
-    // Calculate profile completion
-    const completionStatus = this.calculateCompletionStatus(tutorProfile, user);
+    const wwcc = await this.wwccStatus(user.id);
+    const completionStatus = this.calculateCompletionStatus(
+      tutorProfile,
+      user,
+      {
+        requireDocuments: true,
+        documentsUploaded: !!tutorProfile.documents_uploaded,
+        wwccStatus: wwcc.status,
+      }
+    );
 
     return {
       success: true,
@@ -67,10 +82,12 @@ class ProfileService {
           created_at: user.createdAt,
         },
         ...tutorProfile,
+        wwcc_status: wwcc,
         completion_status: completionStatus,
       },
     };
   }
+
 
   // Update tutor profile
   async updateTutorProfile(userId, updateData) {
@@ -245,8 +262,21 @@ class ProfileService {
     };
   }
 
+  async wwccStatus(userId) {
+    const wwcc = await tutorDocumentModel.getLatestWWCC(userId);
+    if (!wwcc) return { status: "missing" };
+    if (!wwcc.expiresAt) return { status: "unknown" };
+
+    const now = new Date();
+    const expires = new Date(wwcc.expiresAt);
+    const daysLeft = Math.ceil((expires - now) / (1000 * 60 * 60 * 24));
+    if (daysLeft < 0) return { status: "expired", daysLeft };
+    if (daysLeft <= 30) return { status: "expiring", daysLeft };
+    return { status: "valid", daysLeft };
+  }
+
   // Calculate profile completion status
-  calculateCompletionStatus(profile, user) {
+    calculateCompletionStatus(profile, user, extra = {}) {
     const requiredFields = [
       "bio",
       "hourly_rate",
@@ -260,27 +290,39 @@ class ProfileService {
     let completedFields = 0;
 
     requiredFields.forEach((field) => {
-      if (
-        !profile[field] ||
-        (Array.isArray(profile[field]) && profile[field].length === 0)
-      ) {
+      const v = profile[field];
+      if (!v || (Array.isArray(v) && v.length === 0) || (typeof v === "string" && v.trim() === "")) {
         missingItems.push(field);
       } else {
         completedFields++;
       }
     });
 
-    const completionPercentage = Math.round(
-      (completedFields / requiredFields.length) * 100
-    );
-    const fullyComplete = missingItems.length === 0;
+    // Include documents + WWCC validity if requested
+    if (extra.requireDocuments) {
+      if (extra.documentsUploaded) {
+        completedFields++;
+      } else {
+        missingItems.push("documents_uploaded");
+      }
+
+      if (extra.wwccStatus === "valid") {
+        completedFields++;
+      } else {
+        // surface the key we want the UI to show as missing
+        missingItems.push("wwcc_valid");
+      }
+    }
+
+    const totalFields = requiredFields.length + (extra.requireDocuments ? 2 : 0);
+    const completionPercentage = Math.round((completedFields / totalFields) * 100);
 
     return {
-      completion_percentage: completionPercentage,
-      fully_complete: fullyComplete,
+      completion_percentage: Math.max(0, Math.min(100, completionPercentage)),
+      fully_complete: missingItems.length === 0,
       missing_items: missingItems,
       completed_fields: completedFields,
-      total_fields: requiredFields.length,
+      total_fields: totalFields,
     };
   }
 
@@ -304,25 +346,35 @@ class ProfileService {
   }
 
   // Get profile completion status by user ID
-  async getCompletionStatusByUserId(userId) {
+   async getCompletionStatusByUserId(userId) {
     const tutorProfile = await tutorProfileModel.findByUserId(userId);
     if (!tutorProfile || tutorProfile.user.role !== "tutor") {
       return { success: false, error: "Tutor profile not found" };
     }
 
+    const wwcc = await this.wwccStatus(tutorProfile.userId);
     const completionStatus = this.calculateCompletionStatus(
       tutorProfile,
-      tutorProfile.user
+      tutorProfile.user,
+      {
+        requireDocuments: true,
+        documentsUploaded: !!tutorProfile.documents_uploaded,
+        wwccStatus: wwcc.status,
+      }
     );
 
     return {
       success: true,
-      data: completionStatus,
+      data: {
+        ...completionStatus,
+        wwcc_status: wwcc,   // extra detail for the banner (e.g., expiring in N days)
+      },
     };
   }
 
+
   // Get profile completion status by username
-  async getCompletionStatus(username) {
+   async getCompletionStatus(username) {
     const user = await userModel.findByUsername(username);
     if (!user || user.role !== "tutor") {
       return { success: false, error: "Tutor not found" };
@@ -333,13 +385,26 @@ class ProfileService {
       return { success: false, error: "Tutor profile not found" };
     }
 
-    const completionStatus = this.calculateCompletionStatus(tutorProfile, user);
+    const wwcc = await this.wwccStatus(user.id);
+    const completionStatus = this.calculateCompletionStatus(
+      tutorProfile,
+      user,
+      {
+        requireDocuments: true,
+        documentsUploaded: !!tutorProfile.documents_uploaded,
+        wwccStatus: wwcc.status,
+      }
+    );
 
     return {
       success: true,
-      data: completionStatus,
+      data: {
+        ...completionStatus,
+        wwcc_status: wwcc,
+      },
     };
   }
+
 
   // Student Profile Methods
 
@@ -491,6 +556,7 @@ class ProfileService {
     await tutorProfileModel.update(userId, { documents_uploaded: both });
   }
 
+
   // Get live tutors (approved tutors with documents uploaded)
   async getLiveTutors() {
     try {
@@ -551,6 +617,7 @@ class ProfileService {
       };
     }
   }
+  
 }
 
 module.exports = new ProfileService();

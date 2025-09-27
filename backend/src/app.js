@@ -16,9 +16,19 @@ app.use(express.urlencoded({ extended: true }));
 const authRoutes = require("./routes/auth");
 const profileRoutes = require("./routes/profile");
 const userRoutes = require("./routes/users");
-const applicationRoutes = require("./routes/applications");    // <- plural
-const profilesAdminRoutes = require("./routes/profilesAdmin"); // <- plural
+const applicationRoutes = require("./routes/applications"); 
+const profilesAdminRoutes = require("./routes/profilesAdmin");
 const tokenRoutes = require("./routes/tokens");
+const studentTutorRoutes = require("./routes/studentTutor");
+const parentRoutes = require("./routes/parents");
+
+const studentLessonsRoutes = require("./routes/studentLessons");
+const studentBillingRoutes = require("./routes/studentBilling");
+const studentReportsRoutes = require("./routes/studentReports");
+const studentAchievementsRoutes = require("./routes/studentAchievements");
+const studentGoalsRoutes = require("./routes/studentGoals");
+const studentPaymentMethodsRoutes = require("./routes/studentPaymentMethods");
+const studentSupportRoutes = require("./routes/studentSupport");
 
 // Health check
 app.get("/health", (req, res) => {
@@ -32,6 +42,17 @@ app.use("/api", userRoutes);
 app.use("/api", applicationRoutes);
 app.use("/api", profilesAdminRoutes);
 app.use("/api", tokenRoutes);
+app.use("/api", studentTutorRoutes);
+app.use("/api", parentRoutes);
+
+app.use("/api", studentLessonsRoutes);
+app.use("/api", studentBillingRoutes);
+app.use("/api", studentReportsRoutes);
+app.use("/api", studentAchievementsRoutes);
+app.use("/api", studentGoalsRoutes);
+app.use("/api", studentPaymentMethodsRoutes);
+app.use("/api", studentSupportRoutes);
+
 /* ---------------------------------------------------------------- */
 
 // 404 handler (for unmatched routes)
