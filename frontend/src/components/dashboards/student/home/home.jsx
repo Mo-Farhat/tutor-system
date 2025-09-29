@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import studentService from "../../../../services/studentService";
 import "../../../../css/dashboards/student/home/home.css";
 
@@ -6,6 +7,7 @@ function StudentHome() {
   const [assignedTutors, setAssignedTutors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadMyTutors();
@@ -104,6 +106,7 @@ function StudentHome() {
             nextSession: nextSessionText,
             status: tutorAssignment.status === "active" ? "Active" : "Inactive",
             tutorId: tutor.id,
+            username: tutor.username,
             assignmentId: tutorAssignment.id,
             nextLesson: nextLesson,
           };
@@ -304,6 +307,19 @@ function StudentHome() {
                           >
                             <i className="fas fa-calendar-check me-1"></i>
                             View Lesson
+                          </button>
+                        )}
+                        {tutor.username && (
+                          <button
+                            className="btn btn-outline-secondary btn-sm"
+                            onClick={() =>
+                              navigate(
+                                `/dashboard/student/tutor/${tutor.username}`
+                              )
+                            }
+                          >
+                            <i className="fas fa-user me-1"></i>
+                            View Profile
                           </button>
                         )}
                         <button
