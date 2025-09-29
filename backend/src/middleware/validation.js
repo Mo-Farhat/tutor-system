@@ -128,7 +128,114 @@ const validatePasswordChange = (req, res, next) => {
   next();
 };
 
+const validatePaymentInfo = (req, res, next) => {
+  const {
+    abnNumber,
+    paymentMethod,
+    accountName,
+    bsb,
+    accountNumber,
+    paypalEmail,
+  } = req.body;
+  console.log("🔍 Payment validation - received data:", {
+    abnNumber,
+    paymentMethod,
+    accountName,
+    bsb,
+    accountNumber,
+    paypalEmail,
+  });
+  const errors = [];
+
+  // ABN: 11 digits (basic check) - make it optional for now
+  if (
+    abnNumber &&
+    abnNumber.trim() !== "" &&
+    !/^\d{11}$/.test(String(abnNumber))
+  ) {
+    errors.push("ABN must be exactly 11 digits");
+  }
+
+  // Payment method
+  if (paymentMethod && !["bank_transfer", "paypal"].includes(paymentMethod)) {
+    errors.push("paymentMethod must be 'bank_transfer' or 'paypal'");
+  }
+
+  if (paymentMethod === "bank_transfer") {
+    if (!accountName || accountName.trim() === "")
+      errors.push("Account name is required for bank transfer");
+    if (bsb && bsb.trim() !== "" && !/^\d{3}-?\d{3}$/.test(bsb))
+      errors.push("BSB must be in format 000-000 or 000000");
+    if (
+      accountNumber &&
+      accountNumber.trim() !== "" &&
+      !/^\d{4,20}$/.test(String(accountNumber))
+    )
+      errors.push("Account number must be 4-20 digits");
+  }
+
+  if (paymentMethod === "paypal") {
+    if (!paypalEmail || paypalEmail.trim() === "")
+      errors.push("PayPal email is required for PayPal");
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(paypalEmail))
+      errors.push("PayPal email format is invalid");
+  }
+
+  if (errors.length) {
+    console.log("❌ Payment validation errors:", errors);
+    return res.status(400).json({
+      success: false,
+      error: "Payment validation failed",
+      details: errors,
+    });
+  }
+  console.log("✅ Payment validation passed");
+  next();
+};
+
+const validateParentContact = (req, res, next) => {
+  const {
+    firstName,
+    lastName,
+    email,
+    phone,
+    relation,
+    contactPreference,
+    isPrimary,
+    consentToContact,
+  } = req.body;
+
+  const errors = [];
+  if (!firstName || !lastName) errors.push("firstName and lastName are required");
+
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    errors.push("Invalid email");
+
+  if (phone && !/^[\+]?[0-9\s\-\(\)]{7,}$/.test(phone))
+    errors.push("Invalid phone number");
+
+  const REL = ["mother", "father", "guardian", "other"];
+  if (relation && !REL.includes(relation)) errors.push(`relation must be one of ${REL.join(", ")}`);
+
+  const PREF = ["email", "phone", "sms", "any"];
+  if (contactPreference && !PREF.includes(contactPreference))
+    errors.push(`contactPreference must be one of ${PREF.join(", ")}`);
+
+  if (typeof isPrimary !== "undefined" && typeof isPrimary !== "boolean")
+    errors.push("isPrimary must be boolean");
+
+  if (typeof consentToContact !== "undefined" && typeof consentToContact !== "boolean")
+    errors.push("consentToContact must be boolean");
+
+  if (errors.length) {
+    return res.status(400).json({ success: false, error: "Validation failed", details: errors });
+  }
+  next();
+};
+
 module.exports = {
   validateProfileUpdate,
   validatePasswordChange,
+  validatePaymentInfo,
+  validateParentContact,
 };

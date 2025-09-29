@@ -5,6 +5,7 @@ import {
   setupTutorPassword,
 } from "../services/authService";
 import { useAuth } from "../contexts/AuthContext";
+import "../css/login-signup/login.css";
 
 const TutorPasswordSetup = () => {
   const { token } = useParams();
@@ -43,57 +44,29 @@ const TutorPasswordSetup = () => {
       ...prev,
       [name]: value,
     }));
-
-    // Clear error when user starts typing
-    if (error) {
-      setError("");
-    }
-
-    // Clear custom validity
-    const field = document.getElementById(name);
-    if (field) {
-      field.setCustomValidity("");
-    }
   };
 
   const validateForm = () => {
-    const passwordField = document.getElementById("password");
-    const confirmPasswordField = document.getElementById("confirmPassword");
-
-    // Clear previous custom validity
-    if (passwordField) passwordField.setCustomValidity("");
-    if (confirmPasswordField) confirmPasswordField.setCustomValidity("");
-
     if (!formData.password || formData.password.length < 8) {
-      const errorMsg = "Password must be at least 8 characters long";
-      setError(errorMsg);
-      if (passwordField) passwordField.setCustomValidity(errorMsg);
+      setError("Password must be at least 8 characters long");
       return false;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      const errorMsg = "Passwords do not match";
-      setError(errorMsg);
-      if (confirmPasswordField)
-        confirmPasswordField.setCustomValidity(errorMsg);
+      setError("Passwords do not match");
       return false;
     }
 
     // Check for common password patterns
     if (/^\d+$/.test(formData.password)) {
-      const errorMsg = "Password cannot be entirely numeric";
-      setError(errorMsg);
-      if (passwordField) passwordField.setCustomValidity(errorMsg);
+      setError("Password cannot be entirely numeric");
       return false;
     }
 
     // Check for too simple passwords
     const commonPasswords = ["password", "12345678", "qwerty123", "abcdefgh"];
     if (commonPasswords.includes(formData.password.toLowerCase())) {
-      const errorMsg =
-        "Password is too common. Please choose a more secure password.";
-      setError(errorMsg);
-      if (passwordField) passwordField.setCustomValidity(errorMsg);
+      setError("Password is too common. Please choose a more secure password.");
       return false;
     }
 
@@ -104,48 +77,25 @@ const TutorPasswordSetup = () => {
     e.preventDefault();
     setError("");
 
-    // Clear any previous validation errors
-    const passwordField = document.getElementById("password");
-    const confirmPasswordField = document.getElementById("confirmPassword");
-    if (passwordField) passwordField.setCustomValidity("");
-    if (confirmPasswordField) confirmPasswordField.setCustomValidity("");
-
     if (!validateForm()) {
       return;
     }
 
     setSubmitting(true);
 
-    // Prepare data with correct field names for backend
-    const passwordData = {
-      password: formData.password,
-      confirmPassword: formData.confirmPassword,
-    };
-
-    const result = await setupTutorPassword(token, passwordData);
+    const result = await setupTutorPassword(token, formData);
 
     if (result.success) {
-      // If the backend returned a token, automatically log the user in
-      if (result.data && result.data.token) {
-        // The authService already stored the token, so we can navigate directly to dashboard
-        navigate("/dashboard/tutor/home", {
-          state: {
-            message:
-              "Welcome to StriveAcademy! Your password has been set successfully.",
-          },
-        });
-      } else {
-        // Fallback to login page if no token was returned
-        navigate("/login", {
-          state: {
-            message:
-              "Password set successfully! Please log in with your new password.",
-            email: result.data?.email || tutorInfo?.email,
-            username: result.data?.username || tutorInfo?.username,
-            isNewTutor: true,
-          },
-        });
-      }
+      // Redirect to login page with success message
+      navigate("/login", {
+        state: {
+          message:
+            "Password set successfully! Please log in with your new password.",
+          email: result.data.email,
+          username: result.data.username,
+          isNewTutor: true,
+        },
+      });
     } else {
       // Show specific backend error message
       const errorMessage =
@@ -201,84 +151,84 @@ const TutorPasswordSetup = () => {
   }
 
   return (
-    <div className="min-vh-100 d-flex align-items-center justify-content-center bg-light">
-      <div className="container">
-        <div className="row justify-content-center">
-          <div className="col-md-6 col-lg-5">
-            <div className="card shadow">
-              <div className="card-header bg-success text-white text-center">
-                <h4 className="mb-0">
-                  <i className="fas fa-check-circle me-2"></i>
+    <div className="login-container">
+      <div className="login-overlay">
+        <div className="container">
+          <div className="row justify-content-center">
+            <div className="col-md-6 col-lg-5">
+              <div className="login-card">
+                <div className="login-logo-container text-center mb-2">
+                  <img
+                    src="/Images/logo/logo-v/logo-v-gr.svg"
+                    alt="Strive Academics Logo"
+                    className="login-logo"
+                  />
+                </div>
+
+                <h2 className="login-title text-center mb-2">
+                  <i className="fas fa-check-circle text-success me-2"></i>
                   Welcome to Strive Academy!
-                </h4>
-              </div>
-              <div className="card-body p-4">
+                </h2>
+                <p className="login-subtitle text-center mb-4">
+                  Your application has been approved. Set your password to
+                  continue.
+                </p>
+
                 {tutorInfo && (
                   <div className="alert alert-success" role="alert">
-                    <strong>Congratulations {tutorInfo.firstName}!</strong> Your
-                    application has been approved.
+                    <strong>
+                      Congratulations {tutorInfo.data?.first_name}!
+                    </strong>{" "}
+                    Your application has been approved.
                   </div>
                 )}
 
-                <div className="mb-3">
-                  <h6 className="text-muted">Account Details:</h6>
-                  <p className="mb-1">
-                    <strong>Name:</strong> {tutorInfo?.firstName}{" "}
-                    {tutorInfo?.lastName}
-                  </p>
-                  <p className="mb-1">
-                    <strong>Email:</strong> {tutorInfo?.email}
-                  </p>
-                  <p className="mb-3">
-                    <strong>University:</strong> {tutorInfo?.university}
-                  </p>
-                </div>
-
-                <form onSubmit={handleSubmit}>
-                  <h6 className="mb-3">Set Your Password</h6>
-
+                <form className="login-form" onSubmit={handleSubmit}>
                   {error && (
                     <div className="alert alert-danger" role="alert">
                       {error}
                     </div>
                   )}
 
-                  <div className="mb-3">
-                    <label htmlFor="password" className="form-label">
-                      Password <span className="text-danger">*</span>
-                    </label>
+                  <div className="form-floating mb-3">
                     <input
                       type="password"
-                      className="form-control"
-                      id="password"
+                      className="form-control login-input"
+                      id="passwordInput"
                       name="password"
+                      placeholder="Password"
                       value={formData.password}
                       onChange={handleInputChange}
                       required
                       minLength="8"
-                      placeholder="Enter your password (min. 8 characters)"
+                      disabled={submitting}
                     />
+                    <label htmlFor="passwordInput">
+                      <i className="bi bi-lock login-input-icon"></i> Password
+                    </label>
                   </div>
 
-                  <div className="mb-4">
-                    <label htmlFor="confirmPassword" className="form-label">
-                      Confirm Password <span className="text-danger">*</span>
-                    </label>
+                  <div className="form-floating mb-4">
                     <input
                       type="password"
-                      className="form-control"
-                      id="confirmPassword"
+                      className="form-control login-input"
+                      id="confirmPasswordInput"
                       name="confirmPassword"
+                      placeholder="Confirm Password"
                       value={formData.confirmPassword}
                       onChange={handleInputChange}
                       required
-                      placeholder="Confirm your password"
+                      disabled={submitting}
                     />
+                    <label htmlFor="confirmPasswordInput">
+                      <i className="bi bi-lock login-input-icon"></i> Confirm
+                      Password
+                    </label>
                   </div>
 
                   <button
                     type="submit"
-                    className="btn btn-primary w-100"
+                    className="btn btn-primary login-btn w-100"
                     disabled={submitting}
                   >
                     {submitting ? (
@@ -290,12 +240,15 @@ const TutorPasswordSetup = () => {
                         Setting up your account...
                       </>
                     ) : (
-                      "Complete Setup & Continue"
+                      <>
+                        <i className="fas fa-check me-2"></i>
+                        Complete Setup & Continue
+                      </>
                     )}
                   </button>
                 </form>
 
-                <div className="text-center mt-3">
+                <div className="text-center mt-4">
                   <small className="text-muted">
                     After setting your password, you'll be redirected to your
                     tutor dashboard.

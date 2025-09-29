@@ -1,7 +1,6 @@
 import '../../../../css/dashboards/tutor/profile/profile.css';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../../contexts/AuthContext';
-import authService from '../../../../services/authService';
 
 function TutorProfile() {
   const { user } = useAuth();
@@ -51,156 +50,65 @@ function TutorProfile() {
       setLoading(true);
       setError(''); // Clear any previous errors
       
-      const userInfo = user || authService.getUserInfo();
-      const userId = userInfo?.id || userInfo?.userId;
-      const username = userInfo?.username;
-      console.log('Fetching profile for user:', { userId, username });
+      const username = user?.username || 'notmanu23'; // Use logged in user or fallback to existing user
+      console.log('Fetching profile for username:', username);
       
-      if (!userId) {
-        throw new Error('No user ID available');
-      }
-      
-      // Use the original fetch to bypass the interceptor
-      const originalFetch = window.fetch.__original__ || window.fetch;
-      const response = await originalFetch(`http://localhost:8000/api/auth/tutor/profile/?username=${encodeURIComponent(username)}`, {
-        headers: {
-          'Authorization': `Bearer ${authService.getAccessToken()}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await fetch(`http://localhost:8000/api/auth/tutor/profile/?username=${username}`);
       console.log('Response status:', response.status);
-      console.log('Response ok:', response.ok);
-      console.log('Response headers:', response.headers);
-      console.log('Request URL:', `http://localhost:8000/api/auth/tutor/profile/?username=${encodeURIComponent(username)}`);
-      console.log('Access token:', authService.getAccessToken());
       
       if (!response.ok) {
-        // If unauthorized, try to refresh token
-        if (response.status === 401 && authService.getRefreshToken()) {
-          try {
-            await authService.refreshToken();
-            // Retry the request with new token
-            const retryResponse = await originalFetch(`http://localhost:8000/api/auth/tutor/profile/?username=${encodeURIComponent(username)}`, {
-              headers: {
-                'Authorization': `Bearer ${authService.getAccessToken()}`,
-                'Content-Type': 'application/json'
-              }
-            });
-            if (!retryResponse.ok) {
-              throw new Error(`HTTP error! status: ${retryResponse.status}`);
-            }
-            const retryData = await retryResponse.json();
-            return await processProfileData(retryData, userId, username);
-          } catch (refreshError) {
-            console.error('Token refresh failed:', refreshError);
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-        } else {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
       
       const data = await response.json();
-      console.log('Response data:', data);
-      return await processProfileData(data, userId, username);
+      console.log('API response:', data);
       
-    } catch (err) {
-      console.error('Error fetching profile data:', err);
-      setError(`Failed to load profile data: ${err.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
+      if (data.success) {
+        setProfileData(data.data);
+        
+        // Update form data with real user data
+        const userData = data.data.user;
+        const newFormData = {
+          fullName: `${userData.first_name || ''} ${userData.last_name || ''}`.trim(),
+          email: userData.email || '',
+          username: userData.username || '',
+          phoneNumber: data.data.phone_number || '',
+          bio: data.data.bio || '',
+          hourly_rate: data.data.hourly_rate || '',
+          university: data.data.university || '',
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: '',
+          abnNumber: '',
+          paymentMethod: 'bank',
+          accountName: '',
+          bsb: '',
+          accountNumber: ''
+        };
+        
+        console.log('Setting form data:', newFormData);
+        console.log('Phone number from API:', data.data.phone_number);
+        setFormData(newFormData);
 
-  const processProfileData = async (data, userId, username) => {
-    console.log('API response:', data);
-    
-    if (data.success && data.data) {
-      setProfileData(data.data);
-      
-      // Update form data with real user data, using application data as fallback
-      const userData = data.data.user || {};
-      const appData = data.data.application_data || {};
-      
-      // Parse full name from application if available
-      let firstName = userData.first_name || '';
-      let lastName = userData.last_name || '';
-      
-      // If we have application full_name but no first/last name, try to parse it
-      if (!firstName && !lastName && appData.full_name) {
-        const nameParts = appData.full_name.trim().split(' ');
-        firstName = nameParts[0] || '';
-        lastName = nameParts.slice(1).join(' ') || '';
-      }
-      
-      const newFormData = {
-        fullName: `${firstName} ${lastName}`.trim() || appData.full_name || '',
-        email: userData.email || appData.email || '',
-        username: userData.username || '',
-        phoneNumber: data.data.phone_number || appData.phone || '',
-        bio: data.data.bio || (appData.motivation ? `${appData.motivation}` : ''),
-        hourly_rate: data.data.hourly_rate || '45.00',
-        university: data.data.university || appData.current_study || '',
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: '',
-        abnNumber: '',
-        paymentMethod: 'bank',
-        accountName: `${firstName} ${lastName}`.trim() || appData.full_name || '',
-        bsb: '',
-        accountNumber: ''
-      };
-      
-      console.log('Setting form data:', newFormData);
-      console.log('Application data:', appData);
-      setFormData(newFormData);
+        // Set locations
+        setSelectedLocations(data.data.preferred_locations || data.data.locations || []);
 
-      // Set locations
-      const locations = data.data.preferred_locations || data.data.locations || [];
-      setSelectedLocations(Array.isArray(locations) ? locations : []);
-
-      // Set subjects with enhanced parsing from application data
-      const subjects = data.data.subjects_selected || data.data.subjects || [];
-      const subjectsArray = Array.isArray(subjects) ? subjects : [];
-      
-      // If no subjects but we have application data, create default entries
-      if (subjectsArray.length === 0 && appData.subjects_to_tutor) {
-        const defaultSubjects = appData.subjects_to_tutor.split(/[,;]/).map(s => s.trim()).filter(s => s).map(subject => ({
-          yearLevel: 'Year 11/12',
-          curriculumOrState: 'VCE',
-          subject: subject
-        }));
-        setSubjectEntries(defaultSubjects);
-      } else {
-        setSubjectEntries(subjectsArray.map(subject => ({
+        // Set subjects
+        const subjects = data.data.subjects_selected || data.data.subjects || [];
+        setSubjectEntries(subjects.map(subject => ({
           yearLevel: subject.year_level || '',
           curriculumOrState: subject.curriculum || '',
           subject: subject.subject || ''
         })));
-      }
 
-      // Set current studies
-      const currentStudies = data.data.current_studies || [];
-      setCurrentStudies(Array.isArray(currentStudies) ? currentStudies : []);
+        // Set current studies
+        setCurrentStudies(data.data.current_studies || []);
 
-      // Set schools
-      const schools = data.data.schools_attended || [];
-      setSchools(Array.isArray(schools) ? schools : []);
+        // Set schools
+        setSchools(data.data.schools_attended || []);
 
-      // Set intro video from application if available
-      if (appData.video_submission && !introVideo) {
-        // Note: We can't set the file directly, but we can show that a video exists
-        console.log('Application video available at:', appData.video_submission);
-      }
-
-      // Fetch completion status
-      try {
-        const completionResponse = await fetch(`http://localhost:8000/api/auth/tutor/completion-status/?username=${encodeURIComponent(username)}`, {
-          headers: {
-            'Authorization': `Bearer ${authService.getAccessToken()}`,
-            'Content-Type': 'application/json'
-          }
-        });
+        // Fetch completion status
+        const completionResponse = await fetch(`http://localhost:8000/api/auth/tutor/completion-status/?username=${username}`);
         const completionData = await completionResponse.json();
         
         if (completionData.success) {
@@ -208,13 +116,16 @@ function TutorProfile() {
         } else {
           console.error('Failed to fetch completion status:', completionData.message);
         }
-      } catch (completionError) {
-        console.error('Error fetching completion status:', completionError);
-      }
 
-    } else {
-      console.error('API Error:', data.message || 'No profile data received');
-      setError(`Failed to load profile data: ${data.message || 'No profile data received'}`);
+      } else {
+        console.error('API Error:', data.message);
+        setError(`Failed to load profile data: ${data.message}`);
+      }
+    } catch (err) {
+      console.error('Error fetching profile data:', err);
+      setError(`Failed to load profile data: ${err.message}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -314,7 +225,6 @@ function TutorProfile() {
     try {
       setLoading(true);
       const username = user?.username || 'notmanu23'; // Use logged in user or fallback to existing user
-      console.log('Attempting to update profile for username:', username);
       
       // Check if all required fields are filled
       const isComplete = (
@@ -349,15 +259,10 @@ function TutorProfile() {
         phone_number: formData.phoneNumber,
         is_profile_complete: isComplete
       };
-      
-      console.log('Update data being sent:', updateData);
 
-      // Use the original fetch to bypass the interceptor
-      const originalFetch = window.fetch.__original__ || window.fetch;
-      const response = await originalFetch(`http://localhost:8000/api/auth/tutor/profile/?username=${encodeURIComponent(username)}`, {
+      const response = await fetch(`http://localhost:8000/api/auth/tutor/profile/?username=${username}`, {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${authService.getAccessToken()}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(updateData)
@@ -365,93 +270,15 @@ function TutorProfile() {
 
       const data = await response.json();
       
-      if (response.ok && data.success) {
-        console.log('Profile updated successfully, now uploading documents...');
-        
-        // Upload documents if they are selected
-        let documentsUploaded = 0;
-        let documentsToUpload = 0;
-        
-        if (tutorContractFile) documentsToUpload++;
-        if (wwccFile) documentsToUpload++;
-        
-        // Upload tutor contract if selected
-        if (tutorContractFile) {
-          try {
-            const contractFormData = new FormData();
-            contractFormData.append('file', tutorContractFile);
-            contractFormData.append('document_type', 'contract');
-            
-            const contractResponse = await originalFetch(`http://localhost:8000/api/auth/tutor/documents/?username=${encodeURIComponent(username)}`, {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${authService.getAccessToken()}`,
-              },
-              body: contractFormData
-            });
-            
-            if (contractResponse.ok) {
-              documentsUploaded++;
-              console.log('Tutor contract uploaded successfully');
-            } else {
-              console.error('Failed to upload tutor contract');
-            }
-          } catch (err) {
-            console.error('Error uploading tutor contract:', err);
-          }
-        }
-        
-        // Upload WWCC if selected
-        if (wwccFile) {
-          try {
-            const wwccFormData = new FormData();
-            wwccFormData.append('file', wwccFile);
-            wwccFormData.append('document_type', 'wwcc');
-            
-            const wwccResponse = await originalFetch(`http://localhost:8000/api/auth/tutor/documents/?username=${encodeURIComponent(username)}`, {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${authService.getAccessToken()}`,
-              },
-              body: wwccFormData
-            });
-            
-            if (wwccResponse.ok) {
-              documentsUploaded++;
-              console.log('WWCC uploaded successfully');
-            } else {
-              console.error('Failed to upload WWCC');
-            }
-          } catch (err) {
-            console.error('Error uploading WWCC:', err);
-          }
-        }
-        
-        // Clear uploaded files from state
-        if (tutorContractFile) setTutorContractFile(null);
-        if (wwccFile) setWwccFile(null);
-        
-        const message = documentsToUpload > 0 
-          ? `Profile updated successfully! ${documentsUploaded} of ${documentsToUpload} documents uploaded.`
-          : 'Profile updated successfully!';
-        alert(message);
-        
+      if (data.success) {
+        alert('Profile updated successfully!');
         fetchProfileData(); // Refresh the data including completion status
       } else {
-        console.error('Profile update failed:', {
-          status: response.status,
-          statusText: response.statusText,
-          data: data
-        });
-        const errorMessage = data.message || `Failed to update profile (${response.status})`;
-        setError(errorMessage);
-        alert(`Failed to update profile: ${errorMessage}`);
+        setError('Failed to update profile');
       }
     } catch (err) {
       console.error('Error updating profile:', err);
-      const errorMessage = err.message || 'Network error occurred';
-      setError(`Failed to update profile: ${errorMessage}`);
-      alert(`Failed to update profile: ${errorMessage}`);
+      setError('Failed to update profile');
     } finally {
       setLoading(false);
     }
@@ -542,7 +369,7 @@ function TutorProfile() {
                       </div>
                       
                       {/* Show missing items if incomplete */}
-                      {completionStatus && !completionStatus.fully_complete && completionStatus.missing_items && completionStatus.missing_items.length > 0 && (
+                      {!completionStatus.fully_complete && completionStatus.missing_items.length > 0 && (
                         <div className="mt-3">
                           <h6 className="text-danger mb-2">Missing Items:</h6>
                           <ul className="list-unstyled">
@@ -1109,29 +936,6 @@ function TutorProfile() {
                 
                 <div className="tutor-profile-card">
                   <div className="tutor-profile-card-body">
-                    {/* Show existing application video if available */}
-                    {profileData?.application_data?.video_submission && !introVideo && (
-                      <div className="alert alert-info mb-3">
-                        <h6 className="alert-heading">
-                          <i className="fas fa-info-circle me-2"></i>
-                          Application Video Available
-                        </h6>
-                        <p className="mb-2">You uploaded a video during your application process.</p>
-                        <a 
-                          href={profileData.application_data.video_submission} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="btn btn-outline-primary btn-sm me-2"
-                        >
-                          <i className="fas fa-play me-1"></i>
-                          View Application Video
-                        </a>
-                        <small className="text-muted d-block mt-2">
-                          You can upload a new video below or continue using your application video.
-                        </small>
-                      </div>
-                    )}
-                    
                     <div className="tutor-profile-upload-area">
                       {introVideo ? (
                         <div className="tutor-profile-file-preview">
@@ -1158,12 +962,7 @@ function TutorProfile() {
                           />
                           <label htmlFor="intro-video-upload" className="tutor-profile-upload-label">
                             <i className="fas fa-cloud-upload-alt fa-3x mb-3"></i>
-                            <h5>
-                              {profileData?.application_data?.video_submission ? 
-                                'Upload New Video Introduction' : 
-                                'Upload Video Introduction'
-                              }
-                            </h5>
+                            <h5>Upload Video Introduction</h5>
                             <p className="text-muted">Click to upload or drag and drop</p>
                             <p className="text-muted small">MP4, AVI, MOV up to 100MB</p>
                           </label>

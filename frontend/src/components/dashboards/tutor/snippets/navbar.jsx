@@ -20,45 +20,28 @@ function TutorNavbar() {
       setLoading(true);
       
       // Fetch profile data from our new API
-      const userInfo = user || JSON.parse(localStorage.getItem('user_info') || '{}');
-      const userId = userInfo?.id || userInfo?.userId;
-      const username = userInfo?.username || user?.username;
+      const username = user?.username || 'notmanu23'; // Use logged in user or fallback to existing user
+      const response = await fetch(`http://localhost:8000/api/auth/tutor/profile/?username=${username}`);
+      const data = await response.json();
       
-      console.log('Navbar: Fetching data for user:', { userId, username });
-      
-      if (userId && username) {
-        const response = await fetch(
-          `${
-            process.env.REACT_APP_BACKEND_URL || "http://localhost:8000"
-          }/api/auth/tutor/profile/?username=${encodeURIComponent(username)}`
-        );
-        const data = await response.json();
-        
-        if (data.success) {
-          setTutorProfile(data.data);
-        } else {
-          console.error('Failed to fetch profile data:', data.message);
-        }
-
-        // Fetch completion status
-        const completionResponse = await fetch(
-          `${
-            process.env.REACT_APP_BACKEND_URL || "http://localhost:8000"
-          }/api/auth/tutor/completion-status/?username=${encodeURIComponent(username)}`
-        );
-        const completionData = await completionResponse.json();
-        
-        if (completionData.success) {
-          setCompletionStatus(completionData.data);
-        } else {
-          console.error('Failed to fetch completion status:', completionData.message);
-        }
-
-        // For now, set empty document status since we don't have that API yet
-        setDocumentStatus(null);
+      if (data.success) {
+        setTutorProfile(data.data);
       } else {
-        console.error('No user ID or username available for fetching profile data');
+        console.error('Failed to fetch profile data:', data.message);
       }
+
+      // Fetch completion status
+      const completionResponse = await fetch(`http://localhost:8000/api/auth/tutor/completion-status/?username=${username}`);
+      const completionData = await completionResponse.json();
+      
+      if (completionData.success) {
+        setCompletionStatus(completionData.data);
+      } else {
+        console.error('Failed to fetch completion status:', completionData.message);
+      }
+
+      // For now, set empty document status since we don't have that API yet
+      setDocumentStatus(null);
     } catch (error) {
       console.error('Error fetching tutor data:', error);
     } finally {

@@ -74,21 +74,78 @@ class ProfileService {
     }
   }
 
-  // Upload profile documents (for future implementation)
-  async uploadDocument(file, documentType) {
+  // Payment Information Methods
+  async getPaymentInfo() {
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("documentType", documentType);
-
-      const response = await api.post("/auth/tutor/upload-document", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await api.get("/auth/tutor/payment");
       return response.data;
     } catch (error) {
-      console.error("Upload document error:", error);
+      console.error("Get payment info error:", error);
+      throw error;
+    }
+  }
+
+  async updatePaymentInfo(paymentData) {
+    try {
+      const response = await api.put("/auth/tutor/payment", paymentData);
+      return response.data;
+    } catch (error) {
+      console.error("Update payment info error:", error);
+      throw error;
+    }
+  }
+
+  // Video Introduction Methods
+  async uploadVideoIntro(file) {
+    try {
+      const formData = new FormData();
+      formData.append("videoIntro", file);
+
+      const response = await api.post(
+        "/auth/tutor/upload/video-intro",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Upload video intro error:", error);
+      throw error;
+    }
+  }
+
+  // Document Upload Methods
+  async uploadDocuments(contractFile, wwccFile) {
+    try {
+      const formData = new FormData();
+      if (contractFile) formData.append("contract", contractFile);
+      if (wwccFile) formData.append("wwcc", wwccFile);
+
+      const response = await api.post(
+        "/auth/tutor/upload/documents",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Upload documents error:", error);
+      throw error;
+    }
+  }
+
+  async getDocuments() {
+    try {
+      const response = await api.get("/auth/tutor/documents");
+      return response.data;
+    } catch (error) {
+      console.error("Get documents error:", error);
       throw error;
     }
   }
