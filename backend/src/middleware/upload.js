@@ -28,11 +28,10 @@ const fileFilter = (req, file, cb) => {
   const allowedTypes = {
     videoSubmission: [".mp4", ".mov", ".avi", ".wmv", ".webm"],
     resume: [".pdf", ".doc", ".docx"],
-      videoIntro: [".mp4", ".mov", ".avi", ".wmv", ".webm"],
-  contract: [".pdf", ".doc", ".docx"],
-  wwcc: [".pdf", ".doc", ".docx"],
-  studentPhoto: [".jpg", ".jpeg", ".png", ".webp"],
-
+    videoIntro: [".mp4", ".mov", ".avi", ".wmv", ".webm"],
+    contract: [".pdf", ".doc", ".docx"],
+    wwcc: [".pdf", ".doc", ".docx"],
+    studentPhoto: [".jpg", ".jpeg", ".png", ".webp"],
   };
 
   const extension = path.extname(file.originalname).toLowerCase();
@@ -87,7 +86,9 @@ const tutorApplicationUpload = upload.fields([
   { name: "resume", maxCount: 1 },
 ]);
 
-const tutorVideoUpload = uploadVideo.fields([{ name: "videoIntro", maxCount: 1 }]);
+const tutorVideoUpload = uploadVideo.fields([
+  { name: "videoIntro", maxCount: 1 },
+]);
 const tutorDocsUpload = uploadDocs.fields([
   { name: "contract", maxCount: 1 },
   { name: "wwcc", maxCount: 1 },
@@ -118,8 +119,8 @@ const handleUploadError = (error, req, res, next) => {
 
 module.exports = {
   tutorApplicationUpload,
-  tutorVideoUpload,    
-  tutorDocsUpload,     
+  tutorVideoUpload,
+  tutorDocsUpload,
   handleUploadError,
   studentPhotoUpload,
 };
