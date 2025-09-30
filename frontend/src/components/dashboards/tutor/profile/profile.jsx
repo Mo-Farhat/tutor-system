@@ -50,15 +50,14 @@ function TutorProfile() {
   const fetchProfileData = async () => {
     try {
       setLoading(true);
-      setError(""); // Clear any previous errors
 
-      const username = user?.username || "notmanu23"; // Use logged in user or fallback to existing user
-      console.log("Fetching profile for username:", username);
-
-      const response = await fetch(
-        `http://localhost:8000/api/auth/tutor/profile/?username=${username}`
-      );
-      console.log("Response status:", response.status);
+      setError(''); // Clear any previous errors
+      
+      const username = user?.username || 'notmanu23'; // Use logged in user or fallback to existing user
+      console.log('Fetching profile for username:', username);
+      
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000'}/api/auth/tutor/profile/?username=${username}`);
+      console.log('Response status:', response.status);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -114,14 +113,13 @@ function TutorProfile() {
 
         // Set current studies
         setCurrentStudies(data.data.current_studies || []);
-
         // Set schools
         setSchools(data.data.schools_attended || []);
 
         // Fetch completion status
-        const completionResponse = await fetch(
-          `http://localhost:8000/api/auth/tutor/completion-status/?username=${username}`
-        );
+
+        const completionResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000'}/api/auth/tutor/completion-status/?username=${username}`);
+
         const completionData = await completionResponse.json();
 
         if (completionData.success) {
@@ -291,16 +289,15 @@ function TutorProfile() {
         is_profile_complete: isComplete,
       };
 
-      const response = await fetch(
-        `http://localhost:8000/api/auth/tutor/profile/?username=${username}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(updateData),
-        }
-      );
+
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000'}/api/auth/tutor/profile/?username=${username}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData)
+      });
+
 
       const data = await response.json();
 
