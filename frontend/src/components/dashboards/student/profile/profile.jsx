@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import studentService from "../../../../services/studentService";
 import "../../../../css/dashboards/student/profile/profile.css";
+import DetailsPanel from "./DetailsPanel";
+import PreferencesPanel from "./PreferencesPanel";
 
 function StudentProfileManagement() {
   // Student profile data
@@ -13,6 +15,81 @@ function StudentProfileManagement() {
     status: "Active Student",
     avatar: "/public/Images/logo/logo1.png",
   });
+
+  // Enriched details data compatible with DetailsPanel
+  const [detailsData] = useState({
+    ...studentData,
+    phoneNumber: "+1 (555) 123-4567",
+    subjects: ["Mathematics", "Physics", "Chemistry"],
+    studentId: "ST20230001",
+    dateOfBirth: "March 15, 2006",
+    address: "123 Main Street, City, State 12345",
+    totalLessons: 68,
+    attendance: "98%",
+  });
+
+  const [studentBadges] = useState([
+    {
+      name: "Concept Master",
+      count: 3,
+      dates: ["2024-01-15", "2024-02-20", "2024-03-10"],
+      notes: [
+        "Mastered quadratic equations",
+        "Excellent understanding of calculus",
+        "Advanced physics concepts",
+      ],
+    },
+    {
+      name: "Homework Hero",
+      count: 5,
+      dates: [
+        "2024-01-10",
+        "2024-02-15",
+        "2024-03-05",
+        "2024-03-20",
+        "2024-04-01",
+      ],
+      notes: [
+        "Perfect homework completion",
+        "Consistent quality work",
+        "Always on time",
+        "Extra credit work",
+        "Helping classmates",
+      ],
+    },
+    {
+      name: "Milestone 50",
+      count: 1,
+      dates: ["2024-03-15"],
+      notes: ["Completed 50 lessons milestone"],
+    },
+  ]);
+
+  const [previousReports] = useState([
+    {
+      term: "Term 1",
+      date: "2024-03-15",
+      overallRating: 5,
+      progressSummary:
+        "John has made excellent progress in all subjects and is consistently achieving high grades. His problem-solving skills have improved significantly.",
+      keyAchievements: [
+        "Improved grades/test results",
+        "Mastered challenging topic",
+        "Increased confidence",
+      ],
+      improvementAreas:
+        "Continue building speed in mathematical calculations and exam techniques.",
+    },
+    {
+      term: "Term 2",
+      date: "2024-01-20",
+      overallRating: 4,
+      progressSummary:
+        "Strong consistent performance with notable improvement in problem-solving skills and subject understanding.",
+      keyAchievements: ["Better homework completion", "Improved study habits"],
+      improvementAreas: "Focus on time management during exams.",
+    },
+  ]);
 
   // Password change data
   const [passwordData, setPasswordData] = useState({
@@ -281,7 +358,7 @@ function StudentProfileManagement() {
         </div>
 
         <div className="row">
-          {/* SMART Goals Section */}
+          {/* SMART Goals Section and Details combined layout */}
           <div className="col-lg-8 col-md-12">
             <div className="student-profile-section">
               <div className="d-flex justify-content-between align-items-center mb-3">
@@ -362,74 +439,24 @@ function StudentProfileManagement() {
                 </div>
               )}
             </div>
+
+            {/* Details panel below goals (can be moved as needed) */}
+            <DetailsPanel
+              studentData={detailsData}
+              studentBadges={studentBadges}
+              previousReports={previousReports}
+            />
           </div>
 
           {/* Sidebar */}
           <div className="col-lg-4 col-md-12">
-            {/* Learning Preferences */}
-            <div className="student-profile-section">
-              <div className="card student-profile-preferences-card mb-4">
-                <div className="card-body">
-                  <div className="d-flex justify-content-between align-items-center mb-3">
-                    <h6 className="student-profile-card-title">
-                      Learning Preferences
-                    </h6>
-                    <button
-                      className="btn student-profile-edit-icon-btn"
-                      onClick={() => {
-                        setEditingPreferences({ ...learningPreferences });
-                        setShowPreferencesModal(true);
-                      }}
-                    >
-                      <i className="fas fa-external-link-alt"></i>
-                    </button>
-                  </div>
-
-                  <div className="student-profile-preference-item">
-                    <div className="student-profile-preference-label">
-                      Preferred Learning Style
-                    </div>
-                    <div className="student-profile-preference-tags">
-                      {learningPreferences.learningStyle.map((style) => (
-                        <span
-                          key={style}
-                          className="student-profile-preference-tag"
-                        >
-                          {style}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="student-profile-preference-item">
-                    <div className="student-profile-preference-label">
-                      Best Time for Sessions
-                    </div>
-                    <div className="student-profile-preference-value">
-                      {learningPreferences.bestTime}
-                    </div>
-                  </div>
-
-                  <div className="student-profile-preference-item">
-                    <div className="student-profile-preference-label">
-                      Preferred Session Length
-                    </div>
-                    <div className="student-profile-preference-value">
-                      {learningPreferences.sessionLength}
-                    </div>
-                  </div>
-
-                  <div className="student-profile-preference-item">
-                    <div className="student-profile-preference-label">
-                      Additional Notes
-                    </div>
-                    <div className="student-profile-preference-value">
-                      {learningPreferences.additionalNotes}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <PreferencesPanel
+              learningPreferences={learningPreferences}
+              onEdit={() => {
+                setEditingPreferences({ ...learningPreferences });
+                setShowPreferencesModal(true);
+              }}
+            />
 
             {/* Current Subjects */}
             <div className="student-profile-section">
