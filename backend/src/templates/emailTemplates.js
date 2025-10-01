@@ -42,6 +42,16 @@ const getBaseTemplate = (title, content) => `
             font-size: 28px;
             font-weight: bold;
             margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .logo-svg {
+            width: 60px;
+            height: 45px;
+            fill: white;
         }
         
         .tagline {
@@ -199,7 +209,16 @@ const getBaseTemplate = (title, content) => `
 <body>
     <div class="email-container">
         <div class="header">
-            <div class="logo">Strive Academy</div>
+            <div class="logo">
+                <svg class="logo-svg" viewBox="0 0 1024 768" xmlns="http://www.w3.org/2000/svg">
+                    <g transform="matrix(0.83396,0,0,0.83396,77.175,63.752)">
+                        <path stroke-miterlimit="2" d="m 302.86,440.19 c 2.6349,1.031 5.4416,1.4893 8.4202,1.4893 3.1504,0 5.8426,-0.45824 8.0192,-1.432 2.1766,-0.91648 3.7805,-2.2339 4.8115,-3.8378 1.031,-1.6038 1.6038,-3.3795 1.6038,-5.327 0,-2.3485 -0.63008,-4.2387 -1.8902,-5.6134 -1.2602,-1.3747 -2.7494,-2.463 -4.4678,-3.1504 -1.7757,-0.68736 -4.1242,-1.3747 -7.0454,-2.1194 -2.6349,-0.63008 -4.7542,-1.2602 -6.2435,-1.833 -1.5466,-0.5728 -2.8067,-1.3747 -3.8378,-2.463 -1.031,-1.031 -1.5466,-2.463 -1.5466,-4.296 0,-2.3485 0.91648,-4.296 2.864,-5.7853 1.8902,-1.4893 4.697,-2.2339 8.4202,-2.2339 1.833,0 3.7232,0.2864 5.6707,0.8592 1.9475,0.5728 3.7232,1.432 5.327,2.5203 l 1.0883,-2.3485 c -1.6038,-1.0883 -3.4368,-1.9475 -5.5562,-2.6349 -2.1766,-0.63008 -4.3533,-0.97376 -6.5299,-0.97376 -3.2077,0 -5.8426,0.51552 -7.9619,1.432 -2.1194,0.97376 -3.6659,2.2912 -4.697,3.895 -1.031,1.6038 -1.5466,3.3795 -1.5466,5.327 0,2.4058 0.5728,4.3533 1.833,5.7853 1.2602,1.432 2.7494,2.463 4.5251,3.1504 1.7757,0.68736 4.1242,1.432 7.1027,2.1194 2.5776,0.63008 4.6397,1.2029 6.1862,1.7757 1.4893,0.5728 2.8067,1.432 3.8378,2.463 1.031,1.0883 1.5466,2.5203 1.5466,4.296 0,2.3485 -0.97376,4.2387 -2.9213,5.6707 -1.9475,1.4893 -4.8688,2.1766 -8.6493,2.1766 -2.6349,0 -5.1552,-0.45824 -7.561,-1.3747 -2.4058,-0.91648 -4.296,-2.1766 -5.6707,-3.6659 l -1.3174,2.1766 c 1.4893,1.6038 3.5514,2.9213 6.1862,3.9523 z" style="font-variant-ligatures:none;fill:#ffffff;stroke:#ffffff;stroke-width:2.68499994;stroke-miterlimit:2"/>
+                        <path stroke-miterlimit="2" d="m 304.45,375.57 c 3.312,1.296 6.84,1.872 10.584,1.872 3.96,0 7.344,-0.576 10.08,-1.8 2.736,-1.152 4.752,-2.808 6.048,-4.824 1.296,-2.016 2.016,-4.248 2.016,-6.696 0,-2.952 -0.79199,-5.328 -2.376,-7.056 -1.58401,-1.728 -3.456,-3.096 -5.616,-3.96 -2.232,-0.864 -5.184,-1.728 -8.856,-2.664 -3.312,-0.792 -5.976,-1.584 -7.848,-2.304 -1.944,-0.72 -3.528,-1.728 -4.824,-3.096 -1.296,-1.296 -1.944,-3.096 -1.944,-5.4 0,-2.952 1.152,-5.4 3.6,-7.272 2.376,-1.872 5.904,-2.808 10.584,-2.808 2.304,0 4.68,0.36 7.128,1.08 2.448,0.72 4.68,1.8 6.696,3.168 l 1.368,-2.952 c -2.016,-1.368 -4.32,-2.448 -6.984,-3.312 -2.736,-0.792 -5.472,-1.224 -8.208,-1.224 -4.032,0 -7.344,0.648 -10.008,1.8 -2.664,1.224 -4.608,2.88 -5.904,4.896 -1.296,2.016 -1.944,4.248 -1.944,6.696 0,3.024 0.72,5.472 2.304,7.272 1.584,1.8 3.456,3.096 5.688,3.96 2.232,0.864 5.184,1.8 8.928,2.664 3.24,0.792 5.832,1.512 7.776,2.232 1.872,0.72 3.528,1.8 4.824,3.096 1.296,1.368 1.944,3.168 1.944,5.4 0,2.952 -1.224,5.328 -3.672,7.128 -2.448,1.872 -6.12,2.736 -10.872,2.736 -3.312,0 -6.48,-0.576 -9.504,-1.728 -3.024,-1.152 -5.4,-2.736 -7.128,-4.608 l -1.656,2.736 c 1.872,2.016 4.464,3.672 7.776,4.968 z" style="font-variant-ligatures:none;fill:#ffffff;stroke:#ffffff;stroke-width:5;stroke-miterlimit:2"/>
+                        <path style="fill:#ffffff;stroke-width:1.21500003" d="m 141.08,319.98 c -0.13365,-0.0134 -17.903,6.3532 -52.774,18.908 -28.915,10.409 -52.557,18.941 -52.54,18.958 0.01689,0.0169 2.3185,1.0153 5.1145,2.2192 2.7961,1.2038 9.3555,4.0229 14.575,6.2643 5.2206,2.2414 26.576,11.411 47.457,20.377 20.881,8.9665 38.042,16.302 38.134,16.302 0.0932,-6.8e-4 11.933,-5.0565 26.312,-11.236 14.379,-6.1791 33.925,-14.573 43.437,-18.651 9.5116,-4.0789 19.209,-8.2429 21.549,-9.2528 2.3407,-1.0099 6.4142,-2.7636 9.0522,-3.8965 2.638,-1.1336 4.8206,-2.0841 4.851,-2.1131 0.0304,-0.0284 -0.25873,-0.16416 -0.64176,-0.30196 -0.3888,-0.1373 -24.021,-8.6447 -52.512,-18.904 -28.504,-10.261 -51.906,-18.662 -52.018,-18.672 z m 86.046,54.003 c -0.0277,-0.0135 -1.1146,0.43437 -2.415,0.99642 l -2.3644,1.0208 -0.0169,29.568 -0.0169,29.568 h 4.8639 v -30.565 c 0,-16.811 -0.023,-30.575 -0.0507,-30.59 z m -150.64,9.3385 c -0.01757,0 -0.02432,6.1481 -0.01486,13.663 l 0.01689,13.663 32.272,13.938 32.272,13.94 32.326,-13.804 32.326,-13.804 6.7e-4,-13.67 c 6.8e-4,-10.909 -0.0162,-13.663 -0.0837,-13.635 -0.0467,0.0189 -14.585,6.2284 -32.308,13.799 l -32.223,13.764 -0.37155,-0.13984 c -0.20533,-0.085 -14.731,-6.3544 -32.278,-13.936 -17.547,-7.5816 -31.918,-13.79 -31.936,-13.79 z m 148.25,54.45 h -3.0338 l -0.13105,0.18577 c -0.0723,0.10206 -1.4118,2.3995 -2.9771,5.1051 -1.5652,2.7056 -2.846,4.9322 -2.846,4.9483 0,0.0163 4.0432,0.029 8.9847,0.029 4.9415,0 8.9847,-0.01 8.9847,-0.023 0,-0.0129 -1.264,-2.2097 -2.8082,-4.8808 -1.545,-2.6718 -2.8832,-4.972 -2.9737,-5.1111 l -0.16484,-0.25333 z"/>
+                    </g>
+                </svg>
+                Strive Academics    
+            </div>
             <div class="tagline">Empowering Students, Inspiring Excellence</div>
         </div>
         
@@ -223,8 +242,8 @@ const getBaseTemplate = (title, content) => `
             <div class="divider"></div>
             
             <p style="font-size: 14px; opacity: 0.8;">
-                © 2024 Strive Academy. All rights reserved.<br>
-                This email was sent to you because you applied to become a tutor with Strive Academy.
+                © 2024 Strive Academics. All rights reserved.<br>
+                This email was sent to you because you applied to become a tutor with Strive Academics.
             </p>
         </div>
     </div>
@@ -238,7 +257,7 @@ const getApplicationConfirmationTemplate = (applicationData) => {
         <div class="greeting">Hello ${applicationData.fullName}!</div>
         
         <div class="message">
-            Thank you for your interest in joining Strive Academy as a tutor! We're excited to review your application and learn more about your passion for education.
+            Thank you for your interest in joining Strive Academics as a tutor! We're excited to review your application and learn more about your passion for education.
         </div>
         
         <div class="highlight-box">
@@ -286,7 +305,7 @@ const getApplicationConfirmationTemplate = (applicationData) => {
         </div>
     `;
 
-  return getBaseTemplate("Application Received - Strive Academy", content);
+  return getBaseTemplate("Application Received - Strive Academics", content);
 };
 
 // Admin Notification Template
@@ -361,7 +380,7 @@ const getAdminNotificationTemplate = (applicationData) => {
         </div>
     `;
 
-  return getBaseTemplate("New Tutor Application - Strive Academy", content);
+  return getBaseTemplate("New Tutor Application - Strive Academics", content);
 };
 
 // Approval Notification Template
@@ -369,48 +388,83 @@ const getApprovalNotificationTemplate = (tutorData, setupToken) => {
   const setupUrl = `${
     process.env.FRONTEND_URL || "http://localhost:3000"
   }/tutor/setup-password/${setupToken}`;
+  const tutorPortalUrl = `${
+    process.env.FRONTEND_URL || "http://localhost:3000"
+  }/dashboard/tutor/profile`;
 
   const content = `
-        <div class="greeting">Congratulations ${tutorData.fullName}! 🎉</div>
+        <div class="greeting">Welcome to Strive Academics ✅</div>
         
         <div class="message">
-            We're thrilled to inform you that your application to become a Strive Academy tutor has been <strong>approved</strong>! 
-            Welcome to our team of exceptional educators.
+            Dear ${tutorData.fullName},<br><br>
+            I'm Pasindu Bandara, Founder and Managing Director of Strive Academics, and I'm thrilled to welcome you to our team.<br><br>
+            We were incredibly impressed by your performance during the recruitment process, and we're excited for you to join us in our mission to help Australian students achieve their full potential.<br><br>
+            Before you can begin tutoring, there are a few quick onboarding steps to complete.
         </div>
         
         <div class="highlight-box">
-            <h3 style="margin-bottom: 15px; color: #2c3e50;">Application Approved</h3>
-            <div class="status-badge status-approved">Status: Approved</div>
-            <p style="margin-top: 15px;">
-                Your qualifications and passion for teaching have impressed our team. 
-                We're excited to have you join our community of dedicated tutors.
-            </p>
+            <h3 style="margin-bottom: 15px; color: #2c3e50;">Step 1 – Official Welcome & Setup</h3>
+            <p style="margin-bottom: 15px;">Click the button below for your official welcome and a guide to getting started.</p>
+            <div style="text-align: center;">
+                <a href="${setupUrl}" class="cta-button">Complete Your Setup</a>
+            </div>
         </div>
         
         <div class="message">
-            <h3 style="color: #2c3e50; margin-bottom: 15px;">Next Steps</h3>
-            <p>To complete your onboarding and start accepting students, please follow these steps:</p>
-            <ol style="padding-left: 20px; line-height: 1.8; margin-top: 15px;">
-                <li><strong>Set up your account</strong> - Click the button below to create your password</li>
-                <li><strong>Complete your profile</strong> - Add your photo, bio, and teaching preferences</li>
-                <li><strong>Upload documents</strong> - Submit your Working with Children Check and other required documents</li>
-                <li><strong>Start tutoring</strong> - Begin accepting students and making a difference!</li>
-            </ol>
-        </div>
-        
-        <div style="text-align: center; margin: 30px 0;">
-            <a href="${setupUrl}" class="cta-button">Set Up Your Account</a>
+            <h3 style="color: #2c3e50; margin-bottom: 15px;">Step 2 – Complete Your Onboarding 🛹</h3>
+            <p>Please log in to your <a href="${tutorPortalUrl}" style="color: #667eea; text-decoration: none;"><strong>tutor portal</strong></a> and complete the following within 5 days:</p>
+            
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                <h4 style="color: #2c3e50; margin-bottom: 10px;">Preferences & Admin Section</h4>
+                <ul style="padding-left: 20px; line-height: 1.8;">
+                    <li>Select the subjects and year levels you wish to tutor.</li>
+                    <li>Submit your contract, WWCC, payment details, and other required information.</li>
+                </ul>
+            </div>
+            
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                <h4 style="color: #2c3e50; margin-bottom: 10px;">Build Your Tutor Profile</h4>
+                <ul style="padding-left: 20px; line-height: 1.8;">
+                    <li>This is what parents/students see when choosing a tutor.</li>
+                    <li>Tips for an excellent profile are included when filling out your profile.</li>
+                    <li>If the "Submit for Review" button is greyed out, check that all required details (including age, gender, and availability) are complete.</li>
+                    <li>Once submitted, our team will review your profile. If edits are required, you'll have 2 days to make changes and resubmit.</li>
+                </ul>
+            </div>
         </div>
         
         <div class="message">
-            <h3 style="color: #2c3e50; margin-bottom: 15px;">Important Information</h3>
-            <ul style="padding-left: 20px; line-height: 1.8;">
-                <li><strong>Setup Link Expires:</strong> 7 days from now</li>
-                <li><strong>Keep this email safe</strong> - You'll need it to access your account</li>
-                <li><strong>Need help?</strong> Contact us at ${
-                  process.env.SUPPORT_EMAIL || "support@striveacademy.com"
-                }</li>
+            <h3 style="color: #2c3e50; margin-bottom: 15px;">Step 3 – Join Our Slack Community 💬</h3>
+            <p>You'll receive an email invite to join our Strive Academics Slack. This is our main communication hub, so please:</p>
+            <ul style="padding-left: 20px; line-height: 1.8; margin-top: 10px;">
+                <li>Download Slack on both your phone and computer.</li>
+                <li>Enable notifications so you don't miss important updates.</li>
+                <li>Introduce yourself in the #intros channel by sharing:</li>
             </ul>
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 6px; margin: 10px 0 10px 20px;">
+                <ul style="padding-left: 20px; line-height: 1.8;">
+                    <li>Whether you're a student (and what you study) or a teacher (and your experience)</li>
+                    <li>Subjects and year levels you'll tutor</li>
+                    <li>Any hobbies or unique skills</li>
+                    <li>Something you'd like the team to know about you (e.g., approachable, bubbly, great with explaining concepts)</li>
+                </ul>
+            </div>
+            <p><em>Active participation in Slack helps with student matching and is considered during Tier progression.</em></p>
+        </div>
+        
+        <div class="message">
+            <h3 style="color: #2c3e50; margin-bottom: 15px;">Step 4 – Technical Difficulties and Questions ⁉️</h3>
+            <p>If you have any technical issues with your profile or the platform, message me directly on Slack (Pasindu Bandara).</p>
+        </div>
+        
+        <div class="message">
+            <p>Once again, congratulations and welcome to Strive Academics. We're looking forward to seeing the impact you'll make with your students.</p>
+        </div>
+        
+        <div class="message">
+            <p><strong>Kind regards,</strong><br>
+            Pasindu Bandara<br>
+            Founder, Managing Director @ Strive Academics</p>
         </div>
         
         <div class="message">
@@ -421,7 +475,7 @@ const getApprovalNotificationTemplate = (tutorData, setupToken) => {
     `;
 
   return getBaseTemplate(
-    "Welcome to Strive Academy - Set Up Your Account",
+    "Welcome to Strive Academics - Complete Your Onboarding",
     content
   );
 };
@@ -432,7 +486,7 @@ const getRejectionNotificationTemplate = (tutorData, reason = "") => {
         <div class="greeting">Hello ${tutorData.fullName}</div>
         
         <div class="message">
-            Thank you for your interest in becoming a tutor with Strive Academy. 
+            Thank you for your interest in becoming a tutor with Strive Academics. 
             We appreciate the time and effort you put into your application.
         </div>
         
@@ -473,11 +527,11 @@ const getRejectionNotificationTemplate = (tutorData, reason = "") => {
         </div>
         
         <div class="message">
-            <p>We wish you the best in your future endeavors and thank you for considering Strive Academy.</p>
+            <p>We wish you the best in your future endeavors and thank you for considering Strive Academics.</p>
         </div>
     `;
 
-  return getBaseTemplate("Strive Academy Application Update", content);
+  return getBaseTemplate("Strive Academics Application Update", content);
 };
 
 // Setup Reminder Template
@@ -490,7 +544,7 @@ const getSetupReminderTemplate = (tutorData, setupToken) => {
         <div class="greeting">Hello ${tutorData.fullName}</div>
         
         <div class="message">
-            This is a friendly reminder to complete your Strive Academy tutor account setup. 
+            This is a friendly reminder to complete your Strive Academics tutor account setup. 
             We're excited to have you join our team!
         </div>
         
@@ -537,7 +591,7 @@ const getSetupReminderTemplate = (tutorData, setupToken) => {
     `;
 
   return getBaseTemplate(
-    "Complete Your Strive Academy Setup - Reminder",
+    "Complete Your Strive Academics Setup - Reminder",
     content
   );
 };
