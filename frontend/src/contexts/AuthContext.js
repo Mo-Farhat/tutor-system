@@ -169,10 +169,12 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     try {
       await authService.logout();
+      // authService.logout() will handle the redirect, so we don't need to do anything else here
     } catch (error) {
       console.error("Logout failed:", error);
-    } finally {
+      // Even if logout fails, clear local state and redirect
       dispatch({ type: ActionTypes.LOGOUT });
+      window.location.href = "/login";
     }
   };
 
