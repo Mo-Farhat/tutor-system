@@ -118,11 +118,12 @@ class ProfileService {
   }
 
   // Document Upload Methods
-  async uploadDocuments(contractFile, wwccFile) {
+  async uploadDocuments(contractFile, wwccFile, wwccExpiry) {
     try {
       const formData = new FormData();
       if (contractFile) formData.append("contract", contractFile);
       if (wwccFile) formData.append("wwcc", wwccFile);
+      if (wwccExpiry) formData.append("wwccExpiry", wwccExpiry);
 
       const response = await api.post(
         "/auth/tutor/upload/documents",

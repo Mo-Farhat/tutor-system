@@ -9,7 +9,7 @@ const bcrypt = require("bcrypt");
 
 class ProfileService {
   // Get tutor profile by user ID
- async getTutorProfileByUserId(userId) {
+  async getTutorProfileByUserId(userId) {
     const tutorProfile = await tutorProfileModel.findByUserId(userId);
     if (!tutorProfile || tutorProfile.user.role !== "tutor") {
       return { success: false, error: "Tutor profile not found" };
@@ -40,7 +40,7 @@ class ProfileService {
           created_at: tutorProfile.user.createdAt,
         },
         ...tutorProfile,
-        wwcc_status: wwcc,                 // ⬅️ convenient for the UI
+        wwcc_status: wwcc, // ⬅️ convenient for the UI
         completion_status: completionStatus,
       },
     };
@@ -87,7 +87,6 @@ class ProfileService {
       },
     };
   }
-
 
   // Update tutor profile
   async updateTutorProfile(userId, updateData) {
@@ -276,7 +275,7 @@ class ProfileService {
   }
 
   // Calculate profile completion status
-    calculateCompletionStatus(profile, user, extra = {}) {
+  calculateCompletionStatus(profile, user, extra = {}) {
     const requiredFields = [
       "bio",
       "hourly_rate",
@@ -291,7 +290,11 @@ class ProfileService {
 
     requiredFields.forEach((field) => {
       const v = profile[field];
-      if (!v || (Array.isArray(v) && v.length === 0) || (typeof v === "string" && v.trim() === "")) {
+      if (
+        !v ||
+        (Array.isArray(v) && v.length === 0) ||
+        (typeof v === "string" && v.trim() === "")
+      ) {
         missingItems.push(field);
       } else {
         completedFields++;
@@ -306,7 +309,7 @@ class ProfileService {
         missingItems.push("documents_uploaded");
       }
 
-      if (extra.wwccStatus === "valid") {
+      if (extra.wwccStatus === "valid" || extra.wwccStatus === "expiring") {
         completedFields++;
       } else {
         // surface the key we want the UI to show as missing
@@ -314,8 +317,11 @@ class ProfileService {
       }
     }
 
-    const totalFields = requiredFields.length + (extra.requireDocuments ? 2 : 0);
-    const completionPercentage = Math.round((completedFields / totalFields) * 100);
+    const totalFields =
+      requiredFields.length + (extra.requireDocuments ? 2 : 0);
+    const completionPercentage = Math.round(
+      (completedFields / totalFields) * 100
+    );
 
     return {
       completion_percentage: Math.max(0, Math.min(100, completionPercentage)),
@@ -346,7 +352,7 @@ class ProfileService {
   }
 
   // Get profile completion status by user ID
-   async getCompletionStatusByUserId(userId) {
+  async getCompletionStatusByUserId(userId) {
     const tutorProfile = await tutorProfileModel.findByUserId(userId);
     if (!tutorProfile || tutorProfile.user.role !== "tutor") {
       return { success: false, error: "Tutor profile not found" };
@@ -367,14 +373,13 @@ class ProfileService {
       success: true,
       data: {
         ...completionStatus,
-        wwcc_status: wwcc,   // extra detail for the banner (e.g., expiring in N days)
+        wwcc_status: wwcc, // extra detail for the banner (e.g., expiring in N days)
       },
     };
   }
 
-
   // Get profile completion status by username
-   async getCompletionStatus(username) {
+  async getCompletionStatus(username) {
     const user = await userModel.findByUsername(username);
     if (!user || user.role !== "tutor") {
       return { success: false, error: "Tutor not found" };
@@ -404,7 +409,6 @@ class ProfileService {
       },
     };
   }
-
 
   // Student Profile Methods
 
@@ -556,7 +560,6 @@ class ProfileService {
     await tutorProfileModel.update(userId, { documents_uploaded: both });
   }
 
-
   // Get live tutors (approved tutors with documents uploaded)
   async getLiveTutors() {
     try {
@@ -617,7 +620,6 @@ class ProfileService {
       };
     }
   }
-  
 }
 
 module.exports = new ProfileService();

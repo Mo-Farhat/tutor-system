@@ -16,10 +16,9 @@ const {
 const {
   tutorVideoUpload, // NEW
   tutorDocsUpload, // NEW
+  studentPhotoUpload,
   handleUploadError,
 } = require("../middleware/upload");
-
-const { studentPhotoUpload, handleUploadError } = require("../middleware/upload");
 
 // Get tutor profile (public endpoint for profile viewing)
 router.get("/tutor/profile", profileController.getTutorProfile);

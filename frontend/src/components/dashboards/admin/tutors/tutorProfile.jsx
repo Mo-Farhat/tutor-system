@@ -29,18 +29,46 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
       setError(null);
 
       try {
-        // Load detailed tutor profile
-        const profileResponse = await getTutorProfile(tutor.id);
-        if (profileResponse) {
-          setTutorData(profileResponse);
-        }
+        // If this is an application, use the application data directly
+        if (tutor.isApplication) {
+          const applicationData = tutor.applicationData || tutor;
+          setTutorData({
+            ...applicationData,
+            user: {
+              firstName: applicationData.fullName?.split(" ")[0] || "",
+              lastName:
+                applicationData.fullName?.split(" ").slice(1).join(" ") || "",
+              email: applicationData.email,
+              createdAt: applicationData.createdAt,
+            },
+            phone_number: applicationData.phone,
+            university: applicationData.currentStudy,
+            atar: applicationData.atar,
+            bio: applicationData.motivation,
+            subjects: applicationData.subjectsToTutor
+              ? [applicationData.subjectsToTutor]
+              : [],
+            is_live: false,
+            documents_uploaded: false,
+            tier: "bronze",
+            rating: null,
+            hourly_rate: 0,
+          });
+          setDocuments([]); // Applications don't have documents yet
+        } else {
+          // Load detailed tutor profile for existing tutors
+          const profileResponse = await getTutorProfile(tutor.id);
+          if (profileResponse) {
+            setTutorData(profileResponse);
+          }
 
-        // Load tutor documents
-        const documentsResponse = await getTutorDocuments(tutor.id);
-        if (documentsResponse) {
-          setDocuments(
-            Array.isArray(documentsResponse) ? documentsResponse : []
-          );
+          // Load tutor documents
+          const documentsResponse = await getTutorDocuments(tutor.id);
+          if (documentsResponse) {
+            setDocuments(
+              Array.isArray(documentsResponse) ? documentsResponse : []
+            );
+          }
         }
       } catch (err) {
         console.error("Error loading tutor data:", err);
@@ -51,7 +79,7 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
     };
 
     loadTutorData();
-  }, [tutor?.id]);
+  }, [tutor?.id, tutor?.isApplication]);
 
   const handleSave = () => {
     setIsEditing(false);
@@ -152,12 +180,28 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
               <div className="tutor-info-item">
                 <strong>ATAR:</strong> {tutorData.atar || "Not provided"}
               </div>
+              {tutor?.isApplication && (
+                <>
+                  <div className="tutor-info-item">
+                    <strong>Year 12 State:</strong>{" "}
+                    {tutorData.year12State || "Not provided"}
+                  </div>
+                  <div className="tutor-info-item">
+                    <strong>Year 12 Completion:</strong>{" "}
+                    {tutorData.year12CompletionYear || "Not provided"}
+                  </div>
+                  <div className="tutor-info-item">
+                    <strong>Current State:</strong>{" "}
+                    {tutorData.currentState || "Not provided"}
+                  </div>
+                </>
+              )}
               <div className="tutor-info-item">
-                <strong>Joined:</strong>{" "}
-                {tutorData.user?.createdAt
-                  ? new Date(tutorData.user.createdAt).toLocaleDateString(
-                      "en-AU"
-                    )
+                <strong>{tutor?.isApplication ? "Applied:" : "Joined:"}</strong>{" "}
+                {tutorData.user?.createdAt || tutorData.createdAt
+                  ? new Date(
+                      tutorData.user?.createdAt || tutorData.createdAt
+                    ).toLocaleDateString("en-AU")
                   : "Unknown"}
               </div>
             </div>
@@ -225,8 +269,35 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
               </div>
               {tutorData.bio && (
                 <div className="mt-3">
-                  <h6>Bio</h6>
+                  <h6>{tutor?.isApplication ? "Motivation" : "Bio"}</h6>
                   <p className="text-muted">{tutorData.bio}</p>
+                </div>
+              )}
+              {tutor?.isApplication && (
+                <div className="mt-3">
+                  <h6>Commitment Details</h6>
+                  <div className="tutor-info-item">
+                    <strong>3+ Hours/Week:</strong>{" "}
+                    {tutorData.canCommit3Hours === "yes" ? "✓ Yes" : "✗ No"}
+                  </div>
+                  <div className="tutor-info-item">
+                    <strong>1+ Year Commitment:</strong>{" "}
+                    {tutorData.canCommit1Year === "yes" ? "✓ Yes" : "✗ No"}
+                  </div>
+                  <div className="tutor-info-item">
+                    <strong>Most Weeks Available:</strong>{" "}
+                    {tutorData.canTutorMostWeeks === "yes" ? "✓ Yes" : "✗ No"}
+                  </div>
+                  <div className="tutor-info-item">
+                    <strong>Groups & 1-on-1:</strong>{" "}
+                    {tutorData.canTutorGroups === "yes" ? "✓ Yes" : "✗ No"}
+                  </div>
+                  <div className="tutor-info-item">
+                    <strong>WWCC Status:</strong>{" "}
+                    {tutorData.hasWorkingWithChildrenCheck === "yes"
+                      ? "✓ Has WWCC"
+                      : "⚠ No WWCC"}
+                  </div>
                 </div>
               )}
             </div>
@@ -408,7 +479,9 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
           <div className="modal-header">
             <h5 className="modal-title">
               <i className="fas fa-user me-2"></i>
-              Tutor Profile - {tutorData.name}
+              {tutor?.isApplication
+                ? "Tutor Application"
+                : "Tutor Profile"} - {tutorData.name || tutorData.fullName}
             </h5>
             <button
               type="button"
@@ -453,73 +526,78 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
             </button>
 
             {/* Make Live/Offline Button - Only show for approved tutors with documents */}
-            {!tutorData.isApplication && tutorData.documents_uploaded && (
-              <>
-                {tutorData.is_live ? (
-                  <button
-                    type="button"
-                    className="btn btn-warning"
-                    onClick={handleMakeOffline}
-                    disabled={isProcessing}
-                  >
-                    {isProcessing ? (
-                      <>
-                        <span
-                          className="spinner-border spinner-border-sm me-2"
-                          role="status"
-                        ></span>
-                        Making Offline...
-                      </>
-                    ) : (
-                      <>
-                        <i className="fas fa-pause me-1"></i>
-                        Make Offline
-                      </>
-                    )}
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className="btn btn-success"
-                    onClick={handleMakeLive}
-                    disabled={isProcessing}
-                  >
-                    {isProcessing ? (
-                      <>
-                        <span
-                          className="spinner-border spinner-border-sm me-2"
-                          role="status"
-                        ></span>
-                        Making Live...
-                      </>
-                    ) : (
-                      <>
-                        <i className="fas fa-play me-1"></i>
-                        Make Live
-                      </>
-                    )}
-                  </button>
-                )}
-              </>
-            )}
-
-            <button
-              type="button"
-              className={`btn ${isEditing ? "btn-success" : "btn-primary"}`}
-              onClick={isEditing ? handleSave : () => setIsEditing(true)}
-            >
-              {isEditing ? (
+            {!tutor?.isApplication &&
+              !tutorData.isApplication &&
+              tutorData.documents_uploaded && (
                 <>
-                  <i className="fas fa-save me-1"></i>
-                  Save Changes
-                </>
-              ) : (
-                <>
-                  <i className="fas fa-edit me-1"></i>
-                  Edit Profile
+                  {tutorData.is_live ? (
+                    <button
+                      type="button"
+                      className="btn btn-warning"
+                      onClick={handleMakeOffline}
+                      disabled={isProcessing}
+                    >
+                      {isProcessing ? (
+                        <>
+                          <span
+                            className="spinner-border spinner-border-sm me-2"
+                            role="status"
+                          ></span>
+                          Making Offline...
+                        </>
+                      ) : (
+                        <>
+                          <i className="fas fa-pause me-1"></i>
+                          Make Offline
+                        </>
+                      )}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="btn btn-success"
+                      onClick={handleMakeLive}
+                      disabled={isProcessing}
+                    >
+                      {isProcessing ? (
+                        <>
+                          <span
+                            className="spinner-border spinner-border-sm me-2"
+                            role="status"
+                          ></span>
+                          Making Live...
+                        </>
+                      ) : (
+                        <>
+                          <i className="fas fa-play me-1"></i>
+                          Make Live
+                        </>
+                      )}
+                    </button>
+                  )}
                 </>
               )}
-            </button>
+
+            {/* Edit Profile Button - Only show for existing tutors, not applications */}
+            {!tutor?.isApplication && (
+              <button
+                type="button"
+                className={`btn ${isEditing ? "btn-success" : "btn-primary"}`}
+                onClick={isEditing ? handleSave : () => setIsEditing(true)}
+              >
+                {isEditing ? (
+                  <>
+                    <i className="fas fa-save me-1"></i>
+                    Save Changes
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-edit me-1"></i>
+                    Edit Profile
+                  </>
+                )}
+              </button>
+            )}
           </div>
         </div>
       </div>

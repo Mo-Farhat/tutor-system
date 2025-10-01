@@ -44,6 +44,7 @@ import StudentPaymentMethodsPage from "./pages/js/dashboard/student/payment-meth
 import StudentReferralAndOffersPage from "./pages/js/dashboard/student/referrals";
 import StudentProgressMilestonesPage from "./pages/js/dashboard/student/progress";
 import StudentProfileManagementPage from "./pages/js/dashboard/student/profile";
+import StudentTutorProfilePage from "./pages/js/dashboard/student/tutor-profile";
 
 // Admin Dashboard Pages
 import AdminHomePage from "./pages/js/dashboard/admin/home";
@@ -171,6 +172,10 @@ const App = () => {
             <Route
               path="/dashboard/student/home"
               element={<StudentHomePage />}
+            />
+            <Route
+              path="/dashboard/student/tutor/:username"
+              element={<StudentTutorProfilePage />}
             />
             <Route
               path="/dashboard/student/scheduling"
