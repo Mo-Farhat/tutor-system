@@ -624,3 +624,20 @@ exports.getStats = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+// Logout user
+exports.logout = async (req, res) => {
+  try {
+    // The authenticateToken middleware already validated the token
+    // We can optionally blacklist the token here if needed
+    // For now, we'll just return success since the client will clear tokens
+
+    res.json({
+      success: true,
+      message: "Logged out successfully",
+    });
+  } catch (error) {
+    console.error("Logout error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};

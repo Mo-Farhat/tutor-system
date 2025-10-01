@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 const ProtectedTutorRoute = ({ children, allowedRoutes = [] }) => {
   const { user } = useAuth();
@@ -10,22 +10,29 @@ const ProtectedTutorRoute = ({ children, allowedRoutes = [] }) => {
   const [loading, setLoading] = useState(true);
 
   // Routes that are always allowed (settings/profile page)
-  const alwaysAllowedRoutes = ['/dashboard/tutor/profile', '/dashboard/tutor/settings'];
+  const alwaysAllowedRoutes = [
+    "/dashboard/tutor/profile",
+    "/dashboard/tutor/settings",
+  ];
 
   useEffect(() => {
     const checkCompletionStatus = async () => {
       try {
-        const username = user?.username || 'notmanu23';
-        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000'}/api/auth/tutor/completion-status/?username=${username}`);
+        const username = user?.username || "notmanu23";
+        const response = await fetch(
+          `${
+            process.env.REACT_APP_BACKEND_URL || "http://localhost:8000"
+          }/api/auth/tutor/completion-status/?username=${username}`
+        );
         const data = await response.json();
-        
+
         if (data.success) {
           setCompletionStatus(data.data);
         } else {
-          console.error('Failed to get completion status:', data.message);
+          console.error("Failed to get completion status:", data.message);
         }
       } catch (error) {
-        console.error('Error checking completion status:', error);
+        console.error("Error checking completion status:", error);
       } finally {
         setLoading(false);
       }
@@ -37,17 +44,20 @@ const ProtectedTutorRoute = ({ children, allowedRoutes = [] }) => {
   useEffect(() => {
     if (!loading && completionStatus) {
       const currentPath = location.pathname;
-      
+
       // If profile is not fully complete and user is not on an allowed route, redirect to settings
-      if (!completionStatus.fully_complete && 
-          !alwaysAllowedRoutes.includes(currentPath) && 
-          !allowedRoutes.includes(currentPath)) {
-        navigate('/dashboard/tutor/profile', { 
+      if (
+        !completionStatus.fully_complete &&
+        !alwaysAllowedRoutes.includes(currentPath) &&
+        !allowedRoutes.includes(currentPath)
+      ) {
+        navigate("/dashboard/tutor/profile", {
           replace: true,
-          state: { 
-            message: 'Please complete your profile and upload required documents before accessing other dashboard features.',
-            completionStatus 
-          }
+          state: {
+            message:
+              "Please complete your profile and upload required documents before accessing other dashboard features.",
+            completionStatus,
+          },
         });
       }
     }
@@ -55,7 +65,10 @@ const ProtectedTutorRoute = ({ children, allowedRoutes = [] }) => {
 
   if (loading) {
     return (
-      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '400px' }}>
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ minHeight: "400px" }}
+      >
         <div className="text-center">
           <div className="spinner-border" role="status">
             <span className="visually-hidden">Loading...</span>
@@ -67,9 +80,11 @@ const ProtectedTutorRoute = ({ children, allowedRoutes = [] }) => {
   }
 
   // If profile is not complete and user is on a restricted route, show completion message
-  if (!completionStatus?.fully_complete && 
-      !alwaysAllowedRoutes.includes(location.pathname) && 
-      !allowedRoutes.includes(location.pathname)) {
+  if (
+    !completionStatus?.fully_complete &&
+    !alwaysAllowedRoutes.includes(location.pathname) &&
+    !allowedRoutes.includes(location.pathname)
+  ) {
     return (
       <div className="container mt-5">
         <div className="row justify-content-center">
@@ -81,25 +96,27 @@ const ProtectedTutorRoute = ({ children, allowedRoutes = [] }) => {
                   Profile Incomplete
                 </h3>
                 <p className="card-text">
-                  Please complete your profile and upload required documents before accessing this feature.
+                  Please complete your profile and upload required documents
+                  before accessing this feature.
                 </p>
-                
+
                 {completionStatus && (
                   <div className="mt-4">
                     <h5>Missing Items:</h5>
                     <ul className="list-unstyled">
                       {completionStatus.missing_items.map((item, index) => (
                         <li key={index} className="text-danger">
-                          <i className="fas fa-times me-2"></i>{item}
+                          <i className="fas fa-times me-2"></i>
+                          {item}
                         </li>
                       ))}
                     </ul>
                   </div>
                 )}
-                
-                <button 
+
+                <button
                   className="btn btn-primary mt-3"
-                  onClick={() => navigate('/dashboard/tutor/profile')}
+                  onClick={() => navigate("/dashboard/tutor/profile")}
                 >
                   <i className="fas fa-edit me-2"></i>
                   Complete Profile
@@ -115,4 +132,4 @@ const ProtectedTutorRoute = ({ children, allowedRoutes = [] }) => {
   return children;
 };
 
-export default ProtectedTutorRoute; 
+export default ProtectedTutorRoute;

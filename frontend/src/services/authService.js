@@ -195,22 +195,22 @@ class AuthService {
 
   // Logout user
   async logout() {
-    const refreshToken = this.getRefreshToken();
-
-    if (refreshToken) {
-      try {
-        await this.makeRequest("/logout/", {
-          method: "POST",
-          body: JSON.stringify({ refresh: refreshToken }),
-        });
-      } catch (error) {
-        console.error("Logout request failed:", error);
-      }
+    try {
+      // Call the logout endpoint to invalidate the session on the server
+      await this.makeRequest("/logout", {
+        method: "POST",
+      });
+    } catch (error) {
+      console.error("Logout request failed:", error);
+      // Continue with local logout even if server request fails
     }
 
     // Clear tokens and user info
     this.clearTokens();
     localStorage.removeItem("user_info");
+
+    // Redirect to login page
+    window.location.href = "/login";
   }
 
   // Check if user is authenticated
