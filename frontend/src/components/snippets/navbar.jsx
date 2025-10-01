@@ -152,6 +152,7 @@ function Navbar() {
                     </li>
                   </ul>
                 </li>
+
                 <li className="nav-item">
                   <Link
                     className="nav-link active"
@@ -162,6 +163,7 @@ function Navbar() {
                     Pricing
                   </Link>
                 </li>
+
                 <li className="nav-item dropdown">
                   <a
                     className="nav-link"
@@ -196,11 +198,29 @@ function Navbar() {
                     </li>
                   </ul>
                 </li>
+
+
+                <li className="nav-item">
+                  <Link
+                    className="nav-link active"
+                    aria-current="page"
+                    to="/pricing"
+                    onClick={handleNavigation("/pricing")}
+                  >
+                    Pricing
+                  </Link>
+                </li>
+
                 <Link
                   to="/find-a-tutor"
                   className="btn btn-outline-primary nav-item nav-f-t-btn"
                   onClick={handleNavigation("/find-a-tutor")}
                 >
+
+
+                <Link to='/find-a-tutor' className="btn btn-outline-primary nav-item nav-f-t-btn" onClick={handleNavigation('/find-a-tutor')}>
+
+
                   Find a Tutor
                 </Link>
 
