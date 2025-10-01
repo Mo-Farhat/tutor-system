@@ -109,6 +109,17 @@ class TutorService {
       return { success: false, error: error.message };
     }
   }
+
+  // Fetch my assigned students (tutor)
+  async getMyStudents() {
+    try {
+      const response = await api.get("/auth/tutor/my-students");
+      return response.data; // { success: true, data: [...] }
+    } catch (error) {
+      console.error("Error fetching my students:", error);
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 // Create and export a singleton instance
