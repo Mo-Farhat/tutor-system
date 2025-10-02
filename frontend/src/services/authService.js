@@ -195,22 +195,22 @@ class AuthService {
 
   // Logout user
   async logout() {
-    try {
-      // Call the logout endpoint to invalidate the session on the server
-      await this.makeRequest("/logout", {
-        method: "POST",
-      });
-    } catch (error) {
-      console.error("Logout request failed:", error);
-      // Continue with local logout even if server request fails
+    const refreshToken = this.getRefreshToken();
+
+    if (refreshToken) {
+      try {
+        await this.makeRequest("/logout/", {
+          method: "POST",
+          body: JSON.stringify({ refresh: refreshToken }),
+        });
+      } catch (error) {
+        console.error("Logout request failed:", error);
+      }
     }
 
     // Clear tokens and user info
     this.clearTokens();
     localStorage.removeItem("user_info");
-
-    // Redirect to login page
-    window.location.href = "/login";
   }
 
   // Check if user is authenticated
@@ -528,41 +528,6 @@ class AuthService {
       const data = await this.makeRequest("/profile/", {
         method: "PUT",
         body: JSON.stringify(profileData),
-      });
-
-      return { success: true, data };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  }
-
-  // Password change methods
-  async changeTutorPassword(currentPassword, newPassword) {
-    try {
-      const data = await this.makeRequest("/tutor/change-password", {
-        method: "PUT",
-        body: JSON.stringify({
-          currentPassword: currentPassword,
-          newPassword: newPassword,
-          confirmPassword: newPassword, // Backend validation requires this field
-        }),
-      });
-
-      return { success: true, data };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  }
-
-  async changeStudentPassword(currentPassword, newPassword) {
-    try {
-      const data = await this.makeRequest("/student/change-password", {
-        method: "PUT",
-        body: JSON.stringify({
-          currentPassword: currentPassword,
-          newPassword: newPassword,
-          confirmPassword: newPassword, // Backend validation requires this field
-        }),
       });
 
       return { success: true, data };
@@ -891,7 +856,3 @@ export const isAdmin = () => authService.isAdmin();
 export const getAdminInfo = () => authService.getAdminInfo();
 export const mockAdminLogin = (credentials) =>
   authService.mockAdminLogin(credentials);
-export const changeTutorPassword = (currentPassword, newPassword) =>
-  authService.changeTutorPassword(currentPassword, newPassword);
-export const changeStudentPassword = (currentPassword, newPassword) =>
-  authService.changeStudentPassword(currentPassword, newPassword);
