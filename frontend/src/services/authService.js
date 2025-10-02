@@ -536,6 +536,41 @@ class AuthService {
     }
   }
 
+  // Password change methods
+  async changeTutorPassword(currentPassword, newPassword) {
+    try {
+      const data = await this.makeRequest("/tutor/change-password", {
+        method: "PUT",
+        body: JSON.stringify({
+          currentPassword: currentPassword,
+          newPassword: newPassword,
+          confirmPassword: newPassword, // Backend validation requires this field
+        }),
+      });
+
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async changeStudentPassword(currentPassword, newPassword) {
+    try {
+      const data = await this.makeRequest("/student/change-password", {
+        method: "PUT",
+        body: JSON.stringify({
+          currentPassword: currentPassword,
+          newPassword: newPassword,
+          confirmPassword: newPassword, // Backend validation requires this field
+        }),
+      });
+
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
   async updateUserProfileWithFiles(profileData) {
     try {
       const formData = new FormData();
@@ -856,3 +891,7 @@ export const isAdmin = () => authService.isAdmin();
 export const getAdminInfo = () => authService.getAdminInfo();
 export const mockAdminLogin = (credentials) =>
   authService.mockAdminLogin(credentials);
+export const changeTutorPassword = (currentPassword, newPassword) =>
+  authService.changeTutorPassword(currentPassword, newPassword);
+export const changeStudentPassword = (currentPassword, newPassword) =>
+  authService.changeStudentPassword(currentPassword, newPassword);

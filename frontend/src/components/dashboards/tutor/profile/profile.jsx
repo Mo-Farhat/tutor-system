@@ -2,6 +2,7 @@ import "../../../../css/dashboards/tutor/profile/profile.css";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../../../contexts/AuthContext";
 import profileService from "../../../../services/profileService";
+import authService from "../../../../services/authService";
 
 function TutorProfile() {
   const { user } = useAuth();
@@ -41,6 +42,8 @@ function TutorProfile() {
   const [tutorContractFile, setTutorContractFile] = useState(null);
   const [wwccFile, setWwccFile] = useState(null);
   const [wwccExpiry, setWwccExpiry] = useState("");
+  const [passwordErrors, setPasswordErrors] = useState({});
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
   // Fetch profile data on component mount
   useEffect(() => {
@@ -148,6 +151,14 @@ function TutorProfile() {
       ...prev,
       [name]: value,
     }));
+    
+    // Clear password errors when user starts typing
+    if (passwordErrors[name]) {
+      setPasswordErrors((prev) => ({
+        ...prev,
+        [name]: "",
+      }));
+    }
   };
 
   const handleLocationSelect = (e) => {
@@ -235,6 +246,66 @@ function TutorProfile() {
 
   const removeWWCC = () => {
     setWwccFile(null);
+  };
+
+  const handlePasswordChange = async () => {
+    const errors = {};
+
+    // Trim whitespace from passwords to avoid issues with copy/paste
+    const currentPassword = formData.currentPassword.trim();
+    const newPassword = formData.newPassword.trim();
+    const confirmPassword = formData.confirmPassword.trim();
+
+
+    // Validation
+    if (!currentPassword) {
+      errors.currentPassword = "Current password is required";
+    }
+
+    if (!newPassword) {
+      errors.newPassword = "New password is required";
+    } else if (newPassword.length < 8) {
+      errors.newPassword = "Password must be at least 8 characters long";
+    }
+
+    if (!confirmPassword) {
+      errors.confirmPassword = "Please confirm your password";
+    } else if (newPassword !== confirmPassword) {
+      errors.confirmPassword = "Passwords do not match";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setPasswordErrors(errors);
+      return;
+    }
+
+    try {
+      setPasswordLoading(true);
+      setPasswordErrors({});
+
+      const result = await authService.changeTutorPassword(
+        currentPassword,
+        newPassword
+      );
+
+      if (result.success) {
+        alert("Password updated successfully!");
+        // Reset password fields
+        setFormData(prev => ({
+          ...prev,
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: ""
+        }));
+      } else {
+        setPasswordErrors({ general: result.error || "Failed to update password" });
+      }
+    } catch (error) {
+      console.error("Error changing password:", error);
+      setPasswordErrors({ general: "An error occurred while changing password" });
+    } finally {
+      setPasswordLoading(false);
+    }
   };
 
   const handleSaveProfile = async () => {
@@ -867,7 +938,9 @@ function TutorProfile() {
                                   ? "text"
                                   : "password"
                               }
-                              className="form-control"
+                              className={`form-control ${
+                                passwordErrors.currentPassword ? "is-invalid" : ""
+                              }`}
                               id="currentPassword"
                               name="currentPassword"
                               value={formData.currentPassword}
@@ -892,6 +965,11 @@ function TutorProfile() {
                               ></i>
                             </button>
                           </div>
+                          {passwordErrors.currentPassword && (
+                            <div className="invalid-feedback d-block">
+                              {passwordErrors.currentPassword}
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div className="col-md-4">
@@ -904,7 +982,9 @@ function TutorProfile() {
                               type={
                                 showPasswords.newPassword ? "text" : "password"
                               }
-                              className="form-control"
+                              className={`form-control ${
+                                passwordErrors.newPassword ? "is-invalid" : ""
+                              }`}
                               id="newPassword"
                               name="newPassword"
                               value={formData.newPassword}
@@ -929,6 +1009,11 @@ function TutorProfile() {
                               ></i>
                             </button>
                           </div>
+                          {passwordErrors.newPassword && (
+                            <div className="invalid-feedback d-block">
+                              {passwordErrors.newPassword}
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div className="col-md-4">
@@ -946,7 +1031,9 @@ function TutorProfile() {
                                   ? "text"
                                   : "password"
                               }
-                              className="form-control"
+                              className={`form-control ${
+                                passwordErrors.confirmPassword ? "is-invalid" : ""
+                              }`}
                               id="confirmPassword"
                               name="confirmPassword"
                               value={formData.confirmPassword}
@@ -971,8 +1058,42 @@ function TutorProfile() {
                               ></i>
                             </button>
                           </div>
+                          {passwordErrors.confirmPassword && (
+                            <div className="invalid-feedback d-block">
+                              {passwordErrors.confirmPassword}
+                            </div>
+                          )}
                         </div>
                       </div>
+                    </div>
+                    
+                    {/* General error message */}
+                    {passwordErrors.general && (
+                      <div className="alert alert-danger">
+                        {passwordErrors.general}
+                      </div>
+                    )}
+                    
+                    {/* Change Password Button */}
+                    <div className="d-flex justify-content-end mt-3">
+                      <button
+                        type="button"
+                        className="btn btn-warning"
+                        onClick={handlePasswordChange}
+                        disabled={passwordLoading}
+                      >
+                        {passwordLoading ? (
+                          <>
+                            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            Changing Password...
+                          </>
+                        ) : (
+                          <>
+                            <i className="fas fa-key me-2"></i>
+                            Change Password
+                          </>
+                        )}
+                      </button>
                     </div>
                   </div>
                 </div>
