@@ -66,6 +66,116 @@ class LessonModel {
       data: updates,
     });
   }
+
+   findCompletedByTutor(tutorId, { limit = 100 } = {}) {
+    return prisma.lesson.findMany({
+      where: { tutorId: Number(tutorId), status: "completed" },
+      orderBy: { startAt: "desc" },
+      take: limit,
+      select: {
+        id: true,
+        subject: true,
+        startAt: true,
+        endAt: true,
+        student: { select: { id: true, firstName: true, lastName: true } },
+      },
+    });
+  }
+
+  countCompletedByTutor(tutorId) {
+    return prisma.lesson.count({
+      where: { tutorId: Number(tutorId), status: "completed" },
+    });
+  }
+
+  listByTutorCalendar(tutorId, { dateFrom, dateTo, status, subject } = {}) {
+    const where = {
+      tutorId: Number(tutorId),
+      ...(status ? { status } : {}),
+      ...(subject ? { subject } : {}),
+      ...(dateFrom || dateTo
+        ? {
+            startAt: {
+              ...(dateFrom ? { gte: new Date(dateFrom) } : {}),
+              ...(dateTo ? { lte: new Date(dateTo) } : {}),
+            },
+          }
+        : {}),
+    };
+    return prisma.lesson.findMany({
+      where,
+      orderBy: { startAt: "asc" },
+      select: {
+        id: true,
+        subject: true,
+        startAt: true,
+        endAt: true,
+        status: true,
+        zoomLink: true,
+        student: { select: { id: true, firstName: true, lastName: true } },
+      },
+    });
+  }
+
+  listByStudentCalendar(studentId, { dateFrom, dateTo, status, subject } = {}) {
+    const where = {
+      studentId: Number(studentId),
+      ...(status ? { status } : {}),
+      ...(subject ? { subject } : {}),
+      ...(dateFrom || dateTo
+        ? {
+            startAt: {
+              ...(dateFrom ? { gte: new Date(dateFrom) } : {}),
+              ...(dateTo ? { lte: new Date(dateTo) } : {}),
+            },
+          }
+        : {}),
+    };
+    return prisma.lesson.findMany({
+      where,
+      orderBy: { startAt: "asc" },
+      select: {
+        id: true,
+        subject: true,
+        startAt: true,
+        endAt: true,
+        status: true,
+        zoomLink: true,
+        tutor: { select: { id: true, firstName: true, lastName: true } },
+      },
+    });
+  }
+
+  // Ensure every scheduled session has a zoom link (for compliance checks)
+  listScheduledMissingZoom({ dateFrom, dateTo } = {}) {
+    const where = {
+      status: "scheduled",
+      OR: [{ zoomLink: null }, { zoomLink: "" }],
+      ...(dateFrom || dateTo
+        ? {
+            startAt: {
+              ...(dateFrom ? { gte: new Date(dateFrom) } : {}),
+              ...(dateTo ? { lte: new Date(dateTo) } : {}),
+            },
+          }
+        : {}),
+    };
+    return prisma.lesson.findMany({
+      where,
+      orderBy: { startAt: "asc" },
+      select: {
+        id: true,
+        subject: true,
+        startAt: true,
+        endAt: true,
+        tutor: { select: { id: true, firstName: true, lastName: true, email: true } },
+        student: { select: { id: true, firstName: true, lastName: true, email: true } },
+      },
+    });
+  }
 }
+
+
+
 
 module.exports = new LessonModel();

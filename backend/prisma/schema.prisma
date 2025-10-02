@@ -117,7 +117,7 @@ model User {
 
   ParentContact ParentContact[]
 
-  // ✅ back-relations with DISTINCT names
+  // back-relations with distinct names
   lessonsAsStudent Lesson[] @relation("StudentLessons")
   lessonsAsTutor   Lesson[] @relation("TutorLessons")
 
@@ -127,12 +127,21 @@ model User {
   badgesEarned StudentBadge[] @relation("BadgesEarned")
   badgesGiven  StudentBadge[] @relation("BadgesGiven")
 
-  // other one-way relations (only one user side)
+  // other one-way relations
   PackagePurchase      PackagePurchase[]
   PaymentTransaction   PaymentTransaction[]
   StudentGoal          StudentGoal[]
   StudentPaymentMethod StudentPaymentMethod[]
   SupportTicket        SupportTicket[]
+  zoomLinks            ZoomLinkRegistry[]
+
+  // 👇 FIX: split change-requests into two named back-relations
+  tutorChangeRequests    TutorChangeRequest[] @relation("TCR_Tutor") // I am the tutor being changed
+  reviewedChangeRequests TutorChangeRequest[] @relation("TCR_Reviewer") // I am the reviewer/admin
+
+  // 👇 FIX: split reviews into two named back-relations
+  tutorReviews TutorReview[] @relation("TR_Tutor") // reviews about me (as tutor)
+  addedReviews TutorReview[] @relation("TR_Admin") // reviews I added (as admin)
 
   @@index([role, createdAt])
 }
@@ -207,7 +216,14 @@ model TutorProfile {
   approved_at         DateTime?
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
-  user                User      @relation(fields: [userId], references: [id])
+
+  user           User                 @relation(fields: [userId], references: [id])
+  documents      TutorDocument[]
+  changeRequests TutorChangeRequest[]
+  reviews        TutorReview[]
+
+  @@index([tier, is_live])
+  @@index([rating])
 }
 
 model StudentProfile {
@@ -247,12 +263,18 @@ model TutorDocument {
   userId     Int
   type       DocumentType
   path       String
+  number     String? // e.g., WWCC number
+  status     String       @default("pending") // pending, approved, expired
   expiresAt  DateTime?
+  reviewedBy Int? // admin userId
   uploadedAt DateTime     @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user               User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  TutorProfile       TutorProfile? @relation(fields: [tutorProfileUserId], references: [userId])
+  tutorProfileUserId Int?
 
   @@index([userId, type], name: "doc_user_type")
+  @@index([status, expiresAt])
 }
 
 model StudentTutor {
@@ -306,26 +328,36 @@ model ParentContact {
 // ---------- Lessons & Feedback ----------
 model Lesson {
   id        Int          @id @default(autoincrement())
-  studentId Int
   tutorId   Int
+  studentId Int
   subject   String
   startAt   DateTime
   endAt     DateTime
   zoomLink  String?
-  status    LessonStatus @default(scheduled)
   prepNotes String?
   homework  String?
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
+  status    LessonStatus @default(scheduled)
 
-  // ✅ match names used on User
-  student User @relation("StudentLessons", fields: [studentId], references: [id], onDelete: Cascade)
-  tutor   User @relation("TutorLessons", fields: [tutorId], references: [id], onDelete: Cascade)
+  seriesId       String?
+  recurrenceRule String?
 
-  feedback           StudentFeedback?
-  PaymentTransaction PaymentTransaction[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@index([studentId, tutorId, startAt])
+  // existing
+  tutor   User @relation("TutorLessons", fields: [tutorId], references: [id])
+  student User @relation("StudentLessons", fields: [studentId], references: [id])
+
+  // ✅ back-relations just added:
+  studentFeedback StudentFeedback?     @relation("LessonFeedback")
+  materials       LessonMaterial[]
+  transactions    PaymentTransaction[] @relation("LessonTransactions")
+
+  @@index([startAt])
+  @@index([tutorId])
+  @@index([studentId])
+  @@index([status])
+  @@index([seriesId])
 }
 
 model StudentFeedback {
@@ -335,7 +367,7 @@ model StudentFeedback {
   comment   String?
   createdAt DateTime @default(now())
 
-  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation("LessonFeedback", fields: [lessonId], references: [id], onDelete: Cascade)
 }
 
 // ---------- Packages & Transactions (MVP) ----------
@@ -366,7 +398,7 @@ model PaymentTransaction {
   createdAt   DateTime        @default(now())
 
   student User             @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  lesson  Lesson?          @relation(fields: [lessonId], references: [id])
+  lesson  Lesson?          @relation("LessonTransactions", fields: [lessonId], references: [id])
   package PackagePurchase? @relation(fields: [packageId], references: [id])
 
   @@index([studentId, createdAt])
@@ -475,4 +507,75 @@ model SupportTicket {
   student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@index([studentId, status])
+}
+
+model TutorChangeRequest {
+  id         Int       @id @default(autoincrement())
+  tutorId    Int
+  type       String
+  oldValue   String?
+  newValue   String?
+  status     String    @default("pending") // pending | approved | rejected
+  comments   String?
+  reviewedBy Int?
+  reviewedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  tutor              User          @relation("TCR_Tutor", fields: [tutorId], references: [id])
+  reviewer           User?         @relation("TCR_Reviewer", fields: [reviewedBy], references: [id])
+  TutorProfile       TutorProfile? @relation(fields: [tutorProfileUserId], references: [userId])
+  tutorProfileUserId Int?
+
+  @@index([tutorId])
+  @@index([status])
+  @@index([reviewedBy])
+}
+
+model TutorReview {
+  id          Int      @id @default(autoincrement())
+  tutorUserId Int
+  source      String   @default("google")
+  content     String
+  addedBy     Int
+  createdAt   DateTime @default(now())
+
+  tutor              User          @relation("TR_Tutor", fields: [tutorUserId], references: [id])
+  admin              User          @relation("TR_Admin", fields: [addedBy], references: [id])
+  TutorProfile       TutorProfile? @relation(fields: [tutorProfileUserId], references: [userId])
+  tutorProfileUserId Int?
+
+  @@index([tutorUserId])
+  @@index([addedBy])
+}
+
+model LessonMaterial {
+  id        Int      @id @default(autoincrement())
+  lessonId  Int
+  title     String?
+  type      String? // "pdf" | "image" | "link" | "video" | "other"
+  path      String? // local file path (uploads)
+  url       String? // external link (if provided)
+  addedBy   Int
+  createdAt DateTime @default(now())
+
+  lesson Lesson @relation(fields: [lessonId], references: [id])
+
+  @@index([lessonId])
+  @@index([addedBy])
+}
+
+model ZoomLinkRegistry {
+  id        Int      @id @default(autoincrement())
+  tutorId   Int
+  label     String
+  url       String
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tutor User @relation(fields: [tutorId], references: [id])
+
+  @@index([tutorId])
+  @@index([isDefault])
 }
