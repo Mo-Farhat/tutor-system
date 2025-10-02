@@ -86,4 +86,8 @@ function Points() {
     );
 }
 
-export default Points
+
+export default Points;
+
+//Hello
+
