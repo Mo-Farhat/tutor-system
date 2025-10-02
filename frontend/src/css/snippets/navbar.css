@@ -1,89 +1,62 @@
-/* Prevent horizontal overflow globally */
-* {
-  box-sizing: border-box;
-}
-
 .nav-main {
   justify-content: center;
   align-items: center;
   position: fixed;
   z-index: 3;
-  width: 100%;
-  left: 0;
-  right: 0;
-  top: 0;
+  width: 100dvw;
   box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.4);
-  overflow-x: visible;
-  max-width: 100vw;
 }
 
 .navbar {
   background-color: white;
   user-select: none;
+
   display: flex;
   align-items: center;
-
+  max-width: 100%;
   padding: 0 1rem;
 }
 
 .nav-sec {
-  max-width: 100%;
-  margin: 0 auto;
-  width: 100%;
-  padding: 0 1rem;
-  box-sizing: border-box;
+  /* max-width: 1200px !important; */
 }
 
 .navbar-expand-lg {
-  padding: 1rem 0 !important;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
+  padding: 1rem !important;
 }
 
 .nav-logo {
-  display: block; /* ensures it renders as a block */
-  height: 100px; /* default height */
-  max-height: auto; /* prevents it from being too tall */
-  width: 200px; /* maintain aspect ratio */
-  max-width: 250px; /* prevents it from being too wide */
-  object-fit: contain;
-  margin-left: 1rem;
-  transform: scale(160%);
+  height: 10px;
+  width: auto;
+  transform: scale(3000%);
 }
 
 .navbar-collapse {
-  justify-content: flex-end;
-}
-
-/* Hide hamburger menu on desktop */
-@media (min-width: 992px) {
-  .navbar-toggler {
-    display: none !important;
-  }
+  justify-content: end;
 }
 
 .navbar-nav {
-  gap: 2rem;
-  flex-wrap: nowrap;
-  align-items: center;
-  justify-content: flex-end;
-  width: 100%;
-  max-width: 100%;
-  margin-right: 3rem;
+  gap: 4rem;
+  /* mobile
+  gap: 0; */
 }
 
 .nav-item {
   display: flex;
   align-items: center;
+
   flex-shrink: 0;
   white-space: nowrap;
+  max-width: 150px;
+
+  /* mobile 
+  display: block;
+  justify-content: center;
+  padding: 1rem; */
 }
 
 .login-signup-links {
   white-space: nowrap;
-  display: flex;
-  align-items: center;
 }
 
 .login-signup-links .nav-link {
@@ -93,9 +66,8 @@
 
 .nav-link {
   color: #333333 !important;
-  font-size: 20px !important;
+  font-size: 18px !important;
   border-radius: 1rem !important;
-  position: relative;
 }
 
 .signup-btn {
@@ -112,20 +84,28 @@
 
 #nav-au-dd {
   margin-left: -28%;
+  /* mobile
+  margin-left: 0; */
 }
 
 #nav-Tu-dd {
   margin-left: -60%;
+  /* mobile
+  margin-left: 0; */
 }
 
 #nav-me-dd {
   margin-left: -5%;
+  /* mobile
+  margin-left: 0; */
 }
 
 .nav-item-drop-down {
   border-radius: 1rem !important;
   padding: 0 !important;
-  overflow: visible;
+  overflow: hidden;
+  /* mobile
+  border-radius: 0; */
 }
 
 .nav-item-drop-down-item {
@@ -147,12 +127,21 @@
   padding: 0.5rem 1.25rem !important;
   color: rgb(255, 58, 58) !important;
   font-weight: 800 !important;
-  font-size: 20px !important;
+  font-size: 18px !important;
 }
 
 .nav-f-t-btn:hover {
   background-color: rgb(255, 58, 58) !important;
   color: white !important;
+}
+
+/* Reduce space between Find a Tutor button and Sign Up button */
+.nav-f-t-btn {
+  margin-left: 1rem !important;
+}
+
+.navbar-nav {
+  margin-left: 0rem !important;
 }
 
 .nav-item.dropdown:hover .dropdown-menu {
@@ -373,7 +362,7 @@
   }
 
   .nav-f-t-btn {
-    font-size: 20px !important;
+    font-size: 18px !important;
   }
 }
 
@@ -392,7 +381,7 @@
   }
 
   .nav-link {
-    font-size: 20px !important;
+    font-size: 18px !important;
   }
 }
 
@@ -402,12 +391,12 @@
   }
 
   .nav-link {
-    font-size: 18px !important; /* slightly smaller text */
+    font-size: 16px !important; /* slightly smaller text */
     padding: 0.25rem 0.5rem !important; /* reduce horizontal padding */
   }
 
   .nav-f-t-btn {
-    font-size: 18px !important;
+    font-size: 14px !important;
     padding: 0.4rem 0.8rem !important;
   }
 

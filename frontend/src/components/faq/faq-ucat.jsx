@@ -6,7 +6,7 @@ function Ucat() {
       className="row container-fluid section d-flex g-0 z-index-0 faq-ucat-main"
       id="faq-ucat-main"
     >
-      <div className="row col-12 col-lg-9 d-flex faq-ucat-sec">
+      <div className="row col-9 d-flex faq-ucat-sec">
         <h1 className="fw-bold d-flex faq-ucat-main-h">UCAT</h1>
 
         <div class="accordion d-flex gap-3" id="faq-ucat-accordians-main">
@@ -59,7 +59,10 @@ function Ucat() {
                 offer you a 10% discount on packages.
                 <br />
                 <br />
-                Please use the code STRIVE_25 for a 10% discount:{" "}
+                <span class="fw-bold" style={{ color: "#1e3a8a" }}>
+                  Please use the code STRIVE_25 for a 10% discount
+                </span>
+                :{" "}
                 <strong>
                   <a
                     className="faq-link"

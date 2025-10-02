@@ -15,10 +15,16 @@ class ProfileService {
       return { success: false, error: "Tutor profile not found" };
     }
 
-    // Calculate profile completion
+    // NEW: compute WWCC status and include documents flag
+    const wwcc = await this.wwccStatus(tutorProfile.userId);
     const completionStatus = this.calculateCompletionStatus(
       tutorProfile,
-      tutorProfile.user
+      tutorProfile.user,
+      {
+        requireDocuments: true,
+        documentsUploaded: !!tutorProfile.documents_uploaded,
+        wwccStatus: wwcc.status,
+      }
     );
 
     return {
@@ -34,6 +40,7 @@ class ProfileService {
           created_at: tutorProfile.user.createdAt,
         },
         ...tutorProfile,
+        wwcc_status: wwcc, // ⬅️ convenient for the UI
         completion_status: completionStatus,
       },
     };
@@ -51,8 +58,16 @@ class ProfileService {
       return { success: false, error: "Tutor profile not found" };
     }
 
-    // Calculate profile completion
-    const completionStatus = this.calculateCompletionStatus(tutorProfile, user);
+    const wwcc = await this.wwccStatus(user.id);
+    const completionStatus = this.calculateCompletionStatus(
+      tutorProfile,
+      user,
+      {
+        requireDocuments: true,
+        documentsUploaded: !!tutorProfile.documents_uploaded,
+        wwccStatus: wwcc.status,
+      }
+    );
 
     return {
       success: true,
@@ -67,6 +82,7 @@ class ProfileService {
           created_at: user.createdAt,
         },
         ...tutorProfile,
+        wwcc_status: wwcc,
         completion_status: completionStatus,
       },
     };
@@ -77,6 +93,11 @@ class ProfileService {
     console.log("🔍 ProfileService updateTutorProfile called with:", {
       userId,
       updateData: JSON.stringify(updateData, null, 2),
+    });
+
+    console.log("🔍 FirstName/LastName in updateData:", {
+      firstName: updateData.firstName,
+      lastName: updateData.lastName,
     });
 
     const user = await userModel.findById(userId);
@@ -142,8 +163,9 @@ class ProfileService {
     // Recalculate completion status
     updatedProfile.is_profile_complete = this.isProfileComplete(updatedProfile);
 
-    // Filter only valid TutorProfile fields for Prisma update
-    const validFields = [
+    // Separate User model fields from TutorProfile fields
+    const userFields = ["firstName", "lastName"];
+    const tutorProfileFields = [
       "phone_number",
       "bio",
       "hourly_rate",
@@ -163,20 +185,44 @@ class ProfileService {
       "approved_at",
     ];
 
-    const dataToUpdate = {};
-    validFields.forEach((field) => {
+    // Prepare User model update data
+    const userDataToUpdate = {};
+    userFields.forEach((field) => {
       if (updatedProfile[field] !== undefined) {
-        dataToUpdate[field] = updatedProfile[field];
+        userDataToUpdate[field] = updatedProfile[field];
+      }
+    });
+
+    // Prepare TutorProfile update data
+    const profileDataToUpdate = {};
+    tutorProfileFields.forEach((field) => {
+      if (updatedProfile[field] !== undefined) {
+        profileDataToUpdate[field] = updatedProfile[field];
       }
     });
 
     console.log("🔍 Data to update in database:", {
       userId,
-      dataToUpdate: JSON.stringify(dataToUpdate, null, 2),
+      userDataToUpdate: JSON.stringify(userDataToUpdate, null, 2),
+      profileDataToUpdate: JSON.stringify(profileDataToUpdate, null, 2),
     });
 
-    // Save updated profile
-    await tutorProfileModel.update(userId, dataToUpdate);
+    // Update User model if there are user fields to update
+    if (Object.keys(userDataToUpdate).length > 0) {
+      console.log("🔍 Updating User model with:", userDataToUpdate);
+      await userModel.update(userId, userDataToUpdate);
+      console.log("✅ User model updated successfully");
+
+      // Verify the update by fetching the user again
+      const updatedUser = await userModel.findById(userId);
+      console.log("🔍 User after update:", {
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+      });
+    }
+
+    // Update TutorProfile model
+    await tutorProfileModel.update(userId, profileDataToUpdate);
 
     console.log("✅ Database update completed successfully");
 
@@ -215,8 +261,21 @@ class ProfileService {
     };
   }
 
+  async wwccStatus(userId) {
+    const wwcc = await tutorDocumentModel.getLatestWWCC(userId);
+    if (!wwcc) return { status: "missing" };
+    if (!wwcc.expiresAt) return { status: "unknown" };
+
+    const now = new Date();
+    const expires = new Date(wwcc.expiresAt);
+    const daysLeft = Math.ceil((expires - now) / (1000 * 60 * 60 * 24));
+    if (daysLeft < 0) return { status: "expired", daysLeft };
+    if (daysLeft <= 30) return { status: "expiring", daysLeft };
+    return { status: "valid", daysLeft };
+  }
+
   // Calculate profile completion status
-  calculateCompletionStatus(profile, user) {
+  calculateCompletionStatus(profile, user, extra = {}) {
     const requiredFields = [
       "bio",
       "hourly_rate",
@@ -230,9 +289,11 @@ class ProfileService {
     let completedFields = 0;
 
     requiredFields.forEach((field) => {
+      const v = profile[field];
       if (
-        !profile[field] ||
-        (Array.isArray(profile[field]) && profile[field].length === 0)
+        !v ||
+        (Array.isArray(v) && v.length === 0) ||
+        (typeof v === "string" && v.trim() === "")
       ) {
         missingItems.push(field);
       } else {
@@ -240,17 +301,34 @@ class ProfileService {
       }
     });
 
+    // Include documents + WWCC validity if requested
+    if (extra.requireDocuments) {
+      if (extra.documentsUploaded) {
+        completedFields++;
+      } else {
+        missingItems.push("documents_uploaded");
+      }
+
+      if (extra.wwccStatus === "valid" || extra.wwccStatus === "expiring") {
+        completedFields++;
+      } else {
+        // surface the key we want the UI to show as missing
+        missingItems.push("wwcc_valid");
+      }
+    }
+
+    const totalFields =
+      requiredFields.length + (extra.requireDocuments ? 2 : 0);
     const completionPercentage = Math.round(
-      (completedFields / requiredFields.length) * 100
+      (completedFields / totalFields) * 100
     );
-    const fullyComplete = missingItems.length === 0;
 
     return {
-      completion_percentage: completionPercentage,
-      fully_complete: fullyComplete,
+      completion_percentage: Math.max(0, Math.min(100, completionPercentage)),
+      fully_complete: missingItems.length === 0,
       missing_items: missingItems,
       completed_fields: completedFields,
-      total_fields: requiredFields.length,
+      total_fields: totalFields,
     };
   }
 
@@ -280,14 +358,23 @@ class ProfileService {
       return { success: false, error: "Tutor profile not found" };
     }
 
+    const wwcc = await this.wwccStatus(tutorProfile.userId);
     const completionStatus = this.calculateCompletionStatus(
       tutorProfile,
-      tutorProfile.user
+      tutorProfile.user,
+      {
+        requireDocuments: true,
+        documentsUploaded: !!tutorProfile.documents_uploaded,
+        wwccStatus: wwcc.status,
+      }
     );
 
     return {
       success: true,
-      data: completionStatus,
+      data: {
+        ...completionStatus,
+        wwcc_status: wwcc, // extra detail for the banner (e.g., expiring in N days)
+      },
     };
   }
 
@@ -303,11 +390,23 @@ class ProfileService {
       return { success: false, error: "Tutor profile not found" };
     }
 
-    const completionStatus = this.calculateCompletionStatus(tutorProfile, user);
+    const wwcc = await this.wwccStatus(user.id);
+    const completionStatus = this.calculateCompletionStatus(
+      tutorProfile,
+      user,
+      {
+        requireDocuments: true,
+        documentsUploaded: !!tutorProfile.documents_uploaded,
+        wwccStatus: wwcc.status,
+      }
+    );
 
     return {
       success: true,
-      data: completionStatus,
+      data: {
+        ...completionStatus,
+        wwcc_status: wwcc,
+      },
     };
   }
 
@@ -459,6 +558,67 @@ class ProfileService {
     const wwccCount = await tutorDocumentModel.countByType(userId, "wwcc");
     const both = contractCount > 0 && wwccCount > 0;
     await tutorProfileModel.update(userId, { documents_uploaded: both });
+  }
+
+  // Get live tutors (approved tutors with documents uploaded)
+  async getLiveTutors() {
+    try {
+      const liveTutors = await tutorProfileModel.findLive({
+        where: {
+          is_live: true,
+          documents_uploaded: true,
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              username: true,
+              email: true,
+            },
+          },
+        },
+      });
+
+      // Transform the data to match frontend expectations
+      const transformedTutors = liveTutors.map((tutor) => ({
+        id: tutor.userId,
+        name: `${tutor.user.firstName} ${tutor.user.lastName}`,
+        username: tutor.user.username,
+        email: tutor.user.email,
+        bio: tutor.bio || "",
+        subjects: tutor.subjects || [],
+        preferred_locations: tutor.preferred_locations || [],
+        hourly_rate: tutor.hourly_rate ? parseFloat(tutor.hourly_rate) : null,
+        university: tutor.university || "",
+        current_studies: tutor.current_studies || [],
+        schools_attended: tutor.schools_attended || [],
+        tier: tutor.tier || "gold",
+        rating: tutor.rating ? parseFloat(tutor.rating) : 0,
+        atar: tutor.atar ? parseFloat(tutor.atar) : null,
+        approved_at: tutor.approved_at,
+        status: "approved", // Since we're only getting live tutors
+        goldPoints:
+          tutor.tier === "gold" ? 100 : tutor.tier === "premium" ? 200 : 300,
+        atrPoints: tutor.atar ? Math.round(tutor.atar) : 0,
+        image: null, // Placeholder for now
+      }));
+
+      return {
+        success: true,
+        data: {
+          tutors: transformedTutors,
+          count: transformedTutors.length,
+        },
+      };
+    } catch (error) {
+      console.error("Get live tutors error:", error);
+      return {
+        success: false,
+        error: "Failed to fetch live tutors",
+      };
+    }
   }
 }
 

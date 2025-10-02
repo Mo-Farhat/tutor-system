@@ -1,7 +1,6 @@
 import "../../../../css/dashboards/tutor/profile/profile.css";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../../../contexts/AuthContext";
-import authService from "../../../../services/authService";
 import profileService from "../../../../services/profileService";
 
 function TutorProfile() {
@@ -23,11 +22,10 @@ function TutorProfile() {
     newPassword: "",
     confirmPassword: "",
     abnNumber: "",
-    paymentMethod: "bank_transfer",
+    paymentMethod: "bank",
     accountName: "",
     bsb: "",
     accountNumber: "",
-    paypalEmail: "",
   });
 
   const [selectedLocations, setSelectedLocations] = useState([]);
@@ -42,8 +40,7 @@ function TutorProfile() {
   const [introVideo, setIntroVideo] = useState(null);
   const [tutorContractFile, setTutorContractFile] = useState(null);
   const [wwccFile, setWwccFile] = useState(null);
-  const [paymentInfo, setPaymentInfo] = useState(null);
-  const [uploadedDocuments, setUploadedDocuments] = useState([]);
+  const [wwccExpiry, setWwccExpiry] = useState("");
 
   // Fetch profile data on component mount
   useEffect(() => {
@@ -53,189 +50,76 @@ function TutorProfile() {
   const fetchProfileData = async () => {
     try {
       setLoading(true);
-      setError(""); // Clear any previous errors
 
-      const userInfo = user || authService.getUserInfo();
-      const userId = userInfo?.id || userInfo?.userId;
-      const username = userInfo?.username;
-      console.log("Fetching profile for user:", { userId, username });
-
-      if (!userId) {
-        throw new Error("No user ID available");
-      }
-
-      // Use the original fetch to bypass the interceptor
-      const originalFetch = window.fetch.__original__ || window.fetch;
-      const response = await originalFetch(
-        `http://localhost:8000/api/auth/tutor/profile/?username=${encodeURIComponent(
-          username
-        )}`,
-        {
-          headers: {
-            Authorization: `Bearer ${authService.getAccessToken()}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      console.log("Response status:", response.status);
-      console.log("Response ok:", response.ok);
-      console.log("Response headers:", response.headers);
-      console.log(
-        "Request URL:",
-        `http://localhost:8000/api/auth/tutor/profile/?username=${encodeURIComponent(
-          username
-        )}`
-      );
-      console.log("Access token:", authService.getAccessToken());
+      setError(''); // Clear any previous errors
+      
+      const username = user?.username || 'notmanu23'; // Use logged in user or fallback to existing user
+      console.log('Fetching profile for username:', username);
+      
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000'}/api/auth/tutor/profile/?username=${username}`);
+      console.log('Response status:', response.status);
 
       if (!response.ok) {
-        // If unauthorized, try to refresh token
-        if (response.status === 401 && authService.getRefreshToken()) {
-          try {
-            await authService.refreshToken();
-            // Retry the request with new token
-            const retryResponse = await originalFetch(
-              `http://localhost:8000/api/auth/tutor/profile/?username=${encodeURIComponent(
-                username
-              )}`,
-              {
-                headers: {
-                  Authorization: `Bearer ${authService.getAccessToken()}`,
-                  "Content-Type": "application/json",
-                },
-              }
-            );
-            if (!retryResponse.ok) {
-              throw new Error(`HTTP error! status: ${retryResponse.status}`);
-            }
-            const retryData = await retryResponse.json();
-            return await processProfileData(retryData, userId, username);
-          } catch (refreshError) {
-            console.error("Token refresh failed:", refreshError);
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-        } else {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log("Response data:", data);
-      return await processProfileData(data, userId, username);
-    } catch (err) {
-      console.error("Error fetching profile data:", err);
-      setError(`Failed to load profile data: ${err.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
+      console.log("API response:", data);
 
-  const processProfileData = async (data, userId, username) => {
-    console.log("API response:", data);
+      if (data.success) {
+        setProfileData(data.data);
 
-    if (data.success && data.data) {
-      setProfileData(data.data);
+        // Update form data with real user data
+        const userData = data.data.user;
+        const newFormData = {
+          fullName: `${userData.first_name || ""} ${
+            userData.last_name || ""
+          }`.trim(),
+          email: userData.email || "",
+          username: userData.username || "",
+          phoneNumber: data.data.phone_number || "",
+          bio: data.data.bio || "",
+          hourly_rate: data.data.hourly_rate || "",
+          university: data.data.university || "",
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+          abnNumber: "",
+          paymentMethod: "bank",
+          accountName: "",
+          bsb: "",
+          accountNumber: "",
+        };
 
-      // Update form data with real user data, using application data as fallback
-      const userData = data.data.user || {};
-      const appData = data.data.application_data || {};
+        console.log("Setting form data:", newFormData);
+        console.log("Phone number from API:", data.data.phone_number);
+        setFormData(newFormData);
 
-      // Parse full name from application if available
-      let firstName = userData.first_name || "";
-      let lastName = userData.last_name || "";
+        // Set locations
+        setSelectedLocations(
+          data.data.preferred_locations || data.data.locations || []
+        );
 
-      // If we have application full_name but no first/last name, try to parse it
-      if (!firstName && !lastName && appData.full_name) {
-        const nameParts = appData.full_name.trim().split(" ");
-        firstName = nameParts[0] || "";
-        lastName = nameParts.slice(1).join(" ") || "";
-      }
-
-      const newFormData = {
-        fullName: `${firstName} ${lastName}`.trim() || appData.full_name || "",
-        email: userData.email || appData.email || "",
-        username: userData.username || "",
-        phoneNumber: data.data.phone_number || appData.phone || "",
-        bio:
-          data.data.bio || (appData.motivation ? `${appData.motivation}` : ""),
-        hourly_rate: data.data.hourly_rate || "45.00",
-        university: data.data.university || appData.current_study || "",
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-        abnNumber: "",
-        paymentMethod: "bank_transfer",
-        accountName:
-          `${firstName} ${lastName}`.trim() || appData.full_name || "",
-        bsb: "",
-        accountNumber: "",
-      };
-
-      console.log("Setting form data:", newFormData);
-      console.log("Application data:", appData);
-      setFormData(newFormData);
-
-      // Set locations
-      const locations =
-        data.data.preferred_locations || data.data.locations || [];
-      setSelectedLocations(Array.isArray(locations) ? locations : []);
-
-      // Set subjects with enhanced parsing from application data
-      const subjects = data.data.subjects_selected || data.data.subjects || [];
-      const subjectsArray = Array.isArray(subjects) ? subjects : [];
-
-      // If no subjects but we have application data, create default entries
-      if (subjectsArray.length === 0 && appData.subjects_to_tutor) {
-        const defaultSubjects = appData.subjects_to_tutor
-          .split(/[,;]/)
-          .map((s) => s.trim())
-          .filter((s) => s)
-          .map((subject) => ({
-            yearLevel: "Year 11/12",
-            curriculumOrState: "VCE",
-            subject: subject,
-          }));
-        setSubjectEntries(defaultSubjects);
-      } else {
+        // Set subjects
+        const subjects =
+          data.data.subjects_selected || data.data.subjects || [];
         setSubjectEntries(
-          subjectsArray.map((subject) => ({
+          subjects.map((subject) => ({
             yearLevel: subject.year_level || "",
             curriculumOrState: subject.curriculum || "",
             subject: subject.subject || "",
           }))
         );
-      }
 
-      // Set current studies
-      const currentStudies = data.data.current_studies || [];
-      setCurrentStudies(Array.isArray(currentStudies) ? currentStudies : []);
+        // Set current studies
+        setCurrentStudies(data.data.current_studies || []);
+        // Set schools
+        setSchools(data.data.schools_attended || []);
 
-      // Set schools
-      const schools = data.data.schools_attended || [];
-      setSchools(Array.isArray(schools) ? schools : []);
+        // Fetch completion status
 
-      // Set intro video from application if available
-      if (appData.video_submission && !introVideo) {
-        // Note: We can't set the file directly, but we can show that a video exists
-        console.log(
-          "Application video available at:",
-          appData.video_submission
-        );
-      }
+        const completionResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000'}/api/auth/tutor/completion-status/?username=${username}`);
 
-      // Fetch completion status
-      try {
-        const completionResponse = await fetch(
-          `http://localhost:8000/api/auth/tutor/completion-status/?username=${encodeURIComponent(
-            username
-          )}`,
-          {
-            headers: {
-              Authorization: `Bearer ${authService.getAccessToken()}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
         const completionData = await completionResponse.json();
 
         if (completionData.success) {
@@ -246,46 +130,15 @@ function TutorProfile() {
             completionData.message
           );
         }
-      } catch (completionError) {
-        console.error("Error fetching completion status:", completionError);
+      } else {
+        console.error("API Error:", data.message);
+        setError(`Failed to load profile data: ${data.message}`);
       }
-
-      // Fetch payment info
-      try {
-        const paymentData = await profileService.getPaymentInfo();
-        if (paymentData.success) {
-          setPaymentInfo(paymentData.data);
-          // Update form data with payment info
-          setFormData((prev) => ({
-            ...prev,
-            abnNumber: paymentData.data.abnNumber || "",
-            paymentMethod: paymentData.data.paymentMethod || "bank_transfer",
-            accountName: paymentData.data.accountName || "",
-            bsb: paymentData.data.bsb || "",
-            accountNumber: paymentData.data.accountNumber || "",
-            paypalEmail: paymentData.data.paypalEmail || "",
-          }));
-        }
-      } catch (paymentError) {
-        console.error("Error fetching payment info:", paymentError);
-      }
-
-      // Fetch uploaded documents
-      try {
-        const documentsData = await profileService.getDocuments();
-        if (documentsData.success) {
-          setUploadedDocuments(documentsData.data);
-        }
-      } catch (documentsError) {
-        console.error("Error fetching documents:", documentsError);
-      }
-    } else {
-      console.error("API Error:", data.message || "No profile data received");
-      setError(
-        `Failed to load profile data: ${
-          data.message || "No profile data received"
-        }`
-      );
+    } catch (err) {
+      console.error("Error fetching profile data:", err);
+      setError(`Failed to load profile data: ${err.message}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -387,8 +240,7 @@ function TutorProfile() {
   const handleSaveProfile = async () => {
     try {
       setLoading(true);
-      const username = user?.username || "notmanu23";
-      console.log("Attempting to update profile for username:", username);
+      const username = user?.username || "notmanu23"; // Use logged in user or fallback to existing user
 
       // Check if all required fields are filled
       const isComplete =
@@ -399,6 +251,20 @@ function TutorProfile() {
         currentStudies.length > 0 &&
         selectedLocations.length > 0 &&
         subjectEntries.length > 0;
+
+      // Upload required documents first if provided
+      try {
+        if (tutorContractFile || wwccFile || wwccExpiry) {
+          await profileService.uploadDocuments(
+            tutorContractFile,
+            wwccFile,
+            wwccExpiry
+          );
+        }
+      } catch (uploadErr) {
+        console.error("Error uploading documents:", uploadErr);
+        // Continue to save other profile fields even if docs upload fails
+      }
 
       // Prepare the update data
       const updateData = {
@@ -423,137 +289,31 @@ function TutorProfile() {
         is_profile_complete: isComplete,
       };
 
-      console.log("Update data being sent:", updateData);
 
-      // Track success/failure for each operation
-      const results = {
-        profile: false,
-        payment: false,
-        video: false,
-        documents: false,
-      };
-      const errors = [];
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000'}/api/auth/tutor/profile/?username=${username}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData)
+      });
 
-      // 1. Update basic profile
-      try {
-        const profileResponse = await profileService.updateTutorProfile(
-          updateData
-        );
-        if (profileResponse.success) {
-          results.profile = true;
-          console.log("Profile updated successfully");
-        } else {
-          errors.push("Profile update failed");
-        }
-      } catch (err) {
-        console.error("Error updating profile:", err);
-        errors.push(`Profile update failed: ${err.message}`);
-      }
 
-      // 2. Update payment info
-      try {
-        const paymentData = {
-          abnNumber:
-            formData.abnNumber && formData.abnNumber.trim() !== ""
-              ? formData.abnNumber
-              : null,
-          paymentMethod:
-            formData.paymentMethod && formData.paymentMethod.trim() !== ""
-              ? formData.paymentMethod
-              : null,
-          accountName:
-            formData.accountName && formData.accountName.trim() !== ""
-              ? formData.accountName
-              : null,
-          bsb: formData.bsb && formData.bsb.trim() !== "" ? formData.bsb : null,
-          accountNumber:
-            formData.accountNumber && formData.accountNumber.trim() !== ""
-              ? formData.accountNumber
-              : null,
-          paypalEmail:
-            formData.paypalEmail && formData.paypalEmail.trim() !== ""
-              ? formData.paypalEmail
-              : null,
-        };
+      const data = await response.json();
 
-        const paymentResponse = await profileService.updatePaymentInfo(
-          paymentData
-        );
-        if (paymentResponse.success) {
-          results.payment = true;
-          console.log("Payment info updated successfully");
-        } else {
-          errors.push("Payment info update failed");
-        }
-      } catch (err) {
-        console.error("Error updating payment info:", err);
-        errors.push(`Payment info update failed: ${err.message}`);
-      }
-
-      // 3. Upload video intro if selected
-      if (introVideo) {
-        try {
-          const videoResponse = await profileService.uploadVideoIntro(
-            introVideo
-          );
-          if (videoResponse.success) {
-            results.video = true;
-            console.log("Video intro uploaded successfully");
-            setIntroVideo(null); // Clear from state
-          } else {
-            errors.push("Video intro upload failed");
-          }
-        } catch (err) {
-          console.error("Error uploading video intro:", err);
-          errors.push(`Video intro upload failed: ${err.message}`);
-        }
+      if (data.success) {
+        alert("Profile updated successfully!");
+        // Reset local doc state after successful upload/save
+        setTutorContractFile(null);
+        setWwccFile(null);
+        // Refresh the data including completion status
+        fetchProfileData();
       } else {
-        results.video = true; // No video to upload, consider success
+        setError("Failed to update profile");
       }
-
-      // 4. Upload documents if selected
-      if (tutorContractFile || wwccFile) {
-        try {
-          const documentsResponse = await profileService.uploadDocuments(
-            tutorContractFile,
-            wwccFile
-          );
-          if (documentsResponse.success) {
-            results.documents = true;
-            console.log("Documents uploaded successfully");
-            setTutorContractFile(null); // Clear from state
-            setWwccFile(null); // Clear from state
-          } else {
-            errors.push("Documents upload failed");
-          }
-        } catch (err) {
-          console.error("Error uploading documents:", err);
-          errors.push(`Documents upload failed: ${err.message}`);
-        }
-      } else {
-        results.documents = true; // No documents to upload, consider success
-      }
-
-      // Show results to user
-      const successCount = Object.values(results).filter(Boolean).length;
-      const totalOperations = Object.keys(results).length;
-
-      if (successCount === totalOperations) {
-        alert("Profile updated successfully! All changes saved.");
-      } else {
-        const successMsg = `Profile updated successfully! ${successCount}/${totalOperations} operations completed.`;
-        const errorMsg =
-          errors.length > 0 ? `\n\nErrors:\n${errors.join("\n")}` : "";
-        alert(successMsg + errorMsg);
-      }
-
-      // Refresh the data
-      fetchProfileData();
     } catch (err) {
       console.error("Error updating profile:", err);
-      const errorMessage = err.message || "Network error occurred";
-      setError(`Failed to update profile: ${errorMessage}`);
-      alert(`Failed to update profile: ${errorMessage}`);
+      setError("Failed to update profile");
     } finally {
       setLoading(false);
     }
@@ -641,9 +401,7 @@ function TutorProfile() {
                       </div>
 
                       {/* Show missing items if incomplete */}
-                      {completionStatus &&
-                        !completionStatus.fully_complete &&
-                        completionStatus.missing_items &&
+                      {!completionStatus.fully_complete &&
                         completionStatus.missing_items.length > 0 && (
                           <div className="mt-3">
                             <h6 className="text-danger mb-2">Missing Items:</h6>
@@ -1258,10 +1016,8 @@ function TutorProfile() {
                                 type="radio"
                                 name="paymentMethod"
                                 id="bankTransfer"
-                                value="bank_transfer"
-                                checked={
-                                  formData.paymentMethod === "bank_transfer"
-                                }
+                                value="bank"
+                                checked={formData.paymentMethod === "bank"}
                                 onChange={handleInputChange}
                               />
                               <label
@@ -1293,7 +1049,7 @@ function TutorProfile() {
                       </div>
                     </div>
 
-                    {formData.paymentMethod === "bank_transfer" && (
+                    {formData.paymentMethod === "bank" && (
                       <div className="row">
                         <div className="col-md-6">
                           <div className="mb-3">
@@ -1346,27 +1102,6 @@ function TutorProfile() {
                         </div>
                       </div>
                     )}
-
-                    {formData.paymentMethod === "paypal" && (
-                      <div className="row">
-                        <div className="col-md-6">
-                          <div className="mb-3">
-                            <label htmlFor="paypalEmail" className="form-label">
-                              PayPal Email
-                            </label>
-                            <input
-                              type="email"
-                              className="form-control"
-                              id="paypalEmail"
-                              name="paypalEmail"
-                              value={formData.paypalEmail}
-                              onChange={handleInputChange}
-                              placeholder="your.email@example.com"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
@@ -1383,34 +1118,6 @@ function TutorProfile() {
 
                 <div className="tutor-profile-card">
                   <div className="tutor-profile-card-body">
-                    {/* Show existing application video if available */}
-                    {profileData?.application_data?.video_submission &&
-                      !introVideo && (
-                        <div className="alert alert-info mb-3">
-                          <h6 className="alert-heading">
-                            <i className="fas fa-info-circle me-2"></i>
-                            Application Video Available
-                          </h6>
-                          <p className="mb-2">
-                            You uploaded a video during your application
-                            process.
-                          </p>
-                          <a
-                            href={profileData.application_data.video_submission}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="btn btn-outline-primary btn-sm me-2"
-                          >
-                            <i className="fas fa-play me-1"></i>
-                            View Application Video
-                          </a>
-                          <small className="text-muted d-block mt-2">
-                            You can upload a new video below or continue using
-                            your application video.
-                          </small>
-                        </div>
-                      )}
-
                     <div className="tutor-profile-upload-area">
                       {introVideo ? (
                         <div className="tutor-profile-file-preview">
@@ -1440,11 +1147,7 @@ function TutorProfile() {
                             className="tutor-profile-upload-label"
                           >
                             <i className="fas fa-cloud-upload-alt fa-3x mb-3"></i>
-                            <h5>
-                              {profileData?.application_data?.video_submission
-                                ? "Upload New Video Introduction"
-                                : "Upload Video Introduction"}
-                            </h5>
+                            <h5>Upload Video Introduction</h5>
                             <p className="text-muted">
                               Click to upload or drag and drop
                             </p>
@@ -1554,6 +1257,18 @@ function TutorProfile() {
                               </label>
                             </div>
                           )}
+                          <div className="mt-2">
+                            <label htmlFor="wwcc-expiry" className="form-label">
+                              WWCC Expiry Date
+                            </label>
+                            <input
+                              type="date"
+                              id="wwcc-expiry"
+                              className="form-control"
+                              value={wwccExpiry}
+                              onChange={(e) => setWwccExpiry(e.target.value)}
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>

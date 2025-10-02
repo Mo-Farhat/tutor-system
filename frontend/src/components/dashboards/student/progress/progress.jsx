@@ -1,68 +1,22 @@
 import React, { useState, useEffect } from 'react';
+import studentService from '../../../../services/studentService';
 import '../../../../css/dashboards/student/progress/progress.css';
 
 function StudentProgressMilestones() {
     // Student achievement data
-    const [achievementStats] = useState({
+    const [achievementStats, setAchievementStats] = useState({
         currentStreak: 28,
         streakTarget: 30,
         totalLearningTime: 47,
         learningTimeTarget: 50,
-        badgesEarned: 15,
+        badgesEarned: 0,
         badgesTarget: 20
     });
 
-    // Available badges from tutor system
-    const [earnedBadges] = useState([
-        {
-            name: 'Early Bird',
-            description: 'Never missed a morning session',
-            dateEarned: '2025-03-20',
-            category: 'Attendance',
-            icon: '🌅',
-            tutorNote: 'Consistently punctual for all morning sessions'
-        },
-        {
-            name: 'Bookworm',
-            description: 'Completed 50 sessions',
-            dateEarned: '2025-03-15',
-            category: 'Milestones',
-            icon: '📚',
-            tutorNote: 'Reached 50 sessions milestone with excellent engagement'
-        },
-        {
-            name: 'Consistent',
-            description: '30-day streak achieved',
-            dateEarned: '2025-03-10',
-            category: 'Streaks',
-            icon: '📅',
-            tutorNote: 'Maintained perfect attendance for 30 consecutive days'
-        },
-        {
-            name: 'Concept Master',
-            description: 'Mastered challenging concepts',
-            dateEarned: '2025-03-05',
-            category: 'Academic',
-            icon: '🎯',
-            tutorNote: 'Excellent understanding of quadratic equations'
-        },
-        {
-            name: 'Problem Solver',
-            description: 'Exceptional logical thinking',
-            dateEarned: '2025-02-28',
-            category: 'Academic',
-            icon: '🧩',
-            tutorNote: 'Creative approach to solving complex problems'
-        },
-        {
-            name: 'Homework Hero',
-            description: '100% completion rate',
-            dateEarned: '2025-02-20',
-            category: 'Dedication',
-            icon: '📝',
-            tutorNote: 'Perfect homework completion for the month'
-        }
-    ]);
+    // Available badges from tutor system (loaded from API)
+    const [earnedBadges, setEarnedBadges] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     // Recent achievements
     const [recentAchievements] = useState([
@@ -91,7 +45,87 @@ function StudentProgressMilestones() {
 
     // Badge categories for filtering
     const [selectedCategory, setSelectedCategory] = useState('All');
-    const badgeCategories = ['All', 'Academic', 'Attendance', 'Milestones', 'Streaks', 'Dedication'];
+    const [badgeCategories, setBadgeCategories] = useState(['All']);
+
+    // Load achievements data from backend
+    useEffect(() => {
+        loadAchievements();
+    }, []);
+
+    const loadAchievements = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            const response = await studentService.getAchievements();
+            if (response.success) {
+                // Transform backend data to frontend format
+                const transformedBadges = response.data.map(studentBadge => ({
+                    id: studentBadge.id,
+                    name: studentBadge.badge.name,
+                    description: studentBadge.badge.description || 'Achievement earned',
+                    dateEarned: studentBadge.awardedAt,
+                    category: getCategoryFromBadgeCode(studentBadge.badge.code),
+                    icon: getIconForBadge(studentBadge.badge.code) || studentBadge.badge.iconUrl || '🏆',
+                    tutorNote: studentBadge.note,
+                    count: studentBadge.count,
+                    tutorName: studentBadge.tutor ? `${studentBadge.tutor.firstName} ${studentBadge.tutor.lastName}` : null
+                }));
+
+                setEarnedBadges(transformedBadges);
+
+                // Update achievement stats
+                setAchievementStats(prev => ({
+                    ...prev,
+                    badgesEarned: transformedBadges.length
+                }));
+
+                // Extract unique categories from badges
+                const categories = ['All', ...new Set(transformedBadges.map(badge => badge.category).filter(Boolean))];
+                setBadgeCategories(categories);
+            } else {
+                setError(response.error || 'Failed to load achievements');
+            }
+        } catch (err) {
+            console.error('Error loading achievements:', err);
+            setError('Failed to load achievements. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Helper function to get category from badge code
+    const getCategoryFromBadgeCode = (code) => {
+        if (!code) return 'General';
+        const lowerCode = code.toLowerCase();
+        
+        if (lowerCode.includes('attendance') || lowerCode.includes('punctual') || lowerCode.includes('early')) return 'Attendance';
+        if (lowerCode.includes('streak') || lowerCode.includes('consistent')) return 'Streaks';
+        if (lowerCode.includes('homework') || lowerCode.includes('dedication')) return 'Dedication';
+        if (lowerCode.includes('milestone') || lowerCode.includes('session') || lowerCode.includes('hour')) return 'Milestones';
+        if (lowerCode.includes('academic') || lowerCode.includes('concept') || lowerCode.includes('subject')) return 'Academic';
+        
+        return 'General';
+    };
+
+    // Helper function to get icon for badge
+    const getIconForBadge = (code) => {
+        if (!code) return '🏆';
+        const lowerCode = code.toLowerCase();
+        
+        if (lowerCode.includes('early')) return '🌅';
+        if (lowerCode.includes('book') || lowerCode.includes('read')) return '📚';
+        if (lowerCode.includes('streak') || lowerCode.includes('consistent')) return '📅';
+        if (lowerCode.includes('concept') || lowerCode.includes('master')) return '🎯';
+        if (lowerCode.includes('problem') || lowerCode.includes('solve')) return '🧩';
+        if (lowerCode.includes('homework')) return '📝';
+        if (lowerCode.includes('attendance')) return '⭐';
+        if (lowerCode.includes('time') || lowerCode.includes('hour')) return '⏰';
+        if (lowerCode.includes('champion')) return '🏆';
+        if (lowerCode.includes('star') || lowerCode.includes('rating')) return '⭐';
+        
+        return '🏆';
+    };
 
     // Filter badges by category
     const filteredBadges = selectedCategory === 'All' 
@@ -102,6 +136,42 @@ function StudentProgressMilestones() {
     const streakProgress = (achievementStats.currentStreak / achievementStats.streakTarget) * 100;
     const learningTimeProgress = (achievementStats.totalLearningTime / achievementStats.learningTimeTarget) * 100;
     const badgeProgress = (achievementStats.badgesEarned / achievementStats.badgesTarget) * 100;
+
+    // Loading state
+    if (loading) {
+        return (
+            <div className="student-progress-dashboard">
+                <div className="student-progress-content">
+                    <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '400px' }}>
+                        <div className="text-center">
+                            <div className="spinner-border text-primary" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                            </div>
+                            <p className="mt-3">Loading your achievements...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Error state
+    if (error) {
+        return (
+            <div className="student-progress-dashboard">
+                <div className="student-progress-content">
+                    <div className="alert alert-danger" role="alert">
+                        <h4 className="alert-heading">Error Loading Achievements</h4>
+                        <p>{error}</p>
+                        <hr />
+                        <button className="btn btn-outline-danger" onClick={loadAchievements}>
+                            Try Again
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="student-progress-dashboard">
@@ -209,6 +279,16 @@ function StudentProgressMilestones() {
                                                 <small className="text-muted">"{badge.tutorNote}"</small>
                                             </div>
                                         )}
+                                        {badge.tutorName && (
+                                            <div className="student-progress-badge-tutor">
+                                                <small className="text-muted">Awarded by: {badge.tutorName}</small>
+                                            </div>
+                                        )}
+                                        {badge.count > 1 && (
+                                            <div className="student-progress-badge-count">
+                                                <small className="text-primary">×{badge.count}</small>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -218,8 +298,13 @@ function StudentProgressMilestones() {
                     {filteredBadges.length === 0 && (
                         <div className="student-progress-empty-state">
                             <div className="student-progress-empty-icon">🏆</div>
-                            <h6>No badges in this category yet</h6>
+                            <h6>{selectedCategory === 'All' ? 'No badges earned yet' : `No badges in ${selectedCategory} category yet`}</h6>
                             <p>Keep learning to earn more badges!</p>
+                            {earnedBadges.length === 0 && (
+                                <button className="btn btn-outline-primary" onClick={loadAchievements}>
+                                    <i className="fas fa-sync-alt me-2"></i>Refresh
+                                </button>
+                            )}
                         </div>
                     )}
                 </div>

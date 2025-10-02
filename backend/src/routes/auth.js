@@ -45,6 +45,9 @@ router.get("/profile", authController.getUserProfile);
 // Auth status check
 router.get("/check-auth", authenticateToken, authController.checkAuthStatus);
 
+// Logout endpoint
+router.post("/logout", authenticateToken, authController.logout);
+
 // Create admin user (development endpoint)
 router.post("/create-admin", authController.createAdmin);
 

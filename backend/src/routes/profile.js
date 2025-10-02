@@ -10,12 +10,13 @@ const {
 const {
   validateProfileUpdate,
   validatePasswordChange,
-  validatePaymentInfo,  
+  validatePaymentInfo,
 } = require("../middleware/validation");
 
 const {
-  tutorVideoUpload,               // NEW
-  tutorDocsUpload,                // NEW
+  tutorVideoUpload, // NEW
+  tutorDocsUpload, // NEW
+  studentPhotoUpload,
   handleUploadError,
 } = require("../middleware/upload");
 
@@ -130,5 +131,17 @@ router.get(
   requireTutor,
   profileController.getDocuments
 );
+
+router.post(
+  "/student/profile/photo",
+  authenticateToken,
+  requireStudent,
+  studentPhotoUpload,
+  handleUploadError,
+  profileController.uploadStudentPhoto
+);
+
+// Get live tutors (public endpoint for find-tutor page)
+router.get("/tutor/tutors/live", profileController.getLiveTutors);
 
 module.exports = router;

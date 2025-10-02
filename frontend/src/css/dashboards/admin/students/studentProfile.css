@@ -1,0 +1,512 @@
+/* Student Profile Modal Styles */
+.student-profile-overview {
+  padding: 20px;
+}
+
+.student-profile-card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.student-profile-card h6 {
+  color: #333;
+  font-weight: 600;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.student-info-item {
+  margin-bottom: 10px;
+  padding: 5px 0;
+}
+
+.student-info-item strong {
+  color: #555;
+  margin-right: 10px;
+}
+
+/* Pipeline Styles */
+.student-profile-pipeline {
+  padding: 20px;
+}
+
+.pipeline-tracker {
+  position: relative;
+}
+
+.pipeline-stage {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.pipeline-stage:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 15px;
+  top: 40px;
+  bottom: -20px;
+  width: 2px;
+  background: #e0e0e0;
+}
+
+.pipeline-stage-indicator {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 15px;
+  flex-shrink: 0;
+}
+
+.pipeline-stage-indicator.completed {
+  background: #28a745;
+  color: white;
+}
+
+.pipeline-stage-indicator.in_progress {
+  background: #007bff;
+  color: white;
+}
+
+.pipeline-stage-indicator.pending {
+  background: #6c757d;
+  color: white;
+}
+
+.pipeline-stage-content {
+  flex: 1;
+}
+
+.pipeline-stage-name {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.pipeline-stage-status {
+  margin-bottom: 5px;
+}
+
+.pipeline-stage-date {
+  font-size: 0.9em;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.pipeline-stage-notes {
+  font-size: 0.9em;
+  color: #777;
+  font-style: italic;
+}
+
+.pipeline-metrics {
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.metric-item {
+  margin-bottom: 10px;
+  padding: 5px 0;
+}
+
+.metric-item strong {
+  color: #555;
+  margin-right: 10px;
+}
+
+/* Packages Styles */
+.student-profile-packages {
+  padding: 20px;
+}
+
+.payment-history {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.payment-item {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 10px;
+  background: #f8f9fa;
+}
+
+.payment-date {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.payment-description {
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.payment-amount {
+  margin-bottom: 5px;
+}
+
+.payment-status {
+  margin-bottom: 10px;
+}
+
+.payment-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Sessions Styles */
+.student-profile-sessions {
+  padding: 20px;
+}
+
+.calendar-controls {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.student-calendar {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.student-calendar-td {
+  padding: 5px;
+  vertical-align: top;
+  height: 80px;
+  border: 1px solid #e0e0e0;
+}
+
+.student-calendar-date-cell {
+  height: 100%;
+  position: relative;
+}
+
+.student-calendar-date-num {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.student-calendar-session-card {
+  background: #e3f2fd;
+  border: 1px solid #2196f3;
+  border-radius: 4px;
+  padding: 4px 6px;
+  font-size: 10px;
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.student-calendar-session-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.student-calendar-session-title {
+  font-weight: 600;
+  color: #1976d2;
+  font-size: 9px;
+  line-height: 1.2;
+}
+
+.student-calendar-session-time {
+  font-size: 8px;
+  color: #666;
+  margin-top: 1px;
+}
+
+.student-calendar-session-icon {
+  font-size: 8px;
+  color: #1976d2;
+  margin-left: 4px;
+}
+
+/* Reports Styles */
+.student-profile-reports {
+  padding: 20px;
+}
+
+.reports-list {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.report-item {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 15px;
+  background: #f8f9fa;
+}
+
+.report-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.report-title {
+  font-weight: 600;
+  color: #333;
+}
+
+.report-tutor {
+  color: #666;
+  font-size: 0.9em;
+}
+
+.report-content {
+  color: #555;
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+.report-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.badges-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.badge-item {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 10px;
+  background: #f8f9fa;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.badge-info {
+  flex: 1;
+}
+
+.badge-name {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.badge-description {
+  color: #666;
+  font-size: 0.9em;
+  margin-bottom: 5px;
+}
+
+.badge-category {
+  color: #888;
+  font-size: 0.8em;
+  margin-bottom: 5px;
+}
+
+.badge-date {
+  color: #28a745;
+  font-size: 0.8em;
+  font-weight: 600;
+}
+
+.badge-actions {
+  margin-left: 15px;
+}
+
+/* Profile Styles */
+.student-profile-preferences {
+  padding: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.smart-goals-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.smart-goal-item {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 15px;
+  background: #f8f9fa;
+}
+
+.smart-goal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.smart-goal-subject {
+  font-weight: 600;
+  color: #333;
+}
+
+.smart-goal-target {
+  color: #666;
+  font-size: 0.9em;
+}
+
+.smart-goal-description {
+  color: #555;
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+.smart-goal-progress {
+  margin-bottom: 15px;
+}
+
+.smart-goal-progress-text {
+  text-align: center;
+  margin-top: 5px;
+  font-weight: 600;
+  color: #333;
+}
+
+.smart-goal-milestones {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.milestone-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+}
+
+.milestone-item.completed {
+  color: #28a745;
+}
+
+.milestone-item:not(.completed) {
+  color: #666;
+}
+
+.milestone-item i {
+  font-size: 0.9em;
+}
+
+/* Notes Modal Styles */
+.notes-content {
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 15px;
+  min-height: 150px;
+  line-height: 1.5;
+  color: #555;
+}
+
+/* Materials Modal Styles */
+.materials-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.material-item {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 10px;
+  background: #f8f9fa;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.material-info {
+  flex: 1;
+}
+
+.material-name {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.material-type {
+  color: #666;
+  font-size: 0.9em;
+}
+
+.material-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .student-profile-card {
+    padding: 15px;
+  }
+
+  .pipeline-stage {
+    flex-direction: column;
+  }
+
+  .pipeline-stage-indicator {
+    margin-bottom: 10px;
+  }
+
+  .report-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .badge-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .badge-actions {
+    margin-left: 0;
+    margin-top: 10px;
+  }
+
+  .smart-goal-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .material-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .material-actions {
+    margin-top: 10px;
+  }
+}

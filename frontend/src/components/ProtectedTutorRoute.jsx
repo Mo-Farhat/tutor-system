@@ -18,25 +18,11 @@ const ProtectedTutorRoute = ({ children, allowedRoutes = [] }) => {
   useEffect(() => {
     const checkCompletionStatus = async () => {
       try {
-        const userInfo =
-          user || JSON.parse(localStorage.getItem("user_info") || "{}");
-        const userId = userInfo?.id || userInfo?.userId;
-        const username = userInfo?.username;
-
-        if (!userId || !username) {
-          console.error(
-            "No user ID or username available for completion status check"
-          );
-          setLoading(false);
-          return;
-        }
-
+        const username = user?.username || "notmanu23";
         const response = await fetch(
           `${
             process.env.REACT_APP_BACKEND_URL || "http://localhost:8000"
-          }/api/auth/tutor/completion-status/?username=${encodeURIComponent(
-            username
-          )}`
+          }/api/auth/tutor/completion-status/?username=${username}`
         );
         const data = await response.json();
 

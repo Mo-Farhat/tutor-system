@@ -1,0 +1,211 @@
+/* Admin Support Container */
+.admin-support-container {
+  padding: 2rem;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.admin-support-content {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Header */
+.admin-support-header {
+  margin-bottom: 2rem;
+}
+
+.admin-support-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 0.5rem;
+}
+
+.admin-support-subtitle {
+  font-size: 1.125rem;
+  margin-bottom: 1rem;
+}
+
+/* Support Cards */
+.admin-support-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin-support-card-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 1.5rem;
+}
+
+.admin-support-card-content h3 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0;
+}
+
+.admin-support-card-content p {
+  color: #6c757d;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Controls */
+.admin-support-controls {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e9ecef;
+}
+
+.admin-search-box {
+  position: relative;
+}
+
+.admin-search-box i {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+  z-index: 5;
+}
+
+.admin-search-box input {
+  padding-left: 2.5rem;
+  border-radius: 8px;
+  border: 1px solid #ced4da;
+}
+
+/* Table Section */
+.admin-support-table-section {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e9ecef;
+}
+
+/* Support Table */
+.admin-support-table {
+  margin-bottom: 0;
+}
+
+.admin-support-table thead th {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #e9ecef;
+  font-weight: 600;
+  color: #495057;
+  padding: 1rem;
+  border-top: none;
+}
+
+.admin-support-table tbody td {
+  padding: 1rem;
+  vertical-align: middle;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.admin-support-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* Empty State */
+.admin-empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #6c757d;
+}
+
+.admin-empty-state i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.admin-empty-state h5 {
+  color: #495057;
+  margin-bottom: 0.5rem;
+}
+
+/* Modal Overrides */
+.modal-content {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+  border-bottom: 1px solid #f1f3f4;
+  padding: 1.5rem;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  border-top: 1px solid #f1f3f4;
+  padding: 1.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  .admin-support-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .admin-support-card-icon {
+    align-self: center;
+  }
+
+  .admin-support-table-section {
+    overflow-x: auto;
+  }
+
+  .admin-support-table {
+    min-width: 900px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-support-container {
+    padding: 1rem;
+  }
+
+  .admin-support-title {
+    font-size: 1.75rem;
+  }
+
+  .admin-support-table-section {
+    padding: 1rem;
+  }
+
+  .admin-support-controls {
+    padding: 1rem;
+  }
+
+  .admin-support-table thead th,
+  .admin-support-table tbody td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .admin-support-card {
+    margin-bottom: 1rem;
+  }
+}
