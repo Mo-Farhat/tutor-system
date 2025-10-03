@@ -1,6 +1,41 @@
 import api from "./api";
 
 class StudentService {
+  // Get my student profile
+  async getMyProfile() {
+    try {
+      const response = await api.get("/auth/student/profile");
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching student profile:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Update my student profile
+  async updateMyProfile(profileData) {
+    try {
+      const response = await api.put("/auth/student/profile", profileData);
+      return response.data;
+    } catch (error) {
+      console.error("Error updating student profile:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Change password (student)
+  async changePassword(passwordData) {
+    try {
+      const response = await api.put(
+        "/auth/student/change-password",
+        passwordData
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error changing password:", error);
+      return { success: false, error: error.message };
+    }
+  }
   // Get assigned tutors for the current student
   async getMyTutors() {
     try {

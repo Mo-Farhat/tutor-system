@@ -8,89 +8,21 @@ import PreferencesPanel from "./PreferencesPanel";
 function StudentProfileManagement() {
   // Student profile data
   const [studentData, setStudentData] = useState({
-    fullName: "Sarah Johnson",
-    email: "sarah.johnson@email.com",
-    grade: "Grade 11",
-    stream: "Science Stream",
-    joinedDate: "Jan 2025",
-    status: "Active Student",
+    fullName: "",
+    email: "",
+    grade: "",
+    stream: "",
+    joinedDate: "",
+    status: "",
     avatar: "/public/Images/logo/logo1.png",
   });
 
   // Enriched details data compatible with DetailsPanel
-  const [detailsData] = useState({
-    ...studentData,
-    phoneNumber: "+1 (555) 123-4567",
-    subjects: ["Mathematics", "Physics", "Chemistry"],
-    studentId: "ST20230001",
-    dateOfBirth: "March 15, 2006",
-    address: "123 Main Street, City, State 12345",
-    totalLessons: 68,
-    attendance: "98%",
-  });
+  const [detailsData, setDetailsData] = useState({});
 
-  const [studentBadges] = useState([
-    {
-      name: "Concept Master",
-      count: 3,
-      dates: ["2024-01-15", "2024-02-20", "2024-03-10"],
-      notes: [
-        "Mastered quadratic equations",
-        "Excellent understanding of calculus",
-        "Advanced physics concepts",
-      ],
-    },
-    {
-      name: "Homework Hero",
-      count: 5,
-      dates: [
-        "2024-01-10",
-        "2024-02-15",
-        "2024-03-05",
-        "2024-03-20",
-        "2024-04-01",
-      ],
-      notes: [
-        "Perfect homework completion",
-        "Consistent quality work",
-        "Always on time",
-        "Extra credit work",
-        "Helping classmates",
-      ],
-    },
-    {
-      name: "Milestone 50",
-      count: 1,
-      dates: ["2024-03-15"],
-      notes: ["Completed 50 lessons milestone"],
-    },
-  ]);
+  const [studentBadges, setStudentBadges] = useState([]);
 
-  const [previousReports] = useState([
-    {
-      term: "Term 1",
-      date: "2024-03-15",
-      overallRating: 5,
-      progressSummary:
-        "John has made excellent progress in all subjects and is consistently achieving high grades. His problem-solving skills have improved significantly.",
-      keyAchievements: [
-        "Improved grades/test results",
-        "Mastered challenging topic",
-        "Increased confidence",
-      ],
-      improvementAreas:
-        "Continue building speed in mathematical calculations and exam techniques.",
-    },
-    {
-      term: "Term 2",
-      date: "2024-01-20",
-      overallRating: 4,
-      progressSummary:
-        "Strong consistent performance with notable improvement in problem-solving skills and subject understanding.",
-      keyAchievements: ["Better homework completion", "Improved study habits"],
-      improvementAreas: "Focus on time management during exams.",
-    },
-  ]);
+  const [previousReports, setPreviousReports] = useState([]);
 
   // Password change data
   const [passwordData, setPasswordData] = useState({
@@ -101,11 +33,10 @@ function StudentProfileManagement() {
 
   // Learning preferences
   const [learningPreferences, setLearningPreferences] = useState({
-    learningStyle: ["Visual", "Interactive"],
-    bestTime: "Weekday Evenings (4 PM - 7 PM)",
-    sessionLength: "60-90 minutes",
-    additionalNotes:
-      "Prefer structured lessons with regular breaks. Need extra focus on problem-solving exercises.",
+    learningStyle: [],
+    bestTime: "",
+    sessionLength: "",
+    additionalNotes: "",
   });
 
   // SMART Goals (API-backed)
@@ -114,11 +45,7 @@ function StudentProfileManagement() {
   const [goalsError, setGoalsError] = useState(null);
 
   // Current subjects
-  const [currentSubjects] = useState([
-    { name: "Advanced Mathematics", icon: "🔢", status: "Active" },
-    { name: "Physics", icon: "⚛️", status: "Active" },
-    { name: "Chemistry", icon: "🧪", status: "Pending" },
-  ]);
+  const [currentSubjects, setCurrentSubjects] = useState([]);
 
   // Available learning styles
   const learningStyleOptions = [
@@ -149,23 +76,115 @@ function StudentProfileManagement() {
 
   // Load goals from API
   useEffect(() => {
-    const loadGoals = async () => {
+    const loadAll = async () => {
       try {
         setGoalsLoading(true);
         setGoalsError(null);
-        const res = await studentService.getGoals();
-        if (res?.success && Array.isArray(res.data)) {
-          setGoals(res.data);
+
+        const [profileRes, goalsRes, achievementsRes, reportsRes] =
+          await Promise.all([
+            studentService.getMyProfile(),
+            studentService.getGoals(),
+            studentService.getAchievements(),
+            studentService.getReports(),
+          ]);
+
+        if (profileRes?.success && profileRes.data) {
+          const p = profileRes.data;
+          setStudentData((prev) => ({
+            ...prev,
+            fullName: p.fullName || p.name || "",
+            email: p.email || "",
+            grade: p.grade || "",
+            stream: p.stream || p.studyStream || "",
+            joinedDate: p.joinedDate || p.createdAt || "",
+            status: p.status || "",
+            avatar: p.avatarUrl || prev.avatar,
+          }));
+          setDetailsData({
+            fullName: p.fullName || p.name || "",
+            email: p.email || "",
+            phoneNumber: p.phone || p.phoneNumber || "",
+            subjects: p.subjects || [],
+            studentId: p.studentId || p.id || "",
+            grade: p.grade || "",
+            stream: p.stream || p.studyStream || "",
+            dateOfBirth: p.dateOfBirth || "",
+            address: p.address || "",
+            totalLessons: p.totalLessons || 0,
+            attendance: p.attendanceRate || "",
+          });
+
+          // Load preferences from profile if present
+          setLearningPreferences({
+            learningStyle: Array.isArray(p.learningStyle)
+              ? p.learningStyle
+              : p.learningPreferences?.learningStyle || [],
+            bestTime: p.bestTime || p.learningPreferences?.bestTime || "",
+            sessionLength:
+              p.sessionLength || p.learningPreferences?.sessionLength || "",
+            additionalNotes:
+              p.additionalNotes || p.learningPreferences?.additionalNotes || "",
+          });
+        }
+
+        if (goalsRes?.success && Array.isArray(goalsRes.data)) {
+          setGoals(goalsRes.data);
         } else {
           setGoals([]);
         }
+
+        if (achievementsRes?.success && Array.isArray(achievementsRes.data)) {
+          setStudentBadges(achievementsRes.data);
+        } else {
+          setStudentBadges([]);
+        }
+
+        if (reportsRes?.success && Array.isArray(reportsRes.data)) {
+          setPreviousReports(reportsRes.data);
+        } else {
+          setPreviousReports([]);
+        }
       } catch (e) {
-        setGoalsError("Failed to load goals");
+        setGoalsError("Failed to load data");
       } finally {
         setGoalsLoading(false);
       }
     };
-    loadGoals();
+    loadAll();
+  }, []);
+
+  // Load current subjects from lessons
+  useEffect(() => {
+    const loadSubjects = async () => {
+      try {
+        const [upcoming, completed] = await Promise.all([
+          studentService.getUpcomingLessons(),
+          studentService.getCompletedLessons(),
+        ]);
+        const lessons = [];
+        if (upcoming?.success && Array.isArray(upcoming.data))
+          lessons.push(...upcoming.data);
+        if (completed?.success && Array.isArray(completed.data))
+          lessons.push(...completed.data);
+        const subjectMap = new Map();
+        lessons.forEach((l) => {
+          const name = l.subject || l.course || l.topic;
+          if (!name) return;
+          if (!subjectMap.has(name)) {
+            subjectMap.set(name, {
+              name,
+              icon: "📘",
+              status: (l.status || "Active").toString(),
+            });
+          }
+        });
+        setCurrentSubjects(Array.from(subjectMap.values()));
+      } catch (e) {
+        setCurrentSubjects([]);
+      }
+    };
+    loadSubjects();
   }, []);
 
   // Handle goal editing (open modal)
@@ -245,9 +264,24 @@ function StudentProfileManagement() {
   const formatDate = (d) => (d ? new Date(d).toLocaleDateString() : "");
 
   // Save preferences
-  const savePreferences = () => {
-    setLearningPreferences(editingPreferences);
-    setShowPreferencesModal(false);
+  const savePreferences = async () => {
+    try {
+      const payload = {
+        learningStyle: editingPreferences.learningStyle,
+        bestTime: editingPreferences.bestTime,
+        sessionLength: editingPreferences.sessionLength,
+        additionalNotes: editingPreferences.additionalNotes,
+      };
+      const res = await studentService.updateMyProfile(payload);
+      if (res?.success) {
+        setLearningPreferences(editingPreferences);
+        setShowPreferencesModal(false);
+      } else {
+        alert(res?.error || "Failed to save preferences");
+      }
+    } catch (e) {
+      alert("Failed to save preferences");
+    }
   };
 
   // Handle learning style toggle
