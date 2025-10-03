@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import studentService from "../../../../services/studentService";
+import authService from "../../../../services/authService";
 import "../../../../css/dashboards/student/profile/profile.css";
 import DetailsPanel from "./DetailsPanel";
 import PreferencesPanel from "./PreferencesPanel";
@@ -71,6 +72,7 @@ function StudentProfileManagement() {
     ...learningPreferences,
   });
   const [passwordErrors, setPasswordErrors] = useState({});
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
   // Load goals from API
   useEffect(() => {
@@ -291,22 +293,28 @@ function StudentProfileManagement() {
   };
 
   // Handle password change
-  const handlePasswordChange = () => {
+  const handlePasswordChange = async () => {
     const errors = {};
 
-    if (!passwordData.currentPassword) {
+    // Trim whitespace from passwords to avoid issues with copy/paste
+    const currentPassword = passwordData.currentPassword.trim();
+    const newPassword = passwordData.newPassword.trim();
+    const confirmPassword = passwordData.confirmPassword.trim();
+
+
+    if (!currentPassword) {
       errors.currentPassword = "Current password is required";
     }
 
-    if (!passwordData.newPassword) {
+    if (!newPassword) {
       errors.newPassword = "New password is required";
-    } else if (passwordData.newPassword.length < 8) {
+    } else if (newPassword.length < 8) {
       errors.newPassword = "Password must be at least 8 characters";
     }
 
-    if (!passwordData.confirmPassword) {
+    if (!confirmPassword) {
       errors.confirmPassword = "Please confirm your password";
-    } else if (passwordData.newPassword !== passwordData.confirmPassword) {
+    } else if (newPassword !== confirmPassword) {
       errors.confirmPassword = "Passwords do not match";
     }
 
@@ -315,27 +323,33 @@ function StudentProfileManagement() {
       return;
     }
 
-    studentService
-      .changePassword({
-        currentPassword: passwordData.currentPassword,
-        newPassword: passwordData.newPassword,
-        confirmPassword: passwordData.confirmPassword,
-      })
-      .then((res) => {
-        if (res?.success) {
-          alert("Password updated successfully!");
-          setShowPasswordModal(false);
-          setPasswordData({
-            currentPassword: "",
-            newPassword: "",
-            confirmPassword: "",
-          });
-          setPasswordErrors({});
-        } else {
-          alert(res?.error || "Failed to update password");
-        }
-      })
-      .catch(() => alert("Failed to update password"));
+    try {
+      setPasswordLoading(true);
+      setPasswordErrors({});
+
+      const result = await authService.changeStudentPassword(
+        currentPassword,
+        newPassword
+      );
+
+      if (result.success) {
+        alert("Password updated successfully!");
+        setShowPasswordModal(false);
+        setPasswordData({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+        setPasswordErrors({});
+      } else {
+        setPasswordErrors({ general: result.error || "Failed to update password" });
+      }
+    } catch (error) {
+      console.error("Error changing password:", error);
+      setPasswordErrors({ general: "An error occurred while changing password" });
+    } finally {
+      setPasswordLoading(false);
+    }
   };
 
   // Reset password modal
@@ -874,6 +888,11 @@ function StudentProfileManagement() {
                 ></button>
               </div>
               <div className="modal-body">
+                {passwordErrors.general && (
+                  <div className="alert alert-danger">
+                    {passwordErrors.general}
+                  </div>
+                )}
                 <form>
                   <div className="mb-3">
                     <label className="form-label">Current Password</label>
@@ -896,6 +915,7 @@ function StudentProfileManagement() {
                         }
                       }}
                       placeholder="Enter your current password"
+                      disabled={passwordLoading}
                     />
                     {passwordErrors.currentPassword && (
                       <div className="invalid-feedback">
@@ -912,18 +932,29 @@ function StudentProfileManagement() {
                       }`}
                       value={passwordData.newPassword}
                       onChange={(e) => {
+                        const newValue = e.target.value;
                         setPasswordData({
                           ...passwordData,
-                          newPassword: e.target.value,
+                          newPassword: newValue,
                         });
+                        
+                        // Clear errors when user starts typing
+                        const newErrors = { ...passwordErrors };
                         if (passwordErrors.newPassword) {
-                          setPasswordErrors({
-                            ...passwordErrors,
-                            newPassword: "",
-                          });
+                          delete newErrors.newPassword;
                         }
+                        
+                        // Check confirm password match if it exists
+                        if (passwordData.confirmPassword && newValue !== passwordData.confirmPassword) {
+                          newErrors.confirmPassword = "Passwords do not match";
+                        } else if (passwordData.confirmPassword && newValue === passwordData.confirmPassword) {
+                          delete newErrors.confirmPassword;
+                        }
+                        
+                        setPasswordErrors(newErrors);
                       }}
                       placeholder="Enter your new password"
+                      disabled={passwordLoading}
                     />
                     {passwordErrors.newPassword && (
                       <div className="invalid-feedback">
@@ -939,26 +970,44 @@ function StudentProfileManagement() {
                     <input
                       type="password"
                       className={`form-control ${
-                        passwordErrors.confirmPassword ? "is-invalid" : ""
+                        passwordErrors.confirmPassword 
+                          ? "is-invalid" 
+                          : passwordData.newPassword && passwordData.confirmPassword && passwordData.newPassword === passwordData.confirmPassword
+                          ? "is-valid"
+                          : ""
                       }`}
                       value={passwordData.confirmPassword}
                       onChange={(e) => {
+                        const confirmValue = e.target.value;
                         setPasswordData({
                           ...passwordData,
-                          confirmPassword: e.target.value,
+                          confirmPassword: confirmValue,
                         });
-                        if (passwordErrors.confirmPassword) {
-                          setPasswordErrors({
-                            ...passwordErrors,
-                            confirmPassword: "",
-                          });
+                        
+                        // Real-time password match validation
+                        const newErrors = { ...passwordErrors };
+                        if (passwordData.newPassword && confirmValue !== passwordData.newPassword) {
+                          newErrors.confirmPassword = "Passwords do not match";
+                        } else {
+                          delete newErrors.confirmPassword;
                         }
+                        
+                        setPasswordErrors(newErrors);
                       }}
                       placeholder="Confirm your new password"
+                      disabled={passwordLoading}
                     />
                     {passwordErrors.confirmPassword && (
                       <div className="invalid-feedback">
                         {passwordErrors.confirmPassword}
+                      </div>
+                    )}
+                    {!passwordErrors.confirmPassword && 
+                     passwordData.newPassword && 
+                     passwordData.confirmPassword && 
+                     passwordData.newPassword === passwordData.confirmPassword && (
+                      <div className="valid-feedback">
+                        ✓ Passwords match
                       </div>
                     )}
                   </div>
@@ -969,6 +1018,7 @@ function StudentProfileManagement() {
                   type="button"
                   className="btn btn-secondary"
                   onClick={resetPasswordModal}
+                  disabled={passwordLoading}
                 >
                   Cancel
                 </button>
@@ -976,9 +1026,19 @@ function StudentProfileManagement() {
                   type="button"
                   className="btn btn-primary"
                   onClick={handlePasswordChange}
+                  disabled={passwordLoading}
                 >
-                  <i className="fas fa-save me-2"></i>
-                  Update Password
+                  {passwordLoading ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                      Updating Password...
+                    </>
+                  ) : (
+                    <>
+                      <i className="fas fa-save me-2"></i>
+                      Update Password
+                    </>
+                  )}
                 </button>
               </div>
             </div>
