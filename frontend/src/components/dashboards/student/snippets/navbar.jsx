@@ -163,7 +163,7 @@ function StudentNavbar() {
             </li>
             <li className="student-navbar-menu-item">
               <a
-                href="#"
+                href="/dashboard/student/tutor-reports"
                 className="student-navbar-menu-link"
                 title="Tutor Reports"
               >
@@ -304,7 +304,7 @@ function StudentNavbar() {
               </a>
             </li>
             <li className="student-navbar-menu-item">
-              <a href="#" className="student-navbar-menu-link">
+              <a href="/dashboard/student/tutor-reports" className="student-navbar-menu-link">
                 <i className="fas fa-file-alt student-navbar-icon"></i>
                 <span>Tutor Reports</span>
               </a>

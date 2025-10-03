@@ -301,7 +301,6 @@ function StudentProfileManagement() {
     const newPassword = passwordData.newPassword.trim();
     const confirmPassword = passwordData.confirmPassword.trim();
 
-
     if (!currentPassword) {
       errors.currentPassword = "Current password is required";
     }
@@ -342,11 +341,15 @@ function StudentProfileManagement() {
         });
         setPasswordErrors({});
       } else {
-        setPasswordErrors({ general: result.error || "Failed to update password" });
+        setPasswordErrors({
+          general: result.error || "Failed to update password",
+        });
       }
     } catch (error) {
       console.error("Error changing password:", error);
-      setPasswordErrors({ general: "An error occurred while changing password" });
+      setPasswordErrors({
+        general: "An error occurred while changing password",
+      });
     } finally {
       setPasswordLoading(false);
     }
@@ -937,20 +940,26 @@ function StudentProfileManagement() {
                           ...passwordData,
                           newPassword: newValue,
                         });
-                        
+
                         // Clear errors when user starts typing
                         const newErrors = { ...passwordErrors };
                         if (passwordErrors.newPassword) {
                           delete newErrors.newPassword;
                         }
-                        
+
                         // Check confirm password match if it exists
-                        if (passwordData.confirmPassword && newValue !== passwordData.confirmPassword) {
+                        if (
+                          passwordData.confirmPassword &&
+                          newValue !== passwordData.confirmPassword
+                        ) {
                           newErrors.confirmPassword = "Passwords do not match";
-                        } else if (passwordData.confirmPassword && newValue === passwordData.confirmPassword) {
+                        } else if (
+                          passwordData.confirmPassword &&
+                          newValue === passwordData.confirmPassword
+                        ) {
                           delete newErrors.confirmPassword;
                         }
-                        
+
                         setPasswordErrors(newErrors);
                       }}
                       placeholder="Enter your new password"
@@ -970,9 +979,12 @@ function StudentProfileManagement() {
                     <input
                       type="password"
                       className={`form-control ${
-                        passwordErrors.confirmPassword 
-                          ? "is-invalid" 
-                          : passwordData.newPassword && passwordData.confirmPassword && passwordData.newPassword === passwordData.confirmPassword
+                        passwordErrors.confirmPassword
+                          ? "is-invalid"
+                          : passwordData.newPassword &&
+                            passwordData.confirmPassword &&
+                            passwordData.newPassword ===
+                              passwordData.confirmPassword
                           ? "is-valid"
                           : ""
                       }`}
@@ -983,15 +995,18 @@ function StudentProfileManagement() {
                           ...passwordData,
                           confirmPassword: confirmValue,
                         });
-                        
+
                         // Real-time password match validation
                         const newErrors = { ...passwordErrors };
-                        if (passwordData.newPassword && confirmValue !== passwordData.newPassword) {
+                        if (
+                          passwordData.newPassword &&
+                          confirmValue !== passwordData.newPassword
+                        ) {
                           newErrors.confirmPassword = "Passwords do not match";
                         } else {
                           delete newErrors.confirmPassword;
                         }
-                        
+
                         setPasswordErrors(newErrors);
                       }}
                       placeholder="Confirm your new password"
@@ -1002,14 +1017,13 @@ function StudentProfileManagement() {
                         {passwordErrors.confirmPassword}
                       </div>
                     )}
-                    {!passwordErrors.confirmPassword && 
-                     passwordData.newPassword && 
-                     passwordData.confirmPassword && 
-                     passwordData.newPassword === passwordData.confirmPassword && (
-                      <div className="valid-feedback">
-                        ✓ Passwords match
-                      </div>
-                    )}
+                    {!passwordErrors.confirmPassword &&
+                      passwordData.newPassword &&
+                      passwordData.confirmPassword &&
+                      passwordData.newPassword ===
+                        passwordData.confirmPassword && (
+                        <div className="valid-feedback">✓ Passwords match</div>
+                      )}
                   </div>
                 </form>
               </div>
@@ -1030,7 +1044,11 @@ function StudentProfileManagement() {
                 >
                   {passwordLoading ? (
                     <>
-                      <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                      <span
+                        className="spinner-border spinner-border-sm me-2"
+                        role="status"
+                        aria-hidden="true"
+                      ></span>
                       Updating Password...
                     </>
                   ) : (
