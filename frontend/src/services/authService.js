@@ -211,6 +211,9 @@ class AuthService {
     // Clear tokens and user info
     this.clearTokens();
     localStorage.removeItem("user_info");
+    
+    // Redirect to login page
+    window.location.href = "/login";
   }
 
   // Check if user is authenticated
@@ -519,6 +522,37 @@ class AuthService {
         success: false,
         error: error.message,
       };
+    }
+  }
+
+  // Password change methods for specific roles
+  async changeStudentPassword(currentPassword, newPassword) {
+    try {
+      const data = await this.makeRequest("/student/change-password/", {
+        method: "POST",
+        body: JSON.stringify({
+          current_password: currentPassword,
+          new_password: newPassword,
+        }),
+      });
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async changeTutorPassword(currentPassword, newPassword) {
+    try {
+      const data = await this.makeRequest("/tutor/change-password/", {
+        method: "POST",
+        body: JSON.stringify({
+          current_password: currentPassword,
+          new_password: newPassword,
+        }),
+      });
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
     }
   }
 
@@ -856,3 +890,7 @@ export const isAdmin = () => authService.isAdmin();
 export const getAdminInfo = () => authService.getAdminInfo();
 export const mockAdminLogin = (credentials) =>
   authService.mockAdminLogin(credentials);
+export const changeStudentPassword = (currentPassword, newPassword) =>
+  authService.changeStudentPassword(currentPassword, newPassword);
+export const changeTutorPassword = (currentPassword, newPassword) =>
+  authService.changeTutorPassword(currentPassword, newPassword);

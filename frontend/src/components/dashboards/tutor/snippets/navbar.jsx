@@ -9,7 +9,7 @@ function TutorNavbar() {
   const [documentStatus, setDocumentStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [completionStatus, setCompletionStatus] = useState(null);
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     fetchTutorData();
@@ -91,6 +91,15 @@ function TutorNavbar() {
       return "Please upload and verify your required documents.";
     }
     return "";
+  };
+
+  // Handle logout
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   if (loading) {
@@ -281,7 +290,7 @@ function TutorNavbar() {
 
       {/* Footer */}
       <div className="tutor-navbar-footer">
-        <button className="tutor-navbar-logout-btn">
+        <button className="tutor-navbar-logout-btn" onClick={handleLogout}>
           <i className="fas fa-sign-out-alt"></i>
           <span>Logout</span>
         </button>

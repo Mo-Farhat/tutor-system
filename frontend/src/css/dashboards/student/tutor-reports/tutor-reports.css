@@ -3,12 +3,6 @@
   padding: 30px;
   min-height: 100vh;
   background-color: #f8f9fa;
-  transition: margin-left 0.3s ease;
-  overflow-y: auto;
-}
-
-/* Content Area */
-.tutor-reports-content-wrapper {
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -207,15 +201,6 @@
 }
 
 /* Responsive Design */
-@media (max-width: 991.98px) {
-  .tutor-reports-container {
-    padding: 20px 15px;
-    margin-left: 0;
-    height: auto;
-    min-height: 100vh;
-  }
-}
-
 @media (max-width: 767.98px) {
   .tutor-reports-container {
     padding: 15px 10px;
@@ -275,15 +260,6 @@
   }
 }
 
-/* Desktop navbar responsive adjustments */
-@media (min-width: 992px) {
-  .tutor-reports-container {
-    margin-left: 80px;
-    transition: margin-left 0.3s ease;
-    min-height: 100vh;
-    overflow-y: auto;
-  }
-}
 
 /* Hover Effects */
 .tutor-reports-card .btn {
