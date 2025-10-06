@@ -1,7 +1,24 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import tutorService from '../../../../services/tutorService';
 import '../../../../css/dashboards/tutor/earnings/earnings.css';
 
 function TutorEarnings() {
+    const [earnings, setEarnings] = useState(null);
+    useEffect(() => {
+        async function fetchEarnings() {
+            const res = await tutorService.getEarnings();
+            setEarnings(res);
+        }
+        fetchEarnings();
+    }, []);
+
+    // Replace hardcoded values with earnings data if available
+    const totalEarnings = earnings?.totalEarnings ?? '$4,285.50';
+    const thisMonthEarnings = earnings?.thisMonth ?? '$892.00';
+    const sessionsThisMonth = earnings?.sessionsThisMonth ?? 18;
+    const hourlyRate = earnings?.hourlyRate ?? '$45.00';
+    const recentSessions = earnings?.recentSessions ?? [];
+
     return (
         <div className="tutor-earnings-dashboard">
             <div className="tutor-earnings-content">
@@ -13,7 +30,7 @@ function TutorEarnings() {
                         <div className="card tutor-earnings-summary h-100">
                             <div className="card-body">
                                 <div className="tutor-earnings-summary-title">Total Earnings</div>
-                                <div className="tutor-earnings-summary-value">$4,285.50</div>
+                                <div className="tutor-earnings-summary-value">{totalEarnings}</div>
                                 <div className="tutor-earnings-summary-sub">+12.3% from last month</div>
                             </div>
                         </div>
@@ -22,8 +39,8 @@ function TutorEarnings() {
                         <div className="card tutor-earnings-summary h-100">
                             <div className="card-body">
                                 <div className="tutor-earnings-summary-title">This Month <span className="tutor-earnings-info-icon">?</span></div>
-                                <div className="tutor-earnings-summary-value">$892.00</div>
-                                <div className="tutor-earnings-summary-sub">18 sessions completed</div>
+                                <div className="tutor-earnings-summary-value">{thisMonthEarnings}</div>
+                                <div className="tutor-earnings-summary-sub">{sessionsThisMonth} sessions completed</div>
                             </div>
                         </div>
                     </div>
@@ -31,7 +48,7 @@ function TutorEarnings() {
                         <div className="card tutor-earnings-summary h-100">
                             <div className="card-body">
                                 <div className="tutor-earnings-summary-title">Sessions This Month <span className="tutor-earnings-info-icon">💬</span></div>
-                                <div className="tutor-earnings-summary-value">18</div>
+                                <div className="tutor-earnings-summary-value">{sessionsThisMonth}</div>
                                 <div className="tutor-earnings-summary-sub">2.5 hrs avg per session</div>
                             </div>
                         </div>
@@ -40,7 +57,7 @@ function TutorEarnings() {
                         <div className="card tutor-earnings-summary h-100">
                             <div className="card-body">
                                 <div className="tutor-earnings-summary-title">Hourly Rate <span className="tutor-earnings-info-icon">⏺</span></div>
-                                <div className="tutor-earnings-summary-value">$45.00</div>
+                                <div className="tutor-earnings-summary-value">{hourlyRate}</div>
                                 <div className="tutor-earnings-summary-sub">Average rate</div>
                             </div>
                         </div>
@@ -88,48 +105,24 @@ function TutorEarnings() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>Jun 15, 2025</td>
-                                        <td>
-                                            <span className="tutor-earnings-avatar me-2">
-                                                <img src="/public/Images/logo/logo1.png" alt="Sarah Johnson" width="28" height="28" />
-                                            </span>
-                                            Sarah Johnson
-                                        </td>
-                                        <td>Mathematics</td>
-                                        <td>2.0 hrs</td>
-                                        <td>$45/hr</td>
-                                        <td>$90.00</td>
-                                        <td><span className="badge bg-success tutor-earnings-status">Paid</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Jun 14, 2025</td>
-                                        <td>
-                                            <span className="tutor-earnings-avatar me-2">
-                                                <img src="/public/Images/logo/logo1.png" alt="Mike Chen" width="28" height="28" />
-                                            </span>
-                                            Mike Chen
-                                        </td>
-                                        <td>Physics</td>
-                                        <td>1.5 hrs</td>
-                                        <td>$50/hr</td>
-                                        <td>$75.00</td>
-                                        <td><span className="badge bg-success tutor-earnings-status">Paid</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Jun 13, 2025</td>
-                                        <td>
-                                            <span className="tutor-earnings-avatar me-2">
-                                                <img src="/public/Images/logo/logo1.png" alt="Emma Wilson" width="28" height="28" />
-                                            </span>
-                                            Emma Wilson
-                                        </td>
-                                        <td>Chemistry</td>
-                                        <td>3.0 hrs</td>
-                                        <td>$40/hr</td>
-                                        <td>$120.00</td>
-                                        <td><span className="badge bg-secondary tutor-earnings-status">Processing</span></td>
-                                    </tr>
+                                    {recentSessions.length > 0 ? recentSessions.map((session, idx) => (
+                                        <tr key={idx}>
+                                            <td>{session.date}</td>
+                                            <td>
+                                                <span className="tutor-earnings-avatar me-2">
+                                                    <img src={session.avatarUrl || "/public/Images/logo/logo1.png"} alt={session.student} width="28" height="28" />
+                                                </span>
+                                                {session.student}
+                                            </td>
+                                            <td>{session.subject}</td>
+                                            <td>{session.duration}</td>
+                                            <td>{session.rate}</td>
+                                            <td>{session.earnings}</td>
+                                            <td><span className={`badge ${session.status === 'Paid' ? 'bg-success' : 'bg-secondary'} tutor-earnings-status`}>{session.status}</span></td>
+                                        </tr>
+                                    )) : (
+                                        <tr><td colSpan="7" className="text-center">No recent sessions</td></tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>

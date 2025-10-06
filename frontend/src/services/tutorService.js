@@ -72,6 +72,28 @@ class TutorService {
       return { success: false, error: error.message };
     }
   }
+
+    // Tutor earnings
+    async getEarnings() {
+      try {
+        const response = await api.get("/auth/tutor/earnings");
+        return response.data;
+      } catch (error) {
+        console.error("Error fetching tutor earnings:", error);
+        return { success: false, error: error.message };
+      }
+    }
+
+    // Tutor notifications
+    async getNotifications() {
+      try {
+        const response = await api.get("/auth/tutor/notifications");
+        return response.data;
+      } catch (error) {
+        console.error("Error fetching tutor notifications:", error);
+        return { success: false, error: error.message };
+      }
+    }
 }
 
 export default new TutorService();
