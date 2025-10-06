@@ -48,9 +48,6 @@ function TutorEarnings() {
                 <div className="tutor-earnings-summary-value">
                   {thisMonthEarnings}
                 </div>
-                <div className="tutor-earnings-summary-sub">
-                  {sessionsThisMonth} sessions completed
-                </div>
               </div>
             </div>
           </div>
@@ -64,9 +61,6 @@ function TutorEarnings() {
                 <div className="tutor-earnings-summary-value">
                   {sessionsThisMonth}
                 </div>
-                <div className="tutor-earnings-summary-sub">
-                  2.5 hrs avg per session
-                </div>
               </div>
             </div>
           </div>
@@ -78,7 +72,6 @@ function TutorEarnings() {
                   <span className="tutor-earnings-info-icon">⏺</span>
                 </div>
                 <div className="tutor-earnings-summary-value">{hourlyRate}</div>
-                <div className="tutor-earnings-summary-sub">Average rate</div>
               </div>
             </div>
           </div>
