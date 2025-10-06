@@ -32,6 +32,7 @@ const fileFilter = (req, file, cb) => {
     contract: [".pdf", ".doc", ".docx"],
     wwcc: [".pdf", ".doc", ".docx"],
     studentPhoto: [".jpg", ".jpeg", ".png", ".webp"],
+     lessonMaterial: [".pdf", ".ppt", ".pptx", ".doc", ".docx", ".png", ".jpg", ".jpeg", ".webp", ".mp4", ".mov", ".avi", ".wmv", ".webm"],
   };
 
   const extension = path.extname(file.originalname).toLowerCase();
@@ -59,6 +60,8 @@ const upload = multer({
     files: 2, // Maximum 2 files
   },
 });
+
+const lessonMaterialsUpload = upload.single("file");
 
 const uploadVideo = multer({
   storage,
@@ -123,4 +126,5 @@ module.exports = {
   tutorDocsUpload,
   handleUploadError,
   studentPhotoUpload,
+  lessonMaterialsUpload,
 };

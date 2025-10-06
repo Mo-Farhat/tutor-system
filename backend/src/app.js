@@ -36,6 +36,11 @@ const studentPaymentMethodsRoutes = require("./routes/studentPaymentMethods");
 const studentSupportRoutes = require("./routes/studentSupport");
 const tutorLessonsRoutes = require("./routes/tutorLessons");
 
+const tutorsAdminRoutes = require("./routes/tutorsAdmin");
+
+const tutorChangeRequestsRoutes = require("./routes/tutorChangeRequests");
+
+const adminCalendarRoutes = require("./routes/adminCalendar");
 // Health check
 app.get("/health", (req, res) => {
   res.json({ status: "OK", message: "Server is running" });
@@ -59,6 +64,12 @@ app.use("/api", studentGoalsRoutes);
 app.use("/api", studentPaymentMethodsRoutes);
 app.use("/api", studentSupportRoutes);
 app.use("/api", tutorLessonsRoutes);
+
+app.use("/api", tutorsAdminRoutes);
+
+app.use("/api", tutorChangeRequestsRoutes);
+
+app.use("/api", adminCalendarRoutes);
 
 /* ---------------------------------------------------------------- */
 
