@@ -73,10 +73,14 @@ class AdminService {
   async getUsers(filters = {}) {
     const queryParams = new URLSearchParams();
     if (filters.role) queryParams.append("role", filters.role);
-    if (filters.status) queryParams.append("status", filters.status);
-    if (filters.search) queryParams.append("search", filters.search);
     if (filters.page) queryParams.append("page", filters.page);
-    if (filters.pageSize) queryParams.append("pageSize", filters.limit || 20);
+    if (filters.pageSize) {
+      queryParams.append("pageSize", filters.pageSize);
+    }
+
+    if (!filters.pageSize && !queryParams.has("pageSize")) {
+      queryParams.append("pageSize", 20);
+    }
 
     const endpoint = `/admin/users${
       queryParams.toString() ? "?" + queryParams.toString() : ""
