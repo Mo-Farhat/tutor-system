@@ -154,17 +154,6 @@ function Navbar() {
                     </ul>
                   </li>
 
-                  <li className="nav-item">
-                    <Link
-                      className="nav-link active"
-                      aria-current="page"
-                      to="/pricing"
-                      onClick={handleNavigation("/pricing")}
-                    >
-                      Pricing
-                    </Link>
-                  </li>
-
                   <li className="nav-item dropdown">
                     <a
                       className="nav-link"

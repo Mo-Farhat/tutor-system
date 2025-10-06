@@ -34,6 +34,7 @@ const studentAchievementsRoutes = require("./routes/studentAchievements");
 const studentGoalsRoutes = require("./routes/studentGoals");
 const studentPaymentMethodsRoutes = require("./routes/studentPaymentMethods");
 const studentSupportRoutes = require("./routes/studentSupport");
+const tutorLessonsRoutes = require("./routes/tutorLessons");
 
 const tutorsAdminRoutes = require("./routes/tutorsAdmin");
 
@@ -62,6 +63,7 @@ app.use("/api", studentAchievementsRoutes);
 app.use("/api", studentGoalsRoutes);
 app.use("/api", studentPaymentMethodsRoutes);
 app.use("/api", studentSupportRoutes);
+app.use("/api", tutorLessonsRoutes);
 
 app.use("/api", tutorsAdminRoutes);
 

@@ -1,0 +1,354 @@
+/* Tutor Reports Container */
+.tutor-reports-container {
+  padding: 30px;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header Styles */
+.tutor-reports-title {
+  color: #212529;
+  font-weight: 700;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.tutor-reports-subtitle {
+  color: #6c757d;
+  font-size: 1rem;
+  margin-bottom: 0;
+}
+
+/* Loading State */
+.tutor-reports-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+}
+
+.tutor-reports-loading p {
+  color: #6c757d;
+  margin-top: 1rem;
+  font-size: 1.1rem;
+}
+
+/* Filters Card */
+.tutor-reports-filters {
+  border: none;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  border-radius: 0.75rem;
+}
+
+.tutor-reports-filters .card-body {
+  padding: 1.5rem;
+}
+
+.tutor-reports-filters .form-label {
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Report Cards */
+.tutor-reports-card {
+  background: #ffffff;
+  border: none;
+  border-radius: 0.75rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  transition: all 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.tutor-reports-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.tutor-reports-card-header {
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.tutor-reports-card-title {
+  color: #212529;
+  font-weight: 600;
+  font-size: 1.125rem;
+  margin-bottom: 0.75rem;
+}
+
+.tutor-reports-card-meta span {
+  display: inline-flex;
+  align-items: center;
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
+.tutor-reports-card-meta i {
+  color: #007bff;
+}
+
+.tutor-reports-rating {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.tutor-reports-rating .fa-star {
+  font-size: 1rem;
+  margin-right: 0.125rem;
+}
+
+.tutor-reports-card-body {
+  padding: 1rem 1.5rem;
+  flex-grow: 1;
+}
+
+.tutor-reports-summary p {
+  color: #495057;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.tutor-reports-achievements h6,
+.tutor-reports-improvements h6 {
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.tutor-reports-achievements ul li,
+.tutor-reports-improvements p {
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.tutor-reports-card-actions {
+  padding: 1rem 1.5rem 1.5rem 1.5rem;
+  border-top: 1px solid #f1f3f4;
+  margin-top: auto;
+}
+
+.tutor-reports-card-actions .btn {
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+}
+
+/* Empty State */
+.tutor-reports-empty {
+  background: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tutor-reports-empty i {
+  color: #dee2e6;
+}
+
+.tutor-reports-empty h4 {
+  color: #6c757d;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.tutor-reports-empty p {
+  color: #6c757d;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  max-width: 400px;
+}
+
+/* Modal Styles */
+.tutor-reports-detail-content {
+  color: #495057;
+  line-height: 1.6;
+}
+
+.tutor-reports-detail-content h6 {
+  color: #212529;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+}
+
+.tutor-reports-detail-content ul {
+  margin-bottom: 0;
+}
+
+.tutor-reports-detail-content ul li {
+  margin-bottom: 0.5rem;
+}
+
+.tutor-reports-detail-content .list-unstyled li {
+  margin-bottom: 0.25rem;
+}
+
+.tutor-reports-detail-content p {
+  margin-bottom: 0;
+  font-size: 0.95rem;
+}
+
+/* Responsive Design */
+@media (max-width: 767.98px) {
+  .tutor-reports-container {
+    padding: 15px 10px;
+  }
+  
+  .tutor-reports-title {
+    font-size: 1.75rem;
+  }
+  
+  .tutor-reports-filters .card-body {
+    padding: 1rem;
+  }
+  
+  .tutor-reports-card-header,
+  .tutor-reports-card-body,
+  .tutor-reports-card-actions {
+    padding: 1rem;
+  }
+  
+  .tutor-reports-card-actions {
+    padding-top: 0.75rem;
+    padding-bottom: 1rem;
+  }
+  
+  .tutor-reports-card-actions .btn {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+  }
+  
+  .tutor-reports-card-meta {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
+  }
+  
+  .tutor-reports-rating {
+    margin-top: 0.5rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .tutor-reports-container {
+    padding: 10px;
+  }
+  
+  .tutor-reports-card-actions .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .tutor-reports-card-actions .btn:last-child {
+    margin-bottom: 0;
+  }
+  
+  .tutor-reports-filters .row > * {
+    margin-bottom: 1rem;
+  }
+}
+
+
+/* Hover Effects */
+.tutor-reports-card .btn {
+  transition: all 0.2s ease;
+}
+
+.tutor-reports-card .btn:hover {
+  transform: translateY(-1px);
+}
+
+.tutor-reports-card .btn-primary:hover {
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 123, 255, 0.3);
+}
+
+.tutor-reports-card .btn-outline-secondary:hover {
+  box-shadow: 0 0.25rem 0.5rem rgba(108, 117, 125, 0.2);
+}
+
+/* Filter improvements */
+.tutor-reports-filters .form-select {
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.tutor-reports-filters .form-select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Achievement and improvement sections */
+.tutor-reports-achievements .fa-check {
+  font-size: 0.75rem;
+}
+
+.tutor-reports-achievements .fa-trophy,
+.tutor-reports-improvements .fa-target {
+  font-size: 0.875rem;
+}
+
+/* Star rating improvements */
+.tutor-reports-rating .fa-star.text-warning {
+  color: #ffc107 !important;
+}
+
+.tutor-reports-rating .fa-star.text-muted {
+  color: #dee2e6 !important;
+}
+
+/* Modal improvements */
+.modal-content {
+  border: none;
+  border-radius: 0.75rem;
+}
+
+.modal-header {
+  border-bottom: 1px solid #f1f3f4;
+  padding: 1.5rem;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  border-top: 1px solid #f1f3f4;
+  padding: 1.5rem;
+}
+
+/* Loading spinner customization */
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Alert customization */
+.alert {
+  border: none;
+  border-radius: 0.75rem;
+}
+
+/* Button group spacing */
+.tutor-reports-card-actions .btn + .btn {
+  margin-left: 0;
+}
+
+@media (max-width: 575.98px) {
+  .tutor-reports-card-actions .btn + .btn {
+    margin-left: 0;
+  }
+}

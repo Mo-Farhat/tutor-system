@@ -4,7 +4,11 @@ class StudentTutorModel {
   async assign(studentId, tutorId, data = {}) {
     // Prevent duplicate active pair
     const existing = await prisma.studentTutor.findFirst({
-      where: { studentId: Number(studentId), tutorId: Number(tutorId), status: "active" },
+      where: {
+        studentId: Number(studentId),
+        tutorId: Number(tutorId),
+        status: "active",
+      },
     });
     if (existing) return existing;
 
@@ -34,7 +38,16 @@ class StudentTutorModel {
       where: { studentId: Number(studentId) },
       orderBy: { createdAt: "desc" },
       include: {
-        tutor: { select: { id: true, firstName: true, lastName: true, email: true, username: true, role: true } },
+        tutor: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            username: true,
+            role: true,
+          },
+        },
       },
     });
   }
@@ -44,7 +57,16 @@ class StudentTutorModel {
       where: { tutorId: Number(tutorId) },
       orderBy: { createdAt: "desc" },
       include: {
-        student: { select: { id: true, firstName: true, lastName: true, email: true, username: true, role: true } },
+        student: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            username: true,
+            role: true,
+          },
+        },
       },
     });
   }
@@ -53,8 +75,34 @@ class StudentTutorModel {
     return prisma.studentTutor.findMany({
       orderBy: { createdAt: "desc" },
       include: {
-        student: { select: { id: true, firstName: true, lastName: true, email: true, username: true } },
-        tutor:   { select: { id: true, firstName: true, lastName: true, email: true, username: true } },
+        student: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            username: true,
+          },
+        },
+        tutor: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            username: true,
+          },
+        },
+      },
+    });
+  }
+
+  async findByTutorAndStudent(tutorId, studentId) {
+    return prisma.studentTutor.findFirst({
+      where: {
+        tutorId: Number(tutorId),
+        studentId: Number(studentId),
+        status: "active",
       },
     });
   }

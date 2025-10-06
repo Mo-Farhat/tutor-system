@@ -1,0 +1,25 @@
+/* Student Tutor Reports Page Wrapper */
+.student-tutor-reports-page-main {
+  display: flex;
+  min-height: 100vh;
+}
+
+.student-tutor-reports-nav-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+.student-tutor-reports-content {
+  flex: 1;
+  margin-left: 80px;
+  transition: margin-left 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991.98px) {
+  .student-tutor-reports-content {
+    margin-left: 0;
+  }
+}

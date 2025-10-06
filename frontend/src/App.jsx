@@ -1,5 +1,10 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { ContactFormProvider } from "./components/snippets/contact-form-overlay";
 import { AuthProvider } from "./contexts/AuthContext";
 import ScrollToTop from "./components/ScrollToTop";
@@ -45,6 +50,7 @@ import StudentReferralAndOffersPage from "./pages/js/dashboard/student/referrals
 import StudentProgressMilestonesPage from "./pages/js/dashboard/student/progress";
 import StudentProfileManagementPage from "./pages/js/dashboard/student/profile";
 import StudentTutorProfilePage from "./pages/js/dashboard/student/tutor-profile";
+import StudentTutorReportsPage from "./pages/js/dashboard/student/tutor-reports";
 
 // Admin Dashboard Pages
 import AdminHomePage from "./pages/js/dashboard/admin/home";
@@ -200,6 +206,17 @@ const App = () => {
             <Route
               path="/dashboard/student/profile-management"
               element={<StudentProfileManagementPage />}
+            />
+            <Route
+              path="/dashboard/student/tutor-reports"
+              element={<StudentTutorReportsPage />}
+            />
+            {/* Redirect old profile details route to new unified profile page */}
+            <Route
+              path="/dashboard/student/profile-details"
+              element={
+                <Navigate to="/dashboard/student/profile-management" replace />
+              }
             />
 
             {/* Admin Dashboard Routes - Protected by AdminGuard */}
