@@ -1,17 +1,21 @@
 import React from "react";
-import StudentNavbar from "../../../../components/dashboards/student/snippets/navbar";
+import * as Snippets from "../../../../components/dashboards/student/snippets/snippets-index";
 import TutorReports from "../../../../components/dashboards/student/tutor-reports/tutor-reports";
-import "../../../../css/dashboards/student/snippets/navbar.css";
+import "../../../../css/dashboards/student/tutor-reports/tutor-reports-page.css";
 
-function StudentTutorReportsPage() {
+const StudentTutorReportsPage = () => {
   return (
-    <>
-      <StudentNavbar />
-      <div className="student-dashboard-content">
+    <div className="student-tutor-reports-page-main">
+      <div className="student-tutor-reports-nav-bar">
+        {/* student navbar */}
+        <Snippets.StudentNavbar />
+      </div>
+      <div className="student-tutor-reports-content">
+        {/* student tutor reports */}
         <TutorReports />
       </div>
-    </>
+    </div>
   );
-}
+};
 
 export default StudentTutorReportsPage;

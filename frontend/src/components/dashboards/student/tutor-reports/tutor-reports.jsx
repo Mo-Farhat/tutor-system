@@ -20,8 +20,10 @@ function TutorReports() {
     try {
       setLoading(true);
       setError(null);
-
+      
+      console.log('Loading tutor reports...');
       const reportsResult = await studentService.getReports();
+      console.log('Reports result:', reportsResult);
 
       if (reportsResult.success && Array.isArray(reportsResult.data)) {
         setReports(reportsResult.data);
@@ -145,8 +147,7 @@ function TutorReports() {
 
   return (
     <div className="tutor-reports-container">
-      <div className="tutor-reports-content-wrapper">
-        <div className="tutor-reports-header">
+      <div className="tutor-reports-header">
           <div className="d-flex justify-content-between align-items-center mb-4">
             <div>
               <h2 className="tutor-reports-title">Tutor Reports</h2>
@@ -379,153 +380,152 @@ function TutorReports() {
                   </button>
                 )}
               </div>
-            </div>
-          )}
         </div>
-
-        {/* Detail Modal */}
-        {showDetailModal && selectedReport && (
-          <div
-            className="modal fade show d-block"
-            style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-          >
-            <div className="modal-dialog modal-lg">
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title">
-                    <i className="fas fa-file-alt me-2"></i>
-                    {selectedReport.term || "Progress Report"} -{" "}
-                    {selectedReport.subject}
-                  </h5>
-                  <button
-                    type="button"
-                    className="btn-close"
-                    onClick={() => setShowDetailModal(false)}
-                  ></button>
-                </div>
-                <div className="modal-body">
-                  <div className="tutor-reports-detail-content">
-                    <div className="row mb-3">
-                      <div className="col-md-6">
-                        <h6>Report Details</h6>
-                        <ul className="list-unstyled">
+      )}
+    </div>
+  );
+      {/* Detail Modal */}
+      {showDetailModal && selectedReport && (
+        <div
+          className="modal fade show d-block"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+        >
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">
+                  <i className="fas fa-file-alt me-2"></i>
+                  {selectedReport.term || "Progress Report"} -{" "}
+                  {selectedReport.subject}
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowDetailModal(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <div className="tutor-reports-detail-content">
+                  <div className="row mb-3">
+                    <div className="col-md-6">
+                      <h6>Report Details</h6>
+                      <ul className="list-unstyled">
+                        <li>
+                          <strong>Date:</strong>{" "}
+                          {formatDate(selectedReport.date)}
+                        </li>
+                        {selectedReport.tutorName && (
                           <li>
-                            <strong>Date:</strong>{" "}
-                            {formatDate(selectedReport.date)}
+                            <strong>Tutor:</strong> {selectedReport.tutorName}
                           </li>
-                          {selectedReport.tutorName && (
-                            <li>
-                              <strong>Tutor:</strong> {selectedReport.tutorName}
-                            </li>
-                          )}
-                          {selectedReport.subject && (
-                            <li>
-                              <strong>Subject:</strong> {selectedReport.subject}
-                            </li>
-                          )}
-                          {selectedReport.term && (
-                            <li>
-                              <strong>Term:</strong> {selectedReport.term}
-                            </li>
+                        )}
+                        {selectedReport.subject && (
+                          <li>
+                            <strong>Subject:</strong> {selectedReport.subject}
+                          </li>
+                        )}
+                        {selectedReport.term && (
+                          <li>
+                            <strong>Term:</strong> {selectedReport.term}
+                          </li>
+                        )}
+                      </ul>
+                    </div>
+                    <div className="col-md-6">
+                      {selectedReport.overallRating && (
+                        <div className="text-center">
+                          <h6>Overall Rating</h6>
+                          <div className="mb-2">
+                            {renderStars(selectedReport.overallRating)}
+                          </div>
+                          <span className="text-muted">
+                            {selectedReport.overallRating}/5
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {selectedReport.progressSummary && (
+                    <div className="mb-4">
+                      <h6>Progress Summary</h6>
+                      <p>{selectedReport.progressSummary}</p>
+                    </div>
+                  )}
+
+                  {selectedReport.keyAchievements &&
+                    selectedReport.keyAchievements.length > 0 && (
+                      <div className="mb-4">
+                        <h6 className="text-success">
+                          <i className="fas fa-trophy me-2"></i>
+                          Key Achievements
+                        </h6>
+                        <ul>
+                          {selectedReport.keyAchievements.map(
+                            (achievement, achIndex) => (
+                              <li key={achIndex} className="mb-1">
+                                {achievement}
+                              </li>
+                            )
                           )}
                         </ul>
                       </div>
-                      <div className="col-md-6">
-                        {selectedReport.overallRating && (
-                          <div className="text-center">
-                            <h6>Overall Rating</h6>
-                            <div className="mb-2">
-                              {renderStars(selectedReport.overallRating)}
-                            </div>
-                            <span className="text-muted">
-                              {selectedReport.overallRating}/5
-                            </span>
-                          </div>
-                        )}
-                      </div>
+                    )}
+
+                  {selectedReport.improvementAreas && (
+                    <div className="mb-4">
+                      <h6 className="text-info">
+                        <i className="fas fa-target me-2"></i>
+                        Areas for Improvement
+                      </h6>
+                      <p>{selectedReport.improvementAreas}</p>
                     </div>
+                  )}
 
-                    {selectedReport.progressSummary && (
-                      <div className="mb-4">
-                        <h6>Progress Summary</h6>
-                        <p>{selectedReport.progressSummary}</p>
-                      </div>
-                    )}
+                  {selectedReport.nextSteps && (
+                    <div className="mb-4">
+                      <h6 className="text-primary">
+                        <i className="fas fa-arrow-right me-2"></i>
+                        Next Steps
+                      </h6>
+                      <p>{selectedReport.nextSteps}</p>
+                    </div>
+                  )}
 
-                    {selectedReport.keyAchievements &&
-                      selectedReport.keyAchievements.length > 0 && (
-                        <div className="mb-4">
-                          <h6 className="text-success">
-                            <i className="fas fa-trophy me-2"></i>
-                            Key Achievements
-                          </h6>
-                          <ul>
-                            {selectedReport.keyAchievements.map(
-                              (achievement, achIndex) => (
-                                <li key={achIndex} className="mb-1">
-                                  {achievement}
-                                </li>
-                              )
-                            )}
-                          </ul>
-                        </div>
-                      )}
-
-                    {selectedReport.improvementAreas && (
-                      <div className="mb-4">
-                        <h6 className="text-info">
-                          <i className="fas fa-target me-2"></i>
-                          Areas for Improvement
-                        </h6>
-                        <p>{selectedReport.improvementAreas}</p>
-                      </div>
-                    )}
-
-                    {selectedReport.nextSteps && (
-                      <div className="mb-4">
-                        <h6 className="text-primary">
-                          <i className="fas fa-arrow-right me-2"></i>
-                          Next Steps
-                        </h6>
-                        <p>{selectedReport.nextSteps}</p>
-                      </div>
-                    )}
-
-                    {selectedReport.tutorComments && (
-                      <div className="mb-4">
-                        <h6>
-                          <i className="fas fa-comment me-2"></i>
-                          Tutor Comments
-                        </h6>
-                        <p className="fst-italic">
-                          "{selectedReport.tutorComments}"
-                        </p>
-                      </div>
-                    )}
-                  </div>
+                  {selectedReport.tutorComments && (
+                    <div className="mb-4">
+                      <h6>
+                        <i className="fas fa-comment me-2"></i>
+                        Tutor Comments
+                      </h6>
+                      <p className="fst-italic">
+                        "{selectedReport.tutorComments}"
+                      </p>
+                    </div>
+                  )}
                 </div>
-                <div className="modal-footer">
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={() => setShowDetailModal(false)}
-                  >
-                    Close
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={() => handleDownloadReport(selectedReport)}
-                  >
-                    <i className="fas fa-download me-1"></i>
-                    Download PDF
-                  </button>
-                </div>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowDetailModal(false)}
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => handleDownloadReport(selectedReport)}
+                >
+                  <i className="fas fa-download me-1"></i>
+                  Download PDF
+                </button>
               </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
