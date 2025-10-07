@@ -180,7 +180,10 @@ class LessonModel {
         endAt: true,
         tutor: { select: { id: true, firstName: true, lastName: true, email: true } },
         student: { select: { id: true, firstName: true, lastName: true, email: true } },
-      },
+      }
+    });
+  }
+
   // Tutor-side lesson queries
   listUpcomingByTutor(tutorId, limit = 20) {
     return prisma.lesson.findMany({
@@ -199,6 +202,7 @@ class LessonModel {
     });
   }
 
+  // Move listCompletedByTutor to correct class scope
   listCompletedByTutor(tutorId, limit = 50) {
     return prisma.lesson.findMany({
       where: { tutorId: Number(tutorId), status: "completed" },
