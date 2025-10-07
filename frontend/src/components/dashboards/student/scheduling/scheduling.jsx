@@ -97,34 +97,65 @@ function StudentScheduling() {
 
   // Helper functions
   const formatTime = (dateStr) => {
-    return new Date(dateStr).toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
+    if (!dateStr) return "Invalid time";
+    try {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return "Invalid time";
+      return date.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      });
+    } catch (e) {
+      console.error("Error formatting time:", e, "for dateStr:", dateStr);
+      return "Invalid time";
+    }
   };
 
   const formatDate = (dateStr) => {
-    const date = new Date(dateStr);
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    if (!dateStr) return "Invalid date";
+    try {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return "Invalid date";
+      
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
 
-    if (date.toDateString() === today.toDateString()) return "Today";
-    if (date.toDateString() === tomorrow.toDateString()) return "Tomorrow";
-    return date.toLocaleDateString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-    });
+      if (date.toDateString() === today.toDateString()) return "Today";
+      if (date.toDateString() === tomorrow.toDateString()) return "Tomorrow";
+      return date.toLocaleDateString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+      });
+    } catch (e) {
+      console.error("Error formatting date:", e, "for dateStr:", dateStr);
+      return "Invalid date";
+    }
   };
 
   const getLessonsForDate = (dateStr) => {
-    const targetDate = new Date(dateStr).toDateString();
-    return [...upcomingLessons, ...completedLessons].filter((lesson) => {
-      const lessonDate = new Date(lesson.startAt).toDateString();
-      return lessonDate === targetDate;
-    });
+    if (!dateStr) return [];
+    try {
+      const targetDate = new Date(dateStr);
+      if (isNaN(targetDate.getTime())) return [];
+      
+      return [...upcomingLessons, ...completedLessons].filter((lesson) => {
+        if (!lesson.startAt) return false;
+        try {
+          const lessonDate = new Date(lesson.startAt);
+          if (isNaN(lessonDate.getTime())) return false;
+          return lessonDate.toDateString() === targetDate.toDateString();
+        } catch (e) {
+          console.error("Error processing lesson date:", e, "for lesson:", lesson);
+          return false;
+        }
+      });
+    } catch (e) {
+      console.error("Error processing target date:", e, "for dateStr:", dateStr);
+      return [];
+    }
   };
 
   const handleJoinSession = (lesson) => {
@@ -164,6 +195,11 @@ function StudentScheduling() {
   };
 
   const downloadCalendar = async (lesson) => {
+    if (!lesson || !lesson.id) {
+      alert("Invalid lesson data");
+      return;
+    }
+    
     try {
       const response = await fetch(
         `/api/auth/student/lessons/${lesson.id}/ics`,
@@ -188,6 +224,7 @@ function StudentScheduling() {
         alert("Failed to download calendar file");
       }
     } catch (e) {
+      console.error("Error downloading calendar:", e);
       alert("Failed to download calendar file: " + e.message);
     }
   };
@@ -275,7 +312,7 @@ function StudentScheduling() {
                                         key={idx}
                                       >
                                         <span className="student-scheduling-session-title">
-                                          {lesson.subject}
+                                          {lesson.subject || "No subject"}
                                         </span>
                                         <span className="student-scheduling-session-time ms-1">
                                           {formatTime(lesson.startAt)}
@@ -286,8 +323,8 @@ function StudentScheduling() {
                                           <i className="fas fa-clock student-scheduling-session-icon ms-1 text-warning"></i>
                                         )}
                                         <div className="text-muted small">
-                                          {lesson.tutor?.firstName}{" "}
-                                          {lesson.tutor?.lastName}
+                                          {lesson.tutor?.firstName || "Unknown"}{" "}
+                                          {lesson.tutor?.lastName || "Tutor"}
                                         </div>
                                       </div>
                                     ))}
@@ -340,11 +377,11 @@ function StudentScheduling() {
                           <span className="student-scheduling-upcoming-dot me-3 student-scheduling-dot-confirmed"></span>
                           <div>
                             <div className="student-scheduling-upcoming-title">
-                              {lesson.subject}
+                              {lesson.subject || "No subject"}
                             </div>
                             <div className="student-scheduling-upcoming-tutor text-muted small">
-                              with {lesson.tutor?.firstName}{" "}
-                              {lesson.tutor?.lastName}
+                              with {lesson.tutor?.firstName || "Unknown"}{" "}
+                              {lesson.tutor?.lastName || "Tutor"}
                             </div>
                             <div className="student-scheduling-upcoming-time text-muted small">
                               {formatDate(lesson.startAt)},{" "}
@@ -409,11 +446,11 @@ function StudentScheduling() {
                           <span className="student-scheduling-upcoming-dot me-3 student-scheduling-dot-confirmed"></span>
                           <div>
                             <div className="student-scheduling-upcoming-title">
-                              {lesson.subject}
+                              {lesson.subject || "No subject"}
                             </div>
                             <div className="student-scheduling-upcoming-tutor text-muted small">
-                              with {lesson.tutor?.firstName}{" "}
-                              {lesson.tutor?.lastName}
+                              with {lesson.tutor?.firstName || "Unknown"}{" "}
+                              {lesson.tutor?.lastName || "Tutor"}
                             </div>
                             <div className="student-scheduling-upcoming-time text-muted small">
                               {formatDate(lesson.startAt)},{" "}
