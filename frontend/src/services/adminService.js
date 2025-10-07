@@ -337,6 +337,43 @@ class AdminService {
     }
     return authService.getUserInfo();
   }
+
+  // Tutor Change Requests
+  async getChangeRequests(filters = {}) {
+    try {
+      const queryParams = new URLSearchParams(filters).toString();
+      return await this.makeAdminRequest(
+        `/admin/tutor-change-requests${queryParams ? `?${queryParams}` : ""}`
+      );
+    } catch (error) {
+      console.error("Error fetching change requests:", error);
+      throw error;
+    }
+  }
+
+  async approveChangeRequest(changeRequestId, comments = "") {
+    try {
+      return await this.makeAdminRequest(`/admin/tutor-change-requests/${changeRequestId}/approve`, {
+        method: "POST",
+        body: JSON.stringify({ comments }),
+      });
+    } catch (error) {
+      console.error("Error approving change request:", error);
+      throw error;
+    }
+  }
+
+  async rejectChangeRequest(changeRequestId, comments = "") {
+    try {
+      return await this.makeAdminRequest(`/admin/tutor-change-requests/${changeRequestId}/reject`, {
+        method: "POST",
+        body: JSON.stringify({ comments }),
+      });
+    } catch (error) {
+      console.error("Error rejecting change request:", error);
+      throw error;
+    }
+  }
 }
 
 // Create and export singleton instance
@@ -392,3 +429,10 @@ export const getTutorDocuments = (userId) =>
 // Tutor Applications
 export const getTutorApplications = (filters) =>
   adminService.getTutorApplications(filters);
+
+// Tutor Change Requests
+export const getChangeRequests = (filters) => adminService.getChangeRequests(filters);
+export const approveChangeRequest = (changeRequestId, comments) =>
+  adminService.approveChangeRequest(changeRequestId, comments);
+export const rejectChangeRequest = (changeRequestId, comments) =>
+  adminService.rejectChangeRequest(changeRequestId, comments);
