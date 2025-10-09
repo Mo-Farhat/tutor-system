@@ -52,6 +52,32 @@ exports.myTutors = async (req, res) => {
   }
 };
 
+exports.adminList = async (req, res) => {
+  try {
+    // Extract query parameters for filtering
+    const { status, studentId, tutorId } = req.query;
+    
+    // Get all assignments with student and tutor details
+    const assignments = await studentTutorModel.listAll();
+    
+    // Apply filters if any
+    let filteredAssignments = assignments;
+    if (status || studentId || tutorId) {
+      filteredAssignments = assignments.filter(assignment => {
+        if (status && assignment.status !== status) return false;
+        if (studentId && assignment.studentId !== Number(studentId)) return false;
+        if (tutorId && assignment.tutorId !== Number(tutorId)) return false;
+        return true;
+      });
+    }
+    
+    res.json({ success: true, data: filteredAssignments });
+  } catch (e) {
+    console.error("adminList error:", e);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};
+
 exports.myStudents = async (req, res) => {
   try {
     const rows = await studentTutorModel.listByTutor(req.user.id);
@@ -59,5 +85,5 @@ exports.myStudents = async (req, res) => {
   } catch (e) {
     console.error("myStudents error:", e);
     res.status(500).json({ success: false, error: "Internal server error" });
-  }
+ }
 };

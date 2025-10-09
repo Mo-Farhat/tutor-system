@@ -64,6 +64,7 @@ import AdminBlogPage from "./pages/js/dashboard/admin/blog";
 import AdminNotificationsPage from "./pages/js/dashboard/admin/notifications";
 import AdminSupportPage from "./pages/js/dashboard/admin/support";
 import AdminSettingsPage from "./pages/js/dashboard/admin/settings";
+import AdminAssignmentsPage from "./pages/js/dashboard/admin/assignments";
 
 const App = () => {
   return (
@@ -305,6 +306,14 @@ const App = () => {
               element={
                 <ProtectedAdminRoute>
                   <AdminSettingsPage />
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/assignments"
+              element={
+                <ProtectedAdminRoute>
+                  <AdminAssignmentsPage />
                 </ProtectedAdminRoute>
               }
             />

@@ -38,6 +38,7 @@ function TutorCalendar() {
     subject: "",
     startAt: "",
     endAt: "",
+    duration: 60,
     zoomLink: "",
     prepNotes: "",
     homework: "",
@@ -103,6 +104,33 @@ function TutorCalendar() {
     setCurrentDate(new Date(year, month + 1, 1));
   };
 
+  // Helper function to set default lesson times
+  const setDefaultTimes = (selectedDate) => {
+    if (selectedDate) {
+      const date = new Date(selectedDate);
+      const now = new Date();
+      
+      // Set start time to next hour if today, or 9 AM if future date
+      const startTime = new Date(date);
+      if (date.toDateString() === now.toDateString()) {
+        startTime.setHours(now.getHours() + 1, 0, 0, 0);
+      } else {
+        startTime.setHours(9, 0, 0, 0);
+      }
+      
+      // Set end time to 1 hour after start time
+      const endTime = new Date(startTime);
+      endTime.setHours(endTime.getHours() + 1);
+      
+      setNewLesson(prev => ({
+        ...prev,
+        startAt: startTime.toISOString().slice(0, 16),
+        endAt: endTime.toISOString().slice(0, 16),
+        duration: 60
+      }));
+    }
+  };
+
   // Create lesson
   const handleCreateLesson = async () => {
     try {
@@ -115,6 +143,7 @@ function TutorCalendar() {
           subject: "",
           startAt: "",
           endAt: "",
+          duration: 60,
           zoomLink: "",
           prepNotes: "",
           homework: "",
@@ -226,6 +255,10 @@ function TutorCalendar() {
 
             {/* Calendar Table */}
             <div className="tutor-calendar-section tutor-calendar-calendar-section mb-4">
+              <div className="alert alert-info mb-3" role="alert">
+                <i className="fas fa-info-circle me-2"></i>
+                <strong>Tip:</strong> Click on any date to quickly schedule a lesson for that day, or use the "Schedule Lesson" button for more control.
+              </div>
               <div className="table-responsive">
                 <table className="table tutor-calendar-table mb-0">
                   <thead>
@@ -257,6 +290,13 @@ function TutorCalendar() {
                               className={`tutor-calendar-td align-top ${
                                 date ? "" : "tutor-calendar-empty"
                               }`}
+                              onClick={() => {
+                                if (date) {
+                                  setDefaultTimes(dateStr);
+                                  setShowCreateModal(true);
+                                }
+                              }}
+                              style={{ cursor: date ? 'pointer' : 'default' }}
                             >
                               {date && (
                                 <div className="tutor-calendar-date-cell">
@@ -267,6 +307,13 @@ function TutorCalendar() {
                                     <div
                                       className="tutor-calendar-lesson-card mt-1"
                                       key={idx}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        // You can add lesson details modal here
+                                        console.log('Lesson clicked:', lesson);
+                                      }}
+                                      style={{ cursor: 'pointer' }}
+                                      title={`Click to view lesson details`}
                                     >
                                       <span className="tutor-calendar-lesson-title">
                                         {lesson.subject}
@@ -419,31 +466,95 @@ function TutorCalendar() {
                         </div>
                         <div className="row">
                           <div className="col-md-6 mb-3">
-                            <label className="form-label">Start Time</label>
+                            <label className="form-label">Date</label>
                             <input
-                              type="datetime-local"
+                              type="date"
                               className="form-control"
-                              value={newLesson.startAt}
-                              onChange={(e) =>
+                              value={newLesson.startAt ? newLesson.startAt.split('T')[0] : ''}
+                              onChange={(e) => {
+                                const selectedDate = e.target.value;
+                                const currentTime = newLesson.startAt ? newLesson.startAt.split('T')[1] : '09:00';
+                                const newStartAt = `${selectedDate}T${currentTime}`;
+                                const startDate = new Date(newStartAt);
+                                const endDate = new Date(startDate);
+                                endDate.setHours(endDate.getHours() + 1);
+                                
                                 setNewLesson({
                                   ...newLesson,
-                                  startAt: e.target.value,
-                                })
-                              }
+                                  startAt: newStartAt,
+                                  endAt: endDate.toISOString().slice(0, 16)
+                                });
+                              }}
+                            />
+                          </div>
+                          <div className="col-md-6 mb-3">
+                            <label className="form-label">Duration</label>
+                            <select
+                              className="form-select"
+                              value={newLesson.duration || '60'}
+                              onChange={(e) => {
+                                const duration = parseInt(e.target.value);
+                                const startTime = newLesson.startAt;
+                                if (startTime) {
+                                  const startDate = new Date(startTime);
+                                  const endDate = new Date(startDate);
+                                  endDate.setMinutes(endDate.getMinutes() + duration);
+                                  
+                                  setNewLesson({
+                                    ...newLesson,
+                                    duration: duration,
+                                    endAt: endDate.toISOString().slice(0, 16)
+                                  });
+                                }
+                              }}
+                            >
+                              <option value="30">30 minutes</option>
+                              <option value="45">45 minutes</option>
+                              <option value="60">1 hour</option>
+                              <option value="90">1.5 hours</option>
+                              <option value="120">2 hours</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="row">
+                          <div className="col-md-6 mb-3">
+                            <label className="form-label">Start Time</label>
+                            <input
+                              type="time"
+                              className="form-control"
+                              value={newLesson.startAt ? newLesson.startAt.split('T')[1] : ''}
+                              onChange={(e) => {
+                                const selectedTime = e.target.value;
+                                const currentDate = newLesson.startAt ? newLesson.startAt.split('T')[0] : new Date().toISOString().split('T')[0];
+                                const newStartAt = `${currentDate}T${selectedTime}`;
+                                const startDate = new Date(newStartAt);
+                                const endDate = new Date(startDate);
+                                endDate.setMinutes(endDate.getMinutes() + (parseInt(newLesson.duration) || 60));
+                                
+                                setNewLesson({
+                                  ...newLesson,
+                                  startAt: newStartAt,
+                                  endAt: endDate.toISOString().slice(0, 16)
+                                });
+                              }}
                             />
                           </div>
                           <div className="col-md-6 mb-3">
                             <label className="form-label">End Time</label>
                             <input
-                              type="datetime-local"
+                              type="time"
                               className="form-control"
-                              value={newLesson.endAt}
-                              onChange={(e) =>
+                              value={newLesson.endAt ? newLesson.endAt.split('T')[1] : ''}
+                              onChange={(e) => {
+                                const selectedTime = e.target.value;
+                                const currentDate = newLesson.endAt ? newLesson.endAt.split('T')[0] : new Date().toISOString().split('T')[0];
+                                const newEndAt = `${currentDate}T${selectedTime}`;
+                                
                                 setNewLesson({
                                   ...newLesson,
-                                  endAt: e.target.value,
-                                })
-                              }
+                                  endAt: newEndAt
+                                });
+                              }}
                             />
                           </div>
                         </div>

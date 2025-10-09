@@ -19,6 +19,11 @@ export const ADMIN_NAV_LINKS = [
     icon: "fas fa-user-graduate",
   },
   {
+    name: "Assignments",
+    path: "/dashboard/admin/assignments",
+    icon: "fas fa-user-friends",
+  },
+  {
     name: "Calendar",
     path: "/dashboard/admin/calendar",
     icon: "fas fa-calendar-alt",

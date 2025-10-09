@@ -5,6 +5,71 @@ const API_BASE_URL = `${
 }/api`;
 
 class AdminService {
+  // --- Admin Tutor Management ---
+  // List all tutors
+  async getTutors(filters = {}) {
+    const queryParams = new URLSearchParams();
+    if (filters.status) queryParams.append("status", filters.status);
+    if (filters.search) queryParams.append("search", filters.search);
+    if (filters.page) queryParams.append("page", filters.page);
+    if (filters.limit) queryParams.append("limit", filters.limit);
+    const endpoint = `/admin/tutors${queryParams.toString() ? "?" + queryParams.toString() : ""}`;
+    return this.makeAdminRequest(endpoint);
+  }
+
+  // Get tutor details
+  async getTutorById(userId) {
+    return this.makeAdminRequest(`/admin/tutors/${userId}`);
+  }
+
+  // Change tutor tier
+  async changeTutorTier(userId, tier) {
+    return this.makeAdminRequest(`/admin/tutors/${userId}/tier`, {
+      method: "PUT",
+      body: JSON.stringify({ tier }),
+    });
+  }
+
+  // Get completed lessons for a tutor
+  async getTutorCompletedLessons(userId, limit = 50) {
+    const endpoint = `/admin/tutors/${userId}/lessons/completed?limit=${limit}`;
+    return this.makeAdminRequest(endpoint);
+  }
+
+  // Add review for tutor
+  async addTutorReview(userId, review) {
+    return this.makeAdminRequest(`/admin/tutors/${userId}/reviews`, {
+      method: "POST",
+      body: JSON.stringify(review),
+    });
+  }
+
+  // Remove tutor review
+  async removeTutorReview(reviewId) {
+    return this.makeAdminRequest(`/admin/tutor-reviews/${reviewId}`, {
+      method: "DELETE",
+    });
+  }
+
+  // Approve tutor change request
+  async approveTutorChangeRequest(requestId) {
+    return this.makeAdminRequest(`/admin/tutor-change-requests/${requestId}/approve`, {
+      method: "POST",
+    });
+  }
+
+  // Reject tutor change request
+  async rejectTutorChangeRequest(requestId, reason = "") {
+    return this.makeAdminRequest(`/admin/tutor-change-requests/${requestId}/reject`, {
+      method: "POST",
+      body: JSON.stringify({ reason }),
+    });
+  }
+
+  // List tutor change requests
+  async getTutorChangeRequests() {
+    return this.makeAdminRequest(`/admin/tutor-change-requests`);
+  }
   constructor() {
     this.baseUrl = API_BASE_URL;
   }
@@ -325,17 +390,36 @@ class AdminService {
   }
 
   // Check if current user is admin
-  isAdmin() {
-    const user = authService.getUserInfo();
-    return user && user.role === "admin";
-  }
-
-  // Get admin user info
-  getAdminInfo() {
-    if (!this.isAdmin()) {
-      return null;
+    isAdmin() {
+      const user = authService.getUserInfo();
+      return user && user.role === "admin";
     }
-    return authService.getUserInfo();
+  
+    // Get admin user info
+    getAdminInfo() {
+      if (!this.isAdmin()) {
+        return null;
+      }
+      return authService.getUserInfo();
+    }
+  
+    // Assignment Management
+    async getAssignments(filters = {}) {
+      const queryParams = new URLSearchParams();
+      if (filters.status) queryParams.append("status", filters.status);
+      if (filters.studentId) queryParams.append("studentId", filters.studentId);
+      if (filters.tutorId) queryParams.append("tutorId", filters.tutorId);
+      if (filters.search) queryParams.append("search", filters.search);
+      if (filters.page) queryParams.append("page", filters.page);
+      if (filters.limit) queryParams.append("limit", filters.limit);
+  
+      const endpoint = `/admin/assignments${queryParams.toString() ? "?" + queryParams.toString() : ""}`;
+      return this.makeAdminRequest(endpoint);
+   }
+  
+    async getAssignmentById(assignmentId) {
+      return this.makeAdminRequest(`/admin/assignments/${assignmentId}`);
+    }
   }
 
   // Tutor Change Requests
