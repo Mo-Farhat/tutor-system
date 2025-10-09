@@ -26,7 +26,29 @@ function TutorReports() {
       console.log('Reports result:', reportsResult);
 
       if (reportsResult.success && Array.isArray(reportsResult.data)) {
-        setReports(reportsResult.data);
+        // Transform backend data to match frontend expectations
+        const transformedReports = reportsResult.data.map(report => ({
+          ...report,
+          // Map backend fields to frontend expectations
+          overallRating: report.starRating,
+          improvementAreas: report.areasToImprove ? 
+            (Array.isArray(report.areasToImprove) ? report.areasToImprove.join(', ') : report.areasToImprove) : 
+            report.overallProgress,
+          tutorName: report.tutor ? 
+            `${report.tutor.firstName} ${report.tutor.lastName}` : 
+            'Unknown Tutor',
+          tutorComments: report.overview || report.progressSummary,
+          // Ensure arrays are properly handled
+          keyAchievements: Array.isArray(report.keyAchievements) ? report.keyAchievements : [],
+          skillsCovered: Array.isArray(report.skillsCovered) ? report.skillsCovered : [],
+          nextTermGoals: Array.isArray(report.nextTermGoals) ? report.nextTermGoals : [],
+          // Additional fields for compatibility
+          nextSteps: report.nextGoal,
+          homeworkCompletion: report.homeworkCompletion,
+          attendanceNote: report.attendanceNote,
+          engagement: report.engagement
+        }));
+        setReports(transformedReports);
       } else {
         setReports([]);
         setError(reportsResult.error || "Failed to load reports");
@@ -68,25 +90,98 @@ function TutorReports() {
 
   const handleDownloadReport = async (report) => {
     try {
-      // If there's a download URL in the report, use it
-      if (report.downloadUrl) {
-        const link = document.createElement("a");
-        link.href = report.downloadUrl;
-        link.download = `Report_${report.term || "Report"}_${
-          report.subject || ""
-        }.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+      console.log("Downloading report:", report);
+      
+      // Try to get the full report details from backend
+      if (report.id) {
+        const reportResult = await studentService.getReport(report.id);
+        if (reportResult.success && reportResult.data) {
+          // Generate a simple PDF-like content (you can enhance this with a proper PDF library)
+          const reportContent = generateReportContent(reportResult.data);
+          downloadReportAsPDF(reportContent, report);
+        } else {
+          throw new Error("Failed to fetch report details");
+        }
       } else {
-        // Otherwise, try to get the report details and generate a PDF
-        console.log("Downloading report:", report);
-        alert("Download functionality will be implemented soon.");
+        // Fallback: generate PDF from current report data
+        const reportContent = generateReportContent(report);
+        downloadReportAsPDF(reportContent, report);
       }
     } catch (error) {
       console.error("Error downloading report:", error);
       alert("Failed to download report. Please try again.");
     }
+  };
+
+  const generateReportContent = (report) => {
+    const content = `
+TUTOR PROGRESS REPORT
+${'='.repeat(50)}
+
+Report Details:
+- Date: ${formatDate(report.date)}
+- Student: ${report.tutorName || 'N/A'}
+- Subject: ${report.subject || 'N/A'}
+- Term: ${report.term || 'N/A'}
+
+${report.overallRating ? `Overall Rating: ${report.overallRating}/5 stars\n` : ''}
+
+Progress Summary:
+${report.progressSummary || report.overview || 'No summary available'}
+
+${report.keyAchievements && report.keyAchievements.length > 0 ? `
+Key Achievements:
+${report.keyAchievements.map(achievement => `• ${achievement}`).join('\n')}
+` : ''}
+
+${report.improvementAreas ? `
+Areas for Improvement:
+${report.improvementAreas}
+` : ''}
+
+${report.nextSteps ? `
+Next Steps:
+${report.nextSteps}
+` : ''}
+
+${report.tutorComments ? `
+Tutor Comments:
+"${report.tutorComments}"
+` : ''}
+
+${report.skillsCovered && report.skillsCovered.length > 0 ? `
+Skills Covered:
+${report.skillsCovered.map(skill => `• ${skill}`).join('\n')}
+` : ''}
+
+${report.attendanceNote ? `
+Attendance Note:
+${report.attendanceNote}
+` : ''}
+
+Generated on: ${new Date().toLocaleDateString()}
+    `.trim();
+    
+    return content;
+  };
+
+  const downloadReportAsPDF = (content, report) => {
+    // Create a blob with the content
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    
+    // Create download link
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Tutor_Report_${report.term || 'Report'}_${report.subject || 'Subject'}_${formatDate(report.date).replace(/\s/g, '_')}.txt`;
+    
+    // Trigger download
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Clean up
+    URL.revokeObjectURL(url);
   };
 
   // Get unique tutors and subjects for filtering
@@ -321,6 +416,27 @@ function TutorReports() {
                           </div>
                         )}
 
+                      {report.skillsCovered && report.skillsCovered.length > 0 && (
+                        <div className="tutor-reports-skills mb-3">
+                          <h6 className="small text-primary mb-2">
+                            <i className="fas fa-check-circle me-1"></i>
+                            Skills Covered:
+                          </h6>
+                          <div className="d-flex flex-wrap gap-1">
+                            {report.skillsCovered.slice(0, 3).map((skill, skillIndex) => (
+                              <span key={skillIndex} className="badge bg-light text-dark small">
+                                {skill}
+                              </span>
+                            ))}
+                            {report.skillsCovered.length > 3 && (
+                              <span className="badge bg-secondary small">
+                                +{report.skillsCovered.length - 3} more
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
                       {report.improvementAreas && (
                         <div className="tutor-reports-improvements mb-3">
                           <h6 className="small text-info mb-2">
@@ -501,6 +617,68 @@ function TutorReports() {
                       <p className="fst-italic">
                         "{selectedReport.tutorComments}"
                       </p>
+                    </div>
+                  )}
+
+                  {selectedReport.skillsCovered && selectedReport.skillsCovered.length > 0 && (
+                    <div className="mb-4">
+                      <h6 className="text-primary">
+                        <i className="fas fa-check-circle me-2"></i>
+                        Skills Covered
+                      </h6>
+                      <ul>
+                        {selectedReport.skillsCovered.map((skill, skillIndex) => (
+                          <li key={skillIndex} className="mb-1">
+                            {skill}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {selectedReport.nextTermGoals && selectedReport.nextTermGoals.length > 0 && (
+                    <div className="mb-4">
+                      <h6 className="text-success">
+                        <i className="fas fa-flag me-2"></i>
+                        Next Term Goals
+                      </h6>
+                      <ul>
+                        {selectedReport.nextTermGoals.map((goal, goalIndex) => (
+                          <li key={goalIndex} className="mb-1">
+                            {goal}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {selectedReport.homeworkCompletion && (
+                    <div className="mb-4">
+                      <h6>
+                        <i className="fas fa-homework me-2"></i>
+                        Homework Completion
+                      </h6>
+                      <p>{selectedReport.homeworkCompletion}</p>
+                    </div>
+                  )}
+
+                  {selectedReport.attendanceNote && (
+                    <div className="mb-4">
+                      <h6>
+                        <i className="fas fa-calendar-check me-2"></i>
+                        Attendance Note
+                      </h6>
+                      <p>{selectedReport.attendanceNote}</p>
+                    </div>
+                  )}
+
+                  {selectedReport.engagement && (
+                    <div className="mb-4">
+                      <h6>
+                        <i className="fas fa-heart me-2"></i>
+                        Engagement Level
+                      </h6>
+                      <p>{selectedReport.engagement}</p>
                     </div>
                   )}
                 </div>
