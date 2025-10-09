@@ -421,7 +421,44 @@ class AdminService {
       return this.makeAdminRequest(`/admin/assignments/${assignmentId}`);
     }
   }
-  
+
+  // Tutor Change Requests
+  async getChangeRequests(filters = {}) {
+    try {
+      const queryParams = new URLSearchParams(filters).toString();
+      return await this.makeAdminRequest(
+        `/admin/tutor-change-requests${queryParams ? `?${queryParams}` : ""}`
+      );
+    } catch (error) {
+      console.error("Error fetching change requests:", error);
+      throw error;
+    }
+  }
+
+  async approveChangeRequest(changeRequestId, comments = "") {
+    try {
+      return await this.makeAdminRequest(`/admin/tutor-change-requests/${changeRequestId}/approve`, {
+        method: "POST",
+        body: JSON.stringify({ comments }),
+      });
+    } catch (error) {
+      console.error("Error approving change request:", error);
+      throw error;
+    }
+  }
+
+  async rejectChangeRequest(changeRequestId, comments = "") {
+    try {
+      return await this.makeAdminRequest(`/admin/tutor-change-requests/${changeRequestId}/reject`, {
+        method: "POST",
+        body: JSON.stringify({ comments }),
+      });
+    } catch (error) {
+      console.error("Error rejecting change request:", error);
+      throw error;
+    }
+  }
+}
 
 // Create and export singleton instance
 const adminService = new AdminService();
@@ -477,29 +514,9 @@ export const getTutorDocuments = (userId) =>
 export const getTutorApplications = (filters) =>
   adminService.getTutorApplications(filters);
 
-// --- Admin Tutor Management Exports ---
-export const getTutors = (filters) => adminService.getTutors(filters);
-export const getTutorById = (userId) => adminService.getTutorById(userId);
-// Assignment Management
-export const getAssignments = (filters = {}) => {
-  const queryParams = new URLSearchParams();
-  if (filters.status) queryParams.append("status", filters.status);
-  if (filters.studentId) queryParams.append("studentId", filters.studentId);
-  if (filters.tutorId) queryParams.append("tutorId", filters.tutorId);
-  if (filters.search) queryParams.append("search", filters.search);
-  if (filters.page) queryParams.append("page", filters.page);
-  if (filters.limit) queryParams.append("limit", filters.limit);
-
-  const endpoint = `/admin/assignments${queryParams.toString() ? "?" + queryParams.toString() : ""}`;
-  return adminService.makeAdminRequest(endpoint);
-};
-
-export const getAssignmentById = (assignmentId) => adminService.getAssignmentById(assignmentId);
-export const getTutorCompletedLessons = (userId, limit) => adminService.getTutorCompletedLessons(userId, limit);
-export const addTutorReview = (userId, review) => adminService.addTutorReview(userId, review);
-export const removeTutorReview = (reviewId) => adminService.removeTutorReview(reviewId);
-export const approveTutorChangeRequest = (requestId) => adminService.approveTutorChangeRequest(requestId);
-export const rejectTutorChangeRequest = (requestId, reason) => adminService.rejectTutorChangeRequest(requestId, reason);
-export const getTutorChangeRequests = () => adminService.getTutorChangeRequests();
-
-export const changeTutorTier = (userId, tier) => adminService.changeTutorTier(userId, tier);
+// Tutor Change Requests
+export const getChangeRequests = (filters) => adminService.getChangeRequests(filters);
+export const approveChangeRequest = (changeRequestId, comments) =>
+  adminService.approveChangeRequest(changeRequestId, comments);
+export const rejectChangeRequest = (changeRequestId, comments) =>
+  adminService.rejectChangeRequest(changeRequestId, comments);

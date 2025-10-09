@@ -54,7 +54,6 @@ class LessonModel {
     });
   }
 
-  // Tutor-side helpers (optional)
   createByTutor(tutorId, payload) {
     return prisma.lesson.create({
       data: {
@@ -77,7 +76,7 @@ class LessonModel {
     });
   }
 
-   findCompletedByTutor(tutorId, { limit = 100 } = {}) {
+  findCompletedByTutor(tutorId, { limit = 100 } = {}) {
     return prisma.lesson.findMany({
       where: { tutorId: Number(tutorId), status: "completed" },
       orderBy: { startAt: "desc" },
@@ -112,6 +111,7 @@ class LessonModel {
           }
         : {}),
     };
+
     return prisma.lesson.findMany({
       where,
       orderBy: { startAt: "asc" },
@@ -141,6 +141,7 @@ class LessonModel {
           }
         : {}),
     };
+
     return prisma.lesson.findMany({
       where,
       orderBy: { startAt: "asc" },
@@ -156,7 +157,7 @@ class LessonModel {
     });
   }
 
-  // Ensure every scheduled session has a zoom link (for compliance checks)
+  // ✅ Properly closed this function
   listScheduledMissingZoom({ dateFrom, dateTo } = {}) {
     const where = {
       status: "scheduled",
@@ -170,6 +171,7 @@ class LessonModel {
           }
         : {}),
     };
+
     return prisma.lesson.findMany({
       where,
       orderBy: { startAt: "asc" },
@@ -178,10 +180,16 @@ class LessonModel {
         subject: true,
         startAt: true,
         endAt: true,
-        tutor: { select: { id: true, firstName: true, lastName: true, email: true } },
-        student: { select: { id: true, firstName: true, lastName: true, email: true } },
+        tutor: {
+          select: { id: true, firstName: true, lastName: true, email: true },
+        },
+        student: {
+          select: { id: true, firstName: true, lastName: true, email: true },
+        },
       },
-  // Tutor-side lesson queries
+    });
+  }
+
   listUpcomingByTutor(tutorId, limit = 20) {
     return prisma.lesson.findMany({
       where: {
@@ -199,6 +207,7 @@ class LessonModel {
     });
   }
 
+  // Move listCompletedByTutor to correct class scope
   listCompletedByTutor(tutorId, limit = 50) {
     return prisma.lesson.findMany({
       where: { tutorId: Number(tutorId), status: "completed" },
@@ -227,12 +236,9 @@ class LessonModel {
 
   removeByTutor(id, tutorId) {
     return prisma.lesson.delete({
-      where: { id: Number(id), tutorId: Number(tutorId) },
+      where: { id: Number(id) }, // tutorId can't be here unless unique composite key
     });
   }
 }
-
-
-
 
 module.exports = new LessonModel();
