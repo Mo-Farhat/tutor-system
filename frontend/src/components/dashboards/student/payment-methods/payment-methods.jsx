@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import studentService from '../../../../services/studentService';
 import '../../../../css/dashboards/student/payment-methods/payment-methods.css';
 
 function StudentPaymentMethods() {
+    const [paymentMethods, setPaymentMethods] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [showAddCardModal, setShowAddCardModal] = useState(false);
     const [cardForm, setCardForm] = useState({
         cardNumber: '',
@@ -12,6 +16,31 @@ function StudentPaymentMethods() {
         isDefault: false
     });
     const [formErrors, setFormErrors] = useState({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Load payment methods on component mount
+    useEffect(() => {
+        loadPaymentMethods();
+    }, []);
+
+    const loadPaymentMethods = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const result = await studentService.getPaymentMethods();
+            
+            if (result.success) {
+                setPaymentMethods(result.data || []);
+            } else {
+                setError(result.error || 'Failed to load payment methods');
+            }
+        } catch (err) {
+            console.error('Error loading payment methods:', err);
+            setError('Failed to load payment methods');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     // Handle opening the modal
     const handleOpenModal = () => {
@@ -103,7 +132,7 @@ function StudentPaymentMethods() {
     };
 
     // Handle form submission
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const errors = validateForm();
         
@@ -112,12 +141,62 @@ function StudentPaymentMethods() {
             return;
         }
         
-        // Here you would typically send the data to your backend
-        console.log('New card data:', cardForm);
-        
-        // For demo purposes, just close the modal
-        alert('Payment method added successfully!');
-        handleCloseModal();
+        try {
+            setIsSubmitting(true);
+            
+            // Determine card brand based on card number
+            const cardNumber = cardForm.cardNumber.replace(/\s/g, '');
+            let brand = 'unknown';
+            if (cardNumber.startsWith('4')) brand = 'visa';
+            else if (cardNumber.startsWith('5') || cardNumber.startsWith('2')) brand = 'mastercard';
+            else if (cardNumber.startsWith('3')) brand = 'amex';
+            
+            // Prepare payment method data for backend
+            const paymentMethodData = {
+                type: 'card',
+                brand: brand,
+                last4: cardNumber.slice(-4),
+                billingName: cardForm.cardholderName
+            };
+            
+            const result = await studentService.createPaymentMethod(paymentMethodData);
+            
+            if (result.success) {
+                alert('Payment method added successfully!');
+                handleCloseModal();
+                // Reload payment methods to show the new one
+                await loadPaymentMethods();
+            } else {
+                alert(`Failed to add payment method: ${result.error || 'Unknown error'}`);
+            }
+        } catch (error) {
+            console.error('Error adding payment method:', error);
+            alert('Failed to add payment method. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    // Handle deleting a payment method
+    const handleDeletePaymentMethod = async (paymentMethodId) => {
+        if (!window.confirm('Are you sure you want to delete this payment method?')) {
+            return;
+        }
+
+        try {
+            const result = await studentService.deletePaymentMethod(paymentMethodId);
+            
+            if (result.success) {
+                alert('Payment method deleted successfully!');
+                // Reload payment methods
+                await loadPaymentMethods();
+            } else {
+                alert(`Failed to delete payment method: ${result.error || 'Unknown error'}`);
+            }
+        } catch (error) {
+            console.error('Error deleting payment method:', error);
+            alert('Failed to delete payment method. Please try again.');
+        }
     };
 
     // Determine card type based on card number
@@ -127,6 +206,17 @@ function StudentPaymentMethods() {
         if (number.startsWith('5') || number.startsWith('2')) return 'mastercard';
         if (number.startsWith('3')) return 'amex';
         return 'unknown';
+    };
+
+    // Get display brand name
+    const getBrandDisplay = (brand) => {
+        const brands = {
+            visa: 'VISA',
+            mastercard: 'MC',
+            amex: 'AMEX',
+            unknown: 'Card'
+        };
+        return brands[brand] || brands.unknown;
     };
 
     return (
@@ -145,78 +235,98 @@ function StudentPaymentMethods() {
                         <button 
                             className="btn student-payment-methods-btn-add"
                             onClick={handleOpenModal}
+                            disabled={loading}
                         >
                             <span className="student-payment-methods-plus-icon">+</span> Add New Method
                         </button>
                     </div>
                     
-                    <div className="row g-3 mb-4">
-                        <div className="col-12">
-                            <div className="card student-payment-methods-method-card">
-                                <div className="card-body">
-                                    <div className="row align-items-center">
-                                        <div className="col-auto">
-                                            <div className="student-payment-methods-card-icon">
-                                                <span className="student-payment-methods-visa-icon">VISA</span>
-                                            </div>
-                                        </div>
-                                        <div className="col">
-                                            <div className="student-payment-methods-card-info">
-                                                <h6 className="student-payment-methods-card-title">Visa ending in 4242</h6>
-                                                <p className="student-payment-methods-card-subtitle">Expires 08/2025</p>
-                                            </div>
-                                        </div>
-                                        <div className="col-auto">
-                                            <span className="badge student-payment-methods-default-badge">Default</span>
-                                        </div>
-                                        <div className="col-auto">
-                                            <div className="dropdown">
-                                                <button className="btn student-payment-methods-menu-btn" data-bs-toggle="dropdown">
-                                                    ⋮
-                                                </button>
-                                                <ul className="dropdown-menu">
-                                                    <li><a className="dropdown-item" href="#">Edit</a></li>
-                                                    <li><a className="dropdown-item" href="#">Set as Default</a></li>
-                                                    <li><a className="dropdown-item text-danger" href="#">Delete</a></li>
-                                                </ul>
+                    {/* Loading State */}
+                    {loading && (
+                        <div className="text-center py-4">
+                            <div className="spinner-border text-primary" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                            </div>
+                            <p className="mt-2">Loading payment methods...</p>
+                        </div>
+                    )}
+
+                    {/* Error State */}
+                    {error && !loading && (
+                        <div className="alert alert-danger" role="alert">
+                            {error}
+                            <button 
+                                className="btn btn-sm btn-outline-danger ms-3" 
+                                onClick={loadPaymentMethods}
+                            >
+                                Try Again
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Empty State */}
+                    {!loading && !error && paymentMethods.length === 0 && (
+                        <div className="text-center py-5">
+                            <i className="fas fa-credit-card fa-3x text-muted mb-3"></i>
+                            <h6>No payment methods saved</h6>
+                            <p className="text-muted">Add a payment method to get started</p>
+                        </div>
+                    )}
+
+                    {/* Payment Methods List */}
+                    {!loading && !error && paymentMethods.length > 0 && (
+                        <div className="row g-3 mb-4">
+                            {paymentMethods.map((method, index) => (
+                                <div key={method.id} className="col-12">
+                                    <div className="card student-payment-methods-method-card">
+                                        <div className="card-body">
+                                            <div className="row align-items-center">
+                                                <div className="col-auto">
+                                                    <div className="student-payment-methods-card-icon">
+                                                        <span className={`student-payment-methods-${method.brand}-icon`}>
+                                                            {getBrandDisplay(method.brand)}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div className="col">
+                                                    <div className="student-payment-methods-card-info">
+                                                        <h6 className="student-payment-methods-card-title">
+                                                            {method.brand.charAt(0).toUpperCase() + method.brand.slice(1)} ending in {method.last4}
+                                                        </h6>
+                                                        <p className="student-payment-methods-card-subtitle">
+                                                            {method.billingName || 'No billing name'}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                {index === 0 && (
+                                                    <div className="col-auto">
+                                                        <span className="badge student-payment-methods-default-badge">Default</span>
+                                                    </div>
+                                                )}
+                                                <div className="col-auto">
+                                                    <div className="dropdown">
+                                                        <button className="btn student-payment-methods-menu-btn" data-bs-toggle="dropdown">
+                                                            ⋮
+                                                        </button>
+                                                        <ul className="dropdown-menu">
+                                                            <li>
+                                                                <button 
+                                                                    className="dropdown-item text-danger" 
+                                                                    onClick={() => handleDeletePaymentMethod(method.id)}
+                                                                >
+                                                                    Delete
+                                                                </button>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            ))}
                         </div>
-                        <div className="col-12">
-                            <div className="card student-payment-methods-method-card">
-                                <div className="card-body">
-                                    <div className="row align-items-center">
-                                        <div className="col-auto">
-                                            <div className="student-payment-methods-card-icon">
-                                                <span className="student-payment-methods-mastercard-icon">MC</span>
-                                            </div>
-                                        </div>
-                                        <div className="col">
-                                            <div className="student-payment-methods-card-info">
-                                                <h6 className="student-payment-methods-card-title">Mastercard ending in 8888</h6>
-                                                <p className="student-payment-methods-card-subtitle">Expires 11/2025</p>
-                                            </div>
-                                        </div>
-                                        <div className="col-auto">
-                                            <div className="dropdown">
-                                                <button className="btn student-payment-methods-menu-btn" data-bs-toggle="dropdown">
-                                                    ⋮
-                                                </button>
-                                                <ul className="dropdown-menu">
-                                                    <li><a className="dropdown-item" href="#">Edit</a></li>
-                                                    <li><a className="dropdown-item" href="#">Set as Default</a></li>
-                                                    <li><a className="dropdown-item text-danger" href="#">Delete</a></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    )}
                 </div>
 
                 {/* Payment History Section */}
@@ -453,14 +563,23 @@ function StudentPaymentMethods() {
                                         type="button"
                                         className="btn student-payment-methods-btn-cancel"
                                         onClick={handleCloseModal}
+                                        disabled={isSubmitting}
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         type="submit"
                                         className="btn student-payment-methods-btn-save"
+                                        disabled={isSubmitting}
                                     >
-                                        Add Payment Method
+                                        {isSubmitting ? (
+                                            <>
+                                                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                                Adding...
+                                            </>
+                                        ) : (
+                                            'Add Payment Method'
+                                        )}
                                     </button>
                                 </div>
                             </form>
