@@ -187,13 +187,13 @@ function AdminAssignments() {
 
       const response = await studentTutorService.createAssignment(assignmentData);
       
-      if (response.success) {
+      if (response && !response.error) {
         // Refresh assignments list
         loadAssignments();
         closeCreateModal();
         alert("Assignment created successfully!");
       } else {
-        alert(response.error || "Failed to create assignment");
+        alert(response?.error || "Failed to create assignment");
       }
     } catch (error) {
       console.error("Error creating assignment:", error);
@@ -209,13 +209,13 @@ function AdminAssignments() {
       
       const response = await studentTutorService.updateAssignment(assignmentId, updates);
       
-      if (response.success) {
+      if (response && !response.error) {
         // Refresh assignments list
         loadAssignments();
         closeAssignmentModal();
         alert("Assignment updated successfully!");
       } else {
-        alert(response.error || "Failed to update assignment");
+        alert(response?.error || "Failed to update assignment");
       }
     } catch (error) {
       console.error("Error updating assignment:", error);
@@ -235,13 +235,13 @@ function AdminAssignments() {
       
       const response = await studentTutorService.deleteAssignment(assignmentId);
       
-      if (response.success) {
+      if (response && (response.ok || !response.error)) {
         // Refresh assignments list
         loadAssignments();
         closeAssignmentModal();
         alert("Assignment deleted successfully!");
       } else {
-        alert(response.error || "Failed to delete assignment");
+        alert(response?.error || "Failed to delete assignment");
       }
     } catch (error) {
       console.error("Error deleting assignment:", error);
@@ -273,20 +273,16 @@ function AdminAssignments() {
   if (isLoading) {
     return (
       <div className="admin-assignments-container">
-        <div className="container-fluid">
-          <div className="row">
-            <div className="col-12">
-              <div
-                className="d-flex justify-content-center align-items-center"
-                style={{ minHeight: "400px" }}
-              >
-                <div className="text-center">
-                  <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                  </div>
-                  <p className="mt-3">Loading assignments...</p>
-                </div>
+        <div className="admin-assignments-content">
+          <div
+            className="d-flex justify-content-center align-items-center"
+            style={{ minHeight: "400px" }}
+          >
+            <div className="text-center">
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
               </div>
+              <p className="mt-3">Loading assignments...</p>
             </div>
           </div>
         </div>
@@ -296,10 +292,7 @@ function AdminAssignments() {
 
   return (
     <div className="admin-assignments-container">
-      <div className="container-fluid">
-        <div className="row">
-          <div className="col-12">
-            <div className="admin-assignments-content">
+      <div className="admin-assignments-content">
               {/* Header */}
               <div className="admin-assignments-header">
                 <div className="admin-assignments-title-section">
@@ -496,9 +489,6 @@ function AdminAssignments() {
                   </div>
                 )}
               </div>
-            </div>
-          </div>
-        </div>
       </div>
       
 

@@ -457,7 +457,7 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
     { id: "overview", label: "Overview", icon: "fas fa-user" },
     {
       id: "compliance",
-      label: "Compliance & Documents",
+      label: "Documents",
       icon: "fas fa-shield-alt",
     },
     { id: "changes", label: "Change Requests", icon: "fas fa-edit" },

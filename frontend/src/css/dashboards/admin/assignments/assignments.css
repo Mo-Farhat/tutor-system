@@ -1,25 +1,23 @@
 /* Admin Assignments Dashboard Styles */
 
-.admin-assignments-container {
-  padding: 20px;
-  background-color: #f8f9fa;
-  min-height: 100vh;
-}
+
 
 .admin-assignments-content {
+  max-width: 1400px;
+  margin: 0 auto;
   background: white;
- border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+  padding: 2rem;
 }
 
 .admin-assignments-header {
-  margin-bottom: 25px;
+  margin-bottom: 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 1rem;
 }
 
 .admin-assignments-title-section {
@@ -28,9 +26,10 @@
 
 .admin-assignments-title {
   margin: 0;
-  color: #2c3e50;
-  font-size: 1.8rem;
-  font-weight: 600;
+  color: #1a1a2e;
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
 }
 
 .admin-assignments-subtitle {
@@ -66,7 +65,10 @@
 }
 
 .admin-assignments-controls {
-  margin-bottom: 25px;
+  background: #f1f5f9;
+  border-radius: 16px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
 }
 
 .admin-controls-top {
@@ -74,8 +76,8 @@
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 15px;
-  margin-bottom: 15px;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 .admin-search-section {
@@ -115,7 +117,10 @@
 }
 
 .admin-assignments-table-section {
-  margin-top: 20px;
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.06);
 }
 
 .admin-assignments-table {
@@ -124,17 +129,20 @@
 }
 
 .admin-assignments-table th {
-  background: #f8f9fa;
-  padding: 12px 15px;
+  background: #f8fafc;
+  padding: 1rem 1.5rem;
   text-align: left;
   font-weight: 600;
-  color: #2c3e50;
-  border-bottom: 2px solid #dee2e6;
+  color: #1a1a2e;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .admin-assignments-table td {
-  padding: 12px 15px;
-  border-bottom: 1px solid #dee2e6;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
   vertical-align: top;
 }
 
@@ -145,14 +153,15 @@
 
 .admin-assignment-student-name,
 .admin-assignment-tutor-name {
-  font-weight: 500;
-  color: #2c3e50;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 0.25rem;
 }
 
 .admin-assignment-student-email,
 .admin-assignment-tutor-email {
-  font-size: 0.85rem;
-  color: #7f8c8d;
+  font-size: 0.875rem;
+  color: #64748b;
 }
 
 .admin-subject-tag {
