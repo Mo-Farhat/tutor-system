@@ -1,0 +1,132 @@
+.admin-users-container {
+  padding: 2rem;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.admin-users-content {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.admin-users-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+  position: relative;
+}
+
+.admin-users-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-users-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.admin-users-controls {
+  background: #f1f5f9;
+  border-radius: 16px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-users-table-wrapper {
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.admin-users-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  color: #64748b;
+  gap: 1rem;
+}
+
+.admin-users-empty i {
+  font-size: 2.5rem;
+}
+
+.admin-users-name {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.admin-users-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.admin-users-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+}
+
+.admin-users-edit-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 360px;
+  height: 100vh;
+  background: #ffffff;
+  box-shadow: -12px 0 30px rgba(15, 23, 42, 0.12);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  z-index: 1050;
+}
+
+.admin-users-edit-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.admin-users-edit-body {
+  flex: 1;
+  overflow-y: auto;
+}
+
+@media (max-width: 991px) {
+  .admin-users-container {
+    padding: 1.5rem;
+  }
+
+  .admin-users-card {
+    padding: 1.5rem;
+  }
+
+  .admin-users-edit-panel {
+    position: fixed;
+    width: 100%;
+    height: auto;
+    bottom: 0;
+    top: auto;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+  }
+}

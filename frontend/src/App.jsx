@@ -54,6 +54,7 @@ import StudentTutorReportsPage from "./pages/js/dashboard/student/tutor-reports"
 
 // Admin Dashboard Pages
 import AdminHomePage from "./pages/js/dashboard/admin/home";
+import AdminUsersPage from "./pages/js/dashboard/admin/users";
 import AdminTutorsPage from "./pages/js/dashboard/admin/tutors";
 import AdminStudentsPage from "./pages/js/dashboard/admin/students";
 import AdminCalendarPage from "./pages/js/dashboard/admin/calendar";
@@ -226,6 +227,14 @@ const App = () => {
               element={
                 <ProtectedAdminRoute>
                   <AdminHomePage />
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/users"
+              element={
+                <ProtectedAdminRoute>
+                  <AdminUsersPage />
                 </ProtectedAdminRoute>
               }
             />
