@@ -35,6 +35,8 @@ const studentGoalsRoutes = require("./routes/studentGoals");
 const studentPaymentMethodsRoutes = require("./routes/studentPaymentMethods");
 const studentSupportRoutes = require("./routes/studentSupport");
 
+const adminPackagesRoutes = require("./routes/adminPackages");
+
 // Health check
 app.get("/health", (req, res) => {
   res.json({ status: "OK", message: "Server is running" });
@@ -57,6 +59,9 @@ app.use("/api", studentAchievementsRoutes);
 app.use("/api", studentGoalsRoutes);
 app.use("/api", studentPaymentMethodsRoutes);
 app.use("/api", studentSupportRoutes);
+
+app.use("/api", adminPackagesRoutes);
+
 
 /* ---------------------------------------------------------------- */
 

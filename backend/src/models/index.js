@@ -14,6 +14,7 @@ const achievementModel = require("./achievementModel");
 const goalModel = require("./goalModel");
 const studentPaymentMethodModel = require("./studentPaymentMethodModel");
 const supportTicketModel = require("./supportTicketModel");
+const packageTypeModel = require("./packageTypeModel");
 
 module.exports = {
   userModel,
@@ -32,4 +33,5 @@ module.exports = {
   goalModel,
   studentPaymentMethodModel,
   supportTicketModel,
+  packageTypeModel,
 };
