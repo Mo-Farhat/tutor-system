@@ -1,16 +1,56 @@
 import React, { useState, useEffect } from "react";
+import { getStudentProfile, updateStudentProfile } from "../../../../services/adminService";
 import "../../../../css/dashboards/admin/students/studentProfile.css";
 
 const StudentProfileModal = ({ student, onClose, onUpdate }) => {
   const [activeTab, setActiveTab] = useState("overview");
   const [studentData, setStudentData] = useState(student);
+  const [realStudentData, setRealStudentData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [editingFields, setEditingFields] = useState({
+    tier: 'basic',
+    status: 'active'
+  });
+  const [saving, setSaving] = useState(false);
   const [selectedSessionNotes, setSelectedSessionNotes] = useState(null);
   const [showNotesModal, setShowNotesModal] = useState(false);
   const [showMaterialsModal, setShowMaterialsModal] = useState(false);
   const [selectedSession, setSelectedSession] = useState(null);
 
-  // Mock data for demonstration
+  // Fetch real student data
+  useEffect(() => {
+    const fetchStudentData = async () => {
+      if (student && student.id) {
+        try {
+          setLoading(true);
+          setError(null);
+          
+          const result = await getStudentProfile(student.id);
+          
+          if (result.success) {
+            setRealStudentData(result.data);
+            setEditingFields({
+              tier: result.data.tier || 'basic',
+              status: result.data.status || 'active'
+            });
+          } else {
+            setError(result.error || 'Failed to load student profile');
+          }
+        } catch (err) {
+          console.error('Error fetching student profile:', err);
+          setError('Failed to load student profile');
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchStudentData();
+  }, [student]);
+
+  // Mock data for other tabs (Pipeline, Sessions, etc.)
   useEffect(() => {
     if (student) {
       // Mock lesson pipeline data
@@ -455,9 +495,56 @@ const StudentProfileModal = ({ student, onClose, onUpdate }) => {
     }
   }, [student]);
 
-  const handleSave = () => {
-    onUpdate(studentData);
-    setIsEditing(false);
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      setError(null);
+
+      const result = await updateStudentProfile(student.id, editingFields);
+      
+      if (result.success) {
+        // Update the real student data with the new values
+        setRealStudentData(prev => ({
+          ...prev,
+          tier: editingFields.tier,
+          status: editingFields.status
+        }));
+        
+        // Also update the studentData for backward compatibility
+        setStudentData(prev => ({
+          ...prev,
+          tier: editingFields.tier,
+          status: editingFields.status
+        }));
+        
+        setIsEditing(false);
+        
+        // Call the parent update handler if provided
+        if (onUpdate) {
+          onUpdate({
+            ...studentData,
+            tier: editingFields.tier,
+            status: editingFields.status
+          });
+        }
+        
+        alert('Student profile updated successfully!');
+      } else {
+        setError(result.error || 'Failed to update student profile');
+      }
+    } catch (err) {
+      console.error('Error updating student profile:', err);
+      setError('Failed to update student profile');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleFieldChange = (field, value) => {
+    setEditingFields(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   const handleMarkConsultationCompleted = () => {
@@ -953,112 +1040,335 @@ const StudentProfileModal = ({ student, onClose, onUpdate }) => {
     </div>
   );
 
-  const renderProfileTab = () => (
-    <div className="student-profile-preferences">
-      <div className="row mb-4">
-        <div className="col-md-6">
-          <div className="student-profile-card">
-            <h6>Student Details</h6>
-            <div className="form-group mb-3">
-              <label className="form-label">Name</label>
-              <input
-                type="text"
-                className="form-control"
-                value={studentData.name}
-                onChange={(e) =>
-                  setStudentData({ ...studentData, name: e.target.value })
-                }
-                disabled={!isEditing}
-              />
-            </div>
-            <div className="form-group mb-3">
-              <label className="form-label">Email</label>
-              <input
-                type="email"
-                className="form-control"
-                value={studentData.email}
-                onChange={(e) =>
-                  setStudentData({ ...studentData, email: e.target.value })
-                }
-                disabled={!isEditing}
-              />
-            </div>
-            <div className="form-group mb-3">
-              <label className="form-label">Phone</label>
-              <input
-                type="tel"
-                className="form-control"
-                value={studentData.phone}
-                onChange={(e) =>
-                  setStudentData({ ...studentData, phone: e.target.value })
-                }
-                disabled={!isEditing}
-              />
-            </div>
-            <div className="form-group mb-3">
-              <label className="form-label">Learning Preferences</label>
-              <textarea
-                className="form-control"
-                rows="3"
-                placeholder="Enter learning preferences..."
-                disabled={!isEditing}
-              />
+  const renderProfileTab = () => {
+    if (loading) {
+      return (
+        <div className="text-center py-5">
+          <div className="spinner-border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="mt-3">Loading student profile...</p>
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="alert alert-danger">
+          <i className="fas fa-exclamation-triangle me-2"></i>
+          {error}
+        </div>
+      );
+    }
+
+    if (!realStudentData) {
+      return (
+        <div className="alert alert-info">
+          <i className="fas fa-info-circle me-2"></i>
+          No profile data available for this student.
+        </div>
+      );
+    }
+
+    return (
+      <div className="student-profile-preferences">
+        {/* Error Display */}
+        {error && (
+          <div className="alert alert-danger mb-4">
+            <i className="fas fa-exclamation-triangle me-2"></i>
+            {error}
+          </div>
+        )}
+
+        {/* Admin Editable Fields */}
+        <div className="row mb-4">
+          <div className="col-12">
+            <div className="student-profile-card">
+              <h6>
+                <i className="fas fa-cog me-2"></i>
+                Admin Settings
+                {!isEditing && (
+                  <button
+                    className="btn btn-sm btn-outline-primary ms-3"
+                    onClick={() => setIsEditing(true)}
+                  >
+                    <i className="fas fa-edit me-1"></i>
+                    Edit
+                  </button>
+                )}
+              </h6>
+              
+              {isEditing && (
+                <div className="row">
+                  <div className="col-md-6">
+                    <div className="form-group mb-3">
+                      <label className="form-label">Student Tier</label>
+                      <select
+                        className="form-select"
+                        value={editingFields.tier}
+                        onChange={(e) => handleFieldChange('tier', e.target.value)}
+                      >
+                        <option value="basic">Basic</option>
+                        <option value="premium">Premium</option>
+                        <option value="elite">Elite</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="form-group mb-3">
+                      <label className="form-label">Account Status</label>
+                      <select
+                        className="form-select"
+                        value={editingFields.status}
+                        onChange={(e) => handleFieldChange('status', e.target.value)}
+                      >
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="pending">Pending</option>
+                        <option value="suspended">Suspended</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {!isEditing && (
+                <div className="row">
+                  <div className="col-md-6">
+                    <div className="form-group mb-3">
+                      <label className="form-label">Student Tier</label>
+                      <div className="form-control-plaintext">
+                        <span className={`badge bg-${
+                          realStudentData.tier === 'elite' ? 'danger' :
+                          realStudentData.tier === 'premium' ? 'warning' : 'secondary'
+                        }`}>
+                          {realStudentData.tier?.toUpperCase() || 'Basic'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="form-group mb-3">
+                      <label className="form-label">Account Status</label>
+                      <div className="form-control-plaintext">
+                        <span className={`badge bg-${
+                          realStudentData.status === 'active' ? 'success' :
+                          realStudentData.status === 'inactive' ? 'secondary' :
+                          realStudentData.status === 'pending' ? 'warning' : 'danger'
+                        }`}>
+                          {realStudentData.status?.toUpperCase() || 'Active'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
-        <div className="col-md-6">
-          <div className="student-profile-card">
-            <h6>SMART Goals</h6>
-            <div className="smart-goals-list">
-              {studentData.smartGoals.map((goal, index) => (
-                <div key={index} className="smart-goal-item">
-                  <div className="smart-goal-header">
-                    <div className="smart-goal-subject">{goal.subject}</div>
-                    <div className="smart-goal-target">{goal.targetDate}</div>
-                  </div>
-                  <div className="smart-goal-description">{goal.goal}</div>
-                  <div className="smart-goal-progress">
-                    <div className="progress">
-                      <div
-                        className={`progress-bar bg-${
-                          goal.status === "exceeding"
-                            ? "success"
-                            : goal.status === "on_track"
-                            ? "primary"
-                            : "warning"
-                        }`}
-                        style={{ width: `${goal.progress}%` }}
-                      ></div>
-                    </div>
-                    <div className="smart-goal-progress-text">
-                      {goal.progress}%
-                    </div>
-                  </div>
-                  <div className="smart-goal-milestones">
-                    {goal.milestones.map((milestone, idx) => (
-                      <div
-                        key={idx}
-                        className={`milestone-item ${
-                          milestone.completed ? "completed" : ""
-                        }`}
-                      >
-                        <i
-                          className={`fas fa-${
-                            milestone.completed ? "check-circle" : "circle"
-                          }`}
-                        ></i>
-                        <span>{milestone.name}</span>
+
+        {/* Student Profile Information */}
+        <div className="row mb-4">
+          <div className="col-md-6">
+            <div className="student-profile-card">
+              <h6><i className="fas fa-user me-2"></i>Personal Information</h6>
+              <div className="form-group mb-3">
+                <label className="form-label">Full Name</label>
+                <div className="form-control-plaintext">
+                  {realStudentData.firstName && realStudentData.lastName 
+                    ? `${realStudentData.firstName} ${realStudentData.lastName}`
+                    : 'Not provided'
+                  }
+                </div>
+              </div>
+              <div className="form-group mb-3">
+                <label className="form-label">Email</label>
+                <div className="form-control-plaintext">
+                  {realStudentData.email || 'Not provided'}
+                </div>
+              </div>
+              <div className="form-group mb-3">
+                <label className="form-label">Username</label>
+                <div className="form-control-plaintext">
+                  @{realStudentData.username || 'Not provided'}
+                </div>
+              </div>
+              <div className="form-group mb-3">
+                <label className="form-label">Phone Number</label>
+                <div className="form-control-plaintext">
+                  {realStudentData.phoneNumber || 'Not provided'}
+                </div>
+              </div>
+              <div className="form-group mb-3">
+                <label className="form-label">Bio</label>
+                <div className="form-control-plaintext">
+                  {realStudentData.bio || 'Not provided'}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="col-md-6">
+            <div className="student-profile-card">
+              <h6><i className="fas fa-graduation-cap me-2"></i>Academic Information</h6>
+              <div className="form-group mb-3">
+                <label className="form-label">Current School</label>
+                <div className="form-control-plaintext">
+                  {realStudentData.currentSchool || 'Not provided'}
+                </div>
+              </div>
+              <div className="form-group mb-3">
+                <label className="form-label">Year Level</label>
+                <div className="form-control-plaintext">
+                  {realStudentData.yearLevel || 'Not provided'}
+                </div>
+              </div>
+              <div className="form-group mb-3">
+                <label className="form-label">Subjects Interested</label>
+                <div className="form-control-plaintext">
+                  {realStudentData.subjectsInterested?.length > 0 
+                    ? realStudentData.subjectsInterested.map(subject => (
+                        <span key={subject} className="badge bg-primary me-1 mb-1">{subject}</span>
+                      ))
+                    : 'Not provided'
+                  }
+                </div>
+              </div>
+              <div className="form-group mb-3">
+                <label className="form-label">Preferred Locations</label>
+                <div className="form-control-plaintext">
+                  {realStudentData.preferredLocations?.length > 0 
+                    ? realStudentData.preferredLocations.map(location => (
+                        <span key={location} className="badge bg-info me-1 mb-1">{location}</span>
+                      ))
+                    : 'Not provided'
+                  }
+                </div>
+              </div>
+              <div className="form-group mb-3">
+                <label className="form-label">Learning Goals</label>
+                <div className="form-control-plaintext">
+                  {realStudentData.learningGoals || 'Not provided'}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Parent Contacts */}
+        {realStudentData.parentContacts && realStudentData.parentContacts.length > 0 && (
+          <div className="row mb-4">
+            <div className="col-12">
+              <div className="student-profile-card">
+                <h6><i className="fas fa-users me-2"></i>Parent Contacts</h6>
+                <div className="row">
+                  {realStudentData.parentContacts.map((parent, index) => (
+                    <div key={index} className="col-md-6 mb-3">
+                      <div className="card">
+                        <div className="card-body">
+                          <div className="d-flex justify-content-between align-items-start">
+                            <div>
+                              <h6 className="card-title">
+                                {parent.firstName} {parent.lastName}
+                                {parent.isPrimary && (
+                                  <span className="badge bg-success ms-2">Primary</span>
+                                )}
+                              </h6>
+                              <p className="card-text">
+                                <small className="text-muted">
+                                  {parent.relation?.charAt(0).toUpperCase() + parent.relation?.slice(1)}
+                                </small>
+                              </p>
+                            </div>
+                          </div>
+                          <div className="mt-2">
+                            {parent.email && (
+                              <div className="mb-1">
+                                <i className="fas fa-envelope me-1"></i>
+                                {parent.email}
+                              </div>
+                            )}
+                            {parent.phone && (
+                              <div className="mb-1">
+                                <i className="fas fa-phone me-1"></i>
+                                {parent.phone}
+                              </div>
+                            )}
+                            {parent.contactPreference && (
+                              <div className="mb-1">
+                                <i className="fas fa-comment me-1"></i>
+                                Prefers: {parent.contactPreference}
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Profile Completion Status */}
+        <div className="row mb-4">
+          <div className="col-12">
+            <div className="student-profile-card">
+              <h6><i className="fas fa-chart-pie me-2"></i>Profile Completion</h6>
+              <div className="row">
+                <div className="col-md-8">
+                  <div className="progress mb-2" style={{ height: '25px' }}>
+                    <div 
+                      className="progress-bar bg-success" 
+                      role="progressbar" 
+                      style={{ width: `${realStudentData.profileCompletionPercentage || 0}%` }}
+                    >
+                      {realStudentData.profileCompletionPercentage || 0}%
+                    </div>
                   </div>
                 </div>
-              ))}
+                <div className="col-md-4">
+                  <div className="text-end">
+                    <span className={`badge bg-${realStudentData.isProfileComplete ? 'success' : 'warning'}`}>
+                      {realStudentData.isProfileComplete ? 'Complete' : 'Incomplete'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Account Information */}
+        <div className="row">
+          <div className="col-md-6">
+            <div className="student-profile-card">
+              <h6><i className="fas fa-calendar me-2"></i>Account Information</h6>
+              <div className="form-group mb-3">
+                <label className="form-label">Member Since</label>
+                <div className="form-control-plaintext">
+                  {realStudentData.createdAt 
+                    ? new Date(realStudentData.createdAt).toLocaleDateString()
+                    : 'Not available'
+                  }
+                </div>
+              </div>
+              <div className="form-group mb-3">
+                <label className="form-label">Last Updated</label>
+                <div className="form-control-plaintext">
+                  {realStudentData.updatedAt 
+                    ? new Date(realStudentData.updatedAt).toLocaleDateString()
+                    : 'Not available'
+                  }
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   if (!studentData) return null;
 
@@ -1175,9 +1485,19 @@ const StudentProfileModal = ({ student, onClose, onUpdate }) => {
                       type="button"
                       className="btn btn-primary"
                       onClick={handleSave}
+                      disabled={saving}
                     >
-                      <i className="fas fa-save me-1"></i>
-                      Save Changes
+                      {saving ? (
+                        <>
+                          <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <i className="fas fa-save me-1"></i>
+                          Save Changes
+                        </>
+                      )}
                     </button>
                     <button
                       type="button"

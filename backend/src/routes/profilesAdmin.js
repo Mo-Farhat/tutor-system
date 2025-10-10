@@ -41,6 +41,20 @@ router.put(
   ctrl.makeOffline
 );
 
+// Student profile endpoints for admin
+router.get(
+  "/admin/students/:userId/profile",
+  authenticateToken,
+  requireRole("admin"),
+  ctrl.getStudentProfile
+);
+router.put(
+  "/admin/students/:userId/profile",
+  authenticateToken,
+  requireRole("admin"),
+  ctrl.updateStudentProfile
+);
+
 // Mock endpoints for development (unprotected)
 router.get("/mock/profiles", ctrl.list);
 router.put("/mock/profiles/:userId/make-live", ctrl.makeLive);

@@ -438,6 +438,32 @@ class AdminService {
   async rejectChangeRequest(changeRequestId, comments = "") {
     return this.rejectTutorChangeRequest(changeRequestId, comments);
   }
+
+  // Student Profile Management
+  async getStudentProfile(userId) {
+    try {
+      const response = await this.makeAdminRequest(
+        `GET /admin/students/${userId}/profile`
+      );
+      return response;
+    } catch (error) {
+      console.error("Error fetching student profile:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async updateStudentProfile(userId, data) {
+    try {
+      const response = await this.makeAdminRequest(
+        `PUT /admin/students/${userId}/profile`,
+        data
+      );
+      return response;
+    } catch (error) {
+      console.error("Error updating student profile:", error);
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 
@@ -517,3 +543,7 @@ export const approveChangeRequest = (changeRequestId, comments) =>
   adminService.approveChangeRequest(changeRequestId, comments);
 export const rejectChangeRequest = (changeRequestId, comments) =>
   adminService.rejectChangeRequest(changeRequestId, comments);
+
+// Student Profile Management
+export const getStudentProfile = (userId) => adminService.getStudentProfile(userId);
+export const updateStudentProfile = (userId, data) => adminService.updateStudentProfile(userId, data);
