@@ -44,6 +44,12 @@ function StudentProfileManagement() {
   const [goalsLoading, setGoalsLoading] = useState(true);
   const [goalsError, setGoalsError] = useState(null);
 
+  // Inline editing states
+  const [editingSection, setEditingSection] = useState(null); // 'personal', 'academic', 'subjects'
+  const [editData, setEditData] = useState({});
+  const [savingSection, setSavingSection] = useState(null);
+  const [sectionError, setSectionError] = useState("");
+
   // Current subjects
   const [currentSubjects, setCurrentSubjects] = useState([]);
 
@@ -57,7 +63,6 @@ function StudentProfileManagement() {
   ];
 
   // Modal states
-  const [showEditModal, setShowEditModal] = useState(false);
   const [showGoalModal, setShowGoalModal] = useState(false);
   const [showPreferencesModal, setShowPreferencesModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -366,6 +371,87 @@ function StudentProfileManagement() {
     setPasswordErrors({});
   };
 
+  // Start editing a section
+  const startEditingSection = (section) => {
+    setSectionError("");
+    if (section === 'personal') {
+      setEditData({
+        phone_number: detailsData.phoneNumber || "",
+        bio: detailsData.bio || "",
+      });
+    } else if (section === 'academic') {
+      setEditData({
+        current_school: detailsData.currentSchool || "",
+        year_level: detailsData.yearLevel || "",
+        subjects_interested: detailsData.subjectsInterested || [],
+        preferred_locations: detailsData.preferredLocations || [],
+        learning_goals: detailsData.learningGoals || "",
+      });
+    }
+    setEditingSection(section);
+  };
+
+  // Cancel editing
+  const cancelEditing = () => {
+    setEditingSection(null);
+    setEditData({});
+    setSectionError("");
+  };
+
+  // Save section changes
+  const saveSectionChanges = async (section) => {
+    try {
+      setSavingSection(section);
+      setSectionError("");
+
+      // Validate bio if provided (must be at least 10 characters for validation middleware)
+      if (editData.bio && editData.bio.trim() && editData.bio.trim().length < 10) {
+        setSectionError("Bio must be at least 10 characters long (or leave empty)");
+        return;
+      }
+
+      // Remove bio from payload if it's empty to avoid validation error
+      const payload = { ...editData };
+      if (!payload.bio || !payload.bio.trim()) {
+        delete payload.bio;
+      }
+
+      const result = await studentService.updateMyProfile(payload);
+
+      if (result.success) {
+        // Update local state
+        setDetailsData(prev => ({
+          ...prev,
+          phoneNumber: editData.phone_number || prev.phoneNumber,
+          bio: editData.bio || prev.bio,
+          currentSchool: editData.current_school || prev.currentSchool,
+          yearLevel: editData.year_level || prev.yearLevel,
+          subjectsInterested: editData.subjects_interested || prev.subjectsInterested,
+          preferredLocations: editData.preferred_locations || prev.preferredLocations,
+          learningGoals: editData.learning_goals || prev.learningGoals,
+        }));
+
+        if (editData.year_level) {
+          setStudentData(prev => ({
+            ...prev,
+            grade: editData.year_level,
+          }));
+        }
+
+        setEditingSection(null);
+        setEditData({});
+        alert("Profile updated successfully!");
+      } else {
+        setSectionError(result.error || "Failed to update profile");
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      setSectionError("An error occurred while updating profile");
+    } finally {
+      setSavingSection(null);
+    }
+  };
+
   return (
     <div className="student-profile-dashboard">
       <div className="student-profile-content">
@@ -397,22 +483,13 @@ function StudentProfileManagement() {
                   </div>
                 </div>
                 <div className="col-auto">
-                  <div className="d-flex gap-2 flex-wrap">
-                    <button
-                      className="btn student-profile-edit-btn"
-                      onClick={() => setShowEditModal(true)}
-                    >
-                      <i className="fas fa-edit me-2"></i>
-                      Edit Profile
-                    </button>
-                    <button
-                      className="btn student-profile-password-btn"
-                      onClick={() => setShowPasswordModal(true)}
-                    >
-                      <i className="fas fa-lock me-2"></i>
-                      Change Password
-                    </button>
-                  </div>
+                  <button
+                    className="btn student-profile-password-btn"
+                    onClick={() => setShowPasswordModal(true)}
+                  >
+                    <i className="fas fa-lock me-2"></i>
+                    Change Password
+                  </button>
                 </div>
               </div>
             </div>
@@ -502,7 +579,302 @@ function StudentProfileManagement() {
               )}
             </div>
 
-            {/* Details panel below goals (can be moved as needed) */}
+            {/* Personal Information Section */}
+            <div className="student-profile-section mt-4">
+              <div className="card">
+                <div className="card-body">
+                  <div className="d-flex justify-content-between align-items-center mb-3">
+                    <h6 className="student-profile-card-title mb-0">
+                      <i className="fas fa-user me-2"></i>
+                      Personal Information
+                    </h6>
+                    {editingSection !== 'personal' && (
+                      <button
+                        className="btn btn-sm btn-outline-primary"
+                        onClick={() => startEditingSection('personal')}
+                      >
+                        <i className="fas fa-edit me-1"></i>
+                        Edit
+                      </button>
+                    )}
+                  </div>
+
+                  {sectionError && editingSection === 'personal' && (
+                    <div className="alert alert-danger alert-sm">
+                      <i className="fas fa-exclamation-triangle me-2"></i>
+                      {sectionError}
+                    </div>
+                  )}
+
+                  {editingSection === 'personal' ? (
+                    <div>
+                      <div className="mb-3">
+                        <label className="form-label">Phone Number</label>
+                        <input
+                          type="tel"
+                          className="form-control"
+                          value={editData.phone_number || ""}
+                          onChange={(e) =>
+                            setEditData({ ...editData, phone_number: e.target.value })
+                          }
+                          placeholder="Enter your phone number"
+                        />
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label">Bio</label>
+                        <textarea
+                          className="form-control"
+                          rows="3"
+                          value={editData.bio || ""}
+                          onChange={(e) =>
+                            setEditData({ ...editData, bio: e.target.value })
+                          }
+                          placeholder="Tell us about yourself... (minimum 10 characters or leave empty)"
+                        ></textarea>
+                        <div className="form-text">
+                          {editData.bio ? `${editData.bio.length} characters` : '0 characters'} (minimum 10 required if provided)
+                        </div>
+                      </div>
+                      <div className="d-flex gap-2">
+                        <button
+                          className="btn btn-primary btn-sm"
+                          onClick={() => saveSectionChanges('personal')}
+                          disabled={savingSection === 'personal'}
+                        >
+                          {savingSection === 'personal' ? (
+                            <>
+                              <span className="spinner-border spinner-border-sm me-1"></span>
+                              Saving...
+                            </>
+                          ) : (
+                            <>
+                              <i className="fas fa-save me-1"></i>
+                              Save
+                            </>
+                          )}
+                        </button>
+                        <button
+                          className="btn btn-secondary btn-sm"
+                          onClick={cancelEditing}
+                          disabled={savingSection === 'personal'}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="row">
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label text-muted small">Phone Number</label>
+                          <div>{detailsData.phoneNumber || 'Not provided'}</div>
+                        </div>
+                      </div>
+                      <div className="col-12">
+                        <div className="mb-0">
+                          <label className="form-label text-muted small">Bio</label>
+                          <div>{detailsData.bio || 'Not provided'}</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Academic Information Section */}
+            <div className="student-profile-section mt-4">
+              <div className="card">
+                <div className="card-body">
+                  <div className="d-flex justify-content-between align-items-center mb-3">
+                    <h6 className="student-profile-card-title mb-0">
+                      <i className="fas fa-graduation-cap me-2"></i>
+                      Academic Information
+                    </h6>
+                    {editingSection !== 'academic' && (
+                      <button
+                        className="btn btn-sm btn-outline-primary"
+                        onClick={() => startEditingSection('academic')}
+                      >
+                        <i className="fas fa-edit me-1"></i>
+                        Edit
+                      </button>
+                    )}
+                  </div>
+
+                  {sectionError && editingSection === 'academic' && (
+                    <div className="alert alert-danger alert-sm">
+                      <i className="fas fa-exclamation-triangle me-2"></i>
+                      {sectionError}
+                    </div>
+                  )}
+
+                  {editingSection === 'academic' ? (
+                    <div>
+                      <div className="row">
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">Current School</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={editData.current_school || ""}
+                            onChange={(e) =>
+                              setEditData({ ...editData, current_school: e.target.value })
+                            }
+                            placeholder="Enter your school name"
+                          />
+                        </div>
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">Year Level</label>
+                          <select
+                            className="form-select"
+                            value={editData.year_level || ""}
+                            onChange={(e) =>
+                              setEditData({ ...editData, year_level: e.target.value })
+                            }
+                          >
+                            <option value="">Select year level</option>
+                            <option value="Year 7">Year 7</option>
+                            <option value="Year 8">Year 8</option>
+                            <option value="Year 9">Year 9</option>
+                            <option value="Year 10">Year 10</option>
+                            <option value="Year 11">Year 11</option>
+                            <option value="Year 12">Year 12</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label">Subjects Interested</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={Array.isArray(editData.subjects_interested) 
+                            ? editData.subjects_interested.join(", ") 
+                            : ""}
+                          onChange={(e) =>
+                            setEditData({
+                              ...editData,
+                              subjects_interested: e.target.value
+                                .split(",")
+                                .map(s => s.trim())
+                                .filter(s => s),
+                            })
+                          }
+                          placeholder="Enter subjects separated by commas (e.g., Math, Science, English)"
+                        />
+                        <div className="form-text">Separate multiple subjects with commas</div>
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label">Preferred Locations</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={Array.isArray(editData.preferred_locations)
+                            ? editData.preferred_locations.join(", ")
+                            : ""}
+                          onChange={(e) =>
+                            setEditData({
+                              ...editData,
+                              preferred_locations: e.target.value
+                                .split(",")
+                                .map(s => s.trim())
+                                .filter(s => s),
+                            })
+                          }
+                          placeholder="Enter locations separated by commas (e.g., Online, Sydney CBD)"
+                        />
+                        <div className="form-text">Separate multiple locations with commas</div>
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label">Learning Goals</label>
+                        <textarea
+                          className="form-control"
+                          rows="3"
+                          value={editData.learning_goals || ""}
+                          onChange={(e) =>
+                            setEditData({ ...editData, learning_goals: e.target.value })
+                          }
+                          placeholder="What do you want to achieve through tutoring?"
+                        ></textarea>
+                      </div>
+                      <div className="d-flex gap-2">
+                        <button
+                          className="btn btn-primary btn-sm"
+                          onClick={() => saveSectionChanges('academic')}
+                          disabled={savingSection === 'academic'}
+                        >
+                          {savingSection === 'academic' ? (
+                            <>
+                              <span className="spinner-border spinner-border-sm me-1"></span>
+                              Saving...
+                            </>
+                          ) : (
+                            <>
+                              <i className="fas fa-save me-1"></i>
+                              Save
+                            </>
+                          )}
+                        </button>
+                        <button
+                          className="btn btn-secondary btn-sm"
+                          onClick={cancelEditing}
+                          disabled={savingSection === 'academic'}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="row">
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label text-muted small">Current School</label>
+                          <div>{detailsData.currentSchool || 'Not provided'}</div>
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label text-muted small">Year Level</label>
+                          <div>{detailsData.yearLevel || 'Not provided'}</div>
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label text-muted small">Subjects Interested</label>
+                          <div>
+                            {Array.isArray(detailsData.subjectsInterested) && detailsData.subjectsInterested.length > 0
+                              ? detailsData.subjectsInterested.map(subject => (
+                                  <span key={subject} className="badge bg-primary me-1 mb-1">{subject}</span>
+                                ))
+                              : 'Not provided'}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label text-muted small">Preferred Locations</label>
+                          <div>
+                            {Array.isArray(detailsData.preferredLocations) && detailsData.preferredLocations.length > 0
+                              ? detailsData.preferredLocations.map(location => (
+                                  <span key={location} className="badge bg-info me-1 mb-1">{location}</span>
+                                ))
+                              : 'Not provided'}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-12">
+                        <div className="mb-0">
+                          <label className="form-label text-muted small">Learning Goals</label>
+                          <div>{detailsData.learningGoals || 'Not provided'}</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Details panel below (achievements and reports) */}
             <DetailsPanel
               studentData={detailsData}
               studentBadges={studentBadges}
@@ -550,110 +922,6 @@ function StudentProfileManagement() {
           </div>
         </div>
       </div>
-
-      {/* Edit Profile Modal */}
-      {showEditModal && (
-        <div
-          className="modal fade show d-block"
-          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-        >
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Edit Profile</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setShowEditModal(false)}
-                ></button>
-              </div>
-              <div className="modal-body">
-                <form>
-                  <div className="mb-3">
-                    <label className="form-label">Full Name</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={studentData.fullName}
-                      onChange={(e) =>
-                        setStudentData({
-                          ...studentData,
-                          fullName: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Email Address</label>
-                    <input
-                      type="email"
-                      className="form-control"
-                      value={studentData.email}
-                      onChange={(e) =>
-                        setStudentData({
-                          ...studentData,
-                          email: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Grade</label>
-                    <select
-                      className="form-select"
-                      value={studentData.grade}
-                      onChange={(e) =>
-                        setStudentData({
-                          ...studentData,
-                          grade: e.target.value,
-                        })
-                      }
-                    >
-                      <option value="Grade 9">Grade 9</option>
-                      <option value="Grade 10">Grade 10</option>
-                      <option value="Grade 11">Grade 11</option>
-                      <option value="Grade 12">Grade 12</option>
-                    </select>
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Stream</label>
-                    <select
-                      className="form-select"
-                      value={studentData.stream}
-                      onChange={(e) =>
-                        setStudentData({
-                          ...studentData,
-                          stream: e.target.value,
-                        })
-                      }
-                    >
-                      <option value="Science Stream">Science Stream</option>
-                      <option value="Commerce Stream">Commerce Stream</option>
-                      <option value="Arts Stream">Arts Stream</option>
-                    </select>
-                  </div>
-                </form>
-              </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setShowEditModal(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={() => setShowEditModal(false)}
-                >
-                  Save Changes
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Goal Modal */}
       {showGoalModal && (

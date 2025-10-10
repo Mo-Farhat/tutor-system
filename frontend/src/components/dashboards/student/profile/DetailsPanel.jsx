@@ -18,38 +18,10 @@ function DetailsPanel({
   return (
     <div className="student-profile-details-content">
       {/* Header (lightweight, without container wrappers) */}
-      <div className="student-profile-details-section">
-        <h4 className="student-profile-details-section-title">
-          Profile Details
-        </h4>
-        <div className="student-profile-details-card">
-          <div className="student-profile-details-card-body">
-            <div className="row">
-              <div className="col-lg-8 col-md-12 mb-4">
-                <div className="d-flex align-items-center">
-                  <div className="student-profile-details-avatar me-3">
-                    <i className="fas fa-user-graduate"></i>
-                  </div>
-                  <div>
-                    <h6 className="student-profile-details-card-title">
-                      {studentData.fullName}
-                    </h6>
-                    <p className="student-profile-details-card-description">
-                      {studentData.grade} •{" "}
-                      {Array.isArray(studentData.subjects)
-                        ? studentData.subjects.join(", ")
-                        : studentData.stream || ""}
-                      {studentData.studentId
-                        ? ` • Student ID: ${studentData.studentId}`
-                        : ""}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      
+     
+
+
 
       {/* Personal Information */}
       <div className="student-profile-details-section">

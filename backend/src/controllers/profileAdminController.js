@@ -1,4 +1,5 @@
-const { tutorProfileModel } = require("../models");
+const { tutorProfileModel, studentProfileModel, userModel } = require("../models");
+const profileService = require("../services/profileService");
 
 // GET /api/admin/profiles
 exports.list = async (req, res) => {
@@ -88,5 +89,92 @@ exports.makeOffline = async (req, res) => {
     });
   } catch (e) {
     res.status(400).json({ error: e.message });
+  }
+};
+
+// GET /api/admin/students/:userId/profile - Get student profile for admin view
+exports.getStudentProfile = async (req, res) => {
+  try {
+    const userId = Number(req.params.userId);
+    
+    if (!userId) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Valid user ID is required" 
+      });
+    }
+
+    const result = await profileService.getStudentProfileForAdmin(userId);
+    
+    if (!result.success) {
+      return res.status(404).json(result);
+    }
+
+    res.json(result);
+  } catch (e) {
+    console.error("admin.getStudentProfile", e);
+    res.status(500).json({ 
+      success: false, 
+      error: "Internal server error" 
+    });
+  }
+};
+
+// PUT /api/admin/students/:userId/profile - Update student tier and status
+exports.updateStudentProfile = async (req, res) => {
+  try {
+    const userId = Number(req.params.userId);
+    const { tier, status } = req.body || {};
+
+    if (!userId) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Valid user ID is required" 
+      });
+    }
+
+    // Validate allowed fields
+    const allowedFields = {};
+    if (tier !== undefined) {
+      if (!['basic', 'premium', 'elite'].includes(tier)) {
+        return res.status(400).json({
+          success: false,
+          error: "Tier must be one of: basic, premium, elite"
+        });
+      }
+      allowedFields.tier = tier;
+    }
+
+    if (status !== undefined) {
+      // Allow common status values
+      if (!['active', 'inactive', 'pending', 'suspended'].includes(status)) {
+        return res.status(400).json({
+          success: false,
+          error: "Status must be one of: active, inactive, pending, suspended"
+        });
+      }
+      allowedFields.status = status;
+    }
+
+    if (Object.keys(allowedFields).length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: "No valid fields provided for update"
+      });
+    }
+
+    const result = await profileService.updateStudentTierStatus(userId, allowedFields);
+    
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+
+    res.json(result);
+  } catch (e) {
+    console.error("admin.updateStudentProfile", e);
+    res.status(500).json({ 
+      success: false, 
+      error: "Internal server error" 
+    });
   }
 };
