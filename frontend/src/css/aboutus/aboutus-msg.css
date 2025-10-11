@@ -10,32 +10,93 @@
     padding: 0 2rem;
   }
   
-  .aboutus-msg-h {
-    color: #0d2371;
-    margin-bottom: 3rem;
+.aboutus-msg-h {
+  color: #0d2371;
+  margin-bottom: 3rem;
+}
+
+.aboutus-msg-section.section-animate .aboutus-msg-h {
+  animation: slideInLeft 0.8s ease-out;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
   }
-  
-  .aboutus-content {
-    font-size: 1.25rem;
-    line-height: 2rem;
-    text-align: justify;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    hyphens: auto;
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
-  
-  .aboutus-founder-img-container {
-    max-width: 100%;
-    padding: 15px;
+}
+
+.aboutus-content {
+  font-size: 1.25rem;
+  line-height: 2rem;
+  text-align: justify;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.aboutus-msg-section.section-animate .aboutus-content p {
+  animation: fadeIn 1s ease-out;
+  animation-fill-mode: both;
+}
+
+.aboutus-msg-section.section-animate .aboutus-content p:nth-child(1) {
+  animation-delay: 0.2s;
+}
+
+.aboutus-msg-section.section-animate .aboutus-content p:nth-child(2) {
+  animation-delay: 0.4s;
+}
+
+.aboutus-msg-section.section-animate .aboutus-content p:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
   }
-  
-  .aboutus-founder-img {
-    width: 100%;
-    max-width: 300px;
-    height: auto;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  to {
+    opacity: 1;
   }
+}
+
+.aboutus-founder-img-container {
+  max-width: 100%;
+  padding: 15px;
+}
+
+.aboutus-founder-img {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.aboutus-msg-section.section-animate .aboutus-founder-img {
+  animation: slideInRight 1s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.aboutus-founder-img:hover {
+  transform: scale(1.05);
+}
   
   .aboutus-founder-caption {
     text-align: center;

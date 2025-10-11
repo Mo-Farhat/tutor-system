@@ -59,7 +59,7 @@ function Ucat() {
                 offer you a 10% discount on packages.
                 <br />
                 <br />
-                Please use the code STRIVE_25 for a 10% discount:{" "}
+                <strong style={{ color: '#062a78' }}>Please use the code STRIVE_25 for a 10% discount:{" "}</strong>
                 <strong>
                   <a
                     className="faq-link"

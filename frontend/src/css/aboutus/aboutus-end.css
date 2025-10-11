@@ -15,50 +15,126 @@
     z-index: -1;
   }
   
-  .aboutus-end-main-h {
-    margin-bottom: 3rem;
-    color: #0d2371;
-    margin-top: -10rem;
+.aboutus-end-main-h {
+  margin-bottom: 3rem;
+  color: #0d2371;
+  margin-top: -10rem;
+}
+
+.aboutus-end-section.section-animate .aboutus-end-main-h {
+  animation: bounceIn 1s ease-out;
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(-50px);
   }
-  
-  .aboutus-end-des {
-    font-size: 1.75rem;
-    margin-bottom: 10rem;
-    color: #333333;
-    text-align: center;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    hyphens: auto;
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
   }
-  
-  .aboutus-end-slogan {
-    font-size: 2rem;
-    text-align: center;
-    justify-content: center;
-    white-space: normal;
-    margin-bottom: 5rem;
-    color: #0c4da2;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    hyphens: auto;
+  70% {
+    transform: scale(0.9);
   }
-  
-  .aboutus-end-slogan-bold {
-    color: #ff3a3a;
+  100% {
+    transform: scale(1);
   }
-  
-  .aboutus-end-btn-grp {
-    justify-content: center;
+}
+
+.aboutus-end-des {
+  font-size: 1.75rem;
+  margin-bottom: 10rem;
+  color: #333333;
+  text-align: center;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.aboutus-end-section.section-animate .aboutus-end-des {
+  animation: fadeIn 1s ease-out 0.3s both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
   }
-  
-  .aboutus-end-btn {
-    border-radius: 1rem !important;
-    padding: 1rem 1rem;
-    font-size: 1.5rem !important;
-    transition: 0.3s ease-in-out !important;
-    white-space: pre;
-    width: fit-content !important;
+  to {
+    opacity: 1;
   }
+}
+
+.aboutus-end-slogan {
+  font-size: 2rem;
+  text-align: center;
+  justify-content: center;
+  white-space: normal;
+  margin-bottom: 5rem;
+  color: #0c4da2;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.aboutus-end-section.section-animate .aboutus-end-slogan {
+  animation: slideInUp 1s ease-out 0.6s both;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.aboutus-end-slogan-bold {
+  color: #ff3a3a;
+}
+
+.aboutus-end-btn-grp {
+  justify-content: center;
+}
+
+.aboutus-end-section.section-animate .aboutus-end-btn {
+  animation: fadeInScale 0.6s ease-out both;
+}
+
+.aboutus-end-section.section-animate #aboutus-end-btn-1 {
+  animation-delay: 0.9s;
+}
+
+.aboutus-end-section.section-animate #aboutus-end-btn-2 {
+  animation-delay: 1.1s;
+}
+
+.aboutus-end-section.section-animate #aboutus-end-btn-3 {
+  animation-delay: 1.3s;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.aboutus-end-btn {
+  border-radius: 1rem !important;
+  padding: 1rem 1rem;
+  font-size: 1.5rem !important;
+  transition: 0.3s ease-in-out !important;
+  white-space: pre;
+  width: fit-content !important;
+}
   
   #aboutus-end-btn-1 {
     border-color: #0d2371 !important;

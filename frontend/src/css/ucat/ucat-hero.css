@@ -42,6 +42,34 @@
     margin-bottom: 0;
 }
 
+.ucat-hero-section.section-animate .ucat-hero-title {
+    animation: slideInRight 1s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.ucat-hero-section.section-animate .ucat-hero-pattern {
+    animation: fadeIn 1.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 0.1;
+    }
+}
+
 
 /* Responsive styles */
 @media (max-width: 992px) {

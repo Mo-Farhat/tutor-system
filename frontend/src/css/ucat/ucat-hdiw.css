@@ -23,6 +23,21 @@
     margin-bottom: 2rem;
 }
 
+.ucat-hdiw-section.section-animate .ucat-hdiw-title {
+    animation: fadeInDown 1s ease-out;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .ucat-hdiw-number {
     color: #f44336;
     font-size: 3.5rem;
@@ -45,6 +60,33 @@
     align-items: flex-start;
     position: relative;
     padding-bottom: 3rem;
+}
+
+.ucat-hdiw-section.section-animate .ucat-hdiw-step {
+    animation: slideInLeft 0.8s ease-out both;
+}
+
+.ucat-hdiw-section.section-animate .ucat-hdiw-step:nth-child(1) {
+    animation-delay: 0.3s;
+}
+
+.ucat-hdiw-section.section-animate .ucat-hdiw-step:nth-child(2) {
+    animation-delay: 0.6s;
+}
+
+.ucat-hdiw-section.section-animate .ucat-hdiw-step:nth-child(3) {
+    animation-delay: 0.9s;
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 .ucat-hdiw-step:last-child {

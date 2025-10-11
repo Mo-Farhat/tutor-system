@@ -23,5 +23,15 @@ section {
   color: #062A78;
 }
 
+/* Animation Styles */
+.section-animate-target {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
 
+.section-animate-target.section-animate {
+  opacity: 1;
+  transform: translateY(0);
+}
 
