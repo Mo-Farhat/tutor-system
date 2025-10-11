@@ -1,54 +1,111 @@
 .faq-private-main {
     justify-content: center;
-}
-
-.faq-private-sec {
-   justify-content: center;
-   margin-top: 5rem !important;
-   max-width: 1200px !important;
-}
-
-.faq-private-main-h {
+  }
+  
+  .faq-private-sec {
+    justify-content: center;
+    margin-top: 5rem !important;
+    max-width: 1200px !important;
+  }
+  
+  .faq-private-main-h {
     text-align: center;
     color: #132151;
     margin-bottom: 3rem;
     justify-content: center;
-}
-
-#faq-private-accordians-main {
+  }
+  
+  #faq-private-accordians-main {
     flex-direction: column;
-}
-
-#faq-private-ac-item {
+  }
+  
+  #faq-private-ac-item {
     border-radius: 1rem !important;
-}
-
-#faq-private-accordians-main button {
+  }
+  
+  #faq-private-accordians-main button {
     box-shadow: none !important;
     border: none;
-    border-radius: .5rem !important;
-}
-
-.accordion-item {
+    border-radius: 0.5rem !important;
+  }
+  
+  .accordion-item {
     transition: border 0.3s ease; /* Smooth transition for border */
-}
-
-.faq-private-q {
+  }
+  
+  .faq-private-q {
     border-radius: 0.5 !important;
     border: none;
     justify-content: start;
     font-size: 1.5rem !important;
     padding: 1rem 1.5rem !important;
-    color: #0C4DA2 !important;
-}
-
-.faq-link {
+    color: #0c4da2 !important;
+  }
+  
+  .faq-link {
     text-decoration: none;
     font-weight: 600;
-    color: #0C4DA2 !important;
-}
-
-.faq-link:hover {
+    color: #0c4da2 !important;
+  }
+  
+  .faq-link:hover {
     text-decoration: underline;
     color: #ff3a3a !important;
-}
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 1200px) {
+    .faq-private-sec {
+      max-width: 100% !important;
+      padding: 0 2rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .faq-private-sec {
+      padding: 0 1.5rem;
+    }
+  
+    .faq-private-main-h {
+      font-size: 2rem;
+      margin-bottom: 2rem;
+    }
+  
+    .faq-private-q {
+      font-size: 1.25rem !important;
+      padding: 0.75rem 1rem !important;
+    }
+  
+    #faq-private-accordians-main {
+      gap: 1rem;
+    }
+  
+    .accordion-body {
+      font-size: 0.9rem;
+      padding: 1rem !important;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      hyphens: auto;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .faq-private-sec {
+      padding: 0 1rem;
+    }
+  
+    .faq-private-main-h {
+      font-size: 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+  
+    .faq-private-q {
+      font-size: 1.1rem !important;
+      padding: 0.6rem 0.8rem !important;
+    }
+  
+    .accordion-body {
+      font-size: 0.85rem;
+      padding: 0.8rem !important;
+    }
+  }

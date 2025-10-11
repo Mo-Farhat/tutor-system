@@ -168,7 +168,7 @@ function AdminHome() {
               <div className="admin-home-header mb-4">
                 <h2 className="admin-home-title">Admin Dashboard</h2>
                 <p className="admin-home-subtitle text-muted">
-                  Welcome to the Strive Academy Admin Panel
+                  Welcome to the Strive Academics Admin Panel
                 </p>
               </div>
 

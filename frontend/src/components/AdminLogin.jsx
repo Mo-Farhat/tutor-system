@@ -71,7 +71,7 @@ function AdminLogin() {
             <div className="card-body p-5">
               <div className="text-center mb-4">
                 <h2 className="card-title text-primary">Admin Login</h2>
-                <p className="text-muted">Strive Academy Admin Panel</p>
+                <p className="text-muted">Strive Academics Admin Panel</p>
               </div>
 
               {error && (

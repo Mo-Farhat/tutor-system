@@ -1,6 +1,6 @@
 # Authentication API Integration - Frontend
 
-This document explains the authentication integration between the React frontend and Django backend for Strive Academy.
+This document explains the authentication integration between the React frontend and Django backend for Strive Academics.
 
 ## 🚀 Overview
 

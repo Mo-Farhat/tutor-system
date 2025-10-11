@@ -55,7 +55,7 @@ class EmailService {
         from:
           process.env.DEFAULT_FROM_EMAIL ||
           process.env.EMAIL_FROM ||
-          "Strive Academy <noreply@striveacademy.com>",
+          "Strive Academics <noreply@striveacademy.com>",
         to: to,
         subject: subject,
         html: htmlContent,
@@ -72,12 +72,12 @@ class EmailService {
   }
 
   async sendApplicationConfirmation(email, applicationData) {
-    const subject = "Application Received - Strive Academy";
+    const subject = "Application Received - Strive Academics";
     const htmlContent = getApplicationConfirmationTemplate(applicationData);
     const textContent = `
 Dear ${applicationData.fullName},
 
-Thank you for applying to become a tutor with Strive Academy!
+Thank you for applying to become a tutor with Strive Academics!
 
 Application Details:
 - Application ID: ${applicationData.applicationId}
@@ -92,7 +92,7 @@ What happens next:
 If you have any questions, please contact us at support@striveacademy.com
 
 Best regards,
-The Strive Academy Team
+The Strive Academics Team
     `;
 
     return await this.sendEmail(email, subject, htmlContent, textContent);
@@ -130,13 +130,13 @@ Applied at: ${applicationData.createdAt}
   }
 
   async sendApprovalNotification(email, tutorData, setupToken) {
-    const subject = "Welcome to Strive Academy - Set Up Your Account";
+    const subject = "Welcome to Strive Academics - Set Up Your Account";
     const htmlContent = getApprovalNotificationTemplate(tutorData, setupToken);
     const setupUrl = `${process.env.FRONTEND_URL}/tutor/setup-password/${setupToken}`;
     const textContent = `
 Dear ${tutorData.fullName},
 
-Congratulations! Your application to become a Strive Academy tutor has been approved! 🎉
+Congratulations! Your application to become a Strive Academics tutor has been approved! 🎉
 
 Next Steps:
 1. Click the link below to set up your password and activate your account
@@ -154,7 +154,7 @@ Important:
 We're excited to have you join our team of exceptional tutors!
 
 Best regards,
-The Strive Academy Team
+The Strive Academics Team
 
 Setup Link: ${setupUrl}
     `;
@@ -163,12 +163,12 @@ Setup Link: ${setupUrl}
   }
 
   async sendRejectionNotification(email, tutorData, reason = "") {
-    const subject = "Strive Academy Application Update";
+    const subject = "Strive Academics Application Update";
     const htmlContent = getRejectionNotificationTemplate(tutorData, reason);
     const textContent = `
 Dear ${tutorData.fullName},
 
-Thank you for your interest in becoming a tutor with Strive Academy.
+Thank you for your interest in becoming a tutor with Strive Academics.
 
 After careful review of your application, we regret to inform you that we cannot move forward with your application at this time.
 
@@ -179,20 +179,20 @@ We encourage you to reapply in the future as our requirements and needs may chan
 If you have any questions about this decision, please feel free to contact us.
 
 Best regards,
-The Strive Academy Team
+The Strive Academics Team
     `;
 
     return await this.sendEmail(email, subject, htmlContent, textContent);
   }
 
   async sendSetupReminder(email, tutorData, setupToken) {
-    const subject = "Complete Your Strive Academy Setup - Reminder";
+    const subject = "Complete Your Strive Academics Setup - Reminder";
     const htmlContent = getSetupReminderTemplate(tutorData, setupToken);
     const setupUrl = `${process.env.FRONTEND_URL}/tutor/setup-password/${setupToken}`;
     const textContent = `
 Dear ${tutorData.fullName},
 
-This is a friendly reminder to complete your Strive Academy tutor account setup.
+This is a friendly reminder to complete your Strive Academics tutor account setup.
 
 Your account setup link expires soon. Please complete your setup to start tutoring:
 
@@ -201,7 +201,7 @@ Setup your account: ${setupUrl}
 If you're experiencing any issues, please contact our support team.
 
 Best regards,
-The Strive Academy Team
+The Strive Academics Team
     `;
 
     return await this.sendEmail(email, subject, htmlContent, textContent);

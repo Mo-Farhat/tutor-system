@@ -1,48 +1,90 @@
 #contactus_hero {
-    height: auto;
-    padding: 6rem 0;
-    padding-bottom: 0 !important;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-  }
+  height: auto;
+  padding: 6rem 0;
+  padding-bottom: 0 !important;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+}
 
+.contactus-hero-sec {
+  height: 100%;
+  max-width: 2000px !important;
+  display: flex;
+  justify-content: center;
+}
+
+.contactus-hero-t {
+  position: absolute;
+  transform: scale(60%);
+  top: -25%;
+  left: -25%;
+  z-index: 1;
+}
+.contactus-hero-b {
+  position: absolute;
+  transform: scale(60%);
+  bottom: -25%;
+  right: -25%;
+  z-index: 1;
+}
+
+.contactus-hero-text-col {
+  flex-direction: column;
+  justify-content: center;
+  color: white;
+  background-image: url("/public/Images/site-images/home/hero.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  padding: 10rem;
+  border-radius: 2rem;
+}
+.contactus-hero-title {
+  font-size: 4rem;
+  text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
   .contactus-hero-sec {
-    height: 100%;
-    max-width: 2000px !important;
-    display: flex;
-    justify-content: center;
-  }
-  
-  
-  .contactus-hero-t {
-    position: absolute;
-    transform: scale(60%);
-    top: -25%;
-    left: -25%;
-    z-index: 1;
-  }
-  .contactus-hero-b {
-    position: absolute;
-    transform: scale(60%);
-    bottom: -25%;
-    right: -25%;
-    z-index: 1;
-  }
-  
-  .contactus-hero-text-col {
-    flex-direction: column;
-    justify-content: center;
-    color: white;
-    background-image: url("/public/Images/site-images/home/hero.jpg");
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
-    padding: 10rem;
-    border-radius: 2rem;
-  }
-  .contactus-hero-title {
-    font-size: 4rem;
-    text-align: center;
+    max-width: 100% !important;
+    padding: 0 2rem;
   }
 
+  .contactus-hero-text-col {
+    padding: 8rem 6rem;
+  }
+
+  .contactus-hero-title {
+    font-size: 3.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .contactus-hero-sec {
+    padding: 0 1.5rem;
+  }
+
+  .contactus-hero-text-col {
+    padding: 6rem 4rem;
+  }
+
+  .contactus-hero-title {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .contactus-hero-sec {
+    padding: 0 1rem;
+  }
+
+  .contactus-hero-text-col {
+    padding: 4rem 2rem;
+  }
+
+  .contactus-hero-title {
+    font-size: 2rem;
+  }
+}

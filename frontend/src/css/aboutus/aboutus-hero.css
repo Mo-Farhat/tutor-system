@@ -1,32 +1,93 @@
 #aboutus_hero {
     justify-content: center;
-    background-image: url('/public/Images/site-images/com/site-top-new.png');
+    background-image: url("/public/Images/site-images/com/site-top-new.png");
     background-repeat: no-repeat;
     background-size: 100%;
     background-position-y: 10%;
-}
-
-.aboutus-hero-top {
+    position: relative;
+    z-index: 10;
+  }
+  
+  .aboutus-hero-top {
     justify-content: center;
-    margin: 30rem 0 !important;
+    margin: 6rem 0 3rem 0 !important;
     max-width: 2000px !important;
-    margin-bottom: 5rem !important;
-}
-
-.aboutus-strive-logo {
+    padding-top: 2rem;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .aboutus-strive-logo {
     height: 400px;
     width: auto;
-    transform: translateY(-2rem);
-}
-
-.aboutus-hero-main-h {
-    transform: translateY(-6rem);
+    transform: translateY(0);
+    position: relative;
+    z-index: 1;
+  }
+  
+  .aboutus-hero-main-h {
+    transform: translateY(0);
     justify-content: center;
-    color: #0D2371;
+    color: #0d2371;
     height: fit-content !important;
-}
-
-.aboutus-hero-sub-h {
-    transform: translateY(-6rem);
+    position: relative;
+    z-index: 1;
+  }
+  
+  .aboutus-hero-sub-h {
+    transform: translateY(0);
     justify-content: center;
-}
+    position: relative;
+    z-index: 1;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 1200px) {
+    .aboutus-hero-top {
+      margin: 4rem 0 2rem 0 !important;
+    }
+  
+    .aboutus-strive-logo {
+      height: 300px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .aboutus-hero-top {
+      margin: 8rem 0 1rem 0 !important;
+      text-align: center;
+    }
+  
+    .aboutus-strive-logo {
+      height: 200px;
+      margin-bottom: 1rem;
+    }
+  
+    .aboutus-hero-main-h {
+      font-size: 2rem !important;
+      text-align: center;
+    }
+  
+    .aboutus-hero-sub-h {
+      font-size: 1.25rem !important;
+      text-align: center;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .aboutus-hero-top {
+      margin: 6rem 0 1rem 0 !important;
+    }
+  
+    .aboutus-strive-logo {
+      height: 150px;
+    }
+  
+    .aboutus-hero-main-h {
+      font-size: 1.75rem !important;
+    }
+  
+    .aboutus-hero-sub-h {
+      font-size: 1rem !important;
+    }
+  }
