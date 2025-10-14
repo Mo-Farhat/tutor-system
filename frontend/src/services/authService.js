@@ -491,15 +491,19 @@ class AuthService {
   // Public tutor search methods (keeping existing functionality)
   async getLiveTutors() {
     try {
+      console.log('🌐 AuthService: Making request to /tutor/tutors/live');
       const data = await this.makeRequest("/tutor/tutors/live", {
         method: "GET",
       });
+
+      console.log('✅ AuthService: Raw API response:', data);
 
       return {
         success: true,
         data: data,
       };
     } catch (error) {
+      console.error('❌ AuthService: getLiveTutors error:', error);
       return {
         success: false,
         error: error.message,

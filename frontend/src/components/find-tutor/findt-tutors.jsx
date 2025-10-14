@@ -8,28 +8,52 @@ function FindtTutors({ filters }) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
+    console.log('🎨 FindtTutors render:', { 
+        allTutorsLength: allTutors.length, 
+        filteredTutorsLength: filteredTutors.length, 
+        loading, 
+        error: !!error,
+        filtersApplied: !!filters
+    });
+
     useEffect(() => {
+        console.log('📱 FindtTutors mounted, calling fetchLiveTutors');
         fetchLiveTutors();
     }, []);
 
     // Apply filters when filters prop changes
     useEffect(() => {
+        console.log('🔍 Filters changed, reapplying filters:', filters);
         applyFilters();
     }, [filters, allTutors]);
 
-    const fetchLiveTutors = async () => {
+    const fetchLiveTutors = async (forceRefresh = false) => {
         try {
             setLoading(true);
+            setError(''); // Clear any previous errors
+            
+            console.log('🔍 FindtTutors: Starting API call', { forceRefresh });
+            
             const result = await getLiveTutors();
             
+            console.log('🔍 FindtTutors: API result', result);
+            
             if (result.success) {
-                const tutorsData = result.data.tutors || [];
+                const tutorsData = result.data?.tutors || [];
+                console.log('📚 FindtTutors: Tutors data', tutorsData);
+                console.log('📊 FindtTutors: Tutors count', tutorsData.length);
+                
+                // Add a timestamp to help with debugging
+                console.log('🗓️ FindtTutors: Data fetched at', new Date().toISOString());
+                
                 setAllTutors(tutorsData);
                 setFilteredTutors(tutorsData);
             } else {
+                console.error('❌ FindtTutors: API failed', result.error);
                 setError(result.error || 'Failed to load tutors');
             }
         } catch (err) {
+            console.error('💥 FindtTutors: Exception', err);
             setError('Error loading tutors: ' + err.message);
         } finally {
             setLoading(false);
@@ -172,6 +196,23 @@ function FindtTutors({ filters }) {
                             <i className="fas fa-user-graduate fa-4x text-muted mb-3"></i>
                             <h3>No tutors available</h3>
                             <p>We're working on getting more tutors approved. Check back soon!</p>
+                            
+                            {/* Debug information */}
+                            <div className="mt-4 p-3 bg-light rounded" style={{ maxWidth: '500px', margin: '0 auto' }}>
+                                <h6>🔍 Debug Information</h6>
+                                <div className="text-start small">
+                                    <p><strong>API Status:</strong> {error || 'Success'}</p>
+                                    <p><strong>All Tutors Count:</strong> {allTutors.length}</p>
+                                    <p><strong>Filtered Tutors Count:</strong> {filteredTutors.length}</p>
+                                    <p><strong>Last Updated:</strong> {new Date().toISOString()}</p>
+                                </div>
+                                <button 
+                                    className="btn btn-sm btn-primary mt-2" 
+                                    onClick={() => fetchLiveTutors(true)}
+                                >
+                                    🔄 Force Refresh
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -182,6 +223,16 @@ function FindtTutors({ filters }) {
     return (
         <section className='row container-fluid d-flex g-0 findt-tutors-main' id='findt-tutors'>
             <div className="col-lg-8 col-sm-12 mx-sm-0 mx-lg-auto d-flex findt-tutors-sec">
+                {/* Debug information */}
+                <div className="alert alert-info mb-3 w-100" style={{ fontSize: '0.85rem' }}>
+                    <strong>🔍 Debug:</strong> All Tutors: {allTutors.length} | Filtered: {filteredTutors.length} | Status: {error || 'Success'}
+                    <button 
+                        className="btn btn-sm btn-outline-primary ms-2" 
+                        onClick={() => fetchLiveTutors(true)}
+                    >
+                        🔄 Refresh
+                    </button>
+                </div>
                 <div className="row g-4 w-100">
                     {filteredTutors.map((tutor) => (
                         <div key={tutor.id} className="col-xl-3 col-lg-4 col-md-6 col-12">

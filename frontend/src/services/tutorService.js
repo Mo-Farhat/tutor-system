@@ -145,6 +145,27 @@ class TutorService {
       return { success: false, error: error.message };
     }
   }
+
+    // Change Requests
+    async submitChangeRequest(changeRequestData) {
+      try {
+        const response = await api.post("/auth/tutor/change-requests", changeRequestData);
+        return response.data;
+      } catch (error) {
+        console.error("Error submitting change request:", error);
+        return { success: false, error: error.message };
+      }
+    }
+
+    async getMyChangeRequests() {
+      try {
+        const response = await api.get("/auth/tutor/change-requests");
+        return response.data;
+      } catch (error) {
+        console.error("Error fetching change requests:", error);
+        return { success: false, error: error.message };
+      }
+    }
 }
 
 export default new TutorService();

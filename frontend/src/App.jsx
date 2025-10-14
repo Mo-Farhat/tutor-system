@@ -39,6 +39,7 @@ import TutorStudentsPage from "./pages/js/dashboard/tutor/students";
 import TutorProfilePage from "./pages/js/dashboard/tutor/profile";
 import TutorDocumentsPage from "./pages/js/dashboard/tutor/documents";
 import TutorPaymentDetailsPage from "./pages/js/dashboard/tutor/payment-details";
+import TutorChangeRequestsPage from "./pages/js/dashboard/tutor/change-requests";
 import TutorPasswordSetup from "./components/TutorPasswordSetup";
 import StudentProfilePage from "./pages/js/dashboard/tutor/s-profile";
 
@@ -67,6 +68,9 @@ import AdminSupportPage from "./pages/js/dashboard/admin/support";
 import AdminSettingsPage from "./pages/js/dashboard/admin/settings";
 import AdminAssignmentsPage from "./pages/js/dashboard/admin/assignments";
 
+// Debug imports (temporary)
+import LiveTutorsDebug from "./components/debug/LiveTutorsDebug";
+
 const App = () => {
   return (
     <AuthProvider>
@@ -93,6 +97,7 @@ const App = () => {
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/admin/login" element={<AdminLoginPage />} />
             <Route path="/contact-us" element={<ContactusPage />} />
+            <Route path="/debug/live-tutors" element={<LiveTutorsDebug />} />
             <Route
               path="/tutor/setup-password/:token"
               element={<TutorPasswordSetup />}
@@ -174,6 +179,14 @@ const App = () => {
             <Route
               path="/dashboard/tutor/s-profile"
               element={<StudentProfilePage />}
+            />
+            <Route
+              path="/dashboard/tutor/change-requests"
+              element={
+                <ProtectedTutorRoute>
+                  <TutorChangeRequestsPage />
+                </ProtectedTutorRoute>
+              }
             />
 
             {/* student Dashboard Routes*/}
