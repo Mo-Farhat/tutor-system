@@ -35,6 +35,7 @@ jobs:
             --exclude ".git" \
             --exclude "node_modules" \
             --exclude ".github" \
+            --exclude "backend/.env" \
             -e "ssh -p ${{ secrets.VPS_PORT }}" \
             ./ "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_PATH }}/"
 
@@ -42,13 +43,18 @@ jobs:
         env:
           BRANCH: ${{ secrets.BRANCH || 'dev' }}
           VPS_PATH: ${{ secrets.VPS_PATH }}
+          BACKEND_ENV: ${{ secrets.BACKEND_ENV }}
         run: |
           ssh -p "${{ secrets.VPS_PORT }}" "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
             "BRANCH='${BRANCH}' VPS_PATH='${VPS_PATH}' bash -lc '
               set -e
               echo Using VPS_PATH=\$VPS_PATH BRANCH=\$BRANCH
-      
               cd \"\$VPS_PATH\"
+      
+              # Re-create backend/.env from secret on every deploy
+              mkdir -p backend
+              cat > backend/.env <<\"ENVEOF\"${BACKEND_ENV}ENVEOF
+              chmod 600 backend/.env
       
               echo \">>> Ensure correct branch\"
               if git rev-parse --git-dir > /dev/null 2>&1; then
@@ -58,10 +64,6 @@ jobs:
       
               echo \">>> Backend deps + Prisma\"
               cd backend
-              if [ ! -f .env ]; then
-                echo \"ERROR: backend/.env is missing on the server. Create it at \$VPS_PATH/backend/.env\"
-                exit 1
-              fi
               npm ci
               npx prisma generate
               npx prisma migrate deploy || true
@@ -81,4 +83,5 @@ jobs:
       
               echo \">>> Done on server\"
             '"
+
 
