@@ -79,7 +79,7 @@ jobs:
               echo \">>> Frontend build\"
               cd ../frontend
               npm ci
-              npm run build || npm run build:prod || true
+              npm run build || npm run build:prod
       
               echo \">>> Done on server\"
             '"
