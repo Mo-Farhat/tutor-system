@@ -47,6 +47,7 @@ import StudentHomePage from "./pages/js/dashboard/student/home";
 import StudentSchedulingPage from "./pages/js/dashboard/student/scheduling";
 import StudentPaymentHistoryPage from "./pages/js/dashboard/student/payment-history";
 import StudentPaymentMethodsPage from "./pages/js/dashboard/student/payment-methods";
+import StudentPaymentSuccessPage from "./pages/js/dashboard/student/payment-success";
 import StudentReferralAndOffersPage from "./pages/js/dashboard/student/referrals";
 import StudentProgressMilestonesPage from "./pages/js/dashboard/student/progress";
 import StudentProfileManagementPage from "./pages/js/dashboard/student/profile";
@@ -68,8 +69,7 @@ import AdminSupportPage from "./pages/js/dashboard/admin/support";
 import AdminSettingsPage from "./pages/js/dashboard/admin/settings";
 import AdminAssignmentsPage from "./pages/js/dashboard/admin/assignments";
 
-// Debug imports (temporary)
-import LiveTutorsDebug from "./components/debug/LiveTutorsDebug";
+
 
 const App = () => {
   return (
@@ -97,7 +97,7 @@ const App = () => {
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/admin/login" element={<AdminLoginPage />} />
             <Route path="/contact-us" element={<ContactusPage />} />
-            <Route path="/debug/live-tutors" element={<LiveTutorsDebug />} />
+
             <Route
               path="/tutor/setup-password/:token"
               element={<TutorPasswordSetup />}
@@ -209,6 +209,10 @@ const App = () => {
             <Route
               path="/dashboard/student/payment-methods"
               element={<StudentPaymentMethodsPage />}
+            />
+            <Route
+              path="/dashboard/student/payment-success"
+              element={<StudentPaymentSuccessPage />}
             />
             <Route
               path="/dashboard/student/referral-and-offers"

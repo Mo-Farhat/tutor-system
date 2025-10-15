@@ -14,6 +14,10 @@ app.use(
     credentials: true,
   })
 );
+
+// Stripe webhooks need raw body - must be before express.json()
+app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -40,6 +44,7 @@ const tutorReportsRoutes = require("./routes/tutorReports");
 const tutorsAdminRoutes = require("./routes/tutorsAdmin");
 
 const tutorChangeRequestsRoutes = require("./routes/tutorChangeRequests");
+const stripeWebhooksRoutes = require("./routes/stripeWebhooks");
 
 const adminCalendarRoutes = require("./routes/adminCalendar");
 // Health check
@@ -70,6 +75,9 @@ app.use("/api", tutorReportsRoutes);
 app.use("/api", tutorsAdminRoutes);
 
 app.use("/api", tutorChangeRequestsRoutes);
+
+// Stripe webhooks (must be before express.json middleware for raw body)
+app.use("/api", stripeWebhooksRoutes);
 
 app.use("/api", adminCalendarRoutes);
 

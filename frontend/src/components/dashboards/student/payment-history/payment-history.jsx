@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import studentService from '../../../../services/studentService';
+import authService from '../../../../services/authService';
 import '../../../../css/dashboards/student/payment-history/payment-history.css';
 
 function StudentPaymentHistory() {
+    const navigate = useNavigate();
     const [activePackages, setActivePackages] = useState([]);
     const [paymentHistory, setPaymentHistory] = useState([]);
+    const [paymentMethods, setPaymentMethods] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [purchaseLoading, setPurchaseLoading] = useState({});
+    const [showNoPaymentMethodAlert, setShowNoPaymentMethodAlert] = useState(false);
 
     // Available package subjects
     const availablePackages = [
@@ -43,10 +48,11 @@ function StudentPaymentHistory() {
             setLoading(true);
             setError(null);
 
-            // Load both packages and payment history
-            const [packagesResult, paymentsResult] = await Promise.all([
+            // Load packages, payment history, and payment methods
+            const [packagesResult, paymentsResult, paymentMethodsResult] = await Promise.all([
                 studentService.getPackages(),
-                studentService.getPayments()
+                studentService.getPayments(),
+                authService.get('/student/payment-methods')
             ]);
 
             if (packagesResult.success) {
@@ -94,6 +100,13 @@ function StudentPaymentHistory() {
                 console.error('Failed to load payments:', paymentsResult.error);
             }
 
+            // Load payment methods
+            if (paymentMethodsResult.success) {
+                setPaymentMethods(paymentMethodsResult.data || []);
+            } else {
+                console.error('Failed to load payment methods:', paymentMethodsResult.error);
+            }
+
         } catch (err) {
             console.error('Error loading billing data:', err);
             setError('Failed to load billing information. Please try again.');
@@ -103,25 +116,34 @@ function StudentPaymentHistory() {
     };
 
     const handlePurchasePackage = async (subject) => {
+        // Check if user has payment methods
+        if (!paymentMethods || paymentMethods.length === 0) {
+            setShowNoPaymentMethodAlert(true);
+            return;
+        }
+
         try {
             setPurchaseLoading(prev => ({ ...prev, [subject]: true }));
             
-            const result = await studentService.purchasePackage({ subject });
+            // Use Stripe Checkout for production-ready payment flow
+            const result = await authService.post('/student/packages/checkout', { subject });
             
-            if (result.success) {
-                // Show success message
-                alert(`Successfully purchased ${subject} package! ${result.note || ''}`);
-                // Reload billing data to show new package
-                await loadBillingData();
+            if (result.success && result.data.checkout_url) {
+                // Redirect to Stripe Checkout
+                window.location.href = result.data.checkout_url;
             } else {
-                alert(`Failed to purchase package: ${result.error}`);
+                alert(`Failed to initiate checkout: ${result.error || 'Unknown error'}`);
+                setPurchaseLoading(prev => ({ ...prev, [subject]: false }));
             }
         } catch (error) {
             console.error('Error purchasing package:', error);
             alert('Failed to purchase package. Please try again.');
-        } finally {
             setPurchaseLoading(prev => ({ ...prev, [subject]: false }));
         }
+    };
+
+    const handleGoToPaymentMethods = () => {
+        navigate('/dashboard/student/payment-methods');
     };
 
     const handleDownloadInvoice = async (paymentId) => {
@@ -337,6 +359,54 @@ function StudentPaymentHistory() {
                         )}
                     </div>
                 </div>
+
+                {/* No Payment Method Alert Modal */}
+                {showNoPaymentMethodAlert && (
+                    <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                        <div className="modal-dialog modal-dialog-centered">
+                            <div className="modal-content">
+                                <div className="modal-header border-0">
+                                    <h5 className="modal-title">
+                                        <i className="fas fa-credit-card text-warning me-2"></i>
+                                        Payment Method Required
+                                    </h5>
+                                    <button 
+                                        type="button" 
+                                        className="btn-close" 
+                                        onClick={() => setShowNoPaymentMethodAlert(false)}
+                                    ></button>
+                                </div>
+                                <div className="modal-body">
+                                    <p className="mb-3">
+                                        You need to add a payment method before purchasing a package. 
+                                        This ensures secure and seamless transactions.
+                                    </p>
+                                    <div className="alert alert-info small mb-0">
+                                        <i className="fas fa-shield-alt me-2"></i>
+                                        Your payment information is secured by Stripe and encrypted.
+                                    </div>
+                                </div>
+                                <div className="modal-footer border-0">
+                                    <button 
+                                        type="button" 
+                                        className="btn btn-secondary"
+                                        onClick={() => setShowNoPaymentMethodAlert(false)}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button 
+                                        type="button" 
+                                        className="btn btn-primary"
+                                        onClick={handleGoToPaymentMethods}
+                                    >
+                                        <i className="fas fa-plus me-2"></i>
+                                        Add Payment Method
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
