@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ContactFormProvider } from "./components/snippets/contact-form-overlay";
 import { AuthProvider } from "./contexts/AuthContext";
 import ScrollToTop from "./components/ScrollToTop";
@@ -39,7 +34,6 @@ import TutorStudentsPage from "./pages/js/dashboard/tutor/students";
 import TutorProfilePage from "./pages/js/dashboard/tutor/profile";
 import TutorDocumentsPage from "./pages/js/dashboard/tutor/documents";
 import TutorPaymentDetailsPage from "./pages/js/dashboard/tutor/payment-details";
-import TutorChangeRequestsPage from "./pages/js/dashboard/tutor/change-requests";
 import TutorPasswordSetup from "./components/TutorPasswordSetup";
 import StudentProfilePage from "./pages/js/dashboard/tutor/s-profile";
 
@@ -51,11 +45,9 @@ import StudentReferralAndOffersPage from "./pages/js/dashboard/student/referrals
 import StudentProgressMilestonesPage from "./pages/js/dashboard/student/progress";
 import StudentProfileManagementPage from "./pages/js/dashboard/student/profile";
 import StudentTutorProfilePage from "./pages/js/dashboard/student/tutor-profile";
-import StudentTutorReportsPage from "./pages/js/dashboard/student/tutor-reports";
 
 // Admin Dashboard Pages
 import AdminHomePage from "./pages/js/dashboard/admin/home";
-import AdminUsersPage from "./pages/js/dashboard/admin/users";
 import AdminTutorsPage from "./pages/js/dashboard/admin/tutors";
 import AdminStudentsPage from "./pages/js/dashboard/admin/students";
 import AdminCalendarPage from "./pages/js/dashboard/admin/calendar";
@@ -66,10 +58,6 @@ import AdminBlogPage from "./pages/js/dashboard/admin/blog";
 import AdminNotificationsPage from "./pages/js/dashboard/admin/notifications";
 import AdminSupportPage from "./pages/js/dashboard/admin/support";
 import AdminSettingsPage from "./pages/js/dashboard/admin/settings";
-import AdminAssignmentsPage from "./pages/js/dashboard/admin/assignments";
-
-// Debug imports (temporary)
-import LiveTutorsDebug from "./components/debug/LiveTutorsDebug";
 
 const App = () => {
   return (
@@ -97,7 +85,6 @@ const App = () => {
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/admin/login" element={<AdminLoginPage />} />
             <Route path="/contact-us" element={<ContactusPage />} />
-            <Route path="/debug/live-tutors" element={<LiveTutorsDebug />} />
             <Route
               path="/tutor/setup-password/:token"
               element={<TutorPasswordSetup />}
@@ -180,14 +167,6 @@ const App = () => {
               path="/dashboard/tutor/s-profile"
               element={<StudentProfilePage />}
             />
-            <Route
-              path="/dashboard/tutor/change-requests"
-              element={
-                <ProtectedTutorRoute>
-                  <TutorChangeRequestsPage />
-                </ProtectedTutorRoute>
-              }
-            />
 
             {/* student Dashboard Routes*/}
             <Route
@@ -222,17 +201,6 @@ const App = () => {
               path="/dashboard/student/profile-management"
               element={<StudentProfileManagementPage />}
             />
-            <Route
-              path="/dashboard/student/tutor-reports"
-              element={<StudentTutorReportsPage />}
-            />
-            {/* Redirect old profile details route to new unified profile page */}
-            <Route
-              path="/dashboard/student/profile-details"
-              element={
-                <Navigate to="/dashboard/student/profile-management" replace />
-              }
-            />
 
             {/* Admin Dashboard Routes - Protected by AdminGuard */}
             <Route
@@ -240,14 +208,6 @@ const App = () => {
               element={
                 <ProtectedAdminRoute>
                   <AdminHomePage />
-                </ProtectedAdminRoute>
-              }
-            />
-            <Route
-              path="/dashboard/admin/users"
-              element={
-                <ProtectedAdminRoute>
-                  <AdminUsersPage />
                 </ProtectedAdminRoute>
               }
             />
@@ -328,14 +288,6 @@ const App = () => {
               element={
                 <ProtectedAdminRoute>
                   <AdminSettingsPage />
-                </ProtectedAdminRoute>
-              }
-            />
-            <Route
-              path="/dashboard/admin/assignments"
-              element={
-                <ProtectedAdminRoute>
-                  <AdminAssignmentsPage />
                 </ProtectedAdminRoute>
               }
             />
