@@ -5,6 +5,7 @@ const {
   getApprovalNotificationTemplate,
   getRejectionNotificationTemplate,
   getSetupReminderTemplate,
+  getTutorRequestNotificationTemplate,
 } = require("../templates/emailTemplates");
 
 class EmailService {
@@ -205,6 +206,28 @@ The Strive Academics Team
     `;
 
     return await this.sendEmail(email, subject, htmlContent, textContent);
+  }
+
+  async sendTutorRequestNotification(tutorEmail, studentData, tutorData) {
+    const subject = `${studentData.firstName} ${studentData.lastName} requested you as a tutor`;
+    const htmlContent = getTutorRequestNotificationTemplate(studentData, tutorData);
+    const textContent = `
+Hi ${tutorData.firstName},
+
+${studentData.firstName} ${studentData.lastName} has requested you as their tutor on Strive Academy.
+
+Student Details:
+- Name: ${studentData.firstName} ${studentData.lastName}
+- Email: ${studentData.email}
+
+Please log in to your tutor dashboard to respond:
+${process.env.FRONTEND_URL}/tutor/requests
+
+Best regards,
+Strive Academy Team
+    `;
+
+    return await this.sendEmail(tutorEmail, subject, htmlContent, textContent);
   }
 }
 

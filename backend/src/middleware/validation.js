@@ -233,9 +233,242 @@ const validateParentContact = (req, res, next) => {
   next();
 };
 
+// Accepts dollars in the API and normalizes to cents for the DB
+
+function toNum(n) {
+  const v = Number(n);
+  return Number.isFinite(v) ? v : NaN;
+}
+
+function toInt(n) {
+  const v = Number(n);
+  return Number.isFinite(v) ? Math.round(v) : NaN;
+}
+
+function toCents(n) {
+  const v = toNum(n);
+  return Number.isFinite(v) ? Math.round(v * 100) : NaN;
+}
+
+function normalizeDiscountType(dt) {
+  if (!dt) return null;
+  if (dt === "percentage") return "percent";
+  if (["fixed", "percent"].includes(dt)) return dt;
+  return "invalid";
+}
+
+// -----------------------------------------------------------------------------
+// ✅ MAIN FUNCTION — validatePackageTypeCreate
+// -----------------------------------------------------------------------------
+function validatePackageTypeCreate(req, res, next) {
+  const {
+    name,
+    subject,
+    hours,
+    price,                // preferred input (dollars)
+    priceDollars,         // alias
+    discountType,
+    discountValue,
+    discountValueDollars, // alias
+    discountPercent,
+    description,
+    validityMonths,
+    eligibleTiers,
+    refundable,
+    autoRenew,
+    isActive
+  } = req.body || {};
+
+  const errors = [];
+
+  // basic required fields
+  if (!name || typeof name !== "string" || !name.trim()) errors.push("name is required");
+  if (!subject || typeof subject !== "string" || !subject.trim()) errors.push("subject is required");
+
+  const hoursInt = toInt(hours);
+  if (!Number.isInteger(hoursInt) || hoursInt <= 0) errors.push("hours must be a positive integer");
+
+  // price in dollars
+  const priceDollarInput = priceDollars ?? price;
+  const priceNum = toNum(priceDollarInput);
+  if (!Number.isFinite(priceNum) || priceNum < 0)
+    errors.push("Price (in dollars) is required and must be a valid number like 100.05.");
+  const priceCents = Number.isFinite(priceNum) ? Math.round(priceNum * 100) : NaN;
+
+  // discount validation
+  const normType = normalizeDiscountType(discountType);
+  if (normType === "invalid") errors.push("discountType must be 'fixed' or 'percentage'");
+
+  let discountValueNum = null;
+  let discountValueCents = null;
+  let discountPercentInt = null;
+
+  if (normType === "fixed") {
+    const dvInput = discountValueDollars ?? discountValue;
+    const dvNum = toNum(dvInput);
+    if (!Number.isFinite(dvNum) || dvNum < 0) {
+      errors.push("discountValue (in dollars) must be a non-negative number");
+    } else {
+      discountValueNum = Number(dvNum.toFixed(2));
+      discountValueCents = Math.round(dvNum * 100);
+    }
+  } else if (normType === "percent") {
+    const dp = toInt(discountPercent);
+    if (!Number.isInteger(dp) || dp < 0 || dp > 100) {
+      errors.push("discountPercent must be an integer between 0 and 100");
+    } else {
+      discountPercentInt = dp;
+    }
+  }
+
+  const validityMonthsInt = validityMonths != null ? toInt(validityMonths) : null;
+  if (validityMonths != null && (!Number.isInteger(validityMonthsInt) || validityMonthsInt < 0)) {
+    errors.push("validityMonths must be a non-negative integer");
+  }
+
+  if (eligibleTiers && !Array.isArray(eligibleTiers)) {
+    errors.push("eligibleTiers must be an array of tiers");
+  }
+
+  if (errors.length) {
+    return res.status(400).json({
+      success: false,
+      error: "Validation failed",
+      details: errors,
+    });
+  }
+
+  // normalize to what the model expects
+  req.body = {
+    name: name.trim(),
+    subject: subject.trim(),
+    hours: hoursInt,
+
+    priceDollars: Number(priceNum.toFixed(2)),
+    priceCents,
+
+    discountType: normType,
+    discountValueDollars: discountValueNum,
+    discountValueCents,
+    discountPercent: discountPercentInt,
+
+    description: typeof description === "string" ? description : null,
+    validityMonths: validityMonthsInt,
+    eligibleTiers: Array.isArray(eligibleTiers) ? eligibleTiers : [],
+    refundable: Boolean(refundable),
+    autoRenew: Boolean(autoRenew),
+    isActive: isActive !== undefined ? Boolean(isActive) : true,
+    status: "active",
+  };
+
+  next();
+}
+
+function validatePackageTypeUpdate(req, res, next) {
+  const body = req.body || {};
+  const out = {};
+  const errors = [];
+
+  // name
+  if (body.name !== undefined) {
+    if (typeof body.name !== "string" || !body.name.trim()) errors.push("name must be a non-empty string");
+    else out.name = body.name.trim();
+  }
+
+  // subject
+  if (body.subject !== undefined) {
+    if (typeof body.subject !== "string" || !body.subject.trim()) errors.push("subject must be a non-empty string");
+    else out.subject = body.subject.trim();
+  }
+
+  // hours
+  if (body.hours !== undefined) {
+    const v = toInt(body.hours);
+    if (!Number.isInteger(v) || v <= 0) errors.push("hours must be a positive integer");
+    else out.hours = v;
+  }
+
+  // price (dollars) -> we will pass both dollars and cents downstream
+  if (body.price !== undefined || body.priceDollars !== undefined) {
+    const priceNum = toNum(body.priceDollars ?? body.price);
+    if (!Number.isFinite(priceNum) || priceNum < 0) {
+      errors.push("price must be a non-negative number (in dollars)");
+    } else {
+      out.priceDollars = Number(priceNum.toFixed(2));
+      out.priceCents = Math.round(priceNum * 100);
+    }
+  }
+
+  // discountType (normalize)
+  if (body.discountType !== undefined) {
+    const dt = body.discountType === "percentage" ? "percent" : body.discountType;
+    if (dt && !["fixed", "percent"].includes(dt)) {
+      errors.push("discountType must be 'fixed' or 'percentage'");
+    } else {
+      out.discountType = dt || null;
+    }
+  }
+
+  // discountValue (dollars for fixed)
+  if (body.discountValue !== undefined || body.discountValueDollars !== undefined) {
+    const dvNum = toNum(body.discountValueDollars ?? body.discountValue);
+    if (!Number.isFinite(dvNum) || dvNum < 0) {
+      errors.push("discountValue must be a non-negative number (in dollars)");
+    } else {
+      out.discountValueDollars = Number(dvNum.toFixed(2));
+      out.discountValueCents = Math.round(dvNum * 100);
+    }
+  }
+
+  // discountPercent (0..100)
+  if (body.discountPercent !== undefined) {
+    const dp = toInt(body.discountPercent);
+    if (!Number.isInteger(dp) || dp < 0 || dp > 100) {
+      errors.push("discountPercent must be an integer between 0 and 100");
+    } else {
+      out.discountPercent = dp;
+    }
+  }
+
+  // description
+  if (body.description !== undefined) {
+    if (body.description !== null && typeof body.description !== "string")
+      errors.push("description must be a string or null");
+    else out.description = body.description;
+  }
+
+  // validityMonths
+  if (body.validityMonths !== undefined) {
+    const v = toInt(body.validityMonths);
+    if (!Number.isInteger(v) || v < 0) errors.push("validityMonths must be a non-negative integer");
+    else out.validityMonths = v;
+  }
+
+  // eligibleTiers
+  if (body.eligibleTiers !== undefined) {
+    if (!Array.isArray(body.eligibleTiers)) errors.push("eligibleTiers must be an array");
+    else out.eligibleTiers = body.eligibleTiers;
+  }
+
+  if (body.refundable !== undefined) out.refundable = Boolean(body.refundable);
+  if (body.autoRenew !== undefined) out.autoRenew = Boolean(body.autoRenew);
+  if (body.isActive !== undefined) out.isActive = Boolean(body.isActive);
+  if (body.status !== undefined) out.status = body.status;
+
+  if (errors.length) {
+    return res.status(400).json({ success: false, error: "Validation failed", details: errors });
+  }
+
+  req.body = out;
+  next();
+}
+
 module.exports = {
   validateProfileUpdate,
   validatePasswordChange,
   validatePaymentInfo,
   validateParentContact,
+  validatePackageTypeCreate,
+  validatePackageTypeUpdate
+
 };

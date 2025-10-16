@@ -596,10 +596,32 @@ const getSetupReminderTemplate = (tutorData, setupToken) => {
   );
 };
 
+// Student requests tutor
+function getTutorRequestNotificationTemplate(student, tutor) {
+  return `
+  <h2>New Tutor Request</h2>
+  <p>Hello ${tutor.firstName},</p>
+  <p>${student.firstName} ${student.lastName} has requested you as their tutor on <b>Strive Academy</b>.</p>
+  
+  <h3>Student Details</h3>
+  <ul>
+    <li><b>Name:</b> ${student.firstName} ${student.lastName}</li>
+    <li><b>Email:</b> ${student.email}</li>
+  </ul>
+
+  <p>Please log in to your tutor dashboard to accept or reject the request.</p>
+  <p><a href="${process.env.FRONTEND_URL}/tutor/requests" 
+        style="background-color:#4CAF50;color:white;padding:10px 15px;text-decoration:none;border-radius:5px;">View Requests</a></p>
+  
+  <p>Best regards,<br/>Strive Academy Team</p>
+  `;
+}
+
 module.exports = {
   getApplicationConfirmationTemplate,
   getAdminNotificationTemplate,
   getApprovalNotificationTemplate,
   getRejectionNotificationTemplate,
   getSetupReminderTemplate,
+    getTutorRequestNotificationTemplate,
 };

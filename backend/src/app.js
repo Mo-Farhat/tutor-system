@@ -46,6 +46,10 @@ const tutorsAdminRoutes = require("./routes/tutorsAdmin");
 const tutorChangeRequestsRoutes = require("./routes/tutorChangeRequests");
 const stripeWebhooksRoutes = require("./routes/stripeWebhooks");
 
+const adminPackagesRoutes = require("./routes/adminPackages");
+
+const tutorRequestRoutes = require("./routes/tutorRequests");
+
 const adminCalendarRoutes = require("./routes/adminCalendar");
 // Health check
 app.get("/health", (req, res) => {
@@ -80,6 +84,11 @@ app.use("/api", tutorChangeRequestsRoutes);
 app.use("/api", stripeWebhooksRoutes);
 
 app.use("/api", adminCalendarRoutes);
+
+app.use("/api", adminPackagesRoutes);
+
+app.use("/api", tutorRequestRoutes);
+
 
 /* ---------------------------------------------------------------- */
 
