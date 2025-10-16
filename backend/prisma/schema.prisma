@@ -144,6 +144,9 @@ model User {
   StudentPaymentMethod StudentPaymentMethod[]
   SupportTicket        SupportTicket[]
 
+  tutorRequestsReceived TutorRequest[] @relation("TutorRequestsReceived")
+  tutorRequestsSent     TutorRequest[] @relation("TutorRequestsSent")
+
   @@index([role, createdAt])
 }
 
@@ -490,26 +493,43 @@ model SupportTicket {
 }
 
 model PackageType {
-  id                 Int           @id @default(autoincrement())
-  name               String
-  subject            String
-  hours              Int
-  priceDollars       Decimal       @db.Decimal(10, 2)
-  priceCents         Int // base price in cents (AUD)
-  discountType       DiscountType?
-  discountValueDollars Decimal?    @db.Decimal(10, 2)
-  discountValueCents Int? // used when discountType = fixed
-  discountPercent    Int? // used when discountType = percentage (0–100)
-  description        String?
-  validityMonths     Int? // e.g., 6
-  eligibleTiers      StudentTier[] // which student tiers can buy; empty = all
-  refundable         Boolean       @default(false)
-  autoRenew          Boolean       @default(false)
-  isActive           Boolean       @default(true)
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
+  id                   Int           @id @default(autoincrement())
+  name                 String
+  subject              String
+  hours                Int
+  priceDollars         Decimal       @db.Decimal(10, 2)
+  priceCents           Int // base price in cents (AUD)
+  discountType         DiscountType?
+  discountValueDollars Decimal?      @db.Decimal(10, 2)
+  discountValueCents   Int? // used when discountType = fixed
+  discountPercent      Int? // used when discountType = percentage (0–100)
+  description          String?
+  validityMonths       Int? // e.g., 6
+  eligibleTiers        StudentTier[] // which student tiers can buy; empty = all
+  refundable           Boolean       @default(false)
+  autoRenew            Boolean       @default(false)
+  isActive             Boolean       @default(true)
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
 
   // (Optional) Link to purchases if/when you wire it up:
   // purchases PackagePurchase[]
   PackagePurchase PackagePurchase[]
+}
+
+model TutorRequest {
+  id        Int      @id @default(autoincrement())
+  tutorId   Int
+  studentId Int
+  status    String   @default("pending") // pending | accepted | rejected
+  message   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tutor   User @relation("TutorRequestsReceived", fields: [tutorId], references: [id], onDelete: Cascade)
+  student User @relation("TutorRequestsSent", fields: [studentId], references: [id], onDelete: Cascade)
+
+  // Prevent duplicate requests from same student to same tutor
+  @@unique([studentId, tutorId])
+  @@index([tutorId, studentId, status])
 }

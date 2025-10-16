@@ -37,6 +37,8 @@ const studentSupportRoutes = require("./routes/studentSupport");
 
 const adminPackagesRoutes = require("./routes/adminPackages");
 
+const tutorRequestRoutes = require("./routes/tutorRequests");
+
 // Health check
 app.get("/health", (req, res) => {
   res.json({ status: "OK", message: "Server is running" });
@@ -61,6 +63,8 @@ app.use("/api", studentPaymentMethodsRoutes);
 app.use("/api", studentSupportRoutes);
 
 app.use("/api", adminPackagesRoutes);
+
+app.use("/api", tutorRequestRoutes);
 
 
 /* ---------------------------------------------------------------- */
