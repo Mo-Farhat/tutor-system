@@ -220,6 +220,7 @@ function AdminTutors() {
       if (tutorsResponse.success && tutorsResponse.data) {
         const tutorsData = tutorsResponse.data.map((tutor) => ({
           id: tutor.id,
+          userId: tutor.id,
           name: `${tutor.firstName} ${tutor.lastName}`,
           email: tutor.email,
           status: tutor.status || TUTOR_STATUS.PENDING_REVIEW,
@@ -504,7 +505,7 @@ function AdminTutors() {
   const handleMakeLive = async (tutor) => {
     try {
       setIsProcessing(true);
-      await makeTutorLive(tutor.id);
+      await makeTutorLive(tutor.userId || tutor.id);
 
       // Update tutor status
       setTutors((prevTutors) =>
@@ -527,7 +528,7 @@ function AdminTutors() {
   const handleMakeOffline = async (tutor) => {
     try {
       setIsProcessing(true);
-      await makeTutorOffline(tutor.id);
+      await makeTutorOffline(tutor.userId || tutor.id);
 
       // Update tutor status
       setTutors((prevTutors) =>

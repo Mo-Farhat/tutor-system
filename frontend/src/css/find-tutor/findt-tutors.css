@@ -108,10 +108,16 @@
 
 .findt-tutors-description {
     color: #6B7280;
-    font-size: 0.875rem;
-    margin-bottom: 1.25rem;
-    line-height: 1.5;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    line-height: 1.45;
     flex-grow: 1;
+    /* line clamp for consistent card height */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 3.0em; /* ~2 lines */
 }
 
 .findt-tutors-book-btn {
