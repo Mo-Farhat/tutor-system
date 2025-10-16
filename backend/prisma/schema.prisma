@@ -102,6 +102,7 @@ model User {
   password  String
   role      Role     @default(student)
   status    String?
+  stripeCustomerId String?  @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -388,20 +389,25 @@ model PackagePurchase {
 }
 
 model PaymentTransaction {
-  id          Int             @id @default(autoincrement())
-  studentId   Int
-  lessonId    Int?
-  packageId   Int?
-  type        TransactionType
-  amountCents Int
-  description String?
-  createdAt   DateTime        @default(now())
+  id              Int             @id @default(autoincrement())
+  studentId       Int
+  lessonId        Int?
+  packageId       Int?
+  type            TransactionType
+  amountCents     Int
+  description     String?
+  status          String          @default("pending") // pending, succeeded, failed
+  stripePaymentId String?         @unique
+  stripeSessionId String?         @unique
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 
   student User             @relation(fields: [studentId], references: [id], onDelete: Cascade)
   lesson  Lesson?          @relation("LessonTransactions", fields: [lessonId], references: [id])
   package PackagePurchase? @relation(fields: [packageId], references: [id])
 
   @@index([studentId, createdAt])
+  @@index([stripePaymentId])
 }
 
 // ---------- Reports (read-only for students) ----------
@@ -480,18 +486,21 @@ model StudentGoal {
 
 // ---------- Payment Methods (MVP) ----------
 model StudentPaymentMethod {
-  id          Int                @id @default(autoincrement())
-  studentId   Int
-  type        StudentPaymentType
-  brand       String?
-  last4       String?
-  billingName String?
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
+  id                    Int                @id @default(autoincrement())
+  studentId             Int
+  type                  StudentPaymentType
+  brand                 String?
+  last4                 String?
+  billingName           String?
+  stripePaymentMethodId String?            @unique
+  isDefault             Boolean            @default(false)
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
 
   student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@index([studentId])
+  @@index([stripePaymentMethodId])
 }
 
 // ---------- Support Tickets ----------
