@@ -40,6 +40,7 @@ import TutorProfilePage from "./pages/js/dashboard/tutor/profile";
 import TutorDocumentsPage from "./pages/js/dashboard/tutor/documents";
 import TutorPaymentDetailsPage from "./pages/js/dashboard/tutor/payment-details";
 import TutorChangeRequestsPage from "./pages/js/dashboard/tutor/change-requests";
+import TutorStudentRequestsPage from "./pages/js/dashboard/tutor/student-requests";
 import TutorPasswordSetup from "./components/TutorPasswordSetup";
 import StudentProfilePage from "./pages/js/dashboard/tutor/s-profile";
 
@@ -185,6 +186,14 @@ const App = () => {
               element={
                 <ProtectedTutorRoute>
                   <TutorChangeRequestsPage />
+                </ProtectedTutorRoute>
+              }
+            />
+            <Route
+              path="/dashboard/tutor/student-requests"
+              element={
+                <ProtectedTutorRoute>
+                  <TutorStudentRequestsPage />
                 </ProtectedTutorRoute>
               }
             />

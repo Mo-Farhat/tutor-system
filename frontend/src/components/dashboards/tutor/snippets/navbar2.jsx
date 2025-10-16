@@ -143,7 +143,7 @@ function TutorNavbar2() {
             </li>
             <li className="navbar2-menu-item">
               <a
-                href="#"
+                href="/dashboard/tutor/student-requests"
                 className="navbar2-menu-link"
                 title="Student Requests"
               >
