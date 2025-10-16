@@ -73,10 +73,14 @@ class AdminService {
   async getUsers(filters = {}) {
     const queryParams = new URLSearchParams();
     if (filters.role) queryParams.append("role", filters.role);
-    if (filters.status) queryParams.append("status", filters.status);
-    if (filters.search) queryParams.append("search", filters.search);
     if (filters.page) queryParams.append("page", filters.page);
-    if (filters.pageSize) queryParams.append("pageSize", filters.limit || 20);
+    if (filters.pageSize) {
+      queryParams.append("pageSize", filters.pageSize);
+    }
+
+    if (!filters.pageSize && !queryParams.has("pageSize")) {
+      queryParams.append("pageSize", 20);
+    }
 
     const endpoint = `/admin/users${
       queryParams.toString() ? "?" + queryParams.toString() : ""
@@ -110,6 +114,72 @@ class AdminService {
     return this.makeAdminRequest(`/admin/users/${userId}`, {
       method: "DELETE",
     });
+  }
+
+  // --- Admin Tutor Management ---
+  // List all tutors
+  async getTutors(filters = {}) {
+    const queryParams = new URLSearchParams();
+    if (filters.status) queryParams.append("status", filters.status);
+    if (filters.search) queryParams.append("search", filters.search);
+    if (filters.page) queryParams.append("page", filters.page);
+    if (filters.limit) queryParams.append("limit", filters.limit);
+    const endpoint = `/admin/tutors${queryParams.toString() ? "?" + queryParams.toString() : ""}`;
+    return this.makeAdminRequest(endpoint);
+  }
+
+  // Get tutor details
+  async getTutorById(userId) {
+    return this.makeAdminRequest(`/admin/tutors/${userId}`);
+  }
+
+  // Change tutor tier
+  async changeTutorTier(userId, tier) {
+    return this.makeAdminRequest(`/admin/tutors/${userId}/tier`, {
+      method: "PUT",
+      body: JSON.stringify({ tier }),
+    });
+  }
+
+  // Get completed lessons for a tutor
+  async getTutorCompletedLessons(userId, limit = 50) {
+    const endpoint = `/admin/tutors/${userId}/lessons/completed?limit=${limit}`;
+    return this.makeAdminRequest(endpoint);
+  }
+
+  // Add review for tutor
+  async addTutorReview(userId, review) {
+    return this.makeAdminRequest(`/admin/tutors/${userId}/reviews`, {
+      method: "POST",
+      body: JSON.stringify(review),
+    });
+  }
+
+  // Remove tutor review
+  async removeTutorReview(reviewId) {
+    return this.makeAdminRequest(`/admin/tutor-reviews/${reviewId}`, {
+      method: "DELETE",
+    });
+  }
+
+  // Approve tutor change request
+  async approveTutorChangeRequest(requestId) {
+    return this.makeAdminRequest(`/admin/tutor-change-requests/${requestId}/approve`, {
+      method: "POST",
+    });
+  }
+
+  // Reject tutor change request
+  async rejectTutorChangeRequest(requestId, reason = "") {
+    return this.makeAdminRequest(`/admin/tutor-change-requests/${requestId}/reject`, {
+      method: "POST",
+      body: JSON.stringify({ reason }),
+    });
+  }
+
+  // List tutor change requests
+  async getTutorChangeRequests() {
+    return this.makeAdminRequest(`/admin/tutor-change-requests`);
   }
 
   // Tutor Applications Management
@@ -337,7 +407,66 @@ class AdminService {
     }
     return authService.getUserInfo();
   }
+
+  // Assignment Management
+  async getAssignments(filters = {}) {
+    const queryParams = new URLSearchParams();
+    if (filters.status) queryParams.append("status", filters.status);
+    if (filters.studentId) queryParams.append("studentId", filters.studentId);
+    if (filters.tutorId) queryParams.append("tutorId", filters.tutorId);
+    if (filters.search) queryParams.append("search", filters.search);
+    if (filters.page) queryParams.append("page", filters.page);
+    if (filters.limit) queryParams.append("limit", filters.limit);
+
+    const endpoint = `/admin/assignments${queryParams.toString() ? "?" + queryParams.toString() : ""}`;
+    return this.makeAdminRequest(endpoint);
+  }
+
+  async getAssignmentById(assignmentId) {
+    return this.makeAdminRequest(`/admin/assignments/${assignmentId}`);
+  }
+
+  // Tutor Change Requests (using the methods from tutor management)
+  async getChangeRequests(filters = {}) {
+    return this.getTutorChangeRequests();
+  }
+
+  async approveChangeRequest(changeRequestId, comments = "") {
+    return this.approveTutorChangeRequest(changeRequestId);
+  }
+
+  async rejectChangeRequest(changeRequestId, comments = "") {
+    return this.rejectTutorChangeRequest(changeRequestId, comments);
+  }
+
+  // Student Profile Management
+  async getStudentProfile(userId) {
+    try {
+      const response = await this.makeAdminRequest(
+        `GET /admin/students/${userId}/profile`
+      );
+      return response;
+    } catch (error) {
+      console.error("Error fetching student profile:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async updateStudentProfile(userId, data) {
+    try {
+      const response = await this.makeAdminRequest(
+        `PUT /admin/students/${userId}/profile`,
+        data
+      );
+      return response;
+    } catch (error) {
+      console.error("Error updating student profile:", error);
+      return { success: false, error: error.message };
+    }
+  }
 }
+
+
 
 // Create and export singleton instance
 const adminService = new AdminService();
@@ -392,3 +521,29 @@ export const getTutorDocuments = (userId) =>
 // Tutor Applications
 export const getTutorApplications = (filters) =>
   adminService.getTutorApplications(filters);
+
+// Tutor Management
+export const getTutors = (filters) => adminService.getTutors(filters);
+export const getTutorById = (userId) => adminService.getTutorById(userId);
+export const changeTutorTier = (userId, tier) => adminService.changeTutorTier(userId, tier);
+export const getTutorCompletedLessons = (userId, limit) => adminService.getTutorCompletedLessons(userId, limit);
+export const addTutorReview = (userId, review) => adminService.addTutorReview(userId, review);
+export const removeTutorReview = (reviewId) => adminService.removeTutorReview(reviewId);
+export const approveTutorChangeRequest = (requestId) => adminService.approveTutorChangeRequest(requestId);
+export const rejectTutorChangeRequest = (requestId, reason) => adminService.rejectTutorChangeRequest(requestId, reason);
+export const getTutorChangeRequests = () => adminService.getTutorChangeRequests();
+
+// Assignment Management
+export const getAssignments = (filters) => adminService.getAssignments(filters);
+export const getAssignmentById = (assignmentId) => adminService.getAssignmentById(assignmentId);
+
+// Tutor Change Requests
+export const getChangeRequests = (filters) => adminService.getChangeRequests(filters);
+export const approveChangeRequest = (changeRequestId, comments) =>
+  adminService.approveChangeRequest(changeRequestId, comments);
+export const rejectChangeRequest = (changeRequestId, comments) =>
+  adminService.rejectChangeRequest(changeRequestId, comments);
+
+// Student Profile Management
+export const getStudentProfile = (userId) => adminService.getStudentProfile(userId);
+export const updateStudentProfile = (userId, data) => adminService.updateStudentProfile(userId, data);

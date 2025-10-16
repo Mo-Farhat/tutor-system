@@ -9,6 +9,11 @@ export const ADMIN_NAV_LINKS = [
     icon: "fas fa-tachometer-alt",
   },
   {
+    name: "Users",
+    path: "/dashboard/admin/users",
+    icon: "fas fa-users",
+  },
+  {
     name: "Tutors",
     path: "/dashboard/admin/tutors",
     icon: "fas fa-chalkboard-teacher",
@@ -17,6 +22,11 @@ export const ADMIN_NAV_LINKS = [
     name: "Students",
     path: "/dashboard/admin/students",
     icon: "fas fa-user-graduate",
+  },
+  {
+    name: "Assignments",
+    path: "/dashboard/admin/assignments",
+    icon: "fas fa-user-friends",
   },
   {
     name: "Calendar",

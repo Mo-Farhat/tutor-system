@@ -167,7 +167,7 @@ const TutorPasswordSetup = () => {
 
                 <h2 className="login-title text-center mb-2">
                   <i className="fas fa-check-circle text-success me-2"></i>
-                  Welcome to Strive Academy!
+                  Welcome to Strive Academics!
                 </h2>
                 <p className="login-subtitle text-center mb-4">
                   Your application has been approved. Set your password to

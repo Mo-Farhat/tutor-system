@@ -620,6 +620,133 @@ class ProfileService {
       };
     }
   }
+
+  // Get student profile for admin view
+  async getStudentProfileForAdmin(userId) {
+    try {
+      const user = await userModel.findById(userId);
+      if (!user) {
+        return { success: false, error: "User not found" };
+      }
+
+      // Get student profile
+      const studentProfile = await studentProfileModel.findByUserId(userId);
+      
+      // Get parent contacts
+      const parentContacts = await this.getParentContactsForStudent(userId);
+
+      // Calculate profile completion
+      const completionPercentage = this.calculateStudentProfileCompletion(studentProfile);
+
+      const result = {
+        success: true,
+        data: {
+          // User data
+          userId: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          username: user.username,
+          status: user.status,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+
+          // Student profile data
+          phoneNumber: studentProfile?.phone_number || null,
+          bio: studentProfile?.bio || null,
+          currentSchool: studentProfile?.current_school || null,
+          yearLevel: studentProfile?.year_level || null,
+          subjectsInterested: studentProfile?.subjects_interested || [],
+          preferredLocations: studentProfile?.preferred_locations || [],
+          learningGoals: studentProfile?.learning_goals || null,
+          tier: studentProfile?.tier || 'basic',
+          isProfileComplete: studentProfile?.is_profile_complete || false,
+          profileCompletionPercentage: completionPercentage,
+          photoUrl: studentProfile?.photo_url || null,
+
+          // Parent contacts
+          parentContacts: parentContacts || [],
+
+          // Profile creation dates
+          profileCreatedAt: studentProfile?.createdAt || null,
+          profileUpdatedAt: studentProfile?.updatedAt || null,
+        }
+      };
+
+      return result;
+    } catch (error) {
+      console.error("Get student profile for admin error:", error);
+      return { success: false, error: "Failed to fetch student profile" };
+    }
+  }
+
+  // Update student tier and status (admin only)
+  async updateStudentTierStatus(userId, updates) {
+    try {
+      const { tier, status } = updates;
+
+      // Update user status if provided
+      if (status !== undefined) {
+        await userModel.update(userId, { status });
+      }
+
+      // Update student profile tier if provided
+      if (tier !== undefined) {
+        await studentProfileModel.update(userId, { tier });
+      }
+
+      // Fetch updated data
+      const user = await userModel.findById(userId);
+      const studentProfile = await studentProfileModel.findByUserId(userId);
+
+      return {
+        success: true,
+        data: {
+          userId: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          status: user.status,
+          tier: studentProfile?.tier || 'basic',
+        },
+        message: "Student profile updated successfully"
+      };
+    } catch (error) {
+      console.error("Update student tier status error:", error);
+      return { success: false, error: "Failed to update student profile" };
+    }
+  }
+
+  // Helper: Get parent contacts for a student
+  async getParentContactsForStudent(userId) {
+    try {
+      const { parentContactModel } = require("../models");
+      const contacts = await parentContactModel.listByStudent(userId);
+      return contacts;
+    } catch (error) {
+      console.error("Get parent contacts error:", error);
+      return [];
+    }
+  }
+
+  // Helper: Calculate student profile completion percentage
+  calculateStudentProfileCompletion(profile) {
+    if (!profile) return 0;
+
+    const fields = [
+      profile.phone_number,
+      profile.bio,
+      profile.current_school,
+      profile.year_level,
+      profile.subjects_interested?.length > 0,
+      profile.preferred_locations?.length > 0,
+      profile.learning_goals,
+      profile.photo_url,
+    ];
+
+    const completedFields = fields.filter(field => field && field !== '').length;
+    return Math.round((completedFields / fields.length) * 100);
+  }
 }
 
 module.exports = new ProfileService();

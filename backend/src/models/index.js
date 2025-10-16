@@ -15,6 +15,10 @@ const goalModel = require("./goalModel");
 const studentPaymentMethodModel = require("./studentPaymentMethodModel");
 const supportTicketModel = require("./supportTicketModel");
 const packageTypeModel = require("./packageTypeModel");
+const tutorChangeRequestModel = require("./tutorChangeRequestModel");
+const tutorReviewModel = require("./tutorReviewModel");
+const lessonMaterialModel = require("./lessonMaterialModel");
+const zoomLinkModel = require("./zoomLinkModel");
 
 module.exports = {
   userModel,
@@ -34,4 +38,8 @@ module.exports = {
   studentPaymentMethodModel,
   supportTicketModel,
   packageTypeModel,
+  tutorChangeRequestModel,
+  tutorReviewModel,
+  lessonMaterialModel,
+  zoomLinkModel,
 };

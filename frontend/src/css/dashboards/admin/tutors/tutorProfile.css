@@ -262,15 +262,21 @@
 /* Tab Navigation Styles */
 .nav-tabs {
   border-bottom: 2px solid #dee2e6;
+  display: flex;
+  gap: 4rem; /* space between tabs */
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .nav-tabs .nav-link {
   border: none;
   color: #6c757d;
   font-weight: 500;
-  padding: 0.75rem 1rem;
+  /* wider clickable area */
   border-radius: 0;
 }
+
+/* Extra spacing between icon and label regardless of utility classes */
 
 .nav-tabs .nav-link:hover {
   border-color: transparent;
@@ -375,6 +381,7 @@
 
   .nav-tabs {
     flex-wrap: wrap;
+    gap: 0.5rem; /* tighter on small screens */
   }
 
   .nav-tabs .nav-link {

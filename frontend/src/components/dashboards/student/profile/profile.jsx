@@ -1,18 +1,28 @@
 import React, { useState, useEffect } from "react";
 import studentService from "../../../../services/studentService";
+import authService from "../../../../services/authService";
 import "../../../../css/dashboards/student/profile/profile.css";
+import DetailsPanel from "./DetailsPanel";
+import PreferencesPanel from "./PreferencesPanel";
 
 function StudentProfileManagement() {
   // Student profile data
   const [studentData, setStudentData] = useState({
-    fullName: "Sarah Johnson",
-    email: "sarah.johnson@email.com",
-    grade: "Grade 11",
-    stream: "Science Stream",
-    joinedDate: "Jan 2025",
-    status: "Active Student",
+    fullName: "",
+    email: "",
+    grade: "",
+    stream: "",
+    joinedDate: "",
+    status: "",
     avatar: "/public/Images/logo/logo1.png",
   });
+
+  // Enriched details data compatible with DetailsPanel
+  const [detailsData, setDetailsData] = useState({});
+
+  const [studentBadges, setStudentBadges] = useState([]);
+
+  const [previousReports, setPreviousReports] = useState([]);
 
   // Password change data
   const [passwordData, setPasswordData] = useState({
@@ -23,11 +33,10 @@ function StudentProfileManagement() {
 
   // Learning preferences
   const [learningPreferences, setLearningPreferences] = useState({
-    learningStyle: ["Visual", "Interactive"],
-    bestTime: "Weekday Evenings (4 PM - 7 PM)",
-    sessionLength: "60-90 minutes",
-    additionalNotes:
-      "Prefer structured lessons with regular breaks. Need extra focus on problem-solving exercises.",
+    learningStyle: [],
+    bestTime: "",
+    sessionLength: "",
+    additionalNotes: "",
   });
 
   // SMART Goals (API-backed)
@@ -35,12 +44,14 @@ function StudentProfileManagement() {
   const [goalsLoading, setGoalsLoading] = useState(true);
   const [goalsError, setGoalsError] = useState(null);
 
+  // Inline editing states
+  const [editingSection, setEditingSection] = useState(null); // 'personal', 'academic', 'subjects'
+  const [editData, setEditData] = useState({});
+  const [savingSection, setSavingSection] = useState(null);
+  const [sectionError, setSectionError] = useState("");
+
   // Current subjects
-  const [currentSubjects] = useState([
-    { name: "Advanced Mathematics", icon: "🔢", status: "Active" },
-    { name: "Physics", icon: "⚛️", status: "Active" },
-    { name: "Chemistry", icon: "🧪", status: "Pending" },
-  ]);
+  const [currentSubjects, setCurrentSubjects] = useState([]);
 
   // Available learning styles
   const learningStyleOptions = [
@@ -52,7 +63,6 @@ function StudentProfileManagement() {
   ];
 
   // Modal states
-  const [showEditModal, setShowEditModal] = useState(false);
   const [showGoalModal, setShowGoalModal] = useState(false);
   const [showPreferencesModal, setShowPreferencesModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -67,26 +77,119 @@ function StudentProfileManagement() {
     ...learningPreferences,
   });
   const [passwordErrors, setPasswordErrors] = useState({});
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
   // Load goals from API
   useEffect(() => {
-    const loadGoals = async () => {
+    const loadAll = async () => {
       try {
         setGoalsLoading(true);
         setGoalsError(null);
-        const res = await studentService.getGoals();
-        if (res?.success && Array.isArray(res.data)) {
-          setGoals(res.data);
+
+        const [profileRes, goalsRes, achievementsRes, reportsRes] =
+          await Promise.all([
+            studentService.getMyProfile(),
+            studentService.getGoals(),
+            studentService.getAchievements(),
+            studentService.getReports(),
+          ]);
+
+        if (profileRes?.success && profileRes.data) {
+          const p = profileRes.data;
+          setStudentData((prev) => ({
+            ...prev,
+            fullName: p.fullName || p.name || "",
+            email: p.email || "",
+            grade: p.grade || "",
+            stream: p.stream || p.studyStream || "",
+            joinedDate: p.joinedDate || p.createdAt || "",
+            status: p.status || "",
+            avatar: p.avatarUrl || prev.avatar,
+          }));
+          setDetailsData({
+            fullName: p.fullName || p.name || "",
+            email: p.email || "",
+            phoneNumber: p.phone || p.phoneNumber || "",
+            subjects: p.subjects || [],
+            studentId: p.studentId || p.id || "",
+            grade: p.grade || "",
+            stream: p.stream || p.studyStream || "",
+            dateOfBirth: p.dateOfBirth || "",
+            address: p.address || "",
+            totalLessons: p.totalLessons || 0,
+            attendance: p.attendanceRate || "",
+          });
+
+          // Load preferences from profile if present
+          setLearningPreferences({
+            learningStyle: Array.isArray(p.learningStyle)
+              ? p.learningStyle
+              : p.learningPreferences?.learningStyle || [],
+            bestTime: p.bestTime || p.learningPreferences?.bestTime || "",
+            sessionLength:
+              p.sessionLength || p.learningPreferences?.sessionLength || "",
+            additionalNotes:
+              p.additionalNotes || p.learningPreferences?.additionalNotes || "",
+          });
+        }
+
+        if (goalsRes?.success && Array.isArray(goalsRes.data)) {
+          setGoals(goalsRes.data);
         } else {
           setGoals([]);
         }
+
+        if (achievementsRes?.success && Array.isArray(achievementsRes.data)) {
+          setStudentBadges(achievementsRes.data);
+        } else {
+          setStudentBadges([]);
+        }
+
+        if (reportsRes?.success && Array.isArray(reportsRes.data)) {
+          setPreviousReports(reportsRes.data);
+        } else {
+          setPreviousReports([]);
+        }
       } catch (e) {
-        setGoalsError("Failed to load goals");
+        setGoalsError("Failed to load data");
       } finally {
         setGoalsLoading(false);
       }
     };
-    loadGoals();
+    loadAll();
+  }, []);
+
+  // Load current subjects from lessons
+  useEffect(() => {
+    const loadSubjects = async () => {
+      try {
+        const [upcoming, completed] = await Promise.all([
+          studentService.getUpcomingLessons(),
+          studentService.getCompletedLessons(),
+        ]);
+        const lessons = [];
+        if (upcoming?.success && Array.isArray(upcoming.data))
+          lessons.push(...upcoming.data);
+        if (completed?.success && Array.isArray(completed.data))
+          lessons.push(...completed.data);
+        const subjectMap = new Map();
+        lessons.forEach((l) => {
+          const name = l.subject || l.course || l.topic;
+          if (!name) return;
+          if (!subjectMap.has(name)) {
+            subjectMap.set(name, {
+              name,
+              icon: "📘",
+              status: (l.status || "Active").toString(),
+            });
+          }
+        });
+        setCurrentSubjects(Array.from(subjectMap.values()));
+      } catch (e) {
+        setCurrentSubjects([]);
+      }
+    };
+    loadSubjects();
   }, []);
 
   // Handle goal editing (open modal)
@@ -166,9 +269,24 @@ function StudentProfileManagement() {
   const formatDate = (d) => (d ? new Date(d).toLocaleDateString() : "");
 
   // Save preferences
-  const savePreferences = () => {
-    setLearningPreferences(editingPreferences);
-    setShowPreferencesModal(false);
+  const savePreferences = async () => {
+    try {
+      const payload = {
+        learningStyle: editingPreferences.learningStyle,
+        bestTime: editingPreferences.bestTime,
+        sessionLength: editingPreferences.sessionLength,
+        additionalNotes: editingPreferences.additionalNotes,
+      };
+      const res = await studentService.updateMyProfile(payload);
+      if (res?.success) {
+        setLearningPreferences(editingPreferences);
+        setShowPreferencesModal(false);
+      } else {
+        alert(res?.error || "Failed to save preferences");
+      }
+    } catch (e) {
+      alert("Failed to save preferences");
+    }
   };
 
   // Handle learning style toggle
@@ -180,22 +298,27 @@ function StudentProfileManagement() {
   };
 
   // Handle password change
-  const handlePasswordChange = () => {
+  const handlePasswordChange = async () => {
     const errors = {};
 
-    if (!passwordData.currentPassword) {
+    // Trim whitespace from passwords to avoid issues with copy/paste
+    const currentPassword = passwordData.currentPassword.trim();
+    const newPassword = passwordData.newPassword.trim();
+    const confirmPassword = passwordData.confirmPassword.trim();
+
+    if (!currentPassword) {
       errors.currentPassword = "Current password is required";
     }
 
-    if (!passwordData.newPassword) {
+    if (!newPassword) {
       errors.newPassword = "New password is required";
-    } else if (passwordData.newPassword.length < 8) {
+    } else if (newPassword.length < 8) {
       errors.newPassword = "Password must be at least 8 characters";
     }
 
-    if (!passwordData.confirmPassword) {
+    if (!confirmPassword) {
       errors.confirmPassword = "Please confirm your password";
-    } else if (passwordData.newPassword !== passwordData.confirmPassword) {
+    } else if (newPassword !== confirmPassword) {
       errors.confirmPassword = "Passwords do not match";
     }
 
@@ -204,16 +327,37 @@ function StudentProfileManagement() {
       return;
     }
 
-    // Here you would typically send the password change request to your backend
-    console.log("Password change request:", passwordData);
-    alert("Password updated successfully!");
-    setShowPasswordModal(false);
-    setPasswordData({
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    });
-    setPasswordErrors({});
+    try {
+      setPasswordLoading(true);
+      setPasswordErrors({});
+
+      const result = await authService.changeStudentPassword(
+        currentPassword,
+        newPassword
+      );
+
+      if (result.success) {
+        alert("Password updated successfully!");
+        setShowPasswordModal(false);
+        setPasswordData({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+        setPasswordErrors({});
+      } else {
+        setPasswordErrors({
+          general: result.error || "Failed to update password",
+        });
+      }
+    } catch (error) {
+      console.error("Error changing password:", error);
+      setPasswordErrors({
+        general: "An error occurred while changing password",
+      });
+    } finally {
+      setPasswordLoading(false);
+    }
   };
 
   // Reset password modal
@@ -225,6 +369,87 @@ function StudentProfileManagement() {
       confirmPassword: "",
     });
     setPasswordErrors({});
+  };
+
+  // Start editing a section
+  const startEditingSection = (section) => {
+    setSectionError("");
+    if (section === 'personal') {
+      setEditData({
+        phone_number: detailsData.phoneNumber || "",
+        bio: detailsData.bio || "",
+      });
+    } else if (section === 'academic') {
+      setEditData({
+        current_school: detailsData.currentSchool || "",
+        year_level: detailsData.yearLevel || "",
+        subjects_interested: detailsData.subjectsInterested || [],
+        preferred_locations: detailsData.preferredLocations || [],
+        learning_goals: detailsData.learningGoals || "",
+      });
+    }
+    setEditingSection(section);
+  };
+
+  // Cancel editing
+  const cancelEditing = () => {
+    setEditingSection(null);
+    setEditData({});
+    setSectionError("");
+  };
+
+  // Save section changes
+  const saveSectionChanges = async (section) => {
+    try {
+      setSavingSection(section);
+      setSectionError("");
+
+      // Validate bio if provided (must be at least 10 characters for validation middleware)
+      if (editData.bio && editData.bio.trim() && editData.bio.trim().length < 10) {
+        setSectionError("Bio must be at least 10 characters long (or leave empty)");
+        return;
+      }
+
+      // Remove bio from payload if it's empty to avoid validation error
+      const payload = { ...editData };
+      if (!payload.bio || !payload.bio.trim()) {
+        delete payload.bio;
+      }
+
+      const result = await studentService.updateMyProfile(payload);
+
+      if (result.success) {
+        // Update local state
+        setDetailsData(prev => ({
+          ...prev,
+          phoneNumber: editData.phone_number || prev.phoneNumber,
+          bio: editData.bio || prev.bio,
+          currentSchool: editData.current_school || prev.currentSchool,
+          yearLevel: editData.year_level || prev.yearLevel,
+          subjectsInterested: editData.subjects_interested || prev.subjectsInterested,
+          preferredLocations: editData.preferred_locations || prev.preferredLocations,
+          learningGoals: editData.learning_goals || prev.learningGoals,
+        }));
+
+        if (editData.year_level) {
+          setStudentData(prev => ({
+            ...prev,
+            grade: editData.year_level,
+          }));
+        }
+
+        setEditingSection(null);
+        setEditData({});
+        alert("Profile updated successfully!");
+      } else {
+        setSectionError(result.error || "Failed to update profile");
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      setSectionError("An error occurred while updating profile");
+    } finally {
+      setSavingSection(null);
+    }
   };
 
   return (
@@ -258,22 +483,13 @@ function StudentProfileManagement() {
                   </div>
                 </div>
                 <div className="col-auto">
-                  <div className="d-flex gap-2 flex-wrap">
-                    <button
-                      className="btn student-profile-edit-btn"
-                      onClick={() => setShowEditModal(true)}
-                    >
-                      <i className="fas fa-edit me-2"></i>
-                      Edit Profile
-                    </button>
-                    <button
-                      className="btn student-profile-password-btn"
-                      onClick={() => setShowPasswordModal(true)}
-                    >
-                      <i className="fas fa-lock me-2"></i>
-                      Change Password
-                    </button>
-                  </div>
+                  <button
+                    className="btn student-profile-password-btn"
+                    onClick={() => setShowPasswordModal(true)}
+                  >
+                    <i className="fas fa-lock me-2"></i>
+                    Change Password
+                  </button>
                 </div>
               </div>
             </div>
@@ -281,7 +497,7 @@ function StudentProfileManagement() {
         </div>
 
         <div className="row">
-          {/* SMART Goals Section */}
+          {/* SMART Goals Section and Details combined layout */}
           <div className="col-lg-8 col-md-12">
             <div className="student-profile-section">
               <div className="d-flex justify-content-between align-items-center mb-3">
@@ -362,74 +578,319 @@ function StudentProfileManagement() {
                 </div>
               )}
             </div>
+
+            {/* Personal Information Section */}
+            <div className="student-profile-section mt-4">
+              <div className="card">
+                <div className="card-body">
+                  <div className="d-flex justify-content-between align-items-center mb-3">
+                    <h6 className="student-profile-card-title mb-0">
+                      <i className="fas fa-user me-2"></i>
+                      Personal Information
+                    </h6>
+                    {editingSection !== 'personal' && (
+                      <button
+                        className="btn btn-sm btn-outline-primary"
+                        onClick={() => startEditingSection('personal')}
+                      >
+                        <i className="fas fa-edit me-1"></i>
+                        Edit
+                      </button>
+                    )}
+                  </div>
+
+                  {sectionError && editingSection === 'personal' && (
+                    <div className="alert alert-danger alert-sm">
+                      <i className="fas fa-exclamation-triangle me-2"></i>
+                      {sectionError}
+                    </div>
+                  )}
+
+                  {editingSection === 'personal' ? (
+                    <div>
+                      <div className="mb-3">
+                        <label className="form-label">Phone Number</label>
+                        <input
+                          type="tel"
+                          className="form-control"
+                          value={editData.phone_number || ""}
+                          onChange={(e) =>
+                            setEditData({ ...editData, phone_number: e.target.value })
+                          }
+                          placeholder="Enter your phone number"
+                        />
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label">Bio</label>
+                        <textarea
+                          className="form-control"
+                          rows="3"
+                          value={editData.bio || ""}
+                          onChange={(e) =>
+                            setEditData({ ...editData, bio: e.target.value })
+                          }
+                          placeholder="Tell us about yourself... (minimum 10 characters or leave empty)"
+                        ></textarea>
+                        <div className="form-text">
+                          {editData.bio ? `${editData.bio.length} characters` : '0 characters'} (minimum 10 required if provided)
+                        </div>
+                      </div>
+                      <div className="d-flex gap-2">
+                        <button
+                          className="btn btn-primary btn-sm"
+                          onClick={() => saveSectionChanges('personal')}
+                          disabled={savingSection === 'personal'}
+                        >
+                          {savingSection === 'personal' ? (
+                            <>
+                              <span className="spinner-border spinner-border-sm me-1"></span>
+                              Saving...
+                            </>
+                          ) : (
+                            <>
+                              <i className="fas fa-save me-1"></i>
+                              Save
+                            </>
+                          )}
+                        </button>
+                        <button
+                          className="btn btn-secondary btn-sm"
+                          onClick={cancelEditing}
+                          disabled={savingSection === 'personal'}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="row">
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label text-muted small">Phone Number</label>
+                          <div>{detailsData.phoneNumber || 'Not provided'}</div>
+                        </div>
+                      </div>
+                      <div className="col-12">
+                        <div className="mb-0">
+                          <label className="form-label text-muted small">Bio</label>
+                          <div>{detailsData.bio || 'Not provided'}</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Academic Information Section */}
+            <div className="student-profile-section mt-4">
+              <div className="card">
+                <div className="card-body">
+                  <div className="d-flex justify-content-between align-items-center mb-3">
+                    <h6 className="student-profile-card-title mb-0">
+                      <i className="fas fa-graduation-cap me-2"></i>
+                      Academic Information
+                    </h6>
+                    {editingSection !== 'academic' && (
+                      <button
+                        className="btn btn-sm btn-outline-primary"
+                        onClick={() => startEditingSection('academic')}
+                      >
+                        <i className="fas fa-edit me-1"></i>
+                        Edit
+                      </button>
+                    )}
+                  </div>
+
+                  {sectionError && editingSection === 'academic' && (
+                    <div className="alert alert-danger alert-sm">
+                      <i className="fas fa-exclamation-triangle me-2"></i>
+                      {sectionError}
+                    </div>
+                  )}
+
+                  {editingSection === 'academic' ? (
+                    <div>
+                      <div className="row">
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">Current School</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={editData.current_school || ""}
+                            onChange={(e) =>
+                              setEditData({ ...editData, current_school: e.target.value })
+                            }
+                            placeholder="Enter your school name"
+                          />
+                        </div>
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">Year Level</label>
+                          <select
+                            className="form-select"
+                            value={editData.year_level || ""}
+                            onChange={(e) =>
+                              setEditData({ ...editData, year_level: e.target.value })
+                            }
+                          >
+                            <option value="">Select year level</option>
+                            <option value="Year 7">Year 7</option>
+                            <option value="Year 8">Year 8</option>
+                            <option value="Year 9">Year 9</option>
+                            <option value="Year 10">Year 10</option>
+                            <option value="Year 11">Year 11</option>
+                            <option value="Year 12">Year 12</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label">Subjects Interested</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={Array.isArray(editData.subjects_interested) 
+                            ? editData.subjects_interested.join(", ") 
+                            : ""}
+                          onChange={(e) =>
+                            setEditData({
+                              ...editData,
+                              subjects_interested: e.target.value
+                                .split(",")
+                                .map(s => s.trim())
+                                .filter(s => s),
+                            })
+                          }
+                          placeholder="Enter subjects separated by commas (e.g., Math, Science, English)"
+                        />
+                        <div className="form-text">Separate multiple subjects with commas</div>
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label">Preferred Locations</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={Array.isArray(editData.preferred_locations)
+                            ? editData.preferred_locations.join(", ")
+                            : ""}
+                          onChange={(e) =>
+                            setEditData({
+                              ...editData,
+                              preferred_locations: e.target.value
+                                .split(",")
+                                .map(s => s.trim())
+                                .filter(s => s),
+                            })
+                          }
+                          placeholder="Enter locations separated by commas (e.g., Online, Sydney CBD)"
+                        />
+                        <div className="form-text">Separate multiple locations with commas</div>
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label">Learning Goals</label>
+                        <textarea
+                          className="form-control"
+                          rows="3"
+                          value={editData.learning_goals || ""}
+                          onChange={(e) =>
+                            setEditData({ ...editData, learning_goals: e.target.value })
+                          }
+                          placeholder="What do you want to achieve through tutoring?"
+                        ></textarea>
+                      </div>
+                      <div className="d-flex gap-2">
+                        <button
+                          className="btn btn-primary btn-sm"
+                          onClick={() => saveSectionChanges('academic')}
+                          disabled={savingSection === 'academic'}
+                        >
+                          {savingSection === 'academic' ? (
+                            <>
+                              <span className="spinner-border spinner-border-sm me-1"></span>
+                              Saving...
+                            </>
+                          ) : (
+                            <>
+                              <i className="fas fa-save me-1"></i>
+                              Save
+                            </>
+                          )}
+                        </button>
+                        <button
+                          className="btn btn-secondary btn-sm"
+                          onClick={cancelEditing}
+                          disabled={savingSection === 'academic'}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="row">
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label text-muted small">Current School</label>
+                          <div>{detailsData.currentSchool || 'Not provided'}</div>
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label text-muted small">Year Level</label>
+                          <div>{detailsData.yearLevel || 'Not provided'}</div>
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label text-muted small">Subjects Interested</label>
+                          <div>
+                            {Array.isArray(detailsData.subjectsInterested) && detailsData.subjectsInterested.length > 0
+                              ? detailsData.subjectsInterested.map(subject => (
+                                  <span key={subject} className="badge bg-primary me-1 mb-1">{subject}</span>
+                                ))
+                              : 'Not provided'}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label text-muted small">Preferred Locations</label>
+                          <div>
+                            {Array.isArray(detailsData.preferredLocations) && detailsData.preferredLocations.length > 0
+                              ? detailsData.preferredLocations.map(location => (
+                                  <span key={location} className="badge bg-info me-1 mb-1">{location}</span>
+                                ))
+                              : 'Not provided'}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-12">
+                        <div className="mb-0">
+                          <label className="form-label text-muted small">Learning Goals</label>
+                          <div>{detailsData.learningGoals || 'Not provided'}</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Details panel below (achievements and reports) */}
+            <DetailsPanel
+              studentData={detailsData}
+              studentBadges={studentBadges}
+              previousReports={previousReports}
+            />
           </div>
 
           {/* Sidebar */}
           <div className="col-lg-4 col-md-12">
-            {/* Learning Preferences */}
-            <div className="student-profile-section">
-              <div className="card student-profile-preferences-card mb-4">
-                <div className="card-body">
-                  <div className="d-flex justify-content-between align-items-center mb-3">
-                    <h6 className="student-profile-card-title">
-                      Learning Preferences
-                    </h6>
-                    <button
-                      className="btn student-profile-edit-icon-btn"
-                      onClick={() => {
-                        setEditingPreferences({ ...learningPreferences });
-                        setShowPreferencesModal(true);
-                      }}
-                    >
-                      <i className="fas fa-external-link-alt"></i>
-                    </button>
-                  </div>
-
-                  <div className="student-profile-preference-item">
-                    <div className="student-profile-preference-label">
-                      Preferred Learning Style
-                    </div>
-                    <div className="student-profile-preference-tags">
-                      {learningPreferences.learningStyle.map((style) => (
-                        <span
-                          key={style}
-                          className="student-profile-preference-tag"
-                        >
-                          {style}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="student-profile-preference-item">
-                    <div className="student-profile-preference-label">
-                      Best Time for Sessions
-                    </div>
-                    <div className="student-profile-preference-value">
-                      {learningPreferences.bestTime}
-                    </div>
-                  </div>
-
-                  <div className="student-profile-preference-item">
-                    <div className="student-profile-preference-label">
-                      Preferred Session Length
-                    </div>
-                    <div className="student-profile-preference-value">
-                      {learningPreferences.sessionLength}
-                    </div>
-                  </div>
-
-                  <div className="student-profile-preference-item">
-                    <div className="student-profile-preference-label">
-                      Additional Notes
-                    </div>
-                    <div className="student-profile-preference-value">
-                      {learningPreferences.additionalNotes}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <PreferencesPanel
+              learningPreferences={learningPreferences}
+              onEdit={() => {
+                setEditingPreferences({ ...learningPreferences });
+                setShowPreferencesModal(true);
+              }}
+            />
 
             {/* Current Subjects */}
             <div className="student-profile-section">
@@ -461,110 +922,6 @@ function StudentProfileManagement() {
           </div>
         </div>
       </div>
-
-      {/* Edit Profile Modal */}
-      {showEditModal && (
-        <div
-          className="modal fade show d-block"
-          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-        >
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Edit Profile</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setShowEditModal(false)}
-                ></button>
-              </div>
-              <div className="modal-body">
-                <form>
-                  <div className="mb-3">
-                    <label className="form-label">Full Name</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={studentData.fullName}
-                      onChange={(e) =>
-                        setStudentData({
-                          ...studentData,
-                          fullName: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Email Address</label>
-                    <input
-                      type="email"
-                      className="form-control"
-                      value={studentData.email}
-                      onChange={(e) =>
-                        setStudentData({
-                          ...studentData,
-                          email: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Grade</label>
-                    <select
-                      className="form-select"
-                      value={studentData.grade}
-                      onChange={(e) =>
-                        setStudentData({
-                          ...studentData,
-                          grade: e.target.value,
-                        })
-                      }
-                    >
-                      <option value="Grade 9">Grade 9</option>
-                      <option value="Grade 10">Grade 10</option>
-                      <option value="Grade 11">Grade 11</option>
-                      <option value="Grade 12">Grade 12</option>
-                    </select>
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Stream</label>
-                    <select
-                      className="form-select"
-                      value={studentData.stream}
-                      onChange={(e) =>
-                        setStudentData({
-                          ...studentData,
-                          stream: e.target.value,
-                        })
-                      }
-                    >
-                      <option value="Science Stream">Science Stream</option>
-                      <option value="Commerce Stream">Commerce Stream</option>
-                      <option value="Arts Stream">Arts Stream</option>
-                    </select>
-                  </div>
-                </form>
-              </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setShowEditModal(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={() => setShowEditModal(false)}
-                >
-                  Save Changes
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Goal Modal */}
       {showGoalModal && (
@@ -802,6 +1159,11 @@ function StudentProfileManagement() {
                 ></button>
               </div>
               <div className="modal-body">
+                {passwordErrors.general && (
+                  <div className="alert alert-danger">
+                    {passwordErrors.general}
+                  </div>
+                )}
                 <form>
                   <div className="mb-3">
                     <label className="form-label">Current Password</label>
@@ -824,6 +1186,7 @@ function StudentProfileManagement() {
                         }
                       }}
                       placeholder="Enter your current password"
+                      disabled={passwordLoading}
                     />
                     {passwordErrors.currentPassword && (
                       <div className="invalid-feedback">
@@ -840,18 +1203,35 @@ function StudentProfileManagement() {
                       }`}
                       value={passwordData.newPassword}
                       onChange={(e) => {
+                        const newValue = e.target.value;
                         setPasswordData({
                           ...passwordData,
-                          newPassword: e.target.value,
+                          newPassword: newValue,
                         });
+
+                        // Clear errors when user starts typing
+                        const newErrors = { ...passwordErrors };
                         if (passwordErrors.newPassword) {
-                          setPasswordErrors({
-                            ...passwordErrors,
-                            newPassword: "",
-                          });
+                          delete newErrors.newPassword;
                         }
+
+                        // Check confirm password match if it exists
+                        if (
+                          passwordData.confirmPassword &&
+                          newValue !== passwordData.confirmPassword
+                        ) {
+                          newErrors.confirmPassword = "Passwords do not match";
+                        } else if (
+                          passwordData.confirmPassword &&
+                          newValue === passwordData.confirmPassword
+                        ) {
+                          delete newErrors.confirmPassword;
+                        }
+
+                        setPasswordErrors(newErrors);
                       }}
                       placeholder="Enter your new password"
+                      disabled={passwordLoading}
                     />
                     {passwordErrors.newPassword && (
                       <div className="invalid-feedback">
@@ -867,28 +1247,51 @@ function StudentProfileManagement() {
                     <input
                       type="password"
                       className={`form-control ${
-                        passwordErrors.confirmPassword ? "is-invalid" : ""
+                        passwordErrors.confirmPassword
+                          ? "is-invalid"
+                          : passwordData.newPassword &&
+                            passwordData.confirmPassword &&
+                            passwordData.newPassword ===
+                              passwordData.confirmPassword
+                          ? "is-valid"
+                          : ""
                       }`}
                       value={passwordData.confirmPassword}
                       onChange={(e) => {
+                        const confirmValue = e.target.value;
                         setPasswordData({
                           ...passwordData,
-                          confirmPassword: e.target.value,
+                          confirmPassword: confirmValue,
                         });
-                        if (passwordErrors.confirmPassword) {
-                          setPasswordErrors({
-                            ...passwordErrors,
-                            confirmPassword: "",
-                          });
+
+                        // Real-time password match validation
+                        const newErrors = { ...passwordErrors };
+                        if (
+                          passwordData.newPassword &&
+                          confirmValue !== passwordData.newPassword
+                        ) {
+                          newErrors.confirmPassword = "Passwords do not match";
+                        } else {
+                          delete newErrors.confirmPassword;
                         }
+
+                        setPasswordErrors(newErrors);
                       }}
                       placeholder="Confirm your new password"
+                      disabled={passwordLoading}
                     />
                     {passwordErrors.confirmPassword && (
                       <div className="invalid-feedback">
                         {passwordErrors.confirmPassword}
                       </div>
                     )}
+                    {!passwordErrors.confirmPassword &&
+                      passwordData.newPassword &&
+                      passwordData.confirmPassword &&
+                      passwordData.newPassword ===
+                        passwordData.confirmPassword && (
+                        <div className="valid-feedback">✓ Passwords match</div>
+                      )}
                   </div>
                 </form>
               </div>
@@ -897,6 +1300,7 @@ function StudentProfileManagement() {
                   type="button"
                   className="btn btn-secondary"
                   onClick={resetPasswordModal}
+                  disabled={passwordLoading}
                 >
                   Cancel
                 </button>
@@ -904,9 +1308,23 @@ function StudentProfileManagement() {
                   type="button"
                   className="btn btn-primary"
                   onClick={handlePasswordChange}
+                  disabled={passwordLoading}
                 >
-                  <i className="fas fa-save me-2"></i>
-                  Update Password
+                  {passwordLoading ? (
+                    <>
+                      <span
+                        className="spinner-border spinner-border-sm me-2"
+                        role="status"
+                        aria-hidden="true"
+                      ></span>
+                      Updating Password...
+                    </>
+                  ) : (
+                    <>
+                      <i className="fas fa-save me-2"></i>
+                      Update Password
+                    </>
+                  )}
                 </button>
               </div>
             </div>

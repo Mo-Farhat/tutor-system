@@ -149,6 +149,53 @@ const TermsContent = () => {
       <p>(b) entitlement to use or profit from a business name, trading name, domain name, trademark, or industrial design; or</p>
       <p>(c) any item, system, or process protected by a patent, registered design, or copyright (or any adaptation or modification thereof).</p>
       
+      <h3 className="terms-section-subtitle">13. Student-to-Student Referral Credit</h3>
+      
+      <h4 className="terms-subsection-title">13.1. Eligibility and Application</h4>
+      <p>(a) Referral credit is available only where an existing Student ("Referrer") introduces a new Student ("Referred Student") to the Strive Academics platform.</p>
+      <p>(b) Referral credit will only be applied to the Referrer's account after the Referred Student has successfully completed at least one (1) paid tutoring session of no less than one (1) hour in duration through the Strive Academics platform.</p>
+      <p>(c) Referral credit is applied to the Referrer's wallet and may only be redeemed as a credit towards future tutoring sessions booked and paid through the Strive Academics platform.</p>
+      
+      <h4 className="terms-subsection-title">13.2. Limitations</h4>
+      <p>(a) Referral credit has no cash value and is strictly non-refundable, non-transferable, and non-exchangeable.</p>
+      <p>(b) Referral credit cannot be redeemed for cash, bank transfer, or any payment outside the Strive Academics platform.</p>
+      <p>(c) Referral credit may not be applied retrospectively to sessions already completed or booked.</p>
+      
+      <h4 className="terms-subsection-title">13.3. Expiry and Forfeiture</h4>
+      <p>(a) Strive Academics reserves the right to set expiry dates for referral credit, which will be communicated to Students at the time of issue.</p>
+      <p>(b) Any unused referral credit after its expiry date will automatically be forfeited and cannot be reinstated.</p>
+      
+      <h4 className="terms-subsection-title">13.4. Misuse and Fraud</h4>
+      <p>(a) Referral credit is intended for personal use by genuine referrals only.</p>
+      <p>(b) Strive Academics reserves the right to withhold, remove, or cancel referral credit where it reasonably suspects misuse, abuse, fraud, or breach of these Terms and Conditions.</p>
+      
+      <h4 className="terms-subsection-title">13.5. Liability</h4>
+      <p>(a) Strive Academics shall not be liable for any loss, claim, or damages (direct, indirect, or consequential) arising from the issue, use, or termination of referral credit.</p>
+      <p>(b) Strive Academics reserves the right to amend, suspend, or terminate the referral credit scheme at any time without prior notice, and shall not be liable to Students for any such amendment, suspension, or termination.</p>
+      
+      <h3 className="terms-section-subtitle">14. Tutor-to-Student Referral Fee</h3>
+      
+      <h4 className="terms-subsection-title">14.1. Eligibility and Payment</h4>
+      <p>(a) Tutor-to-student referral fees apply where a Tutor ("Referring Tutor") introduces a new Student ("Referred Student") who subsequently books and completes at least one (1) paid tutoring session of no less than one (1) hour in the subject area for which the referral was made, through the Strive Academics platform.</p>
+      <p>(b) Referral fees are credited to the Referring Tutor's account in the amount specified in the Referrals section of their Tutor account at the time of referral.</p>
+      <p>(c) Referral fees are payable only after verification by Strive Academics that the Referred Student has completed and paid for the required session in the relevant subject.</p>
+      
+      <h4 className="terms-subsection-title">14.2. Payment Terms</h4>
+      <p>(a) Referral fees will be paid out via the payment method nominated by the Tutor in their account, in accordance with Strive Academics' standard payout schedule.</p>
+      <p>(b) Strive Academics reserves the right to withhold payment of referral fees pending investigation if it reasonably suspects error, fraud, or breach of these Terms and Conditions.</p>
+      
+      <h4 className="terms-subsection-title">14.3. Limitations</h4>
+      <p>(a) Referral fees are applicable per subject. If multiple Tutors refer the same Student for different subjects, each Referring Tutor may be entitled to a referral fee for the respective subject area, provided all other eligibility criteria are met.</p>
+      <p>(b) Referral fees are only payable once per Tutor per subject for each Referred Student.</p>
+      <p>(c) Referral fees are not transferable, assignable, or redeemable for any other form of credit or consideration.</p>
+      
+      <h4 className="terms-subsection-title">14.4. Misuse and Fraud</h4>
+      <p>(a) Strive Academics may refuse to pay, or may reclaim any referral fee already paid, if it reasonably suspects the referral was not genuine, was self-referred, or was otherwise obtained in breach of these Terms and Conditions.</p>
+      
+      <h4 className="terms-subsection-title">14.5. Liability</h4>
+      <p>(a) Strive Academics shall not be liable for any loss, claim, or damages (direct, indirect, or consequential) arising from the issue, use, or termination of referral fees.</p>
+      <p>(b) Strive Academics reserves the right to amend, suspend, or terminate the tutor referral fee scheme at any time without prior notice, and shall not be liable to Tutors for any such amendment, suspension, or termination.</p>
+      
       <h2 className="terms-section-title mt-5">Appendices</h2>
       
       <h3 className="terms-section-subtitle">Appendix A – Payment Policy</h3>

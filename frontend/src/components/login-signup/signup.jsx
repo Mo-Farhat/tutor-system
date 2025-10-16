@@ -142,7 +142,7 @@ function Signup() {
                                 </div>
 
                                 <h2 className="signup-title text-center mb-2">Create Student Account</h2>
-                                <p className="signup-subtitle text-center mb-4">Join Strive Academy as a student</p>
+                                <p className="signup-subtitle text-center mb-4">Join Strive Academics as a student</p>
 
                                 {error && (
                                     <div className="alert alert-danger" role="alert">

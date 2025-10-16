@@ -1,66 +1,157 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { getChangeRequests, approveChangeRequest, rejectChangeRequest } from "../../../../services/adminService";
 
 const ChangeRequestsTab = () => {
-  const [changeRequests, setChangeRequests] = useState([
-    {
-      id: 1,
-      type: "profile_update",
-      field: "intro",
-      oldValue: "Experienced tutor with 5 years of teaching experience.",
-      newValue:
-        "Experienced tutor with 6 years of teaching experience specializing in VCE Chemistry and Biology.",
-      status: "pending",
-      submittedDate: "2024-03-15",
-      comments: "Updated experience and added specialization details",
-    },
-    {
-      id: 2,
-      type: "subject_change",
-      field: "subjects",
-      oldValue: ["VCE Chemistry", "VCE Biology"],
-      newValue: ["VCE Chemistry", "VCE Biology", "VCE Physics"],
-      status: "approved",
-      submittedDate: "2024-03-10",
-      comments: "Added Physics to subject list after completing certification",
-    },
-    {
-      id: 3,
-      type: "banking_update",
-      field: "banking",
-      oldValue: "BSB: 123-456, Account: ****7890",
-      newValue: "BSB: 123-456, Account: ****7891",
-      status: "pending",
-      submittedDate: "2024-03-18",
-      comments: "Updated account number due to bank account change",
-    },
-  ]);
+  const [changeRequests, setChangeRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [processing, setProcessing] = useState({});
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [selectedRequestId, setSelectedRequestId] = useState(null);
 
-  const handleApproveChange = (requestId) => {
-    setChangeRequests((prev) =>
-      prev.map((req) =>
-        req.id === requestId ? { ...req, status: "approved" } : req
-      )
-    );
+  // Load change requests on component mount
+  useEffect(() => {
+    loadChangeRequests();
+  }, []);
+
+  const loadChangeRequests = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await getChangeRequests();
+      if (response.success && Array.isArray(response.data)) {
+        setChangeRequests(response.data);
+      } else {
+        setError("Failed to load change requests");
+      }
+    } catch (err) {
+      console.error("Error loading change requests:", err);
+      setError("Failed to load change requests");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleRejectChange = (requestId, reason) => {
-    setChangeRequests((prev) =>
-      prev.map((req) =>
-        req.id === requestId
-          ? { ...req, status: "rejected", rejectionReason: reason }
-          : req
-      )
-    );
+  const handleApproveChange = async (requestId) => {
+    try {
+      setProcessing(prev => ({ ...prev, [requestId]: true }));
+      const response = await approveChangeRequest(requestId, "Approved by admin");
+      
+      if (response.success) {
+        // Update local state
+        setChangeRequests((prev) =>
+          prev.map((req) =>
+            req.id === requestId ? { ...req, status: "approved" } : req
+          )
+        );
+        alert("Change request approved successfully!");
+      } else {
+        alert("Failed to approve change request: " + (response.error || "Unknown error"));
+      }
+    } catch (err) {
+      console.error("Error approving change request:", err);
+      alert("Failed to approve change request: " + err.message);
+    } finally {
+      setProcessing(prev => ({ ...prev, [requestId]: false }));
+    }
   };
+
+  const handleRejectChange = async (requestId, reason) => {
+    try {
+      setProcessing(prev => ({ ...prev, [requestId]: true }));
+      const response = await rejectChangeRequest(requestId, reason);
+      
+      if (response.success) {
+        // Update local state
+        setChangeRequests((prev) =>
+          prev.map((req) =>
+            req.id === requestId
+              ? { ...req, status: "rejected", rejectionReason: reason }
+              : req
+          )
+        );
+        alert("Change request rejected successfully!");
+        setShowRejectModal(false);
+        setRejectionReason("");
+        setSelectedRequestId(null);
+      } else {
+        alert("Failed to reject change request: " + (response.error || "Unknown error"));
+      }
+    } catch (err) {
+      console.error("Error rejecting change request:", err);
+      alert("Failed to reject change request: " + err.message);
+    } finally {
+      setProcessing(prev => ({ ...prev, [requestId]: false }));
+    }
+  };
+
+  const openRejectModal = (requestId) => {
+    setSelectedRequestId(requestId);
+    setShowRejectModal(true);
+  };
+
+  const closeRejectModal = () => {
+    setShowRejectModal(false);
+    setRejectionReason("");
+    setSelectedRequestId(null);
+  };
+
+  const submitRejection = () => {
+    if (!rejectionReason.trim()) {
+      alert("Please provide a reason for rejection");
+      return;
+    }
+    handleRejectChange(selectedRequestId, rejectionReason.trim());
+  };
+
+  if (loading) {
+    return (
+      <div className="tutor-profile-change-requests">
+        <div className="text-center py-4">
+          <div className="spinner-border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="mt-2">Loading change requests...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="tutor-profile-change-requests">
+        <div className="alert alert-danger" role="alert">
+          <i className="fas fa-exclamation-triangle me-2"></i>
+          {error}
+          <button 
+            className="btn btn-sm btn-outline-danger ms-2" 
+            onClick={loadChangeRequests}
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="tutor-profile-change-requests">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h6>Change Requests Queue</h6>
-        <span className="badge bg-info">
-          {changeRequests.filter((req) => req.status === "pending").length}{" "}
-          Pending
-        </span>
+        <div className="d-flex gap-2">
+          <span className="badge bg-info">
+            {changeRequests.filter((req) => req.status === "pending").length}{" "}
+            Pending
+          </span>
+          <button 
+            className="btn btn-sm btn-outline-primary"
+            onClick={loadChangeRequests}
+            disabled={loading}
+          >
+            <i className="fas fa-sync-alt"></i> Refresh
+          </button>
+        </div>
       </div>
 
       {changeRequests.length === 0 ? (
@@ -84,9 +175,9 @@ const ChangeRequestsTab = () => {
                     </h6>
                     <small className="text-muted">
                       Submitted:{" "}
-                      {new Date(request.submittedDate).toLocaleDateString(
+                      {request.createdAt ? new Date(request.createdAt).toLocaleDateString(
                         "en-AU"
-                      )}
+                      ) : "Unknown date"}
                     </small>
                   </div>
                   <span
@@ -144,17 +235,23 @@ const ChangeRequestsTab = () => {
                     <button
                       className="btn btn-success btn-sm me-2"
                       onClick={() => handleApproveChange(request.id)}
+                      disabled={processing[request.id]}
                     >
-                      <i className="fas fa-check"></i> Approve
+                      {processing[request.id] ? (
+                        <>
+                          <span className="spinner-border spinner-border-sm me-1" role="status"></span>
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <i className="fas fa-check"></i> Approve
+                        </>
+                      )}
                     </button>
                     <button
                       className="btn btn-danger btn-sm"
-                      onClick={() =>
-                        handleRejectChange(
-                          request.id,
-                          "Please provide more details"
-                        )
-                      }
+                      onClick={() => openRejectModal(request.id)}
+                      disabled={processing[request.id]}
                     >
                       <i className="fas fa-times"></i> Reject
                     </button>
@@ -170,6 +267,65 @@ const ChangeRequestsTab = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Rejection Modal */}
+      {showRejectModal && (
+        <div
+          className="modal fade show d-block"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+        >
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Reject Change Request</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={closeRejectModal}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <div className="mb-3">
+                  <label className="form-label">Reason for Rejection</label>
+                  <textarea
+                    className="form-control"
+                    rows="3"
+                    value={rejectionReason}
+                    onChange={(e) => setRejectionReason(e.target.value)}
+                    placeholder="Please provide a reason for rejecting this change request..."
+                  ></textarea>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={closeRejectModal}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={submitRejection}
+                  disabled={!rejectionReason.trim() || processing[selectedRequestId]}
+                >
+                  {processing[selectedRequestId] ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-1" role="status"></span>
+                      Rejecting...
+                    </>
+                  ) : (
+                    <>
+                      <i className="fas fa-times"></i> Reject Request
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -125,7 +125,7 @@ function Login() {
             state: isNewTutor
               ? {
                   message:
-                    "Welcome to Strive Academy! Please complete your profile setup.",
+                    "Welcome to Strive Academics! Please complete your profile setup.",
                 }
               : undefined,
           });

@@ -109,7 +109,7 @@ function TutorSettings() {
                                     <div className="col-lg-4 col-md-6 mb-4">
                                         <div className="tutor-settings-step-card">
                                             <div className="tutor-settings-step-number">2</div>
-                                            <h6 className="tutor-settings-step-title">They Book a Free Academic Consultation</h6>
+                                            <h6 className="tutor-settings-step-title">They Book a 20-Minute Free Academic Consultation</h6>
                                             <p className="tutor-settings-step-description">The referred student must use your link to book their consultation with us.</p>
                                         </div>
                                     </div>

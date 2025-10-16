@@ -1,0 +1,248 @@
+/* Admin Assignments Dashboard Styles */
+
+
+
+.admin-assignments-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+  padding: 2rem;
+}
+
+.admin-assignments-header {
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.admin-assignments-title-section {
+  flex: 1;
+}
+
+.admin-assignments-title {
+  margin: 0;
+  color: #1a1a2e;
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.admin-assignments-subtitle {
+  margin: 5px 0 0 0;
+ color: #7f8c8d;
+  font-size: 1rem;
+}
+
+.admin-assignments-stats {
+  display: flex;
+  gap: 25px;
+}
+
+.admin-stats-item {
+  text-align: center;
+  padding: 10px 15px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  min-width: 100px;
+}
+
+.admin-stats-number {
+  display: block;
+  font-size: 1.5rem;
+ font-weight: bold;
+  color: #3498db;
+}
+
+.admin-stats-label {
+  font-size: 0.8rem;
+  color: #7f8c8d;
+  margin-top: 5px;
+}
+
+.admin-assignments-controls {
+  background: #f1f5f9;
+  border-radius: 16px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-controls-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.admin-search-section {
+  flex: 1;
+  min-width: 300px;
+}
+
+.admin-search-box {
+  position: relative;
+}
+
+.admin-search-box i {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #7f8c8d;
+}
+
+.admin-search-box input {
+  padding-left: 40px;
+ height: 42px;
+}
+
+.admin-controls-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.admin-filters-panel {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+  margin-top: 15px;
+}
+
+.admin-assignments-table-section {
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.admin-assignments-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-assignments-table th {
+  background: #f8fafc;
+  padding: 1rem 1.5rem;
+  text-align: left;
+  font-weight: 600;
+  color: #1a1a2e;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.admin-assignments-table td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  vertical-align: top;
+}
+
+.admin-assignment-student-info,
+.admin-assignment-tutor-info {
+  min-width: 150px;
+}
+
+.admin-assignment-student-name,
+.admin-assignment-tutor-name {
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 0.25rem;
+}
+
+.admin-assignment-student-email,
+.admin-assignment-tutor-email {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.admin-subject-tag {
+  background: #e3f2fd;
+  color: #1976d2;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.admin-date {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+.admin-empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #7f8c8d;
+}
+
+.admin-empty-state i {
+ font-size: 3rem;
+  margin-bottom: 15px;
+}
+
+.admin-empty-state h5 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.assignment-detail-card {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+}
+
+.assignment-detail-item {
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.assignment-detail-card h6 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  color: #2c3e50;
+  font-weight: 600;
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .admin-assignments-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .admin-assignments-stats {
+    width: 100%;
+    justify-content: space-around;
+  }
+  
+  .admin-controls-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .admin-search-section {
+    min-width: 100%;
+  }
+  
+  .admin-controls-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .admin-assignments-table {
+    display: block;
+    overflow-x: auto;
+  }
+}

@@ -4,6 +4,7 @@ const ctrl = require("../controllers/studentTutorController");
 const { authenticateToken, requireRole, requireStudent, requireTutor } = require("../middleware/auth");
 
 // Admin endpoints
+router.get("/admin/assignments", authenticateToken, requireRole("admin"), ctrl.adminList);
 router.post("/admin/assignments", authenticateToken, requireRole("admin"), ctrl.adminAssign);
 router.put("/admin/assignments/:id", authenticateToken, requireRole("admin"), ctrl.adminUpdate);
 router.delete("/admin/assignments/:id", authenticateToken, requireRole("admin"), ctrl.adminRemove);

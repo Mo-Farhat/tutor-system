@@ -35,6 +35,81 @@
 .ucat-points-image {
     transform: scale(0.8);
     height: auto;
+    transition: transform 0.3s ease;
+}
+
+.ucat-points-image:hover {
+    transform: scale(0.85) rotate(2deg);
+}
+
+/* Alternating animations for each point */
+.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(odd) .ucat-points-content {
+    animation: slideInLeft 0.8s ease-out both;
+}
+
+.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(odd) .ucat-points-image {
+    animation: slideInRight 0.8s ease-out both;
+}
+
+.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(even) .ucat-points-content {
+    animation: slideInRight 0.8s ease-out both;
+}
+
+.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(even) .ucat-points-image {
+    animation: slideInLeft 0.8s ease-out both;
+}
+
+/* Staggered delays for each point */
+.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(1) .ucat-points-content,
+.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(1) .ucat-points-image {
+    animation-delay: 0.1s;
+}
+
+.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(2) .ucat-points-content,
+.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(2) .ucat-points-image {
+    animation-delay: 0.3s;
+}
+
+.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(3) .ucat-points-content,
+.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(3) .ucat-points-image {
+    animation-delay: 0.5s;
+}
+
+.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(4) .ucat-points-content,
+.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(4) .ucat-points-image {
+    animation-delay: 0.7s;
+}
+
+.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(5) .ucat-points-content,
+.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(5) .ucat-points-image {
+    animation-delay: 0.9s;
+}
+
+.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(6) .ucat-points-content,
+.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(6) .ucat-points-image {
+    animation-delay: 1.1s;
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 @media (max-width: 992px) {

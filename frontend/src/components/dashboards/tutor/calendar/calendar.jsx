@@ -1,47 +1,6 @@
-import React from 'react';
-import '../../../../css/dashboards/tutor/calendar/calendar.css';
-
-const calendarData = [
-  // Example data for January 2025
-  { date: '2025-01-06', lessons: [{ title: 'Math - Grade 5', time: '9:00 AM', type: 'zoom' }] },
-  { date: '2025-01-08', lessons: [{ title: 'Science Lab', time: '2:00 PM', type: 'zoom' }] },
-  { date: '2025-01-13', lessons: [{ title: 'Math - Grade 5', time: '9:00 AM', type: 'zoom' }] },
-  { date: '2025-01-15', lessons: [
-    { title: 'English Lit', time: '10:30 AM', type: 'zoom' },
-    { title: 'Science Lab', time: '2:00 PM', type: 'zoom' },
-  ] },
-  { date: '2025-01-20', lessons: [{ title: 'Math - Grade 5', time: '9:00 AM', type: 'zoom' }] },
-  { date: '2025-01-22', lessons: [{ title: 'Science Lab', time: '2:00 PM', type: 'zoom' }] },
-  { date: '2025-01-27', lessons: [{ title: 'Math - Grade 5', time: '9:00 AM', type: 'zoom' }] },
-  { date: '2025-01-29', lessons: [
-    { title: 'English Lit', time: '10:30 AM', type: 'zoom' },
-    { title: 'Science Lab', time: '2:00 PM', type: 'zoom' },
-  ] },
-];
-
-const upcomingLessons = [
-  {
-    title: 'Math - Grade 5',
-    date: 'Today',
-    time: '9:00 AM - 10:00 AM',
-    recurring: 'Weekly',
-    joinUrl: '#',
-  },
-  {
-    title: 'Science Lab',
-    date: 'Today',
-    time: '2:00 PM - 3:30 PM',
-    recurring: 'Bi-weekly',
-    joinUrl: '#',
-  },
-  {
-    title: 'English Literature',
-    date: 'Tomorrow',
-    time: '10:30 AM - 12:00 PM',
-    recurring: 'Weekly',
-    joinUrl: '#',
-  },
-];
+import React, { useState, useEffect } from "react";
+import tutorService from "../../../../services/tutorService";
+import "../../../../css/dashboards/tutor/calendar/calendar.css";
 
 function getMonthMatrix(year, month) {
   // Returns a 2D array representing the weeks of the month
@@ -67,20 +26,167 @@ function getMonthMatrix(year, month) {
   return matrix;
 }
 
-function getLessonsForDate(dateStr) {
-  const found = calendarData.find((d) => d.date === dateStr);
-  return found ? found.lessons : [];
-}
-
 function TutorCalendar() {
-  const year = 2025;
-  const month = 0; // January
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [lessons, setLessons] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newLesson, setNewLesson] = useState({
+    studentId: "",
+    subject: "",
+    startAt: "",
+    endAt: "",
+    duration: 60,
+    zoomLink: "",
+    prepNotes: "",
+    homework: "",
+  });
+
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
   const monthMatrix = getMonthMatrix(year, month);
   const monthNames = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December',
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
-  const daysShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const daysShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  // Load lessons and students
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const [lessonsRes, studentsRes] = await Promise.all([
+          tutorService.getUpcomingLessons(),
+          tutorService.getMyStudents(),
+        ]);
+
+        if (lessonsRes?.success && Array.isArray(lessonsRes.data)) {
+          setLessons(lessonsRes.data);
+        } else {
+          setLessons([]);
+        }
+
+        if (studentsRes?.success && Array.isArray(studentsRes.data)) {
+          setStudents(studentsRes.data);
+        } else {
+          setStudents([]);
+        }
+      } catch (e) {
+        setError("Failed to load calendar data");
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  // Navigation functions
+  const goToPreviousMonth = () => {
+    setCurrentDate(new Date(year, month - 1, 1));
+  };
+
+  const goToNextMonth = () => {
+    setCurrentDate(new Date(year, month + 1, 1));
+  };
+
+  // Helper function to set default lesson times
+  const setDefaultTimes = (selectedDate) => {
+    if (selectedDate) {
+      const date = new Date(selectedDate);
+      const now = new Date();
+      
+      // Set start time to next hour if today, or 9 AM if future date
+      const startTime = new Date(date);
+      if (date.toDateString() === now.toDateString()) {
+        startTime.setHours(now.getHours() + 1, 0, 0, 0);
+      } else {
+        startTime.setHours(9, 0, 0, 0);
+      }
+      
+      // Set end time to 1 hour after start time
+      const endTime = new Date(startTime);
+      endTime.setHours(endTime.getHours() + 1);
+      
+      setNewLesson(prev => ({
+        ...prev,
+        startAt: startTime.toISOString().slice(0, 16),
+        endAt: endTime.toISOString().slice(0, 16),
+        duration: 60
+      }));
+    }
+  };
+
+  // Create lesson
+  const handleCreateLesson = async () => {
+    try {
+      const res = await tutorService.createLesson(newLesson);
+      if (res?.success) {
+        setLessons([res.data, ...lessons]);
+        setShowCreateModal(false);
+        setNewLesson({
+          studentId: "",
+          subject: "",
+          startAt: "",
+          endAt: "",
+          duration: 60,
+          zoomLink: "",
+          prepNotes: "",
+          homework: "",
+        });
+      } else {
+        alert("Failed to create lesson: " + (res?.error || "Unknown error"));
+      }
+    } catch (e) {
+      alert("Failed to create lesson: " + e.message);
+    }
+  };
+
+  // Helper functions
+  const formatTime = (dateStr) => {
+    return new Date(dateStr).toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    if (date.toDateString() === today.toDateString()) return "Today";
+    if (date.toDateString() === tomorrow.toDateString()) return "Tomorrow";
+    return date.toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  const getLessonsForDate = (dateStr) => {
+    return lessons.filter((lesson) => {
+      const lessonDate = new Date(lesson.startAt).toDateString();
+      const targetDate = new Date(dateStr).toDateString();
+      return lessonDate === targetDate;
+    });
+  };
 
   return (
     <div className="tutor-calendar-container container-fluid">
@@ -90,32 +196,77 @@ function TutorCalendar() {
             {/* Calendar Header */}
             <div className="d-flex flex-wrap align-items-center justify-content-between tutor-calendar-header mb-3">
               <div className="d-flex align-items-center gap-2">
-                <button className="btn btn-link tutor-calendar-nav-btn" aria-label="Previous Month">
+                <button
+                  className="btn btn-link tutor-calendar-nav-btn"
+                  onClick={goToPreviousMonth}
+                  aria-label="Previous Month"
+                >
                   <i className="fas fa-chevron-left"></i>
                 </button>
-                <h4 className="tutor-calendar-title mb-0">{monthNames[month]} {year}</h4>
-                <button className="btn btn-link tutor-calendar-nav-btn" aria-label="Next Month">
+                <h4 className="tutor-calendar-title mb-0">
+                  {monthNames[month]} {year}
+                </h4>
+                <button
+                  className="btn btn-link tutor-calendar-nav-btn"
+                  onClick={goToNextMonth}
+                  aria-label="Next Month"
+                >
                   <i className="fas fa-chevron-right"></i>
                 </button>
               </div>
-              <div className="btn-group tutor-calendar-view-toggle" role="group">
-                <button className="btn btn-dark tutor-calendar-view-btn active">Month</button>
-                <button className="btn btn-outline-dark tutor-calendar-view-btn">Week</button>
-                <button className="btn btn-outline-dark tutor-calendar-view-btn">Day</button>
-                <button className="btn btn-outline-secondary tutor-calendar-filter-btn ms-2">
-                  <i className="fas fa-filter"></i> <span className="d-none d-sm-inline">Filter</span>
+              <div className="d-flex align-items-center gap-2">
+                <button
+                  className="btn btn-primary"
+                  onClick={() => setShowCreateModal(true)}
+                >
+                  <i className="fas fa-plus me-1"></i>
+                  Schedule Lesson
                 </button>
+                <div
+                  className="btn-group tutor-calendar-view-toggle"
+                  role="group"
+                >
+                  <button className="btn btn-dark tutor-calendar-view-btn active">
+                    Month
+                  </button>
+                  <button className="btn btn-outline-dark tutor-calendar-view-btn">
+                    Week
+                  </button>
+                  <button className="btn btn-outline-dark tutor-calendar-view-btn">
+                    Day
+                  </button>
+                </div>
               </div>
             </div>
 
+            {loading && (
+              <div className="text-center py-4">
+                <div className="spinner-border" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </div>
+              </div>
+            )}
+
+            {error && (
+              <div className="alert alert-danger" role="alert">
+                {error}
+              </div>
+            )}
+
             {/* Calendar Table */}
             <div className="tutor-calendar-section tutor-calendar-calendar-section mb-4">
+              <div className="alert alert-info mb-3" role="alert">
+                <i className="fas fa-info-circle me-2"></i>
+                <strong>Tip:</strong> Click on any date to quickly schedule a lesson for that day, or use the "Schedule Lesson" button for more control.
+              </div>
               <div className="table-responsive">
                 <table className="table tutor-calendar-table mb-0">
                   <thead>
                     <tr>
                       {daysShort.map((d) => (
-                        <th key={d} className="tutor-calendar-th text-center">{d}</th>
+                        <th key={d} className="tutor-calendar-th text-center">
+                          {d}
+                        </th>
                       ))}
                     </tr>
                   </thead>
@@ -124,21 +275,59 @@ function TutorCalendar() {
                       <tr key={i}>
                         {week.map((date, j) => {
                           const dateStr = date
-                            ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-                            : '';
-                          const lessons = date ? getLessonsForDate(dateStr) : [];
+                            ? `${date.getFullYear()}-${String(
+                                date.getMonth() + 1
+                              ).padStart(2, "0")}-${String(
+                                date.getDate()
+                              ).padStart(2, "0")}`
+                            : "";
+                          const dayLessons = date
+                            ? getLessonsForDate(dateStr)
+                            : [];
                           return (
-                            <td key={j} className={`tutor-calendar-td align-top ${date ? '' : 'tutor-calendar-empty'}`}> 
+                            <td
+                              key={j}
+                              className={`tutor-calendar-td align-top ${
+                                date ? "" : "tutor-calendar-empty"
+                              }`}
+                              onClick={() => {
+                                if (date) {
+                                  setDefaultTimes(dateStr);
+                                  setShowCreateModal(true);
+                                }
+                              }}
+                              style={{ cursor: date ? 'pointer' : 'default' }}
+                            >
                               {date && (
                                 <div className="tutor-calendar-date-cell">
-                                  <div className="tutor-calendar-date-num">{date.getDate()}</div>
-                                  {lessons.map((lesson, idx) => (
-                                    <div className="tutor-calendar-lesson-card mt-1" key={idx}>
-                                      <span className="tutor-calendar-lesson-title">{lesson.title}</span>
-                                      <span className="tutor-calendar-lesson-time ms-1">{lesson.time}</span>
-                                      {lesson.type === 'zoom' && (
+                                  <div className="tutor-calendar-date-num">
+                                    {date.getDate()}
+                                  </div>
+                                  {dayLessons.map((lesson, idx) => (
+                                    <div
+                                      className="tutor-calendar-lesson-card mt-1"
+                                      key={idx}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        // You can add lesson details modal here
+                                        console.log('Lesson clicked:', lesson);
+                                      }}
+                                      style={{ cursor: 'pointer' }}
+                                      title={`Click to view lesson details`}
+                                    >
+                                      <span className="tutor-calendar-lesson-title">
+                                        {lesson.subject}
+                                      </span>
+                                      <span className="tutor-calendar-lesson-time ms-1">
+                                        {formatTime(lesson.startAt)}
+                                      </span>
+                                      {lesson.zoomLink && (
                                         <i className="fas fa-video tutor-calendar-lesson-icon ms-1"></i>
                                       )}
+                                      <div className="text-muted small">
+                                        {lesson.student?.firstName}{" "}
+                                        {lesson.student?.lastName}
+                                      </div>
                                     </div>
                                   ))}
                                 </div>
@@ -155,30 +344,299 @@ function TutorCalendar() {
 
             {/* Upcoming Lessons Section */}
             <div className="tutor-calendar-section tutor-calendar-upcoming-section">
-              <h4 className="tutor-calendar-section-title mb-3">Upcoming Lessons</h4>
+              <h4 className="tutor-calendar-section-title mb-3">
+                Upcoming Lessons
+              </h4>
               <div className="tutor-calendar-card tutor-calendar-upcoming-card">
                 <div className="tutor-calendar-card-body">
-                  {upcomingLessons.map((lesson, idx) => (
-                    <div className="tutor-calendar-upcoming-item d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-3" key={idx}>
-                      <div className="d-flex align-items-center mb-2 mb-md-0">
-                        <span className="tutor-calendar-upcoming-dot me-2"></span>
-                        <div>
-                          <div className="tutor-calendar-upcoming-title">{lesson.title}</div>
-                          <div className="tutor-calendar-upcoming-time text-muted small">{lesson.date}, {lesson.time}</div>
+                  {lessons.length === 0 && !loading ? (
+                    <div className="text-muted text-center py-4">
+                      No upcoming lessons scheduled. Click "Schedule Lesson" to
+                      create one.
+                    </div>
+                  ) : (
+                    lessons.slice(0, 5).map((lesson, idx) => (
+                      <div
+                        className="tutor-calendar-upcoming-item d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-3"
+                        key={idx}
+                      >
+                        <div className="d-flex align-items-center mb-2 mb-md-0">
+                          <span className="tutor-calendar-upcoming-dot me-2"></span>
+                          <div>
+                            <div className="tutor-calendar-upcoming-title">
+                              {lesson.subject} - {lesson.student?.firstName}{" "}
+                              {lesson.student?.lastName}
+                            </div>
+                            <div className="tutor-calendar-upcoming-time text-muted small">
+                              {formatDate(lesson.startAt)},{" "}
+                              {formatTime(lesson.startAt)} -{" "}
+                              {formatTime(lesson.endAt)}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="d-flex align-items-center gap-2">
+                          {lesson.prepNotes && (
+                            <span
+                              className="text-muted small"
+                              title={lesson.prepNotes}
+                            >
+                              <i className="fas fa-sticky-note"></i>
+                            </span>
+                          )}
+                          {lesson.zoomLink ? (
+                            <a
+                              href={lesson.zoomLink}
+                              className="btn btn-dark btn-sm tutor-calendar-join-btn"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <i className="fas fa-video me-1"></i>Join Zoom
+                            </a>
+                          ) : (
+                            <span className="text-muted small">
+                              No Zoom link
+                            </span>
+                          )}
                         </div>
                       </div>
-                      <div className="d-flex align-items-center gap-2">
-                        <span className="tutor-calendar-upcoming-recurring text-muted small">Recurring: {lesson.recurring}</span>
-                        <a href={lesson.joinUrl} className="btn btn-dark btn-sm tutor-calendar-join-btn" target="_blank" rel="noopener noreferrer">
-                          <i className="fas fa-video me-1"></i>Join Zoom
-                        </a>
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </div>
             </div>
 
+            {/* Create Lesson Modal */}
+            {showCreateModal && (
+              <div
+                className="modal fade show d-block"
+                style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+              >
+                <div className="modal-dialog modal-lg">
+                  <div className="modal-content">
+                    <div className="modal-header">
+                      <h5 className="modal-title">Schedule New Lesson</h5>
+                      <button
+                        type="button"
+                        className="btn-close"
+                        onClick={() => setShowCreateModal(false)}
+                      ></button>
+                    </div>
+                    <div className="modal-body">
+                      <form>
+                        <div className="row">
+                          <div className="col-md-6 mb-3">
+                            <label className="form-label">Student</label>
+                            <select
+                              className="form-select"
+                              value={newLesson.studentId}
+                              onChange={(e) =>
+                                setNewLesson({
+                                  ...newLesson,
+                                  studentId: e.target.value,
+                                })
+                              }
+                            >
+                              <option value="">Select Student</option>
+                              {students.map((assignment) => (
+                                <option
+                                  key={assignment.id}
+                                  value={assignment.student?.id}
+                                >
+                                  {assignment.student?.firstName}{" "}
+                                  {assignment.student?.lastName}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="col-md-6 mb-3">
+                            <label className="form-label">Subject</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={newLesson.subject}
+                              onChange={(e) =>
+                                setNewLesson({
+                                  ...newLesson,
+                                  subject: e.target.value,
+                                })
+                              }
+                              placeholder="e.g., Mathematics"
+                            />
+                          </div>
+                        </div>
+                        <div className="row">
+                          <div className="col-md-6 mb-3">
+                            <label className="form-label">Date</label>
+                            <input
+                              type="date"
+                              className="form-control"
+                              value={newLesson.startAt ? newLesson.startAt.split('T')[0] : ''}
+                              onChange={(e) => {
+                                const selectedDate = e.target.value;
+                                const currentTime = newLesson.startAt ? newLesson.startAt.split('T')[1] : '09:00';
+                                const newStartAt = `${selectedDate}T${currentTime}`;
+                                const startDate = new Date(newStartAt);
+                                const endDate = new Date(startDate);
+                                endDate.setHours(endDate.getHours() + 1);
+                                
+                                setNewLesson({
+                                  ...newLesson,
+                                  startAt: newStartAt,
+                                  endAt: endDate.toISOString().slice(0, 16)
+                                });
+                              }}
+                            />
+                          </div>
+                          <div className="col-md-6 mb-3">
+                            <label className="form-label">Duration</label>
+                            <select
+                              className="form-select"
+                              value={newLesson.duration || '60'}
+                              onChange={(e) => {
+                                const duration = parseInt(e.target.value);
+                                const startTime = newLesson.startAt;
+                                if (startTime) {
+                                  const startDate = new Date(startTime);
+                                  const endDate = new Date(startDate);
+                                  endDate.setMinutes(endDate.getMinutes() + duration);
+                                  
+                                  setNewLesson({
+                                    ...newLesson,
+                                    duration: duration,
+                                    endAt: endDate.toISOString().slice(0, 16)
+                                  });
+                                }
+                              }}
+                            >
+                              <option value="30">30 minutes</option>
+                              <option value="45">45 minutes</option>
+                              <option value="60">1 hour</option>
+                              <option value="90">1.5 hours</option>
+                              <option value="120">2 hours</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="row">
+                          <div className="col-md-6 mb-3">
+                            <label className="form-label">Start Time</label>
+                            <input
+                              type="time"
+                              className="form-control"
+                              value={newLesson.startAt ? newLesson.startAt.split('T')[1] : ''}
+                              onChange={(e) => {
+                                const selectedTime = e.target.value;
+                                const currentDate = newLesson.startAt ? newLesson.startAt.split('T')[0] : new Date().toISOString().split('T')[0];
+                                const newStartAt = `${currentDate}T${selectedTime}`;
+                                const startDate = new Date(newStartAt);
+                                const endDate = new Date(startDate);
+                                endDate.setMinutes(endDate.getMinutes() + (parseInt(newLesson.duration) || 60));
+                                
+                                setNewLesson({
+                                  ...newLesson,
+                                  startAt: newStartAt,
+                                  endAt: endDate.toISOString().slice(0, 16)
+                                });
+                              }}
+                            />
+                          </div>
+                          <div className="col-md-6 mb-3">
+                            <label className="form-label">End Time</label>
+                            <input
+                              type="time"
+                              className="form-control"
+                              value={newLesson.endAt ? newLesson.endAt.split('T')[1] : ''}
+                              onChange={(e) => {
+                                const selectedTime = e.target.value;
+                                const currentDate = newLesson.endAt ? newLesson.endAt.split('T')[0] : new Date().toISOString().split('T')[0];
+                                const newEndAt = `${currentDate}T${selectedTime}`;
+                                
+                                setNewLesson({
+                                  ...newLesson,
+                                  endAt: newEndAt
+                                });
+                              }}
+                            />
+                          </div>
+                        </div>
+                        <div className="mb-3">
+                          <label className="form-label">
+                            Zoom Link (Optional)
+                          </label>
+                          <input
+                            type="url"
+                            className="form-control"
+                            value={newLesson.zoomLink}
+                            onChange={(e) =>
+                              setNewLesson({
+                                ...newLesson,
+                                zoomLink: e.target.value,
+                              })
+                            }
+                            placeholder="https://zoom.us/j/..."
+                          />
+                        </div>
+                        <div className="mb-3">
+                          <label className="form-label">
+                            Preparation Notes (Optional)
+                          </label>
+                          <textarea
+                            className="form-control"
+                            rows="3"
+                            value={newLesson.prepNotes}
+                            onChange={(e) =>
+                              setNewLesson({
+                                ...newLesson,
+                                prepNotes: e.target.value,
+                              })
+                            }
+                            placeholder="What should the student prepare for this lesson?"
+                          ></textarea>
+                        </div>
+                        <div className="mb-3">
+                          <label className="form-label">
+                            Homework (Optional)
+                          </label>
+                          <textarea
+                            className="form-control"
+                            rows="3"
+                            value={newLesson.homework}
+                            onChange={(e) =>
+                              setNewLesson({
+                                ...newLesson,
+                                homework: e.target.value,
+                              })
+                            }
+                            placeholder="Homework assignments for after the lesson"
+                          ></textarea>
+                        </div>
+                      </form>
+                    </div>
+                    <div className="modal-footer">
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={() => setShowCreateModal(false)}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-primary"
+                        onClick={handleCreateLesson}
+                        disabled={
+                          !newLesson.studentId ||
+                          !newLesson.subject ||
+                          !newLesson.startAt ||
+                          !newLesson.endAt
+                        }
+                      >
+                        Schedule Lesson
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

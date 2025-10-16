@@ -68,7 +68,7 @@ function AdminSettings() {
 
   // Site Configuration State
   const [siteConfig, setSiteConfig] = useState({
-    siteName: "Strive Academy",
+    siteName: "Strive Academics",
     supportEmail: "support@striveacademy.com",
     referralCreditAmount: 20,
     packageDiscountAmount: 50,

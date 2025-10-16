@@ -14,6 +14,10 @@ app.use(
     credentials: true,
   })
 );
+
+// Stripe webhooks need raw body - must be before express.json()
+app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -34,11 +38,19 @@ const studentAchievementsRoutes = require("./routes/studentAchievements");
 const studentGoalsRoutes = require("./routes/studentGoals");
 const studentPaymentMethodsRoutes = require("./routes/studentPaymentMethods");
 const studentSupportRoutes = require("./routes/studentSupport");
+const tutorLessonsRoutes = require("./routes/tutorLessons");
+const tutorReportsRoutes = require("./routes/tutorReports");
+
+const tutorsAdminRoutes = require("./routes/tutorsAdmin");
+
+const tutorChangeRequestsRoutes = require("./routes/tutorChangeRequests");
+const stripeWebhooksRoutes = require("./routes/stripeWebhooks");
 
 const adminPackagesRoutes = require("./routes/adminPackages");
 
 const tutorRequestRoutes = require("./routes/tutorRequests");
 
+const adminCalendarRoutes = require("./routes/adminCalendar");
 // Health check
 app.get("/health", (req, res) => {
   res.json({ status: "OK", message: "Server is running" });
@@ -61,6 +73,17 @@ app.use("/api", studentAchievementsRoutes);
 app.use("/api", studentGoalsRoutes);
 app.use("/api", studentPaymentMethodsRoutes);
 app.use("/api", studentSupportRoutes);
+app.use("/api", tutorLessonsRoutes);
+app.use("/api", tutorReportsRoutes);
+
+app.use("/api", tutorsAdminRoutes);
+
+app.use("/api", tutorChangeRequestsRoutes);
+
+// Stripe webhooks (must be before express.json middleware for raw body)
+app.use("/api", stripeWebhooksRoutes);
+
+app.use("/api", adminCalendarRoutes);
 
 app.use("/api", adminPackagesRoutes);
 

@@ -21,8 +21,8 @@ function StudentReferrals() {
         if (navigator.share) {
             try {
                 await navigator.share({
-                    title: 'Join Strive Academy',
-                    text: 'Get quality tutoring with Strive Academy! Use my referral link to get started.',
+                    title: 'Join Strive Academics',
+                    text: 'Get quality tutoring with Strive Academics! Use my referral link to get started.',
                     url: referralLink
                 });
             } catch (err) {
@@ -117,13 +117,13 @@ function StudentReferrals() {
                             </button>
                             <button 
                                 className="btn student-referrals-email-btn"
-                                onClick={() => window.open(`mailto:?subject=Join Strive Academy&body=Hi! I wanted to share this amazing tutoring platform with you. Use my referral link to get started: ${referralLink}`)}
+                                onClick={() => window.open(`mailto:?subject=Join Strive Academics&body=Hi! I wanted to share this amazing tutoring platform with you. Use my referral link to get started: ${referralLink}`)}
                             >
                                 ✉️ Email
                             </button>
                             <button 
                                 className="btn student-referrals-whatsapp-btn"
-                                onClick={() => window.open(`https://wa.me/?text=Check out Strive Academy for quality tutoring! Use my referral link: ${referralLink}`)}
+                                onClick={() => window.open(`https://wa.me/?text=Check out Strive Academics for quality tutoring! Use my referral link: ${referralLink}`)}
                             >
                                 💬 WhatsApp
                             </button>

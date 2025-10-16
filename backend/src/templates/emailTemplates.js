@@ -1,5 +1,5 @@
-// HTML Email Templates for Strive Academy
-// Modern, responsive templates with Strive Academy branding
+// HTML Email Templates for Strive Academics
+// Modern, responsive templates with Strive Academics branding
 
 const getBaseTemplate = (title, content) => `
 <!DOCTYPE html>

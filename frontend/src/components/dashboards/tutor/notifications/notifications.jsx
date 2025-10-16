@@ -1,54 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import tutorService from '../../../../services/tutorService';
 import '../../../../css/dashboards/tutor/notifications/notifications.css';
 
 function TutorNotifications() {
-    const [notifications, setNotifications] = useState([
-        {
-            id: 1,
-            type: 'success',
-            title: 'New Student Request',
-            message: 'Emma Thompson has requested tutoring in Mathematics',
-            time: '2 hours ago',
-            read: false,
-            icon: '👤'
-        },
-        {
-            id: 2,
-            type: 'info',
-            title: 'Payment Received',
-            message: 'Payment of $150 received for last week\'s sessions',
-            time: '1 day ago',
-            read: true,
-            icon: '💰'
-        },
-        {
-            id: 3,
-            type: 'warning',
-            title: 'Report Due',
-            message: 'Progress report for James Wilson is due in 2 days',
-            time: '2 days ago',
-            read: false,
-            icon: '📋'
-        },
-        {
-            id: 4,
-            type: 'success',
-            title: 'Student Achievement',
-            message: 'Sarah Chen completed her Chemistry assignment successfully',
-            time: '3 days ago',
-            read: true,
-            icon: '🏆'
-        },
-        {
-            id: 5,
-            type: 'info',
-            title: 'Schedule Update',
-            message: 'Your session with Emma Thompson has been rescheduled',
-            time: '4 days ago',
-            read: true,
-            icon: '📅'
+    const [notifications, setNotifications] = useState([]);
+    useEffect(() => {
+        async function fetchNotifications() {
+            const res = await tutorService.getNotifications();
+            setNotifications(Array.isArray(res) ? res : []);
         }
-    ]);
+        fetchNotifications();
+    }, []);
 
     const [filter, setFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');

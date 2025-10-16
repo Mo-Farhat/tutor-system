@@ -1,6 +1,6 @@
-# Strive Academy Backend - Tutor Verification Flow
+# Strive Academics Backend - Tutor Verification Flow
 
-Node.js Express backend implementing the tutor verification and approval system for Strive Academy.
+Node.js Express backend implementing the tutor verification and approval system for Strive Academics.
 
 ## 🚀 Features Implemented
 
@@ -57,7 +57,7 @@ FRONTEND_URL=http://localhost:3000
 BACKEND_URL=http://localhost:8000
 
 # Email Configuration
-EMAIL_FROM=Strive Academy <noreply@striveacademy.com>
+EMAIL_FROM=Strive Academics <noreply@striveacademy.com>
 EMAIL_USER=your-gmail@gmail.com
 EMAIL_PASSWORD=your-gmail-app-password
 
