@@ -287,3 +287,31 @@ exports.uploadStudentPhoto = async (req, res) => {
     res.status(500).json({ success: false, error: "Internal server error" });
   }
 };
+
+// Get tutor by ID (public endpoint)
+exports.getTutorById = async (req, res) => {
+  try {
+    const tutorId = parseInt(req.params.id);
+    
+    if (isNaN(tutorId)) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid tutor ID"
+      });
+    }
+
+    const result = await profileService.getTutorProfileByUserId(tutorId);
+
+    if (!result.success) {
+      return res.status(404).json(result);
+    }
+
+    res.json(result);
+  } catch (error) {
+    console.error("Get tutor by ID error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error"
+    });
+  }
+};

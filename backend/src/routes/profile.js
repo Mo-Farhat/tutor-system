@@ -144,4 +144,7 @@ router.post(
 // Get live tutors (public endpoint for find-tutor page)
 router.get("/tutor/tutors/live", profileController.getLiveTutors);
 
+// Get tutor by ID (public endpoint)
+router.get("/tutor/tutors/:id", profileController.getTutorById);
+
 module.exports = router;

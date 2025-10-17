@@ -573,6 +573,7 @@ model TutorRequest {
   // Prevent duplicate requests from same student to same tutor
   @@unique([studentId, tutorId])
   @@index([tutorId, studentId, status])
+}
 model TutorChangeRequest {
   id         Int       @id @default(autoincrement())
   tutorId    Int

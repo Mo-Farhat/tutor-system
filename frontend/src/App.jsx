@@ -16,6 +16,7 @@ import AboutusPage from "./pages/js/aboutus";
 import FaqPage from "./pages/js/faq";
 import ReviewsPage from "./pages/js/reviews";
 import FindtPage from "./pages/js/find-tutor";
+import FindTutorRequestPage from "./pages/js/find-tutor-request";
 import JoinusPage from "./pages/js/joinus";
 import TutorPage from "./pages/js/tutor";
 import BFriendPage from "./pages/js/b-friend";
@@ -40,6 +41,7 @@ import TutorProfilePage from "./pages/js/dashboard/tutor/profile";
 import TutorDocumentsPage from "./pages/js/dashboard/tutor/documents";
 import TutorPaymentDetailsPage from "./pages/js/dashboard/tutor/payment-details";
 import TutorChangeRequestsPage from "./pages/js/dashboard/tutor/change-requests";
+import TutorStudentRequestsPage from "./pages/js/dashboard/tutor/student-requests";
 import TutorPasswordSetup from "./components/TutorPasswordSetup";
 import StudentProfilePage from "./pages/js/dashboard/tutor/s-profile";
 
@@ -53,6 +55,7 @@ import StudentProgressMilestonesPage from "./pages/js/dashboard/student/progress
 import StudentProfileManagementPage from "./pages/js/dashboard/student/profile";
 import StudentTutorProfilePage from "./pages/js/dashboard/student/tutor-profile";
 import StudentTutorReportsPage from "./pages/js/dashboard/student/tutor-reports";
+import StudentTutorRequestsPage from "./pages/js/dashboard/student/tutor-requests";
 
 // Admin Dashboard Pages
 import AdminHomePage from "./pages/js/dashboard/admin/home";
@@ -83,6 +86,7 @@ const App = () => {
             <Route path="/faq" element={<FaqPage />} />
             <Route path="/reviews" element={<ReviewsPage />} />
             <Route path="/find-a-tutor" element={<FindtPage />} />
+            <Route path="/find-a-tutor/request" element={<FindTutorRequestPage />} />
             <Route path="/join-us" element={<JoinusPage />} />
             <Route path="/tutor" element={<TutorPage />} />
             <Route path="/tutor/:id" element={<TutorPage />} />
@@ -188,6 +192,14 @@ const App = () => {
                 </ProtectedTutorRoute>
               }
             />
+            <Route
+              path="/dashboard/tutor/student-requests"
+              element={
+                <ProtectedTutorRoute>
+                  <TutorStudentRequestsPage />
+                </ProtectedTutorRoute>
+              }
+            />
 
             {/* student Dashboard Routes*/}
             <Route
@@ -229,6 +241,10 @@ const App = () => {
             <Route
               path="/dashboard/student/tutor-reports"
               element={<StudentTutorReportsPage />}
+            />
+            <Route
+              path="/dashboard/student/tutor-requests"
+              element={<StudentTutorRequestsPage />}
             />
             {/* Redirect old profile details route to new unified profile page */}
             <Route

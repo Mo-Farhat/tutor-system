@@ -177,6 +177,20 @@ function StudentNavbar() {
             </li>
             <li className="student-navbar-menu-item">
               <a
+                href="/dashboard/student/tutor-requests"
+                className="student-navbar-menu-link"
+                title="Tutor Requests"
+              >
+                <i className="fas fa-paper-plane student-navbar-icon"></i>
+                <span
+                  className={!isNavbarExpanded ? "student-navbar-hidden" : ""}
+                >
+                  Tutor Requests
+                </span>
+              </a>
+            </li>
+            <li className="student-navbar-menu-item">
+              <a
                 href="/dashboard/student/profile-management"
                 className="student-navbar-menu-link"
                 title="Profile Management"
@@ -307,6 +321,12 @@ function StudentNavbar() {
               <a href="/dashboard/student/tutor-reports" className="student-navbar-menu-link">
                 <i className="fas fa-file-alt student-navbar-icon"></i>
                 <span>Tutor Reports</span>
+              </a>
+            </li>
+            <li className="student-navbar-menu-item">
+              <a href="/dashboard/student/tutor-requests" className="student-navbar-menu-link">
+                <i className="fas fa-paper-plane student-navbar-icon"></i>
+                <span>Tutor Requests</span>
               </a>
             </li>
             <li className="student-navbar-menu-item">

@@ -341,7 +341,7 @@ function TutorProfile() {
       const updateData = {
         bio: formData.bio,
         hourly_rate: parseFloat(formData.hourly_rate) || 45.0,
-        university: currentStudies[0] || "",
+        university: formData.university || "",
         current_studies: currentStudies,
         locations: selectedLocations,
         subjects: subjectEntries.map((entry) => ({
