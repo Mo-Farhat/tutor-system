@@ -43,8 +43,7 @@ jobs:
           SSH_HOST:   ${{ secrets.VPS_HOST }}
           SSH_PORT:   ${{ secrets.VPS_PORT }}
           SSH_USER:   ${{ secrets.VPS_USER }}
-          BACKEND_ENV:${{ secrets.BACKEND_ENV }}
-          FRONTEND_ENV:${{ secrets.FRONTEND_ENV }}
+          BACKEND_ENV: ${{ secrets.BACKEND_ENV }}
         run: |
           set -e
           # Write backend/.env safely over SSH (avoid tricky heredocs)
