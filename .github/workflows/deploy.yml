@@ -2,16 +2,17 @@ name: Deploy to VPS
 
 on:
   push:
-    branches: [ "dev" ]   # ← change if you deploy another branch
-  workflow_dispatch:        # allow manual runs from Actions tab
+    branches: ["dev"]   # change if you deploy another branch
+  workflow_dispatch:
 
 concurrency:
-  group: deploy-main
+  group: deploy-${{ github.ref_name }}
   cancel-in-progress: false
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - name: Checkout
@@ -23,11 +24,8 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.VPS_KEY_B64 }}" | base64 -d > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          head -n1 ~/.ssh/id_ed25519 | grep -q "BEGIN OPENSSH PRIVATE KEY" || (echo "Bad key header" && exit 1)
-          ssh-keygen -y -f ~/.ssh/id_ed25519 > /dev/null 2>&1 || (echo "Invalid SSH key material" && exit 1)
+          ssh-keygen -y -f ~/.ssh/id_ed25519 > /dev/null 2>&1
           ssh-keyscan -p "${{ secrets.VPS_PORT }}" -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts
-
-
 
       - name: Sync repo to VPS (rsync)
         run: |
@@ -39,49 +37,54 @@ jobs:
             -e "ssh -p ${{ secrets.VPS_PORT }}" \
             ./ "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_PATH }}/"
 
-      - name: Remote deploy commands (build + migrate + reload)
+      - name: Remote deploy (envs + prisma + pm2 + build + health)
         env:
-          BRANCH: ${{ secrets.BRANCH || 'dev' }}
-          VPS_PATH: ${{ secrets.VPS_PATH }}
-          BACKEND_ENV: ${{ secrets.BACKEND_ENV }}
+          VPS_PATH:   ${{ secrets.VPS_PATH }}
+          SSH_HOST:   ${{ secrets.VPS_HOST }}
+          SSH_PORT:   ${{ secrets.VPS_PORT }}
+          SSH_USER:   ${{ secrets.VPS_USER }}
+          BACKEND_ENV:${{ secrets.BACKEND_ENV }}
+          FRONTEND_ENV:${{ secrets.FRONTEND_ENV }}
         run: |
-          ssh -p "${{ secrets.VPS_PORT }}" "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
-            "BRANCH='${BRANCH}' VPS_PATH='${VPS_PATH}' bash -lc '
-              set -e
-              echo Using VPS_PATH=\$VPS_PATH BRANCH=\$BRANCH
-              cd \"\$VPS_PATH\"
-      
-              # Re-create backend/.env from secret on every deploy
-              mkdir -p backend
-              cat > backend/.env <<\"ENVEOF\"${BACKEND_ENV}ENVEOF
-              chmod 600 backend/.env
-      
-              echo \">>> Ensure correct branch\"
-              if git rev-parse --git-dir > /dev/null 2>&1; then
-                git fetch origin \"\$BRANCH\" || true
-                git checkout \"\$BRANCH\" || true
-              fi
-      
-              echo \">>> Backend deps + Prisma\"
-              cd backend
-              npm ci
-              npx prisma generate
-              npx prisma migrate deploy || true
-      
-              echo \">>> Start/Reload API\"
-              if pm2 describe my-backend > /dev/null; then
-                pm2 reload my-backend
-              else
-                pm2 start npm --name my-backend -- run start
-              fi
-              pm2 save
-      
-              echo \">>> Frontend build\"
-              cd ../frontend
-              npm ci
-              npm run build || npm run build:prod
-      
-              echo \">>> Done on server\"
-            '"
+          set -e
+          # Write backend/.env safely over SSH (avoid tricky heredocs)
+          echo "${BACKEND_ENV}" | ssh -p "${SSH_PORT}" "${SSH_USER}@${SSH_HOST}" "mkdir -p '${VPS_PATH}/backend' && cat > '${VPS_PATH}/backend/.env' && chmod 600 '${VPS_PATH}/backend/.env'"
 
+          # Everything else runs on the server
+          ssh -p "${SSH_PORT}" "${SSH_USER}@${SSH_HOST}" bash -lc "
+            set -euo pipefail
+            cd '${VPS_PATH}'
 
+            echo '>>> Backend deps + Prisma'
+            cd backend
+            rm -rf node_modules
+            npm ci --omit=dev
+            # Guard: express must be declared
+            node -e \"const p=require('./package.json'); if(!((p.dependencies||{}).express)){console.error('ERROR: express missing in dependencies'); process.exit(1)}\"
+            npx prisma generate
+            npx prisma migrate deploy
+
+            echo '>>> Start/Reload API via PM2 config'
+            cd ..
+            if [ ! -f pm2.config.cjs ]; then
+              echo 'ERROR: missing pm2.config.cjs in repo root'; exit 1
+            fi
+            pm2 startOrReload pm2.config.cjs
+            pm2 save
+
+            echo '>>> Health check'
+            sleep 2
+            curl -fsS http://127.0.0.1:3001/health > /dev/null
+
+            echo '>>> Frontend build'
+            cd frontend
+            rm -rf node_modules
+            # optional: write env for CRA/Vite
+            if [ -n \"${FRONTEND_ENV:-}\" ]; then
+              printf '%s\n' \"${FRONTEND_ENV}\" > .env.production
+            fi
+            npm ci --omit=dev
+            npm run build
+
+            echo '>>> Done'
+          "
