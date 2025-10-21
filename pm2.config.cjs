@@ -4,7 +4,7 @@ module.exports = {
       name: "my-backend",
       cwd: "./backend",
       script: "npm",
-      args: "run start",
+      args: "start",
       env: {
         NODE_ENV: "production",
         PORT: "3001"
