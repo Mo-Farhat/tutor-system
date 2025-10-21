@@ -39,7 +39,13 @@ function FindtTutors({ filters }) {
             console.log('🔍 FindtTutors: API result', result);
             
             if (result.success) {
-                const tutorsData = result.data?.tutors || [];
+                // Handle both shapes:
+                // - Backend response: { success, data: { tutors: [...] } }
+                // - Direct array (fallback)
+                const tutorsData = result?.data?.data?.tutors
+                    || result?.data?.tutors
+                    || (Array.isArray(result?.data) ? result.data : [])
+                    || [];
                 console.log('📚 FindtTutors: Tutors data', tutorsData);
                 console.log('📊 FindtTutors: Tutors count', tutorsData.length);
                 
@@ -127,7 +133,8 @@ function FindtTutors({ filters }) {
 
     const getDefaultImage = (name) => {
         // Generate a consistent avatar based on the tutor's name
-        const seed = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        const safeName = typeof name === 'string' && name.length > 0 ? name : 'Tutor';
+        const seed = safeName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
         const avatarId = (seed % 99) + 1;
         const gender = seed % 2 === 0 ? 'women' : 'men';
         return `https://randomuser.me/api/portraits/${gender}/${avatarId}.jpg`;
@@ -196,23 +203,6 @@ function FindtTutors({ filters }) {
                             <i className="fas fa-user-graduate fa-4x text-muted mb-3"></i>
                             <h3>No tutors available</h3>
                             <p>We're working on getting more tutors approved. Check back soon!</p>
-                            
-                            {/* Debug information */}
-                            <div className="mt-4 p-3 bg-light rounded" style={{ maxWidth: '500px', margin: '0 auto' }}>
-                                <h6>🔍 Debug Information</h6>
-                                <div className="text-start small">
-                                    <p><strong>API Status:</strong> {error || 'Success'}</p>
-                                    <p><strong>All Tutors Count:</strong> {allTutors.length}</p>
-                                    <p><strong>Filtered Tutors Count:</strong> {filteredTutors.length}</p>
-                                    <p><strong>Last Updated:</strong> {new Date().toISOString()}</p>
-                                </div>
-                                <button 
-                                    className="btn btn-sm btn-primary mt-2" 
-                                    onClick={() => fetchLiveTutors(true)}
-                                >
-                                    🔄 Force Refresh
-                                </button>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -223,66 +213,64 @@ function FindtTutors({ filters }) {
     return (
         <section className='row container-fluid d-flex g-0 findt-tutors-main' id='findt-tutors'>
             <div className="col-lg-8 col-sm-12 mx-sm-0 mx-lg-auto d-flex findt-tutors-sec">
-                {/* Debug information */}
-                <div className="alert alert-info mb-3 w-100" style={{ fontSize: '0.85rem' }}>
-                    <strong>🔍 Debug:</strong> All Tutors: {allTutors.length} | Filtered: {filteredTutors.length} | Status: {error || 'Success'}
-                    <button 
-                        className="btn btn-sm btn-outline-primary ms-2" 
-                        onClick={() => fetchLiveTutors(true)}
-                    >
-                        🔄 Refresh
-                    </button>
-                </div>
                 <div className="row g-4 w-100">
-                    {filteredTutors.map((tutor) => (
+                    {filteredTutors.map((tutor) => {
+                        const name = tutor.name || 'Tutor';
+                        const avatarClass = (tutor.status && tutor.status.toLowerCase() === 'approved') ? 'available' : 'booked';
+                        const rate = tutor.hourly_rate ? `$${Number(tutor.hourly_rate).toFixed(0)}/hr` : '';
+                        const topSubjects = Array.isArray(tutor.subjects) ? tutor.subjects.slice(0, 2).map(s => (s || '').split(' - ')[0]).join(', ') : '';
+                        const topLocations = Array.isArray(tutor.preferred_locations) ? tutor.preferred_locations.slice(0, 2).join(', ') : '';
+                        return (
                         <div key={tutor.id} className="col-xl-3 col-lg-4 col-md-6 col-12">
                             <a href={`/tutor/${tutor.id}`} className="findt-tutors-card">
                                 <div className="findt-tutors-stats">
-                                    <span className="findt-tutors-gold">Gold ({tutor.goldPoints})</span>
-                                    <span className="findt-tutors-atr">ATAR ({tutor.atrPoints})</span>
+                                    <span className="findt-tutors-gold">Gold ({tutor.goldPoints || 0})</span>
+                                    <span className="findt-tutors-atr">ATAR ({tutor.atrPoints || 0})</span>
                                 </div>
-                                <div className={`findt-tutors-avatar ${tutor.status.toLowerCase()}`}>
+                                <div className={`findt-tutors-avatar ${avatarClass}`}>
                                     <img 
-                                        src={tutor.image || getDefaultImage(tutor.name)} 
-                                        alt={tutor.name}
+                                        src={tutor.image || getDefaultImage(name)} 
+                                        alt={name}
                                         onError={(e) => {
-                                            e.target.src = getDefaultImage(tutor.name);
+                                            e.target.src = getDefaultImage(name);
                                         }}
                                     />
-                                    <span className="findt-tutors-status">{tutor.status}</span>
+                                    <span className="findt-tutors-status">{tutor.status || 'available'}</span>
                                 </div>
-                                <h3 className="findt-tutors-name">{tutor.name}</h3>
+                                <h3 className="findt-tutors-name">{name}</h3>
                                 <p className="findt-tutors-description">
-                                    {tutor.bio || `${tutor.name} is a qualified tutor specializing in ${tutor.subjects?.slice(0, 2).join(', ') || 'various subjects'}.`}
+                                    {tutor.bio || `${name} is a qualified tutor specializing in ${topSubjects || 'various subjects'}.`}
                                 </p>
-                                {/* Display tutor's subjects and locations */}
                                 <div className="findt-tutors-details mt-2">
-                                    {tutor.subjects && tutor.subjects.length > 0 && (
+                                    {topSubjects && (
                                         <div className="mb-1">
                                             <small className="text-muted">
                                                 <i className="fas fa-book me-1"></i>
-                                                {tutor.subjects.slice(0, 2).map(subject => {
-                                                    // Extract just the subject name from the full format
-                                                    const subjectName = subject.split(' - ')[0];
-                                                    return subjectName;
-                                                }).join(', ')}
-                                                {tutor.subjects.length > 2 && ` +${tutor.subjects.length - 2} more`}
+                                                {topSubjects}
+                                                {Array.isArray(tutor.subjects) && tutor.subjects.length > 2 && ` +${tutor.subjects.length - 2} more`}
                                             </small>
                                         </div>
                                     )}
-                                    {tutor.preferred_locations && tutor.preferred_locations.length > 0 && (
+                                    {topLocations && (
                                         <div>
                                             <small className="text-muted">
                                                 <i className="fas fa-map-marker-alt me-1"></i>
-                                                {tutor.preferred_locations.slice(0, 2).join(', ')}
-                                                {tutor.preferred_locations.length > 2 && ` +${tutor.preferred_locations.length - 2} more`}
+                                                {topLocations}
+                                                {Array.isArray(tutor.preferred_locations) && tutor.preferred_locations.length > 2 && ` +${tutor.preferred_locations.length - 2} more`}
                                             </small>
                                         </div>
                                     )}
                                 </div>
+                                <div className="d-flex justify-content-between align-items-center w-100 mt-3">
+                                    <span className="text-primary fw-semibold">{rate}</span>
+                                    <button type="button" className="findt-tutors-book-btn" onClick={(e) => { e.preventDefault(); window.location.href = `/find-a-tutor/request?tutorId=${tutor.id}`; }}>
+                                        Request Tutor
+                                    </button>
+                                </div>
                             </a>
                         </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
         </section>

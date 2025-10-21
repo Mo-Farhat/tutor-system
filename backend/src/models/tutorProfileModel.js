@@ -94,7 +94,8 @@ class TutorProfileModel {
     return await prisma.tutorProfile.findMany({
       where: {
         is_live: true,
-        ...options.where,
+        documents_uploaded: true,
+        ...(options.where || {}),
       },
       include: {
         user: {
@@ -103,10 +104,10 @@ class TutorProfileModel {
             firstName: true,
             lastName: true,
             username: true,
+            email: true,
           },
         },
       },
-      ...options,
     });
   }
 

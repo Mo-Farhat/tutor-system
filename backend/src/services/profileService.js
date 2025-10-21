@@ -560,26 +560,23 @@ class ProfileService {
     await tutorProfileModel.update(userId, { documents_uploaded: both });
   }
 
+  // Cache for live tutors (5 minutes TTL)
+  _liveTutorsCache = null;
+  _liveTutorsCacheTime = 0;
+  _liveTutorsCacheTTL = 5 * 60 * 1000; // 5 minutes
+
   // Get live tutors (approved tutors with documents uploaded)
-  async getLiveTutors() {
+  async getLiveTutors(forceRefresh = false) {
     try {
-      const liveTutors = await tutorProfileModel.findLive({
-        where: {
-          is_live: true,
-          documents_uploaded: true,
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true,
-              username: true,
-              email: true,
-            },
-          },
-        },
-      });
+      // Check cache
+      const now = Date.now();
+      if (!forceRefresh && this._liveTutorsCache && (now - this._liveTutorsCacheTime) < this._liveTutorsCacheTTL) {
+        console.log('✅ Returning cached live tutors');
+        return this._liveTutorsCache;
+      }
+
+      console.log('🔄 Fetching live tutors from database');
+      const liveTutors = await tutorProfileModel.findLive();
 
       // Transform the data to match frontend expectations
       const transformedTutors = liveTutors.map((tutor) => ({
@@ -605,13 +602,20 @@ class ProfileService {
         image: null, // Placeholder for now
       }));
 
-      return {
+      const result = {
         success: true,
         data: {
           tutors: transformedTutors,
           count: transformedTutors.length,
         },
       };
+
+      // Cache the result
+      this._liveTutorsCache = result;
+      this._liveTutorsCacheTime = now;
+      console.log(`✅ Cached ${transformedTutors.length} live tutors`);
+
+      return result;
     } catch (error) {
       console.error("Get live tutors error:", error);
       return {
@@ -746,6 +750,13 @@ class ProfileService {
 
     const completedFields = fields.filter(field => field && field !== '').length;
     return Math.round((completedFields / fields.length) * 100);
+  }
+
+  // Invalidate live tutors cache (called when tutor is made live/offline)
+  invalidateLiveTutorsCache() {
+    console.log('🗑️ Invalidating live tutors cache');
+    this._liveTutorsCache = null;
+    this._liveTutorsCacheTime = 0;
   }
 }
 

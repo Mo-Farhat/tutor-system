@@ -59,7 +59,10 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
           // Load detailed tutor profile for existing tutors
           const profileResponse = await getTutorProfile(tutor.id);
           if (profileResponse) {
-            setTutorData(profileResponse);
+            setTutorData({
+              ...profileResponse,
+              id: tutor.id, // Preserve the original user ID
+            });
           }
 
           // Load tutor documents
@@ -94,7 +97,16 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
   const handleMakeLive = async () => {
     try {
       setIsProcessing(true);
-      await makeTutorLive(tutorData.id);
+      console.log('🔍 handleMakeLive called');
+      console.log('🔍 tutorData:', tutorData);
+      console.log('🔍 tutorData.id:', tutorData.id);
+      console.log('🔍 tutorData.userId:', tutorData.userId);
+      console.log('🔍 original tutor.id:', tutor.id);
+      
+      const userIdToUse = tutorData.id || tutorData.userId || tutor.id;
+      console.log('🔍 Using ID:', userIdToUse);
+      
+      await makeTutorLive(userIdToUse);
 
       // Update tutor status
       const updatedTutor = {

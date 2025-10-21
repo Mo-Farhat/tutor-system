@@ -1,0 +1,378 @@
+/* Find Tutor Request Page Styles */
+.findt-request-page {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  padding-top: 80px; /* Account for navbar */
+}
+
+.findt-request-page .container {
+  max-width: 1200px;
+}
+
+/* Card Styles */
+.findt-request-page .card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.findt-request-page .card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.findt-request-page .card-header {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #e9ecef;
+  padding: 1rem 1.5rem;
+  border-radius: 12px 12px 0 0 !important;
+}
+
+.findt-request-page .card-header h5 {
+  font-weight: 600;
+  color: #212529;
+  margin: 0;
+}
+
+.findt-request-page .card-body {
+  padding: 1.5rem;
+}
+
+/* Tutor Profile Image */
+.tutor-profile-image {
+  position: relative;
+  display: inline-block;
+}
+
+.tutor-profile-image img {
+  border: 4px solid #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Tutor Rate Display */
+.tutor-rate h4 {
+  font-weight: 700;
+  font-size: 2rem;
+}
+
+.tutor-rate small {
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+/* Badge Styles */
+.badge {
+  font-size: 0.85rem;
+  padding: 0.5rem 0.75rem;
+  font-weight: 500;
+}
+
+.badge.bg-primary {
+  background-color: #0d6efd !important;
+}
+
+.badge.bg-secondary {
+  background-color: #6c757d !important;
+}
+
+.badge.bg-success {
+  background-color: #198754 !important;
+}
+
+.badge.bg-warning {
+  background-color: #ffc107 !important;
+  color: #000;
+}
+
+/* Form Styles */
+.form-control {
+  border-radius: 8px;
+  border: 1px solid #ced4da;
+  padding: 0.75rem 1rem;
+  transition: all 0.2s ease;
+}
+
+.form-control:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.form-label {
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 0.5rem;
+}
+
+.form-text {
+  font-size: 0.875rem;
+  color: #6c757d;
+  margin-top: 0.25rem;
+}
+
+/* Button Styles */
+.btn {
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+  background-color: #0b5ed7;
+  border-color: #0a58ca;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
+}
+
+.btn-primary:disabled {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  opacity: 0.65;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+  background-color: #5c636a;
+  border-color: #565e64;
+}
+
+.btn-outline-secondary {
+  color: #6c757d;
+  border-color: #6c757d;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  color: white;
+}
+
+.btn-outline-primary {
+  color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.btn-outline-primary:hover {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  color: white;
+}
+
+.btn-lg {
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+}
+
+/* Alert Styles */
+.alert {
+  border-radius: 8px;
+  border: none;
+  padding: 1rem 1.5rem;
+}
+
+.alert-success {
+  background-color: #d1e7dd;
+  color: #0f5132;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.alert-warning {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.alert-info {
+  background-color: #cfe2ff;
+  color: #084298;
+}
+
+.alert-heading {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.alert-link {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.alert-link:hover {
+  opacity: 0.8;
+}
+
+/* Gap Utilities */
+.gap-2 {
+  gap: 0.5rem;
+}
+
+/* Loading States */
+.spinner-border {
+  width: 2rem;
+  height: 2rem;
+}
+
+.spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Text Utilities */
+.text-primary {
+  color: #0d6efd !important;
+}
+
+.text-muted {
+  color: #6c757d !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .findt-request-page {
+    padding-top: 60px;
+  }
+
+  .findt-request-page .container {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  .tutor-profile-image img {
+    width: 120px !important;
+    height: 120px !important;
+  }
+
+  .tutor-rate h4 {
+    font-size: 1.5rem;
+  }
+
+  .badge {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.625rem;
+  }
+
+  .btn {
+    padding: 0.625rem 1.25rem;
+  }
+
+  .btn-lg {
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  .card-body {
+    padding: 1rem;
+  }
+
+  .card-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .card-header h5 {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .d-flex.gap-2 {
+    flex-direction: column;
+  }
+
+  .d-flex.gap-2 .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  .d-flex.gap-2 .btn:last-child {
+    margin-bottom: 0;
+  }
+
+  .d-flex.flex-wrap.gap-2 {
+    gap: 0.375rem !important;
+  }
+}
+
+/* Icon Styles */
+.fas {
+  margin-right: 0.25rem;
+}
+
+/* Card Text */
+.card-text {
+  line-height: 1.6;
+  color: #495057;
+  font-size: 1rem;
+}
+
+/* Back Button */
+.findt-request-page .btn-outline-secondary {
+  margin-bottom: 1rem;
+}
+
+.findt-request-page .btn-outline-secondary:hover {
+  transform: translateX(-2px);
+}
+
+/* Success Message Animation */
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.alert-success {
+  animation: slideInDown 0.4s ease-out;
+}
+
+/* Grid Layout Improvements */
+.d-grid {
+  display: grid;
+}
+
+.d-grid.gap-2 {
+  gap: 0.5rem;
+}
+
+/* Margin Utilities */
+.mb-2 {
+  margin-bottom: 0.5rem !important;
+}
+
+.mb-3 {
+  margin-bottom: 1rem !important;
+}
+
+.mb-4 {
+  margin-bottom: 1.5rem !important;
+}
+
+.me-1 {
+  margin-right: 0.25rem !important;
+}
+
+.me-2 {
+  margin-right: 0.5rem !important;
+}
+
+.mt-3 {
+  margin-top: 1rem !important;
+}

@@ -841,6 +841,29 @@ class AuthService {
     // In production, use adminLogin instead
     return this.adminLogin(credentials);
   }
+
+  // HTTP helper methods for API calls
+  async get(endpoint) {
+    return this.makeRequest(endpoint, { method: 'GET' });
+  }
+
+  async post(endpoint, data = {}) {
+    return this.makeRequest(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  }
+
+  async put(endpoint, data = {}) {
+    return this.makeRequest(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+  }
+
+  async delete(endpoint) {
+    return this.makeRequest(endpoint, { method: 'DELETE' });
+  }
 }
 
 // Create and export a singleton instance

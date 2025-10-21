@@ -44,7 +44,15 @@ exports.remove = async (req, res) => {
 // PUT /api/admin/profiles/:userId/make-live
 exports.makeLive = async (req, res) => {
   const userId = Number(req.params.userId);
-  try {
+  
+  if (!userId || isNaN(userId)) {
+    return res.status(400).json({ 
+      success: false, 
+      error: "Valid user ID is required in URL path" 
+    });
+  }
+  
+  try{
     const profile = await tutorProfileModel.findByUserId(userId);
     if (!profile) {
       return res.status(404).json({ error: "Profile not found" });
@@ -60,6 +68,9 @@ exports.makeLive = async (req, res) => {
     // Make tutor live
     await tutorProfileModel.update(userId, { is_live: true });
 
+    // Invalidate live tutors cache
+    profileService.invalidateLiveTutorsCache();
+
     res.json({
       success: true,
       message: "Tutor made live successfully",
@@ -72,7 +83,20 @@ exports.makeLive = async (req, res) => {
 
 // PUT /api/admin/profiles/:userId/make-offline
 exports.makeOffline = async (req, res) => {
+  console.log('🔍 makeOffline called with params:', req.params);
+  console.log('🔍 makeOffline URL:', req.url);
+  console.log('🔍 makeOffline body:', req.body);
+  
   const userId = Number(req.params.userId);
+  console.log('🔍 makeOffline userId:', userId);
+  
+  if (!userId || isNaN(userId)) {
+    return res.status(400).json({ 
+      success: false, 
+      error: "Valid user ID is required in URL path" 
+    });
+  }
+  
   try {
     const profile = await tutorProfileModel.findByUserId(userId);
     if (!profile) {
@@ -81,6 +105,9 @@ exports.makeOffline = async (req, res) => {
 
     // Make tutor offline
     await tutorProfileModel.update(userId, { is_live: false });
+
+    // Invalidate live tutors cache
+    profileService.invalidateLiveTutorsCache();
 
     res.json({
       success: true,

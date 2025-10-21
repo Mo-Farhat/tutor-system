@@ -11,6 +11,7 @@ import AboutusPage from "./pages/js/aboutus";
 import FaqPage from "./pages/js/faq";
 import ReviewsPage from "./pages/js/reviews";
 import FindtPage from "./pages/js/find-tutor";
+import FindTutorRequestPage from "./pages/js/find-tutor-request";
 import JoinusPage from "./pages/js/joinus";
 import TutorPage from "./pages/js/tutor";
 import BFriendPage from "./pages/js/b-friend";
@@ -34,6 +35,8 @@ import TutorStudentsPage from "./pages/js/dashboard/tutor/students";
 import TutorProfilePage from "./pages/js/dashboard/tutor/profile";
 import TutorDocumentsPage from "./pages/js/dashboard/tutor/documents";
 import TutorPaymentDetailsPage from "./pages/js/dashboard/tutor/payment-details";
+import TutorChangeRequestsPage from "./pages/js/dashboard/tutor/change-requests";
+import TutorStudentRequestsPage from "./pages/js/dashboard/tutor/student-requests";
 import TutorPasswordSetup from "./components/TutorPasswordSetup";
 import StudentProfilePage from "./pages/js/dashboard/tutor/s-profile";
 
@@ -41,10 +44,13 @@ import StudentHomePage from "./pages/js/dashboard/student/home";
 import StudentSchedulingPage from "./pages/js/dashboard/student/scheduling";
 import StudentPaymentHistoryPage from "./pages/js/dashboard/student/payment-history";
 import StudentPaymentMethodsPage from "./pages/js/dashboard/student/payment-methods";
+import StudentPaymentSuccessPage from "./pages/js/dashboard/student/payment-success";
 import StudentReferralAndOffersPage from "./pages/js/dashboard/student/referrals";
 import StudentProgressMilestonesPage from "./pages/js/dashboard/student/progress";
 import StudentProfileManagementPage from "./pages/js/dashboard/student/profile";
 import StudentTutorProfilePage from "./pages/js/dashboard/student/tutor-profile";
+import StudentTutorReportsPage from "./pages/js/dashboard/student/tutor-reports";
+import StudentTutorRequestsPage from "./pages/js/dashboard/student/tutor-requests";
 
 // Admin Dashboard Pages
 import AdminHomePage from "./pages/js/dashboard/admin/home";
@@ -58,6 +64,9 @@ import AdminBlogPage from "./pages/js/dashboard/admin/blog";
 import AdminNotificationsPage from "./pages/js/dashboard/admin/notifications";
 import AdminSupportPage from "./pages/js/dashboard/admin/support";
 import AdminSettingsPage from "./pages/js/dashboard/admin/settings";
+import AdminAssignmentsPage from "./pages/js/dashboard/admin/assignments";
+
+
 
 const App = () => {
   return (
@@ -71,6 +80,7 @@ const App = () => {
             <Route path="/faq" element={<FaqPage />} />
             <Route path="/reviews" element={<ReviewsPage />} />
             <Route path="/find-a-tutor" element={<FindtPage />} />
+            <Route path="/find-a-tutor/request" element={<FindTutorRequestPage />} />
             <Route path="/join-us" element={<JoinusPage />} />
             <Route path="/tutor" element={<TutorPage />} />
             <Route path="/tutor/:id" element={<TutorPage />} />
@@ -85,6 +95,7 @@ const App = () => {
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/admin/login" element={<AdminLoginPage />} />
             <Route path="/contact-us" element={<ContactusPage />} />
+
             <Route
               path="/tutor/setup-password/:token"
               element={<TutorPasswordSetup />}
@@ -167,6 +178,22 @@ const App = () => {
               path="/dashboard/tutor/s-profile"
               element={<StudentProfilePage />}
             />
+            <Route
+              path="/dashboard/tutor/change-requests"
+              element={
+                <ProtectedTutorRoute>
+                  <TutorChangeRequestsPage />
+                </ProtectedTutorRoute>
+              }
+            />
+            <Route
+              path="/dashboard/tutor/student-requests"
+              element={
+                <ProtectedTutorRoute>
+                  <TutorStudentRequestsPage />
+                </ProtectedTutorRoute>
+              }
+            />
 
             {/* student Dashboard Routes*/}
             <Route
@@ -190,6 +217,10 @@ const App = () => {
               element={<StudentPaymentMethodsPage />}
             />
             <Route
+              path="/dashboard/student/payment-success"
+              element={<StudentPaymentSuccessPage />}
+            />
+            <Route
               path="/dashboard/student/referral-and-offers"
               element={<StudentReferralAndOffersPage />}
             />
@@ -200,6 +231,21 @@ const App = () => {
             <Route
               path="/dashboard/student/profile-management"
               element={<StudentProfileManagementPage />}
+            />
+            <Route
+              path="/dashboard/student/tutor-reports"
+              element={<StudentTutorReportsPage />}
+            />
+            <Route
+              path="/dashboard/student/tutor-requests"
+              element={<StudentTutorRequestsPage />}
+            />
+            {/* Redirect old profile details route to new unified profile page */}
+            <Route
+              path="/dashboard/student/profile-details"
+              element={
+                <Navigate to="/dashboard/student/profile-management" replace />
+              }
             />
 
             {/* Admin Dashboard Routes - Protected by AdminGuard */}
