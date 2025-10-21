@@ -1,0 +1,105 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches: ["dev"]   # change if you deploy another branch
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          set -e
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_KEY_B64 }}" | base64 -d > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keygen -y -f ~/.ssh/id_ed25519 > /dev/null 2>&1
+          ssh-keyscan -p "${{ secrets.VPS_PORT }}" -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Sync repo to VPS (rsync)
+        run: |
+          rsync -az --delete \
+            --exclude ".git" \
+            --exclude "node_modules" \
+            --exclude ".github" \
+            --exclude "backend/.env" \
+            -e "ssh -p ${{ secrets.VPS_PORT }}" \
+            ./ "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_PATH }}/"
+
+      - name: Remote deploy (envs + prisma + pm2 + build + health)
+        env:
+          VPS_PATH:     ${{ secrets.VPS_PATH }}
+          SSH_HOST:     ${{ secrets.VPS_HOST }}
+          SSH_PORT:     ${{ secrets.VPS_PORT }}
+          SSH_USER:     ${{ secrets.VPS_USER }}
+          FRONTEND_ENV: ${{ secrets.FRONTEND_ENV }}
+        run: |
+          set -e
+
+          # 1) Write backend/.env safely (preserves newlines)
+          printf "%s" '${{ secrets.BACKEND_ENV }}' | ssh -p "${SSH_PORT}" "${SSH_USER}@${SSH_HOST}" \
+            "mkdir -p '${VPS_PATH}/backend' &&
+            cat > '${VPS_PATH}/backend/.env' &&
+            chmod 600 '${VPS_PATH}/backend/.env'"
+
+          # 2) Do the rest on the server
+          ssh -p "${SSH_PORT}" "${SSH_USER}@${SSH_HOST}" bash -lc '
+            set -euo pipefail
+            cd "'"${VPS_PATH}"'"
+
+            # --- ensure Node/NPM/PM2 are available (nvm shells) ---
+            export NVM_DIR="$HOME/.nvm"
+            if [ -s "$NVM_DIR/nvm.sh" ]; then
+              # load nvm and pick a node version (20 preferred)
+              . "$NVM_DIR/nvm.sh"
+              nvm use --silent 20 || nvm use --silent default || true
+            fi
+            # hard fallback if nvm didn’t load
+            if ! command -v npm >/dev/null 2>&1; then
+              export PATH="$HOME/.nvm/versions/node/v20.19.5/bin:$PATH"
+            fi
+            echo "Node: $(node -v)  NPM: $(npm -v)"
+
+            echo ">>> Backend deps + Prisma"
+            cd backend
+            rm -rf node_modules
+            npm ci --omit=dev
+            # guard for missing express
+            node -e "const p=require(\"./package.json\"); if(!((p.dependencies||{}).express)){console.error(\"ERROR: express missing in dependencies\"); process.exit(1)}"
+            npx prisma generate
+            npx prisma migrate deploy
+
+            echo ">>> PM2 start/reload"
+            cd ..
+            if [ ! -f pm2.config.cjs ]; then echo "ERROR: pm2.config.cjs missing at $(pwd)"; exit 1; fi
+            pm2 startOrReload pm2.config.cjs
+            pm2 save
+
+            echo ">>> Health check"
+            sleep 2
+            curl -fsS http://127.0.0.1:3001/health > /dev/null || { echo "Backend health check failed"; pm2 logs my-backend --lines 80; exit 1; }
+
+            echo ">>> Frontend build"
+            cd frontend
+            rm -rf node_modules
+            # optional: write env for CRA/Vite
+            if [ -n "'"${FRONTEND_ENV:-}"'" ]; then
+              printf "%s\n" "'"${FRONTEND_ENV:-}"'" > .env.production
+            fi
+            npm ci --omit=dev
+            npm run build
+
+            echo ">>> Done"
+          '
+

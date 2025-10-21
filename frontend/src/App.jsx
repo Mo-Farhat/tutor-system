@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ContactFormProvider } from "./components/snippets/contact-form-overlay";
 import { AuthProvider } from "./contexts/AuthContext";
 import ScrollToTop from "./components/ScrollToTop";
@@ -59,7 +54,6 @@ import StudentTutorRequestsPage from "./pages/js/dashboard/student/tutor-request
 
 // Admin Dashboard Pages
 import AdminHomePage from "./pages/js/dashboard/admin/home";
-import AdminUsersPage from "./pages/js/dashboard/admin/users";
 import AdminTutorsPage from "./pages/js/dashboard/admin/tutors";
 import AdminStudentsPage from "./pages/js/dashboard/admin/students";
 import AdminCalendarPage from "./pages/js/dashboard/admin/calendar";
@@ -264,14 +258,6 @@ const App = () => {
               }
             />
             <Route
-              path="/dashboard/admin/users"
-              element={
-                <ProtectedAdminRoute>
-                  <AdminUsersPage />
-                </ProtectedAdminRoute>
-              }
-            />
-            <Route
               path="/dashboard/admin/tutors"
               element={
                 <ProtectedAdminRoute>
@@ -348,14 +334,6 @@ const App = () => {
               element={
                 <ProtectedAdminRoute>
                   <AdminSettingsPage />
-                </ProtectedAdminRoute>
-              }
-            />
-            <Route
-              path="/dashboard/admin/assignments"
-              element={
-                <ProtectedAdminRoute>
-                  <AdminAssignmentsPage />
                 </ProtectedAdminRoute>
               }
             />
