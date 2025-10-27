@@ -285,8 +285,10 @@
     padding-bottom: 1rem;
   }
 
-  /* Ensure tick cells center their content nicely */
-  .pricing-price-grid-feature-content {
+  /* Ensure tick cells center their content nicely (only for Additional Features rows) */
+  .col.p-3.d-flex:has(.pricing-price-grid-feature-title-b) + .pricing-price-grid-feature-content,
+  .col.p-3.d-flex:has(.pricing-price-grid-feature-title-b) + .pricing-price-grid-feature-content + .pricing-price-grid-feature-content,
+  .col.p-3.d-flex:has(.pricing-price-grid-feature-title-b) + .pricing-price-grid-feature-content + .pricing-price-grid-feature-content + .pricing-price-grid-feature-content {
     display: flex;
     justify-content: center;
     align-items: center;
