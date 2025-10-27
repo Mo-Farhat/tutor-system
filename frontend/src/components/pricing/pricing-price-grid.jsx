@@ -579,15 +579,15 @@ function PricingPricegrid() {
               <h5 className="mb-3">Additional Features</h5>
               <div className="mb-2">
                 <div className="d-flex justify-content-between align-items-center mb-2">
-                  <span>24/7 Tutor Support</span>
-                  <span className="pricing-price-grid-check pricing-price-grid-gold-check"></span>
-                </div>
-                <div className="d-flex justify-content-between align-items-center mb-2">
                   <span>Progress Reports</span>
                   <span className="pricing-price-grid-check pricing-price-grid-gold-check"></span>
                 </div>
                 <div className="d-flex justify-content-between align-items-center mb-2">
                   <span>Parent consultations</span>
+                  <span className="pricing-price-grid-check pricing-price-grid-gold-check"></span>
+                </div>
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <span>24/7 Tutor Support</span>
                   <span className="pricing-price-grid-check pricing-price-grid-gold-check"></span>
                 </div>
                 <div className="d-flex justify-content-between align-items-center mb-2">
@@ -669,12 +669,6 @@ function PricingPricegrid() {
               <h5 className="mb-3">Additional Features</h5>
               <div className="mb-2">
                 <div className="d-flex justify-content-between align-items-center mb-2">
-                  <span>24/7 Tutor Support</span>
-                  <span className="pricing-price-grid-check pricing-price-grid-platinum-check">
-                    ✓
-                  </span>
-                </div>
-                <div className="d-flex justify-content-between align-items-center mb-2">
                   <span>Progress Reports</span>
                   <span className="pricing-price-grid-check pricing-price-grid-platinum-check">
                     ✓
@@ -683,6 +677,12 @@ function PricingPricegrid() {
                 <div className="d-flex justify-content-between align-items-center mb-2">
                   <span>Parent consultations</span>
                   <span className="pricing-price-grid-check pricing-price-grid-platinum-check"></span>
+                </div>
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <span>24/7 Tutor Support</span>
+                  <span className="pricing-price-grid-check pricing-price-grid-platinum-check">
+                    ✓
+                  </span>
                 </div>
                 <div className="d-flex justify-content-between align-items-center mb-2">
                   <span>

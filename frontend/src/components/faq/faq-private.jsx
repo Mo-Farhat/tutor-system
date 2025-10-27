@@ -99,7 +99,7 @@ function Private() {
               class="accordion-collapse collapse"
             >
               <div class="accordion-body">
-                You can view our stellar tutors here to find a suitable tutor.
+                You can view our stellar tutors <a href="/find-a-tutor" className="faq-link">here</a> to find a suitable tutor.
                 From here, click the "Contact Me" button on your tutor's page to
                 book your 20-minute free academic consultation. To schedule this
                 session, your tutor will get in touch with you within 24 hours
@@ -166,8 +166,7 @@ function Private() {
                 message or phone call within 24 hours to schedule your 20-minute
                 free academic consultation. <br />
                 <br />
-                After you complete your 20-minute free academic consultation,
-                lessons can start at any point after that!
+                  After you complete your 20-minute free academic consultation, all you need to do is add your payment details to your account - lessons can start at any point after that!
               </div>
             </div>
           </div>
@@ -190,14 +189,12 @@ function Private() {
               class="accordion-collapse collapse"
             >
               <div class="accordion-body">
-                During the 20-minute free academic consultation, you will
-                receive your tutor's contact details (phone number and email
-                address). You can then contact your tutor directly to organise
-                sessions.
+                  After your 20-minute free academic consultation, you’ll receive your tutor’s contact details (phone and email). You can then contact them directly to schedule your first lesson at a time that suits you.
                 <br />
+                  Once your payment details are added to your account, your lessons can begin right away.
                 <br />
-                You will be able to contact your tutor directly to reschedule
-                sessions if needed, in accordance with our Terms and Conditions.
+                  If you ever need to reschedule, you can arrange this directly with your tutor in accordance with our Terms and Conditions.
+
               </div>
             </div>
           </div>
@@ -250,19 +247,15 @@ function Private() {
               class="accordion-collapse collapse"
             >
               <div class="accordion-body">
-                You will never be charged before a session is completed. For the
-                first lesson with your tutor, you will receive an invoice.
-                Please ensure that this invoice is paid within 48 hours.
-                <br />
-                <br />
-                You can make payment via credit/debit card, Google/Apple Pay or
-                direct debit. We do not accept other payment methods.
-                <br />
-                <br />
-                For sessions thereafter, your card will be charged automatically
-                after each lesson. Stripe's secure payment system handles all
-                payments. Once your fees have been received, the tutor is paid
-                immediately.
+                  After your free academic consultation, you’ll be asked to add your payment details to your account before scheduling your first paid session.
+                  Once your first lesson has taken place, the session fee will be automatically charged to your nominated payment method — never before the lesson.
+
+                  <br />
+                  <br />
+                  For all future lessons, payments will also be processed automatically after each session.<br />
+                  <br />
+                  All transactions are securely handled by Stripe, one of the world’s leading payment providers trusted by companies such as Google and Amazon. This ensures that your payment information is fully protected at all times.
+
               </div>
             </div>
           </div>
