@@ -44,6 +44,7 @@ jobs:
           SSH_PORT:     ${{ secrets.VPS_PORT }}
           SSH_USER:     ${{ secrets.VPS_USER }}
           FRONTEND_ENV: ${{ secrets.FRONTEND_ENV }}
+          BACKEND_ENV: ${{ secrets.BACKEND_ENV }}
         run: |
           set -e
 
