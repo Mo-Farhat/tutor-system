@@ -40,8 +40,7 @@ function PricingHdiw() {
                                         <div className="pricing-hdiw-step-content">
                                             <h3 className="pricing-hdiw-step-title">Start Your Personalized Tutoring Journey</h3>
                                             <p className="pricing-hdiw-step-text">
-                                            Once the free academic skills consultation is complete, you will start having weekly sessions with you expert tutor! 
-                                            </p>
+                                                After your 20-minute free academic consultation, simply add your payment details to your account to get started. You’ll then begin your weekly lessons with your tutor – one of the best in Australia!</p>
                                         </div>
                                     </div>
                                 </div>

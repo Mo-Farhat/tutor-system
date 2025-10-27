@@ -1,14 +1,23 @@
 import React from 'react';
 import "../../css/ucat/ucat-points.css";
+import useAnimateChildrenOnScroll from '../../utils/useAnimateChildrenOnScroll';
 import useAnimateOnScroll from '../../utils/useAnimateOnScroll';
 
 function UcatPoints() {
-    const ref = useAnimateOnScroll();
+    // Observe each direct .row child so they animate as they enter viewport
+    const rowsParentRef = useAnimateChildrenOnScroll({
+        once: true,
+        threshold: 0.25,
+        rootMargin: '0px 0px -10% 0px'
+    });
+
+    // Keep section-level fade-in so wrapper isn't permanently invisible
+    const sectionRef = useAnimateOnScroll();
 
     return (
-        <div ref={ref} className="ucat-points-section section-animate-target">
+        <div ref={sectionRef} className="ucat-points-section section-animate-target">
             <section className="row container-fluid section d-flex g-0 z-index-0 ucat-points-main" id="ucat-points">
-                <div className="row col-11 col-lg-9 d-flex flex-column ucat-points-sec">
+                <div ref={rowsParentRef} className="row col-11 col-lg-9 d-flex flex-column ucat-points-sec">
                     {/* First Point */}
                     <div className="row align-items-center svg">
                         <div className="col-12 col-lg-6 mb-4 mb-lg-0">

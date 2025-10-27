@@ -42,52 +42,32 @@
     transform: scale(0.85) rotate(2deg);
 }
 
-/* Alternating animations for each point */
-.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(odd) .ucat-points-content {
+/* Alternating animations for each point (per-row trigger) */
+.ucat-points-sec > .row.in-view:nth-child(odd) .ucat-points-content {
     animation: slideInLeft 0.8s ease-out both;
 }
 
-.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(odd) .ucat-points-image {
+.ucat-points-sec > .row.in-view:nth-child(odd) .ucat-points-image {
     animation: slideInRight 0.8s ease-out both;
 }
 
-.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(even) .ucat-points-content {
+.ucat-points-sec > .row.in-view:nth-child(even) .ucat-points-content {
     animation: slideInRight 0.8s ease-out both;
 }
 
-.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(even) .ucat-points-image {
+.ucat-points-sec > .row.in-view:nth-child(even) .ucat-points-image {
     animation: slideInLeft 0.8s ease-out both;
 }
 
-/* Staggered delays for each point */
-.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(1) .ucat-points-content,
-.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(1) .ucat-points-image {
-    animation-delay: 0.1s;
+/* Within-row slight stagger so image trails text a bit */
+.ucat-points-sec > 
+  .row.in-view .ucat-points-content {
+    animation-delay: 0s;
 }
 
-.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(2) .ucat-points-content,
-.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(2) .ucat-points-image {
-    animation-delay: 0.3s;
-}
-
-.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(3) .ucat-points-content,
-.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(3) .ucat-points-image {
-    animation-delay: 0.5s;
-}
-
-.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(4) .ucat-points-content,
-.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(4) .ucat-points-image {
-    animation-delay: 0.7s;
-}
-
-.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(5) .ucat-points-content,
-.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(5) .ucat-points-image {
-    animation-delay: 0.9s;
-}
-
-.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(6) .ucat-points-content,
-.ucat-points-section.section-animate .ucat-points-sec > .row:nth-child(6) .ucat-points-image {
-    animation-delay: 1.1s;
+.ucat-points-sec > 
+  .row.in-view .ucat-points-image {
+    animation-delay: 0.15s;
 }
 
 @keyframes slideInLeft {

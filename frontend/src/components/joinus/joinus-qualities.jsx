@@ -19,7 +19,7 @@ function JoinusQualities() {
                                     the best. This is why we require all tutors to have:
                                 </p>
                                 <ul className="joinus-qualities-list">
-                                    <li>A Top 3% ATAR (97+).</li>
+                                    <li> A Top 3% ATAR (97+) OR a formal teaching qualification</li>
                                     <li>Completed Year 12 in Australia.</li>
                                     <li>Tutoring experience</li>
                                     <li>A current (paid) Working with Children's Check from the state you live in.</li>

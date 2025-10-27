@@ -19,7 +19,7 @@ function UcatPricegrid() {
                                     <span className="ucat-price-grid-amount">$30</span>
                                     <span className="ucat-price-grid-period">/hr</span>
                                 </div>
-                                <button className="btn btn-primary w-100">Get Started</button>
+                                <a href="/signup" className="btn btn-primary w-100">Get Started</a>
                             </div>
                         </div>
 

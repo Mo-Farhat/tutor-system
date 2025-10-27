@@ -263,3 +263,34 @@
     margin-bottom: 0.5rem;
   }
 }
+
+/* Desktop row separators for Additional Features */
+@media (min-width: 992px) {
+  /* Add a clear separator line that spans the title and the three tick columns */
+  .col.p-3.d-flex:has(.pricing-price-grid-feature-title-b) {
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+  }
+  .col.p-3.d-flex:has(.pricing-price-grid-feature-title-b) + .pricing-price-grid-feature-content,
+  .col.p-3.d-flex:has(.pricing-price-grid-feature-title-b) + .pricing-price-grid-feature-content + .pricing-price-grid-feature-content,
+  .col.p-3.d-flex:has(.pricing-price-grid-feature-title-b) + .pricing-price-grid-feature-content + .pricing-price-grid-feature-content + .pricing-price-grid-feature-content {
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+  }
+
+  /* Improve vertical rhythm for readability */
+  .col.p-3.d-flex:has(.pricing-price-grid-feature-title-b),
+  .col.p-3.d-flex:has(.pricing-price-grid-feature-title-b) + .pricing-price-grid-feature-content,
+  .col.p-3.d-flex:has(.pricing-price-grid-feature-title-b) + .pricing-price-grid-feature-content + .pricing-price-grid-feature-content,
+  .col.p-3.d-flex:has(.pricing-price-grid-feature-title-b) + .pricing-price-grid-feature-content + .pricing-price-grid-feature-content + .pricing-price-grid-feature-content {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  /* Ensure tick cells center their content nicely (only for Additional Features rows) */
+  .col.p-3.d-flex:has(.pricing-price-grid-feature-title-b) + .pricing-price-grid-feature-content,
+  .col.p-3.d-flex:has(.pricing-price-grid-feature-title-b) + .pricing-price-grid-feature-content + .pricing-price-grid-feature-content,
+  .col.p-3.d-flex:has(.pricing-price-grid-feature-title-b) + .pricing-price-grid-feature-content + .pricing-price-grid-feature-content + .pricing-price-grid-feature-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
