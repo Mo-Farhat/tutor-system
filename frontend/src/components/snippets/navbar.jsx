@@ -67,7 +67,7 @@ function Navbar() {
     <div className="row w-100 d-flex nav-main g-0">
       <div className="col-12 g-0 nav-sec">
         <nav className="navbar navbar-expand-lg">
-          <div className="container-fluid p-0" style={{ maxWidth: '1280px', margin: '0 auto' }}>
+          <div className="container-fluid px-3 px-md-4 px-lg-5" style={{ maxWidth: '1280px', margin: '0 auto' }}>
             <Link
               className="navbar-brand d-flex align-items-center"
               to="/"
@@ -174,7 +174,7 @@ function Navbar() {
                     </li>
                   </ul>
                 </li>
-                <li className="nav-item dropdown">
+                <li className="nav-item dropdown nav-item--medical">
                   <a
                     className="nav-link dropdown-toggle d-flex justify-content-between align-items-center"
                     href="#"
