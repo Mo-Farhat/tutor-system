@@ -170,3 +170,20 @@
     border-bottom: 3px solid !important;
     border-radius: 0 0 1rem 1rem;
   }
+
+/* Increased font sizes for sections below Private Tutoring (proportionate scaling) */
+.pt-section ~ .grid-row-start-main .grid-row-main-h {
+  font-size: 2.25rem; /* was 2rem */
+}
+
+.pt-section ~ .grid-row-start-main .grid-row-sub-h {
+  font-size: 1.125rem; /* was 1rem */
+}
+
+.pt-section ~ .grid-row-prices:not(.pt-price) .grid-row-price {
+  font-size: 2.25rem; /* promote visibility of discounted prices */
+}
+
+.pt-section ~ .grid-row-prices:not(.pt-price) .grid-row-p-des {
+  font-size: 1.125rem;
+}
