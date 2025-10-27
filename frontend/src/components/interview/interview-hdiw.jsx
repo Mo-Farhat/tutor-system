@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import "../../css/interview/interview-hdiw.css";
 import useAnimateOnScroll from '../../utils/useAnimateOnScroll';
 
@@ -8,8 +8,14 @@ function InterviewHdiw() {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [passwordError, setPasswordError] = useState('');
+    const sectionRef = useRef(null);
     
     const handleClose = () => {
+        // Clear the #register hash if present
+        if (typeof window !== 'undefined' && window.location.hash === '#register') {
+            const newUrl = window.location.pathname + window.location.search;
+            window.history.replaceState(null, '', newUrl);
+        }
         setShowModal(false);
         setTimeout(() => {
             setFormSubmitted(false);
@@ -21,6 +27,10 @@ function InterviewHdiw() {
     
     const handleShow = (e) => {
         e.preventDefault();
+        // Set the hash so pricing buttons can just use href="#register"
+        if (typeof window !== 'undefined') {
+            window.location.hash = 'register';
+        }
         setShowModal(true);
     };
     
@@ -52,10 +62,27 @@ function InterviewHdiw() {
     }, []);
     
     const ref = useAnimateOnScroll();
+
+    // Open modal when URL hash is #register and on hash changes
+    useEffect(() => {
+        const openIfHash = () => {
+            if (typeof window !== 'undefined' && window.location.hash === '#register') {
+                setShowModal(true);
+                // Smooth scroll the section into view
+                if (sectionRef.current) {
+                    sectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        };
+        openIfHash();
+        window.addEventListener('hashchange', openIfHash);
+        return () => window.removeEventListener('hashchange', openIfHash);
+    }, []);
     
     return (
-        <div ref={ref} className="interview-hdiw-section section-animate-target">
-            <section className="row container-fluid section d-flex g-0 z-index-0 interview-hdiw-main" id="interview-hdiw">
+        <div ref={ref} className="interview-hdiw-section section-animate-target" referrerPolicy="no-referrer">
+            <section className="row container-fluid section d-flex g-0 z-index-0 interview-hdiw-main" id="interview-hdiw" ref={sectionRef}>
+                <div id="register" style={{ position: 'relative', top: '-80px' }} aria-hidden="true"></div>
                 <div className="row col-lg-9 col-md-12 d-flex interview-hdiw-sec">
                     <div className="container-fluid interview-hdiw-container">
                         <div className="row justify-content-center">
