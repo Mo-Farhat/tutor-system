@@ -1,14 +1,16 @@
 .reviews-list-container {
-  padding: 0 15% 5rem;
+  padding: 0 10% 5rem;
   justify-content: center;
 }
 
 .reviews-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
   gap: 2rem;
   align-items: start;
-  max-width: 2000px;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
 }
 
 .review-card {
@@ -21,6 +23,17 @@
   gap: 1.5rem;
   height: auto;
   min-height: fit-content;
+}
+
+/* Ensure consistent collapsed card size while allowing expansion */
+.review-card.collapsed {
+  min-height: 24rem;
+}
+
+@media (max-width: 768px) {
+  .review-card.collapsed {
+    min-height: 22rem;
+  }
 }
 
 .reviewer-info {
@@ -100,7 +113,7 @@
 .reviewer-name-date {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.6rem;
 }
 
 .reviewer-name {
@@ -150,13 +163,11 @@
 }
 
 .star.filled {
-  color: transparent;
-  -webkit-text-stroke: 2px #FFD700;
+  color: #FFD700;
 }
 
 .star.empty {
-  color: transparent;
-  -webkit-text-stroke: 2px #0D2371;
+  color: #E5E7EB;
 }
 
 .review-text {
@@ -167,6 +178,7 @@
   overflow-wrap: break-word;
   word-wrap: break-word;
   hyphens: auto;
+  position: relative;
 }
 
 .owner-reply {
@@ -238,3 +250,49 @@
     padding: 0.75rem;
   }
 } 
+/* Clamp long review text in collapsed cards */
+.review-text.clamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Soft fade at bottom to indicate more content */
+.review-text.clamped::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3rem;
+  background: linear-gradient(to bottom, rgba(255,255,255,0), #ffffff);
+  pointer-events: none;
+}
+
+/* Read more / Read less button */
+.read-more-btn {
+  align-self: flex-start;
+  background: #0D2371;
+  color: #ffffff;
+  border: none;
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.05s ease;
+}
+
+.read-more-btn:hover {
+  background: #0b1e60;
+}
+
+.read-more-btn:active {
+  transform: translateY(1px);
+}
+
+.read-more-btn:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 2px;
+}

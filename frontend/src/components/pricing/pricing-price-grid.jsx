@@ -116,7 +116,7 @@ function PricingPricegrid() {
           >
             <div className="pricing-price-grid-card pricing-price-grid-elite text-center p-4 rounded-4">
               <h3 className="mb-2">🌟 Elite</h3>
-              <p className="text-muted mb-3">Expert Tutor</p>
+              <p className="text-muted mb-3">with over 4 years of experience</p>
               <div className="pricing-price-grid-price-tag mb-3">
                 <span className="pricing-price-grid-amount">
                   ${calculatePrice(basePrices.elite, selectedCategory)}
@@ -144,7 +144,7 @@ function PricingPricegrid() {
             className="col pricing-price-grid-feature-content"
             id="pricing-price-grid-gold"
           >
-            <p className="mb-2">
+            <p className="mb-2 text-dark">
               Hand-picked tutors with strong subject knowledge and a passion for
               teaching.
             </p>
@@ -158,7 +158,7 @@ function PricingPricegrid() {
             className="col pricing-price-grid-feature-content"
             id="pricing-price-grid-platinum"
           >
-            <p className="mb-2">
+            <p className="mb-2 text-dark">
               Tutors with a wealth of experience and consistently outstanding
               student feedback.
             </p>
@@ -172,8 +172,8 @@ function PricingPricegrid() {
             className="col pricing-price-grid-feature-content"
             id="pricing-price-grid-elite"
           >
-            <p className="mb-2">
-              Top-tier tutors with over 3 years of tutoring experience,
+            <p className="mb-2 text-dark">
+              Top-tier tutors with over 4 years of tutoring experience,
               exceptional student reviews, and a demonstrated history of
               academic excellence.
             </p>
@@ -253,17 +253,17 @@ function PricingPricegrid() {
             <span className="pricing-price-grid-check pricing-price-grid-elite-check"></span>
           </div>
 
-          {/* Progress Reports */}
+          {/* 24/7 support (moved to top) */}
           <div className="col p-3 d-flex">
             <h4 className="pricing-price-grid-feature-title ps-3 pricing-price-grid-feature-title-b">
-              Progress Reports
+              24/7 Tutor Support
             </h4>
           </div>
           <div
             className="col text-center pricing-price-grid-feature-content"
             id="pricing-price-grid-gold"
           >
-            <span className="pricing-price-grid-check pricing-price-grid-gold-check"></span>
+            <span className="pricing-price-grid-check pricing-price-grid-gold-check">✓</span>
           </div>
           <div
             className="col text-center pricing-price-grid-feature-content"
@@ -309,10 +309,10 @@ function PricingPricegrid() {
             </span>
           </div>
 
-          {/* 24/7 support */}
+          {/* Progress Reports (moved down after 24/7) */}
           <div className="col p-3 d-flex">
             <h4 className="pricing-price-grid-feature-title ps-3 pricing-price-grid-feature-title-b">
-              24/7 support via Platform
+              Progress Reports
             </h4>
           </div>
           <div
@@ -559,7 +559,7 @@ function PricingPricegrid() {
 
             <div className="text-start">
               <h5 className="mb-3">Tutor Achievements and Experience</h5>
-              <p className="mb-2">
+              <p className="mb-2 text-dark">
                 Hand-picked tutors with strong subject knowledge and a passion
                 for teaching.
               </p>
@@ -579,15 +579,15 @@ function PricingPricegrid() {
               <h5 className="mb-3">Additional Features</h5>
               <div className="mb-2">
                 <div className="d-flex justify-content-between align-items-center mb-2">
-                  <span>Progress Reports</span>
-                  <span className="pricing-price-grid-check pricing-price-grid-gold-check"></span>
+                  <span>24/7 Tutor Support</span>
+                  <span className="pricing-price-grid-check pricing-price-grid-gold-check">✓</span>
                 </div>
                 <div className="d-flex justify-content-between align-items-center mb-2">
                   <span>Parent consultations</span>
                   <span className="pricing-price-grid-check pricing-price-grid-gold-check"></span>
                 </div>
                 <div className="d-flex justify-content-between align-items-center mb-2">
-                  <span>24/7 support via Platform</span>
+                  <span>Progress Reports</span>
                   <span className="pricing-price-grid-check pricing-price-grid-gold-check"></span>
                 </div>
                 <div className="d-flex justify-content-between align-items-center mb-2">
@@ -647,7 +647,7 @@ function PricingPricegrid() {
 
             <div className="text-start">
               <h5 className="mb-3">Tutor Achievements and Experience</h5>
-              <p className="mb-2">
+              <p className="mb-2 text-dark">
                 Tutors with a wealth of experience and consistently outstanding
                 student feedback.
               </p>
@@ -669,7 +669,7 @@ function PricingPricegrid() {
               <h5 className="mb-3">Additional Features</h5>
               <div className="mb-2">
                 <div className="d-flex justify-content-between align-items-center mb-2">
-                  <span>Progress Reports</span>
+                  <span>24/7 Tutor Support</span>
                   <span className="pricing-price-grid-check pricing-price-grid-platinum-check">
                     ✓
                   </span>
@@ -679,7 +679,7 @@ function PricingPricegrid() {
                   <span className="pricing-price-grid-check pricing-price-grid-platinum-check"></span>
                 </div>
                 <div className="d-flex justify-content-between align-items-center mb-2">
-                  <span>24/7 support via Platform</span>
+                  <span>Progress Reports</span>
                   <span className="pricing-price-grid-check pricing-price-grid-platinum-check">
                     ✓
                   </span>
@@ -725,7 +725,7 @@ function PricingPricegrid() {
           {/* Elite Tier Card */}
           <div className="pricing-price-grid-card pricing-price-grid-elite text-center p-4 rounded-4 mb-4">
             <h3 className="mb-2">🌟 Elite</h3>
-            <p className="text-muted mb-3">Expert Tutor</p>
+            <p className="text-muted mb-3">with over 4 years of experience</p>
             <div className="pricing-price-grid-price-tag mb-3">
               <span className="pricing-price-grid-amount">
                 ${calculatePrice(basePrices.elite, selectedCategory)}
@@ -743,8 +743,8 @@ function PricingPricegrid() {
 
             <div className="text-start">
               <h5 className="mb-3">Tutor Achievements and Experience</h5>
-              <p className="mb-2">
-                Top-tier tutors with over 3 years of tutoring experience,
+              <p className="mb-2 text-dark">
+                Top-tier tutors with over 4 years of tutoring experience,
                 exceptional student reviews, and a demonstrated history of
                 academic excellence.
               </p>
@@ -768,7 +768,7 @@ function PricingPricegrid() {
               <h5 className="mb-3">Additional Features</h5>
               <div className="mb-2">
                 <div className="d-flex justify-content-between align-items-center mb-2">
-                  <span>Progress Reports</span>
+                  <span>24/7 Tutor Support</span>
                   <span className="pricing-price-grid-check pricing-price-grid-elite-check">
                     ✓
                   </span>
@@ -780,7 +780,7 @@ function PricingPricegrid() {
                   </span>
                 </div>
                 <div className="d-flex justify-content-between align-items-center mb-2">
-                  <span>24/7 support via Platform</span>
+                  <span>Progress Reports</span>
                   <span className="pricing-price-grid-check pricing-price-grid-elite-check">
                     ✓
                   </span>

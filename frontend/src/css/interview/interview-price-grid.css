@@ -69,12 +69,14 @@
 
 
 .interview-price-grid {
+  display: grid;
   grid-template-columns: 35% 20% 20%;
   grid-template-rows:  auto auto auto auto auto auto auto auto auto auto auto auto !important;
   grid-column-gap: 1rem;
   grid-row-gap: 0;
   max-width: 1080px !important;
   place-content: center;
+  align-items: stretch;
 }
 
 
@@ -83,6 +85,8 @@
   border-radius: 1rem 1rem 0 0;
   border-bottom: none;
   overflow: hidden;
+  /* Ensure header cells allow cards to stretch to equal heights */
+  display: flex;
 }
 
 .interview-price-grid-header .interview-price-grid-gold h3, 
@@ -127,6 +131,11 @@
   padding: 2rem;
   border-radius: 1.5rem;
   transition: transform 0.2s ease;
+  /* Make cards equal height */
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
 }
 
 .interview-price-grid-section.section-animate .interview-price-grid-header:nth-child(2) .interview-price-grid-card {
@@ -177,6 +186,21 @@
 
 .interview-price-grid-card p {
   font-size: .7rem;
+}
+
+/* Make buttons stick to the bottom so cards visually match in height */
+.interview-price-grid-card .btn {
+  margin-top: auto;
+}
+
+/* Ensure card inside header stretches to fill cell height */
+.interview-price-grid-header > .interview-price-grid-card {
+  flex: 1 1 auto;
+}
+
+/* Align feature title cells vertically centered */
+.interview-price-grid .col.p-3.d-flex {
+  align-items: center;
 }
 
 .interview-price-grid-header .interview-price-grid-gold .btn-primary {

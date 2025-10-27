@@ -6,6 +6,8 @@
     background-position-y: 10%;
     position: relative;
     z-index: 10;
+    /* Push content down relative to background to prevent overlap */
+    padding-top: clamp(2rem, 10vw, 10rem);
   }
   
   .aboutus-hero-top {
@@ -24,6 +26,8 @@
   position: relative;
   z-index: 1;
   animation: fadeInScale 1s ease-out;
+  /* Move logo down to avoid overlapping background */
+  margin-top: clamp(1rem, 2vw, 2.5rem);
 }
 
 @keyframes fadeInScale {
@@ -81,6 +85,11 @@
     .aboutus-hero-top {
       margin: 8rem 0 1rem 0 !important;
       text-align: center;
+    }
+
+    /* Increase top padding on small screens to ensure logo clears background */
+    #aboutus_hero {
+      padding-top: 4rem;
     }
   
     .aboutus-strive-logo {

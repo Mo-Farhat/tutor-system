@@ -15,7 +15,7 @@ function BfriendPricegrid() {
             🧑‍🎓 Gold
             </h1>
             <span className="plan-des">
-              Tailored Sessions
+              Personalised Sessions
             </span>
             <button className="btn btn-primary mt-5 p-3 fw-bold plan-gs-btn" id="plan-gs-gold-btn">
               Get started
@@ -25,10 +25,10 @@ function BfriendPricegrid() {
         <div className="d-flex g-0 price-grid-heading-main" id="platinum-plan">
           <div className="d-flex price-grid-heading-sec" id="plan-h-platinum">
             <h1 className="fw-bold plan-type" id="plan-t-platinum">
-            🧑‍🏫 Platinum
+            🧑‍🎓 Premium
             </h1>
             <span className="plan-des">
-              Tailored Sessions
+              Experienced Tutor
             </span>
             <button className="btn btn-primary mt-5 p-3 fw-bold plan-gs-btn" id="plan-gs-platinum-btn">
               Get started
@@ -38,17 +38,17 @@ function BfriendPricegrid() {
         <div className="d-flex g-0 price-grid-heading-main" id="executive-plan">
           <div className="d-flex price-grid-heading-sec" id="plan-h-executive">
             <h1 className="fw-bold plan-type" id="plan-t-executive">
-            🌟 Executive
+            🧑‍🎓 Elite
             </h1>
             <span className="plan-des">
-              Tailored Sessions
+              Expert Tutor
             </span>
             <button className="btn btn-primary mt-5 p-3 fw-bold plan-gs-btn" id="plan-gs-executive-btn">
               Get started
             </button>
           </div>
         </div>
-        <div className="d-flex grid-row-start-main">
+        <div className="d-flex grid-row-start-main pt-section">
           <h1 className="fw-bold grid-row-main-h">
             Private Tutoring
           </h1>
@@ -56,7 +56,7 @@ function BfriendPricegrid() {
             1 student per class, full price
           </span>
         </div>
-        <div className="d-flex grid-row-prices" id="gold-plan">
+        <div className="d-flex grid-row-prices pt-price" id="gold-plan">
           <h1 className="grid-row-price private-tut-price" id="grid-gold-price">
             $60
           </h1>
@@ -64,7 +64,7 @@ function BfriendPricegrid() {
             Per student per hour
           </span>
         </div>
-        <div className="d-flex grid-row-prices" id="platinum-plan">
+        <div className="d-flex grid-row-prices pt-price" id="platinum-plan">
           <h1 className="grid-row-price private-tut-price" id="grid-platinum-price">
             $80
           </h1>
@@ -72,7 +72,7 @@ function BfriendPricegrid() {
             Per student per hour
           </span>
         </div>
-        <div className="d-flex grid-row-prices" id="executive-plan">
+        <div className="d-flex grid-row-prices pt-price" id="executive-plan">
           <h1 className="grid-row-price private-tut-price" id="grid-executive-price">
             $120
           </h1>

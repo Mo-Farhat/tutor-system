@@ -11,12 +11,11 @@ function Msg() {
         className="row container-fluid section d-flex g-0 z-index-0 abouts-msg-main"
         id="aboutus-msg"
       >
-        <div className="row col-9 aboutus-msg-sec">
-          <h1 className="fw-bold aboutus-msg-h">Message from the Founder</h1>
-
+        <div className="col-12 col-lg-10 col-xl-9 mx-auto aboutus-msg-sec">
           <div className="row">
-            <div className="col-md-8">
-              <div className="aboutus-content">
+            <div className="col-12 col-md-8 mb-4 mb-md-0">
+              <h1 className="fw-bold aboutus-msg-h">Message from the Founder</h1>
+              <div className="aboutus-content" style={{ color: '#212529' }}>
                 <p>
                   Welcome to Strive Academics! I'm Pasindu, the founder of this
                   platform and a medical student with over five years of
@@ -51,7 +50,7 @@ function Msg() {
                 </p>
               </div>
             </div>
-            <div className="col-md-4 d-flex align-items-center justify-content-center">
+            <div className="col-12 col-md-4 d-flex align-items-center justify-content-center">
               <div className="aboutus-founder-img-container">
                 <img
                   src="/Images/Aboutus/dp.png"

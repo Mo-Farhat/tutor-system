@@ -22,14 +22,16 @@ function Aboutend() {
             <span className="fw-bold aboutus-end-slogan-bold">
               Strive for your Personal Best.
             </span>{" "}
-            Get started with one of our stellar tutors now! Find a Tutor now
+            Get started with one of our stellar tutors now!
+            <br />
+            <a href="/find-a-tutor" className="aboutus-end-cta-link">Find a Tutor now</a>
           </p>
 
-          <div class="col-12 d-flex gap-5 aboutus-end-btn-grp">
+          <div className="col-12 d-flex gap-5 aboutus-end-btn-grp">
             <a
               href="/find-a-tutor"
               type="button"
-              class="col-4 btn btn-outline-primary border-3 fw-semibold aboutus-end-btn"
+              className="col-4 btn btn-outline-primary border-3 fw-semibold aboutus-end-btn"
               id="aboutus-end-btn-1"
             >
               👩🏻‍🏫 Private Tutoring
@@ -37,15 +39,15 @@ function Aboutend() {
             <a
               href="/pricing"
               type="button"
-              class="col-4 btn btn-outline-primary border-3 fw-semibold aboutus-end-btn"
+              className="col-4 btn btn-outline-primary border-3 fw-semibold aboutus-end-btn"
               id="aboutus-end-btn-2"
             >
               🧑🏻‍🎓 Bring a Friend and Save
             </a>
             <a
-              href="/interview-preperation"
+              href="/interview-preparation"
               type="button"
-              class="col-4 btn btn-outline-primary border-3 fw-semibold aboutus-end-btn"
+              className="col-4 btn btn-outline-primary border-3 fw-semibold aboutus-end-btn"
               id="aboutus-end-btn-3"
             >
               💻 Interview Preparation

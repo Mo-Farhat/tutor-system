@@ -1,10 +1,11 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom";
 import { ContactFormProvider } from "./components/snippets/contact-form-overlay";
 import { AuthProvider } from "./contexts/AuthContext";
 import ScrollToTop from "./components/ScrollToTop";
 import ProtectedTutorRoute from "./components/ProtectedTutorRoute";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
+import {useNavigate} from "react-router-dom";
 
 import HomePage from "./pages/js/home";
 import AboutusPage from "./pages/js/aboutus";

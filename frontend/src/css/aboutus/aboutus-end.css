@@ -44,8 +44,8 @@
 
 .aboutus-end-des {
   font-size: 1.75rem;
-  margin-bottom: 10rem;
-  color: #333333;
+  margin-bottom: 6rem; /* was 10rem: tightened for better rhythm */
+  color: #212529; /* darker for better visibility */
   text-align: center;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -70,11 +70,27 @@
   text-align: center;
   justify-content: center;
   white-space: normal;
-  margin-bottom: 5rem;
-  color: #0c4da2;
+  margin-bottom: 4rem; /* was 5rem: tighten spacing for better balance */
+  color: #212529; /* darker body text for visibility */
+  line-height: 1.8; /* improve readability */
   word-wrap: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
+}
+
+/* CTA link styling within the slogan block */
+.aboutus-end-cta-link {
+  display: inline-block; /* ensures next-line layout with <br/> and allows top margin */
+  margin-top: 0.25rem;
+  color: #0c4da2;
+  font-weight: 600;
+  text-decoration: underline;
+}
+.aboutus-end-cta-link:hover,
+.aboutus-end-cta-link:focus {
+  color: #0a3f86; /* slightly darker on hover for contrast */
+  text-decoration-color: currentColor;
+  outline: none;
 }
 
 .aboutus-end-section.section-animate .aboutus-end-slogan {

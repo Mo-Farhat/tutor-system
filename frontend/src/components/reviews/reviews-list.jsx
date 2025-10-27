@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import "../../css/reviews/reviews-list.css";
 import useAnimateOnScroll from '../../utils/useAnimateOnScroll';
 
 // Review card component
-const ReviewCard = ({ name, date, rating, reviewText, platform, ownerReply, ownerReplyDate, isNew, photos }) => {
+const ReviewCard = ({ id, name, date, rating, reviewText, platform, ownerReply, ownerReplyDate, isNew, photos }) => {
+  const [expanded, setExpanded] = useState(false);
+
   // Generate star ratings (filled and unfilled)
   const renderStars = (rating) => {
     const stars = [];
@@ -31,8 +33,11 @@ const ReviewCard = ({ name, date, rating, reviewText, platform, ownerReply, owne
     return avatarEmojis[firstChar] || "👤";
   };
 
+  const shouldShowToggle = (reviewText || '').length > 220 || !!ownerReply;
+  const textId = `review-text-${id}`;
+
   return (
-    <div className="review-card">
+    <div className={`review-card ${expanded ? 'expanded' : 'collapsed'}`}>
       <div className="reviewer-info">
         <div className="reviewer-avatar" data-name={name}>
           <div className="avatar-placeholder">
@@ -53,11 +58,11 @@ const ReviewCard = ({ name, date, rating, reviewText, platform, ownerReply, owne
         {renderStars(rating)}
       </div>
       
-      <div className="review-text">
+      <div className={`review-text ${expanded ? '' : 'clamped'}`} id={textId}>
         <p>{reviewText}</p>
       </div>
 
-      {ownerReply && (
+      {expanded && ownerReply && (
         <div className="owner-reply">
           <div className="owner-reply-header">
             <strong>Strive Academics (owner)</strong>
@@ -65,6 +70,18 @@ const ReviewCard = ({ name, date, rating, reviewText, platform, ownerReply, owne
           </div>
           <p className="owner-reply-text">{ownerReply}</p>
         </div>
+      )}
+
+      {shouldShowToggle && (
+        <button
+          type="button"
+          className="read-more-btn"
+          aria-expanded={expanded}
+          aria-controls={textId}
+          onClick={() => setExpanded(!expanded)}
+        >
+          {expanded ? 'Read less' : 'Read more'}
+        </button>
       )}
       
       <div className="review-platform">
@@ -77,14 +94,7 @@ const ReviewCard = ({ name, date, rating, reviewText, platform, ownerReply, owne
 function ReviewsList() {
   // New Google Reviews data
   const reviews = [
-    {
-      id: 1,
-      name: "Yuvraj Singh",
-      date: "21 Jun 2022",
-      rating: 5,
-      reviewText: "Amazing team of dedicated tutors promoting a fun and encouraging learning environment. Highly recommend them for your studies.",
-      platform: "google"
-    },
+
     {
       id: 2,
       name: "Charlotte Hamilton",
@@ -109,15 +119,7 @@ function ReviewsList() {
       reviewText: "We are very grateful to Pasindu and his colleague Adithya for their support and encouragement during the preparation for the medical interview process of my daughter. Their guidance helped build confidence and provided valuable insights into how to approach the interview with clarity and composure. They generously shared their experiences and tips, which made a real difference during the preparation journey. Their willingness to take time to help and motivate was truly appreciated, and their contribution was an important part of the success achieved. We are thankful for their kindness and support and would highly recommend them to anyone preparing for their medical school journey.",
       platform: "google"
     },
-    {
-      id: 5,
-      name: "Piumee Bandara",
-      date: "11 minutes ago",
-      rating: 5,
-      reviewText: "My tutor Sienna and the team at Strive Academics have been extremely supportive and encouraging in helping me with UCAT and my ATAR subjects, Biology & Chemistry. They have given me mentorship and advice outside of sessions, and I found my UCAT sessions with Sienna very helpful.",
-      platform: "google",
-      isNew: true
-    },
+
     {
       id: 6,
       name: "Mehriza Khokhar",
@@ -137,6 +139,7 @@ function ReviewsList() {
           {reviews.map((review) => (
             <ReviewCard
               key={review.id}
+              id={review.id}
               name={review.name}
               date={review.date}
               rating={review.rating}

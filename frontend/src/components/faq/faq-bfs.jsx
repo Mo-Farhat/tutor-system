@@ -149,19 +149,15 @@ function Bfs() {
               class="accordion-collapse collapse"
             >
               <div class="accordion-body">
-                You will never be charged before a session is completed. For the
-                first lesson with your tutor, you will receive an invoice.
-                Please ensure that this invoice is paid within 48 hours.
+                  After your free academic consultation, you’ll be asked to add your payment details to your account before scheduling your first paid session.
+                  Once your first lesson has taken place, the session fee will be automatically charged to your nominated payment method — never before the lesson.
+
+                  <br />
                 <br />
+                  For all future lessons, payments will also be processed automatically after each session.<br />
                 <br />
-                You can make payment via credit/debit card, Google/Apple Pay or
-                direct debit. We do not accept other payment methods.
-                <br />
-                <br />
-                For sessions thereafter, your card will be charged automatically
-                after each lesson. Stripe's secure payment system handles all
-                payments. Once your fees have been received, the tutor is paid
-                immediately.
+                  All transactions are securely handled by Stripe, one of the world’s leading payment providers trusted by companies such as Google and Amazon. This ensures that your payment information is fully protected at all times.
+
               </div>
             </div>
           </div>
@@ -175,7 +171,7 @@ function Bfs() {
                 aria-expanded="false"
                 aria-controls="panelsStayOpen-collapsebfs5"
               >
-                I have already started bfs tutoring sessions, can I bring a
+                I have already started private tutoring sessions, can I bring a
                 friend to future sessions?
               </button>
             </h2>
