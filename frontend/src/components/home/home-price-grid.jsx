@@ -29,7 +29,7 @@ function Pricegrid() {
                   </div>
                   <p className="card-text mb-4">Hand-picked tutors with strong subject knowledge and a passion for teaching.</p>
                   <ul className="list-unstyled mb-4">
-                    <li className="mb-2">✓ 24/7 Support via Platform</li>
+                    <li className="mb-2">✓ 24/7 Tutor Support</li>
                   </ul>
                   <div className="mt-auto">
                     <a href="/find-a-tutor" className="btn btn-primary w-100">Get Started</a>
@@ -50,8 +50,8 @@ function Pricegrid() {
                   </div>
                   <p className="card-text mb-4">Tutors with a wealth of experience and consistently outstanding student feedback.</p>
                   <ul className="list-unstyled mb-4">
+                    <li className="mb-2">✓ 24/7 Tutor Support</li>
                     <li className="mb-2">✓ Progress Reports</li>
-                    <li className="mb-2">✓ 24/7 Support via Platform</li>
                     <li className="mb-2">✓ Medicine/Dentistry Interview Prep</li>
                   </ul>
                   <div className="mt-auto">
@@ -73,8 +73,8 @@ function Pricegrid() {
                   </div>
                   <p className="card-text mb-4">Top-tier tutors with 3+ years experience, glowing reviews, and academic excellence.</p>
                   <ul className="list-unstyled mb-4">
+                    <li className="mb-2">✓ 24/7 Tutor Support</li>
                     <li className="mb-2">✓ Progress Reports</li>
-                    <li className="mb-2">✓ 24/7 Support via Platform</li>
                     <li className="mb-2">✓ Parent Consultations</li>
                     <li className="mb-2">✓ Medicine/Dentistry Interview Prep</li>
                     <li className="mb-2">✓ University/Scholarship Application Support</li>
