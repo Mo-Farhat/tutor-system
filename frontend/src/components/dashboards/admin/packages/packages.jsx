@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import adminService from "../../../../services/adminService";
 import {
   PACKAGE_TYPES,
   TUTOR_TIERS,
@@ -55,275 +56,61 @@ function AdminPackages() {
   const loadData = async () => {
     try {
       setIsLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Mock packages data with enhanced attributes
-      const mockPackages = [
-        {
-          id: 1,
-          name: "10 Hour Chemistry Package",
-          subject: "Chemistry",
-          hours: 10,
-          price: 750.0,
-          discount: DEFAULT_PACKAGE_DISCOUNT, // $50 discount as per requirement
-          discountType: "fixed",
-          tierEligibility: ["gold", "premium", "elite"],
-          validity: 6,
-          refundable: true,
-          description:
-            "Comprehensive chemistry tutoring package with lab support",
-          active: true,
-          studentsEnrolled: 24,
-          autoRenewal: true,
-          renewalPeriod: 3,
-          createdAt: "2024-01-15",
-          lastModified: "2024-03-10",
-          totalRevenue: 18000.0,
-        },
-        {
-          id: 2,
-          name: "5 Hour Mathematics Package",
-          subject: "Mathematics",
-          hours: 5,
-          price: 350.0,
-          discount: 0.0,
-          discountType: "fixed",
-          tierEligibility: ["gold", "premium"],
-          validity: 3,
-          refundable: true,
-          description:
-            "Basic mathematics support package for foundational concepts",
-          active: true,
-          studentsEnrolled: 18,
-          autoRenewal: false,
-          renewalPeriod: 3,
-          createdAt: "2024-02-01",
-          lastModified: "2024-03-05",
-          totalRevenue: 6300.0,
-        },
-        {
-          id: 3,
-          name: "Premium Physics Package",
-          subject: "Physics",
-          hours: 15,
-          price: 1200.0,
-          discount: 100.0,
-          discountType: "fixed",
-          tierEligibility: ["premium", "elite"],
-          validity: 12,
-          refundable: false,
-          description:
-            "Advanced physics tutoring with lab support and equipment",
-          active: true,
-          studentsEnrolled: 8,
-          autoRenewal: true,
-          renewalPeriod: 6,
-          createdAt: "2024-01-20",
-          lastModified: "2024-03-08",
-          totalRevenue: 9600.0,
-        },
-        {
-          id: 4,
-          name: "English Intensive",
-          subject: "English",
-          hours: 8,
-          price: 600.0,
-          discount: 25.0,
-          discountType: "fixed",
-          tierEligibility: ["gold", "premium", "elite"],
-          validity: 4,
-          refundable: true,
-          description:
-            "Intensive English writing and analysis with essay support",
-          active: false,
-          studentsEnrolled: 0,
-          autoRenewal: false,
-          renewalPeriod: 3,
-          createdAt: "2024-02-15",
-          lastModified: "2024-03-01",
-          totalRevenue: 0.0,
-        },
-        {
-          id: 5,
-          name: "Biology Mastery",
-          subject: "Biology",
-          hours: 12,
-          price: 900.0,
-          discount: 75.0,
-          discountType: "fixed",
-          tierEligibility: ["gold", "premium", "elite"],
-          validity: 8,
-          refundable: true,
-          description:
-            "Comprehensive biology package with practical experiments",
-          active: true,
-          studentsEnrolled: 15,
-          autoRenewal: true,
-          renewalPeriod: 4,
-          createdAt: "2024-01-10",
-          lastModified: "2024-03-12",
-          totalRevenue: 13500.0,
-        },
-      ];
+      // Load real packages data from API
+      const [packagesResponse, studentsResponse] = await Promise.all([
+        adminService.getPackages(),
+        adminService.getUsers({ role: "student" })
+      ]);
 
-      // Mock students data
-      const mockStudents = [
-        {
-          id: 1,
-          name: "Emma Thompson",
-          email: "emma.thompson@email.com",
-          phone: "+61 412 345 678",
-          yearLevel: "Year 12",
-          subjects: ["Chemistry", "Mathematics", "Physics"],
-          status: "active",
-          joinDate: "2024-01-15",
-        },
-        {
-          id: 2,
-          name: "Liam O'Connor",
-          email: "liam.oconnor@email.com",
-          phone: "+61 423 456 789",
-          yearLevel: "Year 11",
-          subjects: ["Mathematics", "English", "Biology"],
-          status: "active",
-          joinDate: "2024-02-01",
-        },
-        {
-          id: 3,
-          name: "Sophie Chen",
-          email: "sophie.chen@email.com",
-          phone: "+61 434 567 890",
-          yearLevel: "Year 12",
-          subjects: ["Physics", "Chemistry", "Mathematics"],
-          status: "active",
-          joinDate: "2024-01-20",
-        },
-        {
-          id: 4,
-          name: "Noah Patel",
-          email: "noah.patel@email.com",
-          phone: "+61 445 678 901",
-          yearLevel: "Year 10",
-          subjects: ["English", "Mathematics", "Biology"],
-          status: "active",
-          joinDate: "2024-02-15",
-        },
-        {
-          id: 5,
-          name: "Isabella Rodriguez",
-          email: "isabella.rodriguez@email.com",
-          phone: "+61 456 789 012",
-          yearLevel: "Year 12",
-          subjects: ["Biology", "Chemistry", "English"],
-          status: "active",
-          joinDate: "2024-01-10",
-        },
-      ];
+      // Transform packages data to match frontend expectations
+      const transformedPackages = packagesResponse.items?.map(pkg => ({
+        id: pkg.id,
+        name: pkg.name,
+        subject: pkg.subject,
+        hours: pkg.hours,
+        price: parseFloat(pkg.priceDollars || 0),
+        discount: pkg.discountType === "fixed" 
+          ? parseFloat(pkg.discountValueDollars || 0)
+          : pkg.discountPercent || 0,
+        discountType: pkg.discountType === "percent" ? "percentage" : pkg.discountType || "fixed",
+        tierEligibility: pkg.eligibleTiers || [],
+        validity: pkg.validityMonths || 6,
+        refundable: pkg.refundable || false,
+        description: pkg.description || "",
+        active: pkg.isActive !== false,
+        studentsEnrolled: 0, // TODO: Calculate from actual enrollments
+        autoRenewal: pkg.autoRenew || false,
+        renewalPeriod: 3, // TODO: Add to backend model
+        createdAt: pkg.createdAt,
+        lastModified: pkg.updatedAt,
+        totalRevenue: 0, // TODO: Calculate from actual sales
+      })) || [];
 
-      // Mock student packages data
-      const mockStudentPackages = [
-        {
-          id: 1,
-          studentId: 1,
-          packageId: 1,
-          studentName: "Emma Thompson",
-          packageName: "10 Hour Chemistry Package",
-          purchaseDate: "2024-01-20",
-          expiryDate: "2024-07-20",
-          hoursRemaining: 7,
-          hoursUsed: 3,
-          totalHours: 10,
-          paymentStatus: PAYMENT_STATUS.COMPLETED,
-          paymentAmount: 700.0, // price - discount
-          paymentDate: "2024-01-20",
-          autoRenewal: true,
-          renewalDate: "2024-07-20",
-          status: "active",
-          progress: 30, // percentage
-        },
-        {
-          id: 2,
-          studentId: 2,
-          packageId: 2,
-          studentName: "Liam O'Connor",
-          packageName: "5 Hour Mathematics Package",
-          purchaseDate: "2024-02-05",
-          expiryDate: "2024-05-05",
-          hoursRemaining: 2,
-          hoursUsed: 3,
-          totalHours: 5,
-          paymentStatus: PAYMENT_STATUS.COMPLETED,
-          paymentAmount: 350.0,
-          paymentDate: "2024-02-05",
-          autoRenewal: false,
-          renewalDate: null,
-          status: "active",
-          progress: 60,
-        },
-        {
-          id: 3,
-          studentId: 3,
-          packageId: 3,
-          studentName: "Sophie Chen",
-          packageName: "Premium Physics Package",
-          purchaseDate: "2024-01-25",
-          expiryDate: "2025-01-25",
-          hoursRemaining: 12,
-          hoursUsed: 3,
-          totalHours: 15,
-          paymentStatus: PAYMENT_STATUS.COMPLETED,
-          paymentAmount: 1100.0, // price - discount
-          paymentDate: "2024-01-25",
-          autoRenewal: true,
-          renewalDate: "2025-01-25",
-          status: "active",
-          progress: 20,
-        },
-        {
-          id: 4,
-          studentId: 4,
-          packageId: 2,
-          studentName: "Noah Patel",
-          packageName: "5 Hour Mathematics Package",
-          purchaseDate: "2024-02-20",
-          expiryDate: "2024-05-20",
-          hoursRemaining: 0,
-          hoursUsed: 5,
-          totalHours: 5,
-          paymentStatus: PAYMENT_STATUS.COMPLETED,
-          paymentAmount: 350.0,
-          paymentDate: "2024-02-20",
-          autoRenewal: false,
-          renewalDate: null,
-          status: "expired",
-          progress: 100,
-        },
-        {
-          id: 5,
-          studentId: 5,
-          packageId: 5,
-          studentName: "Isabella Rodriguez",
-          packageName: "Biology Mastery",
-          purchaseDate: "2024-01-15",
-          expiryDate: "2024-09-15",
-          hoursRemaining: 8,
-          hoursUsed: 4,
-          totalHours: 12,
-          paymentStatus: PAYMENT_STATUS.COMPLETED,
-          paymentAmount: 825.0, // price - discount
-          paymentDate: "2024-01-15",
-          autoRenewal: true,
-          renewalDate: "2024-09-15",
-          status: "active",
-          progress: 33,
-        },
-      ];
+      // Transform students data
+      const transformedStudents = studentsResponse.data?.map(student => ({
+        id: student.id,
+        name: `${student.firstName} ${student.lastName}`,
+        email: student.email,
+        phone: student.phone || "",
+        yearLevel: "Year 12", // TODO: Get from student profile
+        subjects: [], // TODO: Get from student profile
+        status: student.status || "active",
+        joinDate: student.createdAt,
+      })) || [];
 
-      setPackages(mockPackages);
-      setStudents(mockStudents);
+      // Mock student packages data for now - TODO: Implement real student package tracking
+      const mockStudentPackages = [];
+
+      setPackages(transformedPackages);
+      setStudents(transformedStudents);
       setStudentPackages(mockStudentPackages);
     } catch (error) {
       console.error("Error loading data:", error);
+      // Fallback to empty arrays on error
+      setPackages([]);
+      setStudents([]);
+      setStudentPackages([]);
     } finally {
       setIsLoading(false);
     }
@@ -392,27 +179,38 @@ function AdminPackages() {
     );
   };
 
-  const handleRetirePackage = (packageId) => {
+  const handleRetirePackage = async (packageId) => {
     const packageToDelete = packages.find((pkg) => pkg.id === packageId);
     const enrolledStudents = packageToDelete
       ? packageToDelete.studentsEnrolled
       : 0;
 
-    let confirmMessage = "Are you sure you want to delete this package?";
+    let confirmMessage = "Are you sure you want to retire this package?";
     if (enrolledStudents > 0) {
-      confirmMessage += ` This package has ${enrolledStudents} enrolled student(s). This action cannot be undone.`;
+      confirmMessage += ` This package has ${enrolledStudents} enrolled student(s). It will be marked as inactive but existing enrollments will continue.`;
     } else {
-      confirmMessage += " This action cannot be undone.";
+      confirmMessage += " This will make it unavailable for new enrollments.";
     }
 
     if (window.confirm(confirmMessage)) {
-      // Remove the package from the packages array
-      setPackages((prev) => prev.filter((pkg) => pkg.id !== packageId));
-
-      // Also remove any student packages associated with this package
-      setStudentPackages((prev) =>
-        prev.filter((sp) => sp.packageId !== packageId)
-      );
+      try {
+        const response = await adminService.retirePackage(packageId);
+        
+        if (response.success) {
+          // Update local state to mark as inactive
+          setPackages((prev) => 
+            prev.map((pkg) => 
+              pkg.id === packageId ? { ...pkg, active: false } : pkg
+            )
+          );
+          alert("Package retired successfully!");
+        } else {
+          alert("Error retiring package: " + (response.error || "Unknown error"));
+        }
+      } catch (error) {
+        console.error("Error retiring package:", error);
+        alert("Error retiring package: " + error.message);
+      }
     }
   };
 
@@ -463,47 +261,76 @@ function AdminPackages() {
     setShowCreateModal(true);
   };
 
-  const handleSavePackage = () => {
-    // In real implementation, this would call an API
-    if (editingPackage) {
-      // Update existing package
-      setPackages((prev) =>
-        prev.map((pkg) =>
-          pkg.id === editingPackage.id
-            ? {
-                ...pkg,
-                ...newPackage,
-                hours: parseInt(newPackage.hours),
-                price: parseFloat(newPackage.price),
-                discount: parseFloat(newPackage.discount),
-                validity: parseInt(newPackage.validity),
-              }
-            : pkg
-        )
-      );
-    } else {
-      // Create new package
-      const newPkg = {
-        id: Date.now(),
-        ...newPackage,
+  const handleSavePackage = async () => {
+    try {
+      // Prepare package data for API
+      const packageData = {
+        name: newPackage.name,
+        subject: newPackage.subject,
         hours: parseInt(newPackage.hours),
-        price: parseFloat(newPackage.price),
-        discount: parseFloat(newPackage.discount),
-        validity: parseInt(newPackage.validity),
-        active: true,
-        studentsEnrolled: 0,
+        priceDollars: parseFloat(newPackage.price),
+        discountType: newPackage.discountType === "percentage" ? "percent" : "fixed",
+        validityMonths: parseInt(newPackage.validity),
+        eligibleTiers: newPackage.tierEligibility,
+        refundable: newPackage.refundable,
+        autoRenew: newPackage.autoRenewal,
+        description: newPackage.description,
+        isActive: true,
       };
-      setPackages((prev) => [...prev, newPkg]);
+
+      // Add discount value based on type
+      if (newPackage.discountType === "percentage") {
+        packageData.discountPercent = parseInt(newPackage.discount) || 0;
+      } else {
+        packageData.discountValueDollars = parseFloat(newPackage.discount) || 0;
+      }
+
+      let response;
+      if (editingPackage) {
+        // Update existing package
+        response = await adminService.updatePackage(editingPackage.id, packageData);
+      } else {
+        // Create new package
+        response = await adminService.createPackage(packageData);
+      }
+
+      if (response.success) {
+        // Reload packages data
+        await loadData();
+        setShowCreateModal(false);
+        alert(editingPackage ? "Package updated successfully!" : "Package created successfully!");
+      } else {
+        alert("Error saving package: " + (response.error || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error saving package:", error);
+      alert("Error saving package: " + error.message);
     }
-    setShowCreateModal(false);
   };
 
-  const handleToggleActive = (packageId) => {
-    setPackages((prev) =>
-      prev.map((pkg) =>
-        pkg.id === packageId ? { ...pkg, active: !pkg.active } : pkg
-      )
-    );
+  const handleToggleActive = async (packageId) => {
+    try {
+      const pkg = packages.find(p => p.id === packageId);
+      if (!pkg) return;
+
+      const response = await adminService.updatePackage(packageId, {
+        isActive: !pkg.active
+      });
+
+      if (response.success) {
+        // Update local state
+        setPackages((prev) =>
+          prev.map((p) =>
+            p.id === packageId ? { ...p, active: !p.active } : p
+          )
+        );
+      } else {
+        alert("Error updating package status: " + (response.error || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error toggling package status:", error);
+      alert("Error updating package status: " + error.message);
+    }
   };
 
   const filteredPackages = packages.filter((pkg) => {

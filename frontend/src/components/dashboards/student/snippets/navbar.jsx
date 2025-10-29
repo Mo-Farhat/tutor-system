@@ -137,16 +137,17 @@ function StudentNavbar() {
               <a
                 href="/dashboard/student/payment-history"
                 className="student-navbar-menu-link"
-                title="Payment History & Package"
+                title="Payment History & Packages"
               >
                 <i className="fas fa-credit-card student-navbar-icon"></i>
                 <span
                   className={!isNavbarExpanded ? "student-navbar-hidden" : ""}
                 >
-                  Payment History & Package
+                  Payment History & Packages
                 </span>
               </a>
             </li>
+           
             <li className="student-navbar-menu-item">
               <a
                 href="/dashboard/student/progress-milestones"
@@ -306,9 +307,15 @@ function StudentNavbar() {
               </a>
             </li>
             <li className="student-navbar-menu-item">
-              <a href="#" className="student-navbar-menu-link">
+              <a href="/dashboard/student/payment-history" className="student-navbar-menu-link">
                 <i className="fas fa-credit-card student-navbar-icon"></i>
-                <span>Payment History & Package</span>
+                <span>Payment History</span>
+              </a>
+            </li>
+            <li className="student-navbar-menu-item">
+              <a href="/dashboard/student/packages" className="student-navbar-menu-link">
+                <i className="fas fa-box student-navbar-icon"></i>
+                <span>Packages</span>
               </a>
             </li>
             <li className="student-navbar-menu-item">

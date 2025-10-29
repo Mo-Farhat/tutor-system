@@ -192,6 +192,20 @@ class StudentService {
     }
   }
 
+  // Create package checkout session
+  async createPackageCheckout(packageData) {
+    try {
+      const response = await api.post(
+        "/auth/student/packages/checkout",
+        packageData
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error creating package checkout:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
   // Get payment history
   async getPayments() {
     try {

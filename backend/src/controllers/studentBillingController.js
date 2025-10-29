@@ -1,14 +1,56 @@
-const { packageModel } = require("../models");
+const { packageModel, packageTypeModel } = require("../models");
 const stripeService = require('../services/stripeService');
 const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
-// Packages
+// Get available packages for purchase + student's purchased packages
 exports.getPackages = async (req, res) => {
   try {
-    const rows = await packageModel.listByStudent(req.user.id);
-    res.json({ success: true, data: rows });
+    // Get available package types for purchase
+    const availablePackages = await packageTypeModel.findMany({
+      where: { isActive: true },
+      orderBy: { createdAt: "desc" }
+    });
+
+    // Get student's purchased packages
+    const purchasedPackages = await packageModel.listByStudent(req.user.id);
+
+    // Transform available packages to match frontend expectations
+    const transformedAvailable = availablePackages.map(pkg => ({
+      id: pkg.id,
+      name: pkg.name,
+      subject: pkg.subject,
+      hours: pkg.hours,
+      price: parseFloat(pkg.priceDollars || 0),
+      discount: pkg.discountType === "fixed" 
+        ? parseFloat(pkg.discountValueDollars || 0)
+        : pkg.discountPercent || 0,
+      discountType: pkg.discountType === "percent" ? "percentage" : pkg.discountType || "fixed",
+      description: pkg.description,
+      validityMonths: pkg.validityMonths,
+      refundable: pkg.refundable,
+      type: 'available'
+    }));
+
+    // Transform purchased packages
+    const transformedPurchased = purchasedPackages.map(pkg => ({
+      id: pkg.id,
+      subject: pkg.subject,
+      hoursTotal: pkg.hoursTotal,
+      hoursUsed: pkg.hoursUsed,
+      status: pkg.status,
+      purchasedAt: pkg.purchasedAt,
+      type: 'purchased'
+    }));
+
+    res.json({ 
+      success: true, 
+      data: {
+        available: transformedAvailable,
+        purchased: transformedPurchased
+      }
+    });
   } catch (e) {
     console.error("billing.getPackages", e);
     res.status(500).json({ success: false, error: "Internal server error" });
@@ -76,16 +118,45 @@ exports.purchasePackage = async (req, res) => {
 // Create checkout session for package purchase
 exports.createPackageCheckout = async (req, res) => {
   try {
-    const { subject } = req.body || {};
-    if (!subject) return res.status(400).json({ success: false, error: "subject is required" });
+    const { packageId, subject } = req.body || {};
     
-    const packagePrice = 50000; // $500 in cents
+    let packageData;
+    let packagePrice;
+    let packageName;
+    
+    if (packageId) {
+      // Get specific package from PackageType
+      packageData = await packageTypeModel.findById(packageId);
+      if (!packageData) {
+        return res.status(404).json({ success: false, error: "Package not found" });
+      }
+      
+      // Calculate final price with discount
+      const basePrice = parseFloat(packageData.priceDollars || 0);
+      let finalPrice = basePrice;
+      
+      if (packageData.discountType === "fixed" && packageData.discountValueDollars) {
+        finalPrice = Math.max(0, basePrice - parseFloat(packageData.discountValueDollars));
+      } else if (packageData.discountType === "percent" && packageData.discountPercent) {
+        finalPrice = basePrice * (1 - packageData.discountPercent / 100);
+      }
+      
+      packagePrice = Math.round(finalPrice * 100); // Convert to cents
+      packageName = packageData.name;
+    } else if (subject) {
+      // Fallback to legacy subject-based pricing
+      packagePrice = 50000; // $500 in cents
+      packageName = `10-Hour Tutoring Package - ${subject}`;
+    } else {
+      return res.status(400).json({ success: false, error: "packageId or subject is required" });
+    }
+    
     const lineItems = [{
       price_data: {
         currency: 'aud',
         product_data: {
-          name: `10-Hour Tutoring Package - ${subject}`,
-          description: '10 hours of one-on-one tutoring with expert tutors'
+          name: packageName,
+          description: packageData ? packageData.description : '10 hours of one-on-one tutoring with expert tutors'
         },
         unit_amount: packagePrice
       },
@@ -100,7 +171,7 @@ exports.createPackageCheckout = async (req, res) => {
       lineItems,
       successUrl,
       cancelUrl,
-      { type: 'package', subject }
+      { type: 'package', subject: subject || packageData.subject, packageId }
     );
     
     res.json({ 
