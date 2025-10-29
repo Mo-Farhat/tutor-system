@@ -52,6 +52,7 @@ import StudentProfileManagementPage from "./pages/js/dashboard/student/profile";
 import StudentTutorProfilePage from "./pages/js/dashboard/student/tutor-profile";
 import StudentTutorReportsPage from "./pages/js/dashboard/student/tutor-reports";
 import StudentTutorRequestsPage from "./pages/js/dashboard/student/tutor-requests";
+import StudentPackagesPage from "./pages/js/dashboard/student/packages";
 
 // Admin Dashboard Pages
 import AdminHomePage from "./pages/js/dashboard/admin/home";
@@ -212,6 +213,10 @@ const App = () => {
             <Route
               path="/dashboard/student/payment-history"
               element={<StudentPaymentHistoryPage />}
+            />
+            <Route
+              path="/dashboard/student/packages"
+              element={<StudentPackagesPage />}
             />
             <Route
               path="/dashboard/student/payment-methods"

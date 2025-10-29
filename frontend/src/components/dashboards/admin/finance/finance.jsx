@@ -6,6 +6,7 @@ import {
   PRIORITY_COLORS,
 } from "../constants/adminConstants";
 import "../../../../css/dashboards/admin/finance/finance.css";
+import adminFinanceService from "../../../../services/adminFinanceService";
 
 function AdminFinance() {
   const [activeTab, setActiveTab] = useState("invoices");
@@ -50,173 +51,58 @@ function AdminFinance() {
   const loadFinanceData = async () => {
     try {
       setIsLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Mock data based on active tab
-      const mockData = {
-        invoices: [
-          {
-            id: "INV-2024-001",
-            studentName: "Alice Chen",
-            amount: 150.0,
-            status: "paid",
-            dueDate: "2024-03-15",
-            paidDate: "2024-03-14",
-            package: "10 Hour Chemistry Package",
-            paymentMethod: "Credit Card",
-          },
-          {
-            id: "INV-2024-002",
-            studentName: "Benjamin Smith",
-            amount: 75.0,
-            status: "pending",
-            dueDate: "2024-03-20",
-            paidDate: null,
-            package: "Consultation Session",
-            paymentMethod: "Bank Transfer",
-          },
-          {
-            id: "INV-2024-003",
-            studentName: "Charlotte Wilson",
-            amount: 300.0,
-            status: "overdue",
-            dueDate: "2024-03-10",
-            paidDate: null,
-            package: "20 Hour Premium Package",
-            paymentMethod: "Credit Card",
-          },
-          {
-            id: "INV-2024-004",
-            studentName: "David Kim",
-            amount: 225.0,
-            status: "paid",
-            dueDate: "2024-03-18",
-            paidDate: "2024-03-17",
-            package: "15 Hour Mathematics Package",
-            paymentMethod: "PayPal",
-          },
-          {
-            id: "INV-2024-005",
-            studentName: "Emma Davis",
-            amount: 450.0,
-            status: "pending",
-            dueDate: "2024-03-25",
-            paidDate: null,
-            package: "Premium Physics Package",
-            paymentMethod: "Credit Card",
-          },
-          {
-            id: "INV-2024-006",
-            studentName: "Frank Miller",
-            amount: 125.0,
-            status: "paid",
-            dueDate: "2024-03-12",
-            paidDate: "2024-03-11",
-            package: "5 Hour English Package",
-            paymentMethod: "Bank Transfer",
-          },
-        ],
-        payouts: [
-          {
-            id: "PAY-2024-001",
-            tutorName: "Sarah Johnson",
-            amount: 450.0,
-            status: "completed",
-            period: "February 2024",
-            processedDate: "2024-03-01",
-            sessionsCount: 15,
-            hourlyRate: 30.0,
-            bankAccount: "****1234",
-          },
-          {
-            id: "PAY-2024-002",
-            tutorName: "Michael Chen",
-            amount: 225.0,
-            status: "pending",
-            period: "March 2024",
-            processedDate: null,
-            sessionsCount: 8,
-            hourlyRate: 28.0,
-            bankAccount: "****5678",
-          },
-          {
-            id: "PAY-2024-003",
-            tutorName: "Emma Thompson",
-            amount: 675.0,
-            status: "processing",
-            period: "March 2024",
-            processedDate: null,
-            sessionsCount: 22,
-            hourlyRate: 30.0,
-            bankAccount: "****9012",
-          },
-          {
-            id: "PAY-2024-004",
-            tutorName: "James Wilson",
-            amount: 320.0,
-            status: "completed",
-            period: "February 2024",
-            processedDate: "2024-03-02",
-            sessionsCount: 12,
-            hourlyRate: 26.0,
-            bankAccount: "****3456",
-          },
-          {
-            id: "PAY-2024-005",
-            tutorName: "Lisa Brown",
-            amount: 180.0,
-            status: "pending",
-            period: "March 2024",
-            processedDate: null,
-            sessionsCount: 6,
-            hourlyRate: 30.0,
-            bankAccount: "****7890",
-          },
-        ],
-        refunds: [
-          {
-            id: "REF-2024-001",
-            studentName: "Daniel Kim",
-            originalAmount: 150.0,
-            refundAmount: 75.0,
-            reason: "Partial package cancellation",
-            status: "completed",
-            processedDate: "2024-03-12",
-          },
-          {
-            id: "REF-2024-002",
-            studentName: "Emma Davis",
-            originalAmount: 300.0,
-            refundAmount: 300.0,
-            reason: "Full package refund",
-            status: "pending",
-            processedDate: null,
-          },
-        ],
-        referralBonuses: [
-          {
-            id: "RB-2024-001",
-            referrerName: "Alice Chen",
-            referredName: "Sophie Brown",
-            bonusAmount: 20.0,
-            status: "paid",
-            completedDate: "2024-03-15",
-          },
-          {
-            id: "RB-2024-002",
-            referrerName: "David Kim",
-            referredName: "Lucas White",
-            bonusAmount: 20.0,
-            status: "pending",
-            completedDate: "2024-03-18",
-          },
-        ],
-      };
+      // Always refresh analytics
+      const analyticsPromise = adminFinanceService.getAnalytics();
 
-      setFinanceData((prev) => ({
-        ...prev,
-        ...mockData,
-      }));
+      if (activeTab === "invoices") {
+        const [invoicesRes, analyticsRes] = await Promise.all([
+          adminFinanceService.getInvoices({
+            status: selectedFilters.status || undefined,
+            search: searchTerm || undefined,
+          }),
+          analyticsPromise,
+        ]);
+
+        setFinanceData((prev) => ({
+          ...prev,
+          invoices: invoicesRes?.data || [],
+          analytics: analyticsRes?.data || prev.analytics,
+        }));
+      } else if (activeTab === "refunds") {
+        const [refundsRes, analyticsRes] = await Promise.all([
+          adminFinanceService.getRefunds({}),
+          analyticsPromise,
+        ]);
+        setFinanceData((prev) => ({
+          ...prev,
+          refunds: refundsRes?.data || [],
+          analytics: analyticsRes?.data || prev.analytics,
+        }));
+      } else if (activeTab === "payouts") {
+        const [payoutsRes, analyticsRes] = await Promise.all([
+          adminFinanceService.getPayouts({}),
+          analyticsPromise,
+        ]);
+        setFinanceData((prev) => ({
+          ...prev,
+          payouts: payoutsRes?.data || [],
+          analytics: analyticsRes?.data || prev.analytics,
+        }));
+      } else if (activeTab === "referrals") {
+        const [referralsRes, analyticsRes] = await Promise.all([
+          adminFinanceService.getReferrals({}),
+          analyticsPromise,
+        ]);
+        setFinanceData((prev) => ({
+          ...prev,
+          referralBonuses: referralsRes?.data || [],
+          analytics: analyticsRes?.data || prev.analytics,
+        }));
+      } else {
+        const analyticsRes = await analyticsPromise;
+        setFinanceData((prev) => ({ ...prev, analytics: analyticsRes?.data || prev.analytics }));
+      }
     } catch (error) {
       console.error("Error loading finance data:", error);
     } finally {

@@ -7,13 +7,70 @@ dotenv.config();
 
 const app = express();
 
-// Middleware
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
-    credentials: true,
-  })
-);
+// CORS Debug middleware (development only)
+if (process.env.NODE_ENV === 'development' || process.env.DEBUG_CORS === 'true') {
+  const corsDebugMiddleware = require('./middleware/corsDebug');
+  app.use(corsDebugMiddleware);
+}
+
+// CORS Configuration
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      'https://striveacademics.com.au',
+      'https://www.striveacademics.com.au',
+      'http://localhost:3000',
+      'http://localhost:3001',
+      process.env.FRONTEND_URL
+    ].filter(Boolean); // Remove any undefined values
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.warn(`CORS blocked origin: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: [
+    'Origin',
+    'X-Requested-With',
+    'Content-Type',
+    'Accept',
+    'Authorization',
+    'Cache-Control',
+    'X-Access-Token'
+  ],
+  exposedHeaders: ['Content-Length', 'X-Foo', 'X-Bar'],
+  maxAge: 86400, // 24 hours
+  preflightContinue: false,
+  optionsSuccessStatus: 200
+};
+
+// Apply CORS middleware
+app.use(cors(corsOptions));
+
+// Additional security headers
+app.use((req, res, next) => {
+  // Set security headers
+  res.header('X-Content-Type-Options', 'nosniff');
+  res.header('X-Frame-Options', 'DENY');
+  res.header('X-XSS-Protection', '1; mode=block');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, X-Access-Token');
+    res.header('Access-Control-Max-Age', '86400');
+    return res.status(200).end();
+  }
+  
+  next();
+});
 
 // Stripe webhooks need raw body - must be before express.json()
 app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
@@ -47,13 +104,23 @@ const tutorChangeRequestsRoutes = require("./routes/tutorChangeRequests");
 const stripeWebhooksRoutes = require("./routes/stripeWebhooks");
 
 const adminPackagesRoutes = require("./routes/adminPackages");
+const adminFinanceRoutes = require("./routes/adminFinance");
 
 const tutorRequestRoutes = require("./routes/tutorRequests");
 
 const adminCalendarRoutes = require("./routes/adminCalendar");
-// Health check
+// Health check with CORS info
 app.get("/health", (req, res) => {
-  res.json({ status: "OK", message: "Server is running" });
+  res.json({ 
+    status: "OK", 
+    message: "Server is running",
+    timestamp: new Date().toISOString(),
+    origin: req.headers.origin || 'No origin',
+    cors: {
+      origin_allowed: true,
+      credentials_enabled: true
+    }
+  });
 });
 
 /* ---------- MOUNT ALL ROUTES HERE (BEFORE 404 & ERROR) ---------- */
@@ -86,6 +153,7 @@ app.use("/api", stripeWebhooksRoutes);
 app.use("/api", adminCalendarRoutes);
 
 app.use("/api", adminPackagesRoutes);
+app.use("/api", adminFinanceRoutes);
 
 app.use("/api", tutorRequestRoutes);
 
