@@ -47,6 +47,7 @@ const tutorChangeRequestsRoutes = require("./routes/tutorChangeRequests");
 const stripeWebhooksRoutes = require("./routes/stripeWebhooks");
 
 const adminPackagesRoutes = require("./routes/adminPackages");
+const adminFinanceRoutes = require("./routes/adminFinance");
 
 const tutorRequestRoutes = require("./routes/tutorRequests");
 
@@ -86,6 +87,7 @@ app.use("/api", stripeWebhooksRoutes);
 app.use("/api", adminCalendarRoutes);
 
 app.use("/api", adminPackagesRoutes);
+app.use("/api", adminFinanceRoutes);
 
 app.use("/api", tutorRequestRoutes);
 
