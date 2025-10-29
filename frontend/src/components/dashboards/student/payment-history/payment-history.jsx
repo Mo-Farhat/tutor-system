@@ -7,6 +7,7 @@ import '../../../../css/dashboards/student/payment-history/payment-history.css';
 function StudentPaymentHistory() {
     const navigate = useNavigate();
     const [activePackages, setActivePackages] = useState([]);
+    const [availablePackages, setAvailablePackages] = useState([]);
     const [paymentHistory, setPaymentHistory] = useState([]);
     const [paymentMethods, setPaymentMethods] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -15,29 +16,7 @@ function StudentPaymentHistory() {
     const [showNoPaymentMethodAlert, setShowNoPaymentMethodAlert] = useState(false);
 
     // Available package subjects
-    const availablePackages = [
-        { 
-            subject: 'Mathematics', 
-            icon: '√x',
-            iconClass: 'student-payment-history-math-icon',
-            btnClass: 'student-payment-history-btn-math',
-            progressClass: 'student-payment-history-progress-math'
-        },
-        { 
-            subject: 'English', 
-            icon: '📚',
-            iconClass: 'student-payment-history-english-icon',
-            btnClass: 'student-payment-history-btn-english',
-            progressClass: 'student-payment-history-progress-english'
-        },
-        { 
-            subject: 'Science', 
-            icon: '⚗️',
-            iconClass: 'student-payment-history-science-icon',
-            btnClass: 'student-payment-history-btn-science',
-            progressClass: 'student-payment-history-progress-science'
-        }
-    ];
+
 
     useEffect(() => {
         loadBillingData();
@@ -56,13 +35,17 @@ function StudentPaymentHistory() {
             ]);
 
             if (packagesResult.success) {
+                // Handle new response format with available and purchased packages
+                const purchasedPackages = packagesResult.data.purchased || packagesResult.data || [];
+                const availablePackagesList = packagesResult.data.available || [];
+
                 // Transform backend packages to frontend format
-                const transformedPackages = packagesResult.data
+                const transformedPackages = purchasedPackages
                     .filter(pkg => pkg.status === 'active') // Only show active packages
                     .map(pkg => {
                         const packageInfo = availablePackages.find(p => p.subject === pkg.subject) || availablePackages[0];
                         const progressPercent = pkg.hoursTotal > 0 ? ((pkg.hoursTotal - pkg.hoursUsed) / pkg.hoursTotal) * 100 : 0;
-                        
+
                         return {
                             id: pkg.id,
                             subject: pkg.subject,
@@ -76,6 +59,7 @@ function StudentPaymentHistory() {
                         };
                     });
                 setActivePackages(transformedPackages);
+                setAvailablePackages(availablePackagesList);
             } else {
                 console.error('Failed to load packages:', packagesResult.error);
             }
@@ -124,10 +108,10 @@ function StudentPaymentHistory() {
 
         try {
             setPurchaseLoading(prev => ({ ...prev, [subject]: true }));
-            
+
             // Use Stripe Checkout for production-ready payment flow
             const result = await authService.post('/student/packages/checkout', { subject });
-            
+
             if (result.success && result.data.checkout_url) {
                 // Redirect to Stripe Checkout
                 window.location.href = result.data.checkout_url;
@@ -218,10 +202,10 @@ function StudentPaymentHistory() {
                                         </div>
                                         <h6 className="student-payment-history-package-title">{pkg.subject}</h6>
                                         <p className="student-payment-history-package-description">
-                                            10 hours of {pkg.subject} tutoring with $50 discount
+                                            {pkg.hours} hours of {pkg.subject} tutoring
                                         </p>
-                                        <div className="student-payment-history-package-price">$450</div>
-                                        <button 
+                                        <div className="student-payment-history-package-price">${pkg.price}</div>
+                                        <button
                                             className={`btn ${pkg.btnClass} w-100`}
                                             onClick={() => handlePurchasePackage(pkg.subject)}
                                             disabled={purchaseLoading[pkg.subject]}
@@ -267,12 +251,12 @@ function StudentPaymentHistory() {
                                     </div>
                                     <div className="student-payment-history-progress-container">
                                         <div className="progress student-payment-history-progress">
-                                            <div 
+                                            <div
                                                 className={`progress-bar ${pkg.progressClass}`}
-                                                role="progressbar" 
-                                                style={{width: `${pkg.progressPercent}%`}} 
-                                                aria-valuenow={pkg.progressPercent} 
-                                                aria-valuemin="0" 
+                                                role="progressbar"
+                                                style={{ width: `${pkg.progressPercent}%` }}
+                                                aria-valuenow={pkg.progressPercent}
+                                                aria-valuemin="0"
                                                 aria-valuemax="100"
                                             >
                                             </div>
@@ -325,18 +309,17 @@ function StudentPaymentHistory() {
                                                 <td>{payment.date}</td>
                                                 <td>{payment.description}</td>
                                                 <td>
-                                                    <span className={`badge ${
-                                                        payment.type === 'package' ? 'bg-primary' :
+                                                    <span className={`badge ${payment.type === 'package' ? 'bg-primary' :
                                                         payment.type === 'session' ? 'bg-success' :
-                                                        payment.type === 'refund' ? 'bg-warning' :
-                                                        'bg-secondary'
-                                                    }`}>
+                                                            payment.type === 'refund' ? 'bg-warning' :
+                                                                'bg-secondary'
+                                                        }`}>
                                                         {payment.type}
                                                     </span>
                                                 </td>
                                                 <td>${payment.amount}</td>
                                                 <td>
-                                                    <button 
+                                                    <button
                                                         className="btn btn-link student-payment-history-download-link p-0"
                                                         onClick={() => handleDownloadInvoice(payment.id)}
                                                     >
@@ -370,15 +353,15 @@ function StudentPaymentHistory() {
                                         <i className="fas fa-credit-card text-warning me-2"></i>
                                         Payment Method Required
                                     </h5>
-                                    <button 
-                                        type="button" 
-                                        className="btn-close" 
+                                    <button
+                                        type="button"
+                                        className="btn-close"
                                         onClick={() => setShowNoPaymentMethodAlert(false)}
                                     ></button>
                                 </div>
                                 <div className="modal-body">
                                     <p className="mb-3">
-                                        You need to add a payment method before purchasing a package. 
+                                        You need to add a payment method before purchasing a package.
                                         This ensures secure and seamless transactions.
                                     </p>
                                     <div className="alert alert-info small mb-0">
@@ -387,15 +370,15 @@ function StudentPaymentHistory() {
                                     </div>
                                 </div>
                                 <div className="modal-footer border-0">
-                                    <button 
-                                        type="button" 
+                                    <button
+                                        type="button"
                                         className="btn btn-secondary"
                                         onClick={() => setShowNoPaymentMethodAlert(false)}
                                     >
                                         Cancel
                                     </button>
-                                    <button 
-                                        type="button" 
+                                    <button
+                                        type="button"
                                         className="btn btn-primary"
                                         onClick={handleGoToPaymentMethods}
                                     >

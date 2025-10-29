@@ -439,6 +439,49 @@ class AdminService {
     return this.rejectTutorChangeRequest(changeRequestId, comments);
   }
 
+  // Package Management
+  async getPackages(filters = {}) {
+    const queryParams = new URLSearchParams();
+    if (filters.isActive !== undefined) queryParams.append("isActive", filters.isActive);
+    if (filters.subject) queryParams.append("subject", filters.subject);
+    if (filters.q) queryParams.append("q", filters.q);
+    if (filters.page) queryParams.append("page", filters.page);
+    if (filters.pageSize) queryParams.append("pageSize", filters.pageSize);
+
+    const endpoint = `/admin/packages${queryParams.toString() ? "?" + queryParams.toString() : ""}`;
+    return this.makeAdminRequest(endpoint);
+  }
+
+  async getPackageById(packageId) {
+    return this.makeAdminRequest(`/admin/packages/${packageId}`);
+  }
+
+  async createPackage(packageData) {
+    return this.makeAdminRequest("/admin/packages", {
+      method: "POST",
+      body: JSON.stringify(packageData),
+    });
+  }
+
+  async updatePackage(packageId, packageData) {
+    return this.makeAdminRequest(`/admin/packages/${packageId}`, {
+      method: "PUT",
+      body: JSON.stringify(packageData),
+    });
+  }
+
+  async retirePackage(packageId) {
+    return this.makeAdminRequest(`/admin/packages/${packageId}/retire`, {
+      method: "POST",
+    });
+  }
+
+  async deletePackage(packageId) {
+    return this.makeAdminRequest(`/admin/packages/${packageId}`, {
+      method: "DELETE",
+    });
+  }
+
   // Student Profile Management
   async getStudentProfile(userId) {
     try {
@@ -543,6 +586,14 @@ export const approveChangeRequest = (changeRequestId, comments) =>
   adminService.approveChangeRequest(changeRequestId, comments);
 export const rejectChangeRequest = (changeRequestId, comments) =>
   adminService.rejectChangeRequest(changeRequestId, comments);
+
+// Package Management
+export const getPackages = (filters) => adminService.getPackages(filters);
+export const getPackageById = (packageId) => adminService.getPackageById(packageId);
+export const createPackage = (packageData) => adminService.createPackage(packageData);
+export const updatePackage = (packageId, packageData) => adminService.updatePackage(packageId, packageData);
+export const retirePackage = (packageId) => adminService.retirePackage(packageId);
+export const deletePackage = (packageId) => adminService.deletePackage(packageId);
 
 // Student Profile Management
 export const getStudentProfile = (userId) => adminService.getStudentProfile(userId);

@@ -52,6 +52,7 @@ import StudentProfileManagementPage from "./pages/js/dashboard/student/profile";
 import StudentTutorProfilePage from "./pages/js/dashboard/student/tutor-profile";
 import StudentTutorReportsPage from "./pages/js/dashboard/student/tutor-reports";
 import StudentTutorRequestsPage from "./pages/js/dashboard/student/tutor-requests";
+import StudentPackagesPage from "./pages/js/dashboard/student/packages";
 
 // Admin Dashboard Pages
 import AdminHomePage from "./pages/js/dashboard/admin/home";
@@ -214,6 +215,10 @@ const App = () => {
               element={<StudentPaymentHistoryPage />}
             />
             <Route
+              path="/dashboard/student/packages"
+              element={<StudentPackagesPage />}
+            />
+            <Route
               path="/dashboard/student/payment-methods"
               element={<StudentPaymentMethodsPage />}
             />
@@ -311,6 +316,14 @@ const App = () => {
               element={
                 <ProtectedAdminRoute>
                   <AdminBlogPage />
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/assignments"
+              element={
+                <ProtectedAdminRoute>
+                  <AdminAssignmentsPage />
                 </ProtectedAdminRoute>
               }
             />
