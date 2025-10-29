@@ -109,9 +109,18 @@ const adminFinanceRoutes = require("./routes/adminFinance");
 const tutorRequestRoutes = require("./routes/tutorRequests");
 
 const adminCalendarRoutes = require("./routes/adminCalendar");
-// Health check
+// Health check with CORS info
 app.get("/health", (req, res) => {
-  res.json({ status: "OK", message: "Server is running" });
+  res.json({ 
+    status: "OK", 
+    message: "Server is running",
+    timestamp: new Date().toISOString(),
+    origin: req.headers.origin || 'No origin',
+    cors: {
+      origin_allowed: true,
+      credentials_enabled: true
+    }
+  });
 });
 
 /* ---------- MOUNT ALL ROUTES HERE (BEFORE 404 & ERROR) ---------- */
