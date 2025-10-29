@@ -315,6 +315,14 @@ const App = () => {
               }
             />
             <Route
+              path="/dashboard/admin/assignments"
+              element={
+                <ProtectedAdminRoute>
+                  <AdminAssignmentsPage />
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
               path="/dashboard/admin/notifications"
               element={
                 <ProtectedAdminRoute>
