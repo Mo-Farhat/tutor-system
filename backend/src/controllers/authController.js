@@ -567,17 +567,32 @@ exports.createAdmin = async (req, res) => {
     const { generateUniqueUsername } = require("../services/usernameService");
     const username = await generateUniqueUsername("admin");
 
-    console.log("Creating admin user...");
-const admin = await userModel.create({
-  firstName: "Admin",
-  lastName: "User",
-  email: adminEmail,
-  username,
-  password: hashedPassword,
-  role: "admin",
-  status: "active",
-});
-console.log("Admin created:", admin);
+// Inside createAdmin controller
+try {
+  const admin = await userModel.create({
+    firstName: "Admin",
+    lastName: "User",
+    email: adminEmail,
+    username,
+    password: hashedPassword,
+    role: "admin",
+    status: "active",
+  });
+
+  res.json({
+    message: "Admin user created successfully",
+    email: adminEmail,
+    password: adminPassword,
+    adminId: admin.id,
+  });
+} catch (err) {
+  console.error("Full DB error during admin creation:", err);
+  res.status(500).json({
+    error: "Internal server error",
+    details: err.message || "No additional info",
+  });
+}
+
 
     res.json({
       message: "Admin user created successfully",
