@@ -567,15 +567,17 @@ exports.createAdmin = async (req, res) => {
     const { generateUniqueUsername } = require("../services/usernameService");
     const username = await generateUniqueUsername("admin");
 
-    const admin = await userModel.create({
-      firstName: "Admin",
-      lastName: "User",
-      email: adminEmail,
-      username,
-      password: hashedPassword,
-      role: "admin",
-      status: "active",
-    });
+    console.log("Creating admin user...");
+const admin = await userModel.create({
+  firstName: "Admin",
+  lastName: "User",
+  email: adminEmail,
+  username,
+  password: hashedPassword,
+  role: "admin",
+  status: "active",
+});
+console.log("Admin created:", admin);
 
     res.json({
       message: "Admin user created successfully",
