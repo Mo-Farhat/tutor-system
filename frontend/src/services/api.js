@@ -2,9 +2,10 @@ import axios from "axios";
 
 // Create axios instance with base configuration
 const api = axios.create({
-  baseURL: process.env.REACT_APP_BACKEND_URL 
-    ? `${process.env.REACT_APP_BACKEND_URL}/api`
-    : "http://localhost:8000/api",
+  baseURL:
+    window.location.hostname === "localhost"
+      ? "http://localhost:3001/api"
+      : "https://striveacademics.com.au/api",
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
