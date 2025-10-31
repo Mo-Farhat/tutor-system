@@ -45,24 +45,18 @@
 .aboutus-end-des {
   font-size: 1.75rem;
   margin-bottom: 6rem; /* was 10rem: tightened for better rhythm */
-  color: #212529; /* darker for better visibility */
+  color: #212529 !important; /* darker for better visibility */
+  opacity: 1 !important; /* ensure always visible */
   text-align: center;
   word-wrap: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
 }
 
-.aboutus-end-section.section-animate .aboutus-end-des {
-  animation: fadeIn 1s ease-out 0.3s both;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+.aboutus-end-section .aboutus-end-des,
+.aboutus-end-section.section-animate-target .aboutus-end-des {
+  opacity: 1 !important;
+  color: #212529 !important;
 }
 
 .aboutus-end-slogan {
@@ -280,3 +274,9 @@
       padding: 0.6rem 0.8rem !important;
     }
   }
+
+/* Enforce visibility for description text with highest specificity */
+#aboutus_end .aboutus-end-des {
+  color: #212529 !important;
+  opacity: 1 !important;
+}

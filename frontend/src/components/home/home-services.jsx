@@ -60,7 +60,7 @@ function Services() {
                 </div>
                 <p className="col-11 fw-light offset-1 d-flex service-sub-con">
                   Click "Find a Tutor" to connect with a tutor from our stellar
-                  team. Plus, enjoy a complimentary 30-minute FREE Academic
+                  team. Plus, enjoy a complimentary 20-minute FREE Academic
                   Consultation. No strings attached, no questions asked. It's
                   our way of ensuring you receive tailored support hassle-free
                   from a tutor that gets you.
