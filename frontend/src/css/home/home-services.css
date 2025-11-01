@@ -33,7 +33,7 @@
   
   .service-sub-h-main {
     gap: 1.5rem;
-    align-items: center;
+    align-items: flex-start;
   }
   
   .service-sub-h-icn-main {
@@ -60,7 +60,7 @@
     flex-direction: column;
     gap: 1rem;
     color: #6B7280;
-    padding-left: 1.8rem;
+    padding-left: 0;
   }
   
   .service-sub-r-col {

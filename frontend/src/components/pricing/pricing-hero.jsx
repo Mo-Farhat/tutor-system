@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import "../../css/pricing/pricing-hero.css";
 import "../../css/pricing/pricing-c-selector.css";
 
 function PricingHero() {
+    const location = useLocation();
+    
     const categories = [
         {
             label: 'Private Tutoring',
@@ -22,7 +25,37 @@ function PricingHero() {
         },
     ];
     
-    const [selected, setSelected] = useState(0);
+    // Get initial category from URL parameter or default to 0
+    const getInitialCategory = () => {
+        const params = new URLSearchParams(location.search);
+        const category = params.get('category');
+        console.log('🎯 Pricing Hero - URL search:', location.search);
+        console.log('🎯 Pricing Hero - Category param:', category);
+        if (category) {
+            const index = parseInt(category, 10);
+            console.log('🎯 Pricing Hero - Parsed index:', index);
+            if (!isNaN(index) && index >= 0 && index < categories.length) {
+                return index;
+            }
+        }
+        return 0;
+    };
+    
+    const [selected, setSelected] = useState(() => {
+        const initial = getInitialCategory();
+        console.log('🎯 Pricing Hero - Initial selected:', initial);
+        return initial;
+    });
+    
+    // Update selected category when URL changes
+    useEffect(() => {
+        const newCategory = getInitialCategory();
+        console.log('🎯 Pricing Hero - Setting category to:', newCategory);
+        setSelected(newCategory);
+        // Also update localStorage and dispatch event
+        localStorage.setItem('selectedPricingCategory', newCategory.toString());
+        window.dispatchEvent(new CustomEvent('pricingCategoryChanged', { detail: { category: newCategory } }));
+    }, [location.search]);
 
     const handleCategorySelect = (index) => {
         setSelected(index);

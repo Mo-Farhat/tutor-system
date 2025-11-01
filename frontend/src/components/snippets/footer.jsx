@@ -3,6 +3,11 @@ import { Link } from 'react-router-dom';
 import '../../css/snippets/footer.css';
 
 const Footer = () => {
+  // Helper function to add timestamp to URL to force refresh
+  const getFilterUrl = (params) => {
+    return `/find-a-tutor?${params}&t=${Date.now()}`;
+  };
+
   return (
     <>
       <div className="bootom-footer-top-searches">
@@ -13,31 +18,31 @@ const Footer = () => {
               <h3>Tutors by year</h3>
               <ul className="bootom-footer-search-list">
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/primary" className="bootom-footer-search-link">Primary School Tutors</Link>
+                  <Link to={getFilterUrl("yearLevel=Year 1-10")} className="bootom-footer-search-link">Primary School Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/high-school" className="bootom-footer-search-link">High School Tutors</Link>
+                  <Link to={getFilterUrl("yearLevel=Year 11/12")} className="bootom-footer-search-link">High School Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/high-school" className="bootom-footer-search-link">Medical Entrance Tutors</Link>
+                  <Link to={getFilterUrl("yearLevel=Year 11/12&curriculum=Medical Entrance")} className="bootom-footer-search-link">Medical Entrance Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/year-7" className="bootom-footer-search-link">Year 7 Tutors</Link>
+                  <Link to={getFilterUrl("yearLevel=Year 1-10")} className="bootom-footer-search-link">Year 7 Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/year-8" className="bootom-footer-search-link">Year 8 Tutors</Link>
+                  <Link to={getFilterUrl("yearLevel=Year 1-10")} className="bootom-footer-search-link">Year 8 Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/year-9" className="bootom-footer-search-link">Year 9 Tutors</Link>
+                  <Link to={getFilterUrl("yearLevel=Year 1-10")} className="bootom-footer-search-link">Year 9 Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/year-10" className="bootom-footer-search-link">Year 10 Tutors</Link>
+                  <Link to={getFilterUrl("yearLevel=Year 1-10")} className="bootom-footer-search-link">Year 10 Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/year-11" className="bootom-footer-search-link">Year 11 Tutors</Link>
+                  <Link to={getFilterUrl("yearLevel=Year 11/12")} className="bootom-footer-search-link">Year 11 Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/year-12" className="bootom-footer-search-link">Year 12 Tutors</Link>
+                  <Link to={getFilterUrl("yearLevel=Year 11/12")} className="bootom-footer-search-link">Year 12 Tutors</Link>
                 </li>
               </ul>
             </div>
@@ -46,34 +51,34 @@ const Footer = () => {
               <h3>Tutors by subject</h3>
               <ul className="bootom-footer-search-list">
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/maths" className="bootom-footer-search-link">Maths Tutors</Link>
+                  <Link to={getFilterUrl("subject=Maths")} className="bootom-footer-search-link">Maths Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/english" className="bootom-footer-search-link">English Tutors</Link>
+                  <Link to={getFilterUrl("subject=English")} className="bootom-footer-search-link">English Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/biology" className="bootom-footer-search-link">Biology Tutors</Link>
+                  <Link to={getFilterUrl("subject=Biology")} className="bootom-footer-search-link">Biology Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/chemistry" className="bootom-footer-search-link">Chemistry Tutors</Link>
+                  <Link to={getFilterUrl("subject=Chemistry")} className="bootom-footer-search-link">Chemistry Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/physics" className="bootom-footer-search-link">Physics Tutors</Link>
+                  <Link to={getFilterUrl("subject=Physics")} className="bootom-footer-search-link">Physics Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/science" className="bootom-footer-search-link">General Science Tutors</Link>
+                  <Link to={getFilterUrl("subject=Science")} className="bootom-footer-search-link">General Science Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/science" className="bootom-footer-search-link">Economics Tutors</Link>
+                  <Link to={getFilterUrl("subject=Economics")} className="bootom-footer-search-link">Economics Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/science" className="bootom-footer-search-link">History Tutors</Link>
+                  <Link to={getFilterUrl("subject=History")} className="bootom-footer-search-link">History Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/science" className="bootom-footer-search-link">HPE Tutors</Link>
+                  <Link to={getFilterUrl("subject=HPE")} className="bootom-footer-search-link">HPE Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/science" className="bootom-footer-search-link">Business Tutors</Link>
+                  <Link to={getFilterUrl("subject=Business")} className="bootom-footer-search-link">Business Tutors</Link>
                 </li>
               </ul>
             </div>
@@ -82,25 +87,25 @@ const Footer = () => {
               <h3>Tutors by curriculum</h3>
               <ul className="bootom-footer-search-list">
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/vce" className="bootom-footer-search-link">VCE Tutors</Link>
+                  <Link to={getFilterUrl("yearLevel=Year 11/12&curriculum=VCE")} className="bootom-footer-search-link">VCE Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/hsc" className="bootom-footer-search-link">HSC Tutors</Link>
+                  <Link to={getFilterUrl("yearLevel=Year 11/12&curriculum=HSC")} className="bootom-footer-search-link">HSC Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/ib" className="bootom-footer-search-link">IB Tutors</Link>
+                  <Link to={getFilterUrl("yearLevel=Year 11/12&curriculum=IB")} className="bootom-footer-search-link">IB Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/qce" className="bootom-footer-search-link">QCE Tutors</Link>
+                  <Link to={getFilterUrl("yearLevel=Year 11/12&curriculum=QCE")} className="bootom-footer-search-link">QCE Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/wace" className="bootom-footer-search-link">WACE Tutors</Link>
+                  <Link to={getFilterUrl("yearLevel=Year 11/12&curriculum=WACE")} className="bootom-footer-search-link">WACE Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/sace" className="bootom-footer-search-link">SACE Tutors</Link>
+                  <Link to={getFilterUrl("yearLevel=Year 11/12&curriculum=SACE")} className="bootom-footer-search-link">SACE Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/ucat" className="bootom-footer-search-link">UCAT Tutors</Link>
+                  <Link to={getFilterUrl("yearLevel=Year 11/12&curriculum=Medical Entrance&subject=UCAT")} className="bootom-footer-search-link">UCAT Tutors</Link>
                 </li>
               </ul>
             </div>
@@ -109,22 +114,22 @@ const Footer = () => {
               <h3>Tutors by location</h3>
               <ul className="bootom-footer-search-list">
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/melbourne" className="bootom-footer-search-link">Private Tutors in Melbourne</Link>
+                  <Link to={getFilterUrl("location=Melbourne")} className="bootom-footer-search-link">Private Tutors in Melbourne</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/sydney" className="bootom-footer-search-link">Private Tutors in Sydney</Link>
+                  <Link to={getFilterUrl("location=Sydney")} className="bootom-footer-search-link">Private Tutors in Sydney</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/brisbane" className="bootom-footer-search-link">Private Tutors in Brisbane</Link>
+                  <Link to={getFilterUrl("location=Brisbane")} className="bootom-footer-search-link">Private Tutors in Brisbane</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/perth" className="bootom-footer-search-link">Private Tutors in Perth</Link>
+                  <Link to={getFilterUrl("location=Perth")} className="bootom-footer-search-link">Private Tutors in Perth</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/adelaide" className="bootom-footer-search-link">Private Tutors in Adelaide</Link>
+                  <Link to={getFilterUrl("location=Adelaide")} className="bootom-footer-search-link">Private Tutors in Adelaide</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/online" className="bootom-footer-search-link">Online Tutors</Link>
+                  <Link to={getFilterUrl("location=Online")} className="bootom-footer-search-link">Online Tutors</Link>
                 </li>
               </ul>
             </div>
@@ -133,28 +138,28 @@ const Footer = () => {
               <h3>Popular searches</h3>
               <ul className="bootom-footer-search-list">
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/vce-english" className="bootom-footer-search-link">VCE English Tutors</Link>
+                  <Link to={getFilterUrl("yearLevel=Year 11/12&curriculum=VCE&subject=English")} className="bootom-footer-search-link">VCE English Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/hsc-english" className="bootom-footer-search-link">HSC English Tutors</Link>
+                  <Link to={getFilterUrl("yearLevel=Year 11/12&curriculum=HSC&subject=English")} className="bootom-footer-search-link">HSC English Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/vce-methods" className="bootom-footer-search-link">VCE Maths Methods Tutors</Link>
+                  <Link to={getFilterUrl("yearLevel=Year 11/12&curriculum=VCE&subject=Mathematical Methods")} className="bootom-footer-search-link">VCE Maths Methods Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/hsc-maths" className="bootom-footer-search-link">HSC Maths Tutors</Link>
+                  <Link to={getFilterUrl("yearLevel=Year 11/12&curriculum=HSC&subject=Advanced Mathematics")} className="bootom-footer-search-link">HSC Maths Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/vce-chemistry" className="bootom-footer-search-link">VCE Chemistry Tutors</Link>
+                  <Link to={getFilterUrl("yearLevel=Year 11/12&curriculum=VCE&subject=Chemistry")} className="bootom-footer-search-link">VCE Chemistry Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/hsc-chemistry" className="bootom-footer-search-link">HSC Chemistry Tutors</Link>
+                  <Link to={getFilterUrl("yearLevel=Year 11/12&curriculum=HSC&subject=Chemistry")} className="bootom-footer-search-link">HSC Chemistry Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/vce-biology" className="bootom-footer-search-link">VCE Biology Tutors</Link>
+                  <Link to={getFilterUrl("yearLevel=Year 11/12&curriculum=VCE&subject=Biology")} className="bootom-footer-search-link">VCE Biology Tutors</Link>
                 </li>
                 <li className="bootom-footer-search-item">
-                  <Link to="/tutors/hsc-biology" className="bootom-footer-search-link">HSC Biology Tutors</Link>
+                  <Link to={getFilterUrl("yearLevel=Year 11/12&curriculum=HSC&subject=Biology")} className="bootom-footer-search-link">HSC Biology Tutors</Link>
                 </li>
               </ul>
             </div>

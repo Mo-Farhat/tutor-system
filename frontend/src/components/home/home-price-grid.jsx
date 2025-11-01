@@ -92,7 +92,7 @@ function Pricegrid() {
               <a href="/pricing" className="home-pricing-nav-btn me-3">View Detailed Pricing Table</a>
             </div>
             <div className="col-auto">
-              <a href="/bring-a-friend-and-save" className="home-pricing-nav-btn secondary">Bring a Friend & Save</a>
+              <a href="/pricing?category=1" className="home-pricing-nav-btn secondary">Bring a Friend & Save</a>
             </div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { getLiveTutors } from "../../services/authService";
 import "../../css/find-tutor/findt-tutors.css"
 
@@ -13,19 +13,14 @@ function FindtTutors({ filters }) {
         filteredTutorsLength: filteredTutors.length, 
         loading, 
         error: !!error,
-        filtersApplied: !!filters
+        filtersApplied: !!filters,
+        currentFilters: filters
     });
 
     useEffect(() => {
         console.log('📱 FindtTutors mounted, calling fetchLiveTutors');
         fetchLiveTutors();
     }, []);
-
-    // Apply filters when filters prop changes
-    useEffect(() => {
-        console.log('🔍 Filters changed, reapplying filters:', filters);
-        applyFilters();
-    }, [filters, allTutors]);
 
     const fetchLiveTutors = async (forceRefresh = false) => {
         try {
@@ -66,9 +61,12 @@ function FindtTutors({ filters }) {
         }
     };
 
-    const applyFilters = () => {
+    const applyFilters = useCallback(() => {
+        console.log('🔧 applyFilters called with:', { filters, allTutorsCount: allTutors.length });
+        
         if (!filters || (!filters.yearLevel && !filters.curriculum && !filters.subject && !filters.location)) {
             // No filters applied, show all tutors
+            console.log('✅ No filters, showing all tutors');
             setFilteredTutors(allTutors);
             return;
         }
@@ -97,15 +95,42 @@ function FindtTutors({ filters }) {
                 }
                 // If only year level is selected
                 else if (filters.yearLevel && !filters.curriculum && !filters.subject) {
-                    const hasYearLevel = tutorSubjects.some(subject => 
-                        subject.includes(` - ${filters.yearLevel} (`)
-                    );
+                    let hasYearLevel = false;
+                    
+                    if (filters.yearLevel === 'Year 1-10') {
+                        // Match any of: Year 1-10, or individual years 1-10, or Primary
+                        hasYearLevel = tutorSubjects.some(subject => {
+                            const subjectLower = subject.toLowerCase();
+                            return subjectLower.includes('year 1-10') ||
+                                   subjectLower.includes('year 7') ||
+                                   subjectLower.includes('year 8') ||
+                                   subjectLower.includes('year 9') ||
+                                   subjectLower.includes('year 10') ||
+                                   subjectLower.includes('primary');
+                        });
+                    } else if (filters.yearLevel === 'Year 11/12') {
+                        // Match any of: Year 11/12, Year 11, Year 12
+                        hasYearLevel = tutorSubjects.some(subject => {
+                            const subjectLower = subject.toLowerCase();
+                            return subjectLower.includes('year 11/12') ||
+                                   subjectLower.includes('year 11') ||
+                                   subjectLower.includes('year 12');
+                        });
+                    } else {
+                        // Fallback for other year levels
+                        hasYearLevel = tutorSubjects.some(subject => 
+                            subject.includes(` - ${filters.yearLevel} (`) || 
+                            subject.includes(filters.yearLevel)
+                        );
+                    }
+                    
                     if (!hasYearLevel) return false;
                 }
                 // If year level and curriculum/state are selected but no specific subject
                 else if (filters.yearLevel && filters.curriculum && !filters.subject) {
                     const hasYearAndCurriculum = tutorSubjects.some(subject => 
-                        subject.includes(` - ${filters.yearLevel} (${filters.curriculum})`)
+                        subject.includes(` - ${filters.yearLevel} (${filters.curriculum})`) ||
+                        (subject.includes(filters.yearLevel) && subject.includes(filters.curriculum))
                     );
                     if (!hasYearAndCurriculum) return false;
                 }
@@ -128,8 +153,15 @@ function FindtTutors({ filters }) {
             return true;
         });
 
+        console.log('🎯 Filtered tutors:', filtered.length, 'out of', allTutors.length);
         setFilteredTutors(filtered);
-    };
+    }, [filters, allTutors]);
+
+    // Apply filters when filters or allTutors change
+    useEffect(() => {
+        console.log('🔄 Triggering filter application');
+        applyFilters();
+    }, [applyFilters]);
 
     const getDefaultImage = (name) => {
         // Generate a consistent avatar based on the tutor's name
