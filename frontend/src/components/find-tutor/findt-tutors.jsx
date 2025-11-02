@@ -252,6 +252,14 @@ function FindtTutors({ filters }) {
                         const rate = tutor.hourly_rate ? `$${Number(tutor.hourly_rate).toFixed(0)}/hr` : '';
                         const topSubjects = Array.isArray(tutor.subjects) ? tutor.subjects.slice(0, 2).map(s => (s || '').split(' - ')[0]).join(', ') : '';
                         const topLocations = Array.isArray(tutor.preferred_locations) ? tutor.preferred_locations.slice(0, 2).join(', ') : '';
+                        // Enhanced photo fallback: photo_url → image → getDefaultImage
+                        const tutorImage = tutor.photo_url || tutor.image || getDefaultImage(name);
+                        // Education info
+                        const university = tutor.university || '';
+                        const currentStudies = Array.isArray(tutor.current_studies) ? tutor.current_studies : [];
+                        const hasEducationInfo = university || currentStudies.length > 0;
+                        const rating = tutor.rating || 0;
+                        
                         return (
                         <div key={tutor.id} className="col-xl-3 col-lg-4 col-md-6 col-12">
                             <a href={`/tutor/${tutor.id}`} className="findt-tutors-card">
@@ -261,7 +269,7 @@ function FindtTutors({ filters }) {
                                 </div>
                                 <div className={`findt-tutors-avatar ${avatarClass}`}>
                                     <img 
-                                        src={tutor.image || getDefaultImage(name)} 
+                                        src={tutorImage}
                                         alt={name}
                                         onError={(e) => {
                                             e.target.src = getDefaultImage(name);
@@ -270,6 +278,24 @@ function FindtTutors({ filters }) {
                                     <span className="findt-tutors-status">{tutor.status || 'available'}</span>
                                 </div>
                                 <h3 className="findt-tutors-name">{name}</h3>
+                                
+                                {/* Education Information */}
+                                {hasEducationInfo && (
+                                    <div className="findt-tutors-education mb-2">
+                                        {university && (
+                                            <div className="findt-tutors-university">
+                                                <i className="fas fa-graduation-cap me-1"></i>
+                                                <small>{university}</small>
+                                            </div>
+                                        )}
+                                        {currentStudies.length > 0 && (
+                                            <div className="findt-tutors-studies">
+                                                <i className="fas fa-book-reader me-1"></i>
+                                                <small>Studying {currentStudies.slice(0, 2).join(', ')}{currentStudies.length > 2 ? '...' : ''}</small>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                                 <p className="findt-tutors-description">
                                     {tutor.bio || `${name} is a qualified tutor specializing in ${topSubjects || 'various subjects'}.`}
                                 </p>
