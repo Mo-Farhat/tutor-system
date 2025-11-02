@@ -172,6 +172,30 @@ function FindtTutors({ filters }) {
         return `https://randomuser.me/api/portraits/${gender}/${avatarId}.jpg`;
     };
 
+    const renderStars = (rating) => {
+        const numRating = Number(rating) || 0;
+        const fullStars = Math.floor(numRating);
+        const hasHalfStar = numRating % 1 >= 0.5;
+        const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+        
+        return (
+            <div className="findt-tutors-rating">
+                <span className="findt-tutors-rating-value">{numRating.toFixed(1)}</span>
+                <div className="findt-tutors-stars">
+                    {Array.from({ length: fullStars }).map((_, i) => (
+                        <i key={i} className="fas fa-star findt-tutors-star-filled"></i>
+                    ))}
+                    {hasHalfStar && (
+                        <i className="fas fa-star-half-alt findt-tutors-star-filled"></i>
+                    )}
+                    {Array.from({ length: emptyStars }).map((_, i) => (
+                        <i key={`empty-${i}`} className="far fa-star findt-tutors-star-empty"></i>
+                    ))}
+                </div>
+            </div>
+        );
+    };
+
     if (loading) {
         return (
             <section className='row container-fluid d-flex g-0 findt-tutors-main' id='findt-tutors'>
@@ -262,7 +286,7 @@ function FindtTutors({ filters }) {
                         
                         return (
                         <div key={tutor.id} className="col-xl-3 col-lg-4 col-md-6 col-12">
-                            <a href={`/tutor/${tutor.id}`} className="findt-tutors-card">
+                            <a href={`/find-a-tutor/request?tutorId=${tutor.id}`} className="findt-tutors-card">
                                 <div className="findt-tutors-stats">
                                     <span className="findt-tutors-gold">Gold ({tutor.goldPoints || 0})</span>
                                     <span className="findt-tutors-atr">ATAR ({tutor.atrPoints || 0})</span>
@@ -278,7 +302,12 @@ function FindtTutors({ filters }) {
                                     <span className="findt-tutors-status">{tutor.status || 'available'}</span>
                                 </div>
                                 <h3 className="findt-tutors-name">{name}</h3>
-                                
+                                {/* Rating Display */}
+                                {rating > 0 && (
+                                    <div className="findt-tutors-rating-container mb-2">
+                                        {renderStars(rating)}
+                                    </div>
+                                )}
                                 {/* Education Information */}
                                 {hasEducationInfo && (
                                     <div className="findt-tutors-education mb-2">
@@ -291,14 +320,12 @@ function FindtTutors({ filters }) {
                                         {currentStudies.length > 0 && (
                                             <div className="findt-tutors-studies">
                                                 <i className="fas fa-book-reader me-1"></i>
-                                                <small>Studying {currentStudies.slice(0, 2).join(', ')}{currentStudies.length > 2 ? '...' : ''}</small>
+                                                <small>{currentStudies.slice(0, 2).join(', ')}{currentStudies.length > 2 ? '...' : ''}</small>
                                             </div>
                                         )}
                                     </div>
                                 )}
-                                <p className="findt-tutors-description">
-                                    {tutor.bio || `${name} is a qualified tutor specializing in ${topSubjects || 'various subjects'}.`}
-                                </p>
+                                
                                 <div className="findt-tutors-details mt-2">
                                     {topSubjects && (
                                         <div className="mb-1">
