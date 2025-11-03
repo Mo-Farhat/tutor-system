@@ -12,7 +12,8 @@
 ALTER TABLE "public"."PaymentTransaction" ADD COLUMN     "status" TEXT NOT NULL DEFAULT 'pending',
 ADD COLUMN     "stripePaymentId" TEXT,
 ADD COLUMN     "stripeSessionId" TEXT,
-ADD COLUMN     "updatedAt" TIMESTAMP(3) NOT NULL;
+ADD COLUMN     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT NOW();
+
 
 -- AlterTable
 ALTER TABLE "public"."StudentPaymentMethod" ADD COLUMN     "isDefault" BOOLEAN NOT NULL DEFAULT false,
