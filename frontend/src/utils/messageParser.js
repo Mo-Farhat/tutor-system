@@ -7,6 +7,9 @@
  * 
  * Preferred Contact: [contact method]
  * 
+ * Availability: Morning - Mon, Tue; Afternoon - Wed, Thu; Night - Fri, Sat
+ * Availability Notes: [notes]
+ * 
  * Message:
  * [actual message text]
  */
@@ -16,6 +19,8 @@ export const parseTutorRequestMessage = (message) => {
       subject: null,
       phone: null,
       preferredContact: null,
+      availability: null,
+      availabilityNotes: null,
       message: null
     };
   }
@@ -24,6 +29,8 @@ export const parseTutorRequestMessage = (message) => {
     subject: null,
     phone: null,
     preferredContact: null,
+    availability: null,
+    availabilityNotes: null,
     message: null
   };
 
@@ -54,6 +61,19 @@ export const parseTutorRequestMessage = (message) => {
       continue;
     }
 
+    // Extract availability
+    if (line.startsWith('Availability:')) {
+      const availabilityText = line.substring(13).trim();
+      parsed.availability = parseAvailabilityText(availabilityText);
+      continue;
+    }
+
+    // Extract availability notes
+    if (line.startsWith('Availability Notes:')) {
+      parsed.availabilityNotes = line.substring(19).trim();
+      continue;
+    }
+
     // Find where the actual message starts (after "Message:" line)
     if (line.toLowerCase() === 'message:' && i < lines.length - 1) {
       messageStartIndex = i + 1;
@@ -70,7 +90,9 @@ export const parseTutorRequestMessage = (message) => {
     const lastStructuredFieldIndex = Math.max(
       lines.findIndex(l => l.startsWith('Subject:')),
       lines.findIndex(l => l.startsWith('Phone:')),
-      lines.findIndex(l => l.startsWith('Preferred Contact:'))
+      lines.findIndex(l => l.startsWith('Preferred Contact:')),
+      lines.findIndex(l => l.startsWith('Availability:')),
+      lines.findIndex(l => l.startsWith('Availability Notes:'))
     );
 
     if (lastStructuredFieldIndex >= 0 && lastStructuredFieldIndex < lines.length - 1) {
@@ -83,10 +105,84 @@ export const parseTutorRequestMessage = (message) => {
   }
 
   // Handle legacy format where message might not have structure
-  if (!parsed.subject && !parsed.phone && !parsed.preferredContact && !parsed.message) {
+  if (!parsed.subject && !parsed.phone && !parsed.preferredContact && !parsed.availability && !parsed.availabilityNotes && !parsed.message) {
     parsed.message = message.trim();
   }
 
   return parsed;
+};
+
+/**
+ * Parses availability text into a structured object
+ * Formats supported:
+ * - "Morning: Mon, Tue; Afternoon: Wed, Thu; Night: Fri, Sat" (colon format)
+ * - "Morning - Mon, Tue; Afternoon - Wed, Thu; Night - Fri, Sat" (dash format - legacy)
+ */
+const parseAvailabilityText = (availabilityText) => {
+  if (!availabilityText || availabilityText === 'Not specified') {
+    return null;
+  }
+
+  // Initialize the availability grid structure
+  const availability = {
+    morning: { mon: false, tue: false, wed: false, thu: false, fri: false, sat: false, sun: false },
+    afternoon: { mon: false, tue: false, wed: false, thu: false, fri: false, sat: false, sun: false },
+    night: { mon: false, tue: false, wed: false, thu: false, fri: false, sat: false, sun: false }
+  };
+
+  // Map day labels to keys
+  const dayMap = {
+    'mon': 'mon',
+    'monday': 'mon',
+    'tue': 'tue',
+    'tuesday': 'tue',
+    'wed': 'wed',
+    'wednesday': 'wed',
+    'thu': 'thu',
+    'thursday': 'thu',
+    'fri': 'fri',
+    'friday': 'fri',
+    'sat': 'sat',
+    'saturday': 'sat',
+    'sun': 'sun',
+    'sunday': 'sun'
+  };
+
+  // Split by semicolon to get time periods
+  const timePeriods = availabilityText.split(';').map(t => t.trim());
+
+  timePeriods.forEach(period => {
+    // Try colon format first (current format), then dash format (legacy)
+    let parts = period.split(':').map(p => p.trim());
+    if (parts.length !== 2) {
+      // Try dash format as fallback
+      parts = period.split('-').map(p => p.trim());
+    }
+    
+    if (parts.length === 2) {
+      const timeOfDay = parts[0].toLowerCase();
+      const days = parts[1].split(',').map(d => d.trim().toLowerCase());
+
+      let timeKey = null;
+      if (timeOfDay.includes('morning')) {
+        timeKey = 'morning';
+      } else if (timeOfDay.includes('afternoon')) {
+        timeKey = 'afternoon';
+      } else if (timeOfDay.includes('night') || timeOfDay.includes('evening')) {
+        timeKey = 'night';
+      }
+
+      if (timeKey) {
+        days.forEach(day => {
+          const dayKey = dayMap[day];
+          if (dayKey && availability[timeKey]) {
+            availability[timeKey][dayKey] = true;
+          }
+        });
+      }
+    }
+  });
+
+  return availability;
 };
 

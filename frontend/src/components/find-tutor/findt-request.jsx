@@ -220,25 +220,14 @@ const FindTutorRequest = () => {
   // FAQ data
   const faqs = [
     {
-      question: `Does ${tutorName} tutor ${subjects[0] || 'this subject'}?`,
-      answer: `Yes, ${tutorName} is experienced in tutoring ${subjects[0] || 'this subject'} and has a proven track record of helping students succeed.`
+      question: `How can I update my payment method?`,
+      answer: `To update your payment method, log in to your account and go to the Payment Settings section.`
     },
     {
-      question: `Why is ${tutorName} a good choice for ${subjects[0] || 'tutoring'}?`,
-      answer: `${tutorName} brings expertise, personalized teaching methods, and a commitment to student success. With ${rating > 0 ? `a ${rating.toFixed(1)} star rating` : 'excellent reviews'} and ${tier} tier certification, they are well-equipped to help you achieve your academic goals.`
+      question: `I have forgotten the password to my account. What can I do?`,
+      answer: ` To reset your password, go to the login page and click "Forgot Password". Enter your email address and follow the subsequent instructions.`
     },
-    {
-      question: 'What is Private Tutoring?',
-      answer: 'Private tutoring provides one-on-one personalized learning sessions tailored to your specific needs, learning style, and pace. It offers focused attention and customized lesson plans to help you excel in your studies.'
-    },
-    {
-      question: 'How do payments work?',
-      answer: 'Payments are processed securely through our platform. You can pay per session or purchase packages. All payments are handled through secure payment methods, and you will receive invoices for your records.'
-    },
-    {
-      question: 'What if I need to cancel a lesson?',
-      answer: 'You can cancel or reschedule lessons up to 24 hours in advance through your dashboard. Cancellations made with less than 24 hours notice may be subject to our cancellation policy.'
-    }
+   
   ];
 
   return (
@@ -284,6 +273,15 @@ const FindTutorRequest = () => {
               <div className="tutor-details-profile-info">
                 <h2 className="tutor-details-name-main">{tutorName}</h2>
                 {rating > 0 && renderStars(rating)}
+                <div className="tutor-details-profile-actions mt-3">
+                  <button
+                    className="btn btn-sm tutor-details-request-btn"
+                    onClick={() => navigate(`/tutor/contact?id=${tutorId}`)}
+                    disabled={!isLive}
+                  >
+                    Contact
+                  </button>
+                </div>
               </div>
             </div>
             <div className="tutor-details-profile-badges-row">
@@ -314,7 +312,7 @@ const FindTutorRequest = () => {
 
           {/* Bio Section */}
           <div className="tutor-details-bio-section">
-            <p className="tutor-details-bio-greeting">Hello, Guys! 👋</p>
+            <p className="tutor-details-bio-greeting">About Me</p>
             <div className="tutor-details-bio-text">
               {bio ? (
                 bio.split('\n').map((paragraph, idx) => (
@@ -455,28 +453,21 @@ const FindTutorRequest = () => {
                 </div>
               )}
 
-              {/* Contact Button */}
-              <button
-                className="btn tutor-details-request-btn"
-                onClick={() => navigate(`/tutor/contact?id=${tutorId}`)}
-                disabled={!isLive}
-              >
-                Contact
-              </button>
-              
-              {/* Book Consultation Button */}
-              <button
-                className="btn tutor-details-request-btn mt-3"
-                disabled={!isLive}
-              >
-                Book free 20 min academic consultation
-              </button>
             </div>
           </div>
         </div>
 
         {/* FAQ Section */}
         <div className="tutor-details-faq-section">
+        <div className="text-center my-4">
+        <button
+          className="btn tutor-details-request-btn"
+          style={{ maxWidth: '400px', width: 'auto' }}
+          disabled={!isLive}
+        >
+          Book free 20 min academic consultation
+        </button>
+      </div>
           <div className="tutor-details-faq-header">
             <h2 className="tutor-details-faq-title">Get started and find your perfect tutor!</h2>
             <button className="btn tutor-details-faq-cta-btn" onClick={() => navigate('/find-a-tutor')}>
@@ -512,13 +503,13 @@ const FindTutorRequest = () => {
             <p className="tutor-details-footer-text">
               Connect with expert tutors who are committed to your success.
             </p>
-            <button className="btn tutor-details-footer-btn" onClick={() => navigate('/find-a-tutor')}>
-              Find Your Perfect Tutor
-            </button>
+        
           </div>
         </div>
       </div>
 
+      {/* Book free consultation button - outside container */}
+      
     </div>
   );
 };

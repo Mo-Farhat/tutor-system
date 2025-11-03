@@ -322,7 +322,7 @@ const StudentRequests = () => {
                           {parsed.subject && (
                             <div className="col-12">
                               <div>
-                                <small className="text-muted d-block">Subject</small>
+                                <small className="text-muted d-block mb-1">Subject</small>
                                 <div className="fw-semibold">
                                   <i className="fas fa-book me-1 text-muted"></i>
                                   {parsed.subject}
@@ -333,7 +333,7 @@ const StudentRequests = () => {
                           {parsed.preferredContact && (
                             <div className="col-md-6">
                               <div>
-                                <small className="text-muted d-block">Preferred Contact Method</small>
+                                <small className="text-muted d-block mb-1">Preferred Contact Method</small>
                                 <div className="fw-semibold">
                                   <i className={`fas fa-${parsed.preferredContact === 'email' ? 'envelope' : 'phone'} me-1 text-muted`}></i>
                                   {parsed.preferredContact.charAt(0).toUpperCase() + parsed.preferredContact.slice(1)}
@@ -343,7 +343,7 @@ const StudentRequests = () => {
                           )}
                           <div className="col-md-6">
                             <div>
-                              <small className="text-muted d-block">Request Date</small>
+                              <small className="text-muted d-block mb-1">Request Date</small>
                               <div className="fw-semibold">
                                 <i className="fas fa-clock me-1 text-muted"></i>
                                 {formatDate(selectedRequest.createdAt)}
@@ -358,6 +358,211 @@ const StudentRequests = () => {
                           </div>
                         </div>
                       </div>
+
+                      {/* Availability */}
+                      {parsed.availability && (
+                        <>
+                          <hr />
+                          <div className="mb-4">
+                            <h6 className="text-muted mb-3">
+                              <i className="fas fa-calendar-alt me-2"></i>
+                              Preferred Availability
+                            </h6>
+                            <div className="table-responsive">
+                              <table className="table table-bordered table-sm">
+                                <thead>
+                                  <tr>
+                                    <th></th>
+                                    <th>Mon</th>
+                                    <th>Tue</th>
+                                    <th>Wed</th>
+                                    <th>Thu</th>
+                                    <th>Fri</th>
+                                    <th>Sat</th>
+                                    <th>Sun</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    <td className="fw-semibold">Morning</td>
+                                    <td className="text-center">
+                                      {parsed.availability.morning?.mon ? (
+                                        <i className="fas fa-check text-success"></i>
+                                      ) : (
+                                        <i className="fas fa-times text-muted"></i>
+                                      )}
+                                    </td>
+                                    <td className="text-center">
+                                      {parsed.availability.morning?.tue ? (
+                                        <i className="fas fa-check text-success"></i>
+                                      ) : (
+                                        <i className="fas fa-times text-muted"></i>
+                                      )}
+                                    </td>
+                                    <td className="text-center">
+                                      {parsed.availability.morning?.wed ? (
+                                        <i className="fas fa-check text-success"></i>
+                                      ) : (
+                                        <i className="fas fa-times text-muted"></i>
+                                      )}
+                                    </td>
+                                    <td className="text-center">
+                                      {parsed.availability.morning?.thu ? (
+                                        <i className="fas fa-check text-success"></i>
+                                      ) : (
+                                        <i className="fas fa-times text-muted"></i>
+                                      )}
+                                    </td>
+                                    <td className="text-center">
+                                      {parsed.availability.morning?.fri ? (
+                                        <i className="fas fa-check text-success"></i>
+                                      ) : (
+                                        <i className="fas fa-times text-muted"></i>
+                                      )}
+                                    </td>
+                                    <td className="text-center">
+                                      {parsed.availability.morning?.sat ? (
+                                        <i className="fas fa-check text-success"></i>
+                                      ) : (
+                                        <i className="fas fa-times text-muted"></i>
+                                      )}
+                                    </td>
+                                    <td className="text-center">
+                                      {parsed.availability.morning?.sun ? (
+                                        <i className="fas fa-check text-success"></i>
+                                      ) : (
+                                        <i className="fas fa-times text-muted"></i>
+                                      )}
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td className="fw-semibold">Afternoon</td>
+                                    <td className="text-center">
+                                      {parsed.availability.afternoon?.mon ? (
+                                        <i className="fas fa-check text-success"></i>
+                                      ) : (
+                                        <i className="fas fa-times text-muted"></i>
+                                      )}
+                                    </td>
+                                    <td className="text-center">
+                                      {parsed.availability.afternoon?.tue ? (
+                                        <i className="fas fa-check text-success"></i>
+                                      ) : (
+                                        <i className="fas fa-times text-muted"></i>
+                                      )}
+                                    </td>
+                                    <td className="text-center">
+                                      {parsed.availability.afternoon?.wed ? (
+                                        <i className="fas fa-check text-success"></i>
+                                      ) : (
+                                        <i className="fas fa-times text-muted"></i>
+                                      )}
+                                    </td>
+                                    <td className="text-center">
+                                      {parsed.availability.afternoon?.thu ? (
+                                        <i className="fas fa-check text-success"></i>
+                                      ) : (
+                                        <i className="fas fa-times text-muted"></i>
+                                      )}
+                                    </td>
+                                    <td className="text-center">
+                                      {parsed.availability.afternoon?.fri ? (
+                                        <i className="fas fa-check text-success"></i>
+                                      ) : (
+                                        <i className="fas fa-times text-muted"></i>
+                                      )}
+                                    </td>
+                                    <td className="text-center">
+                                      {parsed.availability.afternoon?.sat ? (
+                                        <i className="fas fa-check text-success"></i>
+                                      ) : (
+                                        <i className="fas fa-times text-muted"></i>
+                                      )}
+                                    </td>
+                                    <td className="text-center">
+                                      {parsed.availability.afternoon?.sun ? (
+                                        <i className="fas fa-check text-success"></i>
+                                      ) : (
+                                        <i className="fas fa-times text-muted"></i>
+                                      )}
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td className="fw-semibold">Night</td>
+                                    <td className="text-center">
+                                      {parsed.availability.night?.mon ? (
+                                        <i className="fas fa-check text-success"></i>
+                                      ) : (
+                                        <i className="fas fa-times text-muted"></i>
+                                      )}
+                                    </td>
+                                    <td className="text-center">
+                                      {parsed.availability.night?.tue ? (
+                                        <i className="fas fa-check text-success"></i>
+                                      ) : (
+                                        <i className="fas fa-times text-muted"></i>
+                                      )}
+                                    </td>
+                                    <td className="text-center">
+                                      {parsed.availability.night?.wed ? (
+                                        <i className="fas fa-check text-success"></i>
+                                      ) : (
+                                        <i className="fas fa-times text-muted"></i>
+                                      )}
+                                    </td>
+                                    <td className="text-center">
+                                      {parsed.availability.night?.thu ? (
+                                        <i className="fas fa-check text-success"></i>
+                                      ) : (
+                                        <i className="fas fa-times text-muted"></i>
+                                      )}
+                                    </td>
+                                    <td className="text-center">
+                                      {parsed.availability.night?.fri ? (
+                                        <i className="fas fa-check text-success"></i>
+                                      ) : (
+                                        <i className="fas fa-times text-muted"></i>
+                                      )}
+                                    </td>
+                                    <td className="text-center">
+                                      {parsed.availability.night?.sat ? (
+                                        <i className="fas fa-check text-success"></i>
+                                      ) : (
+                                        <i className="fas fa-times text-muted"></i>
+                                      )}
+                                    </td>
+                                    <td className="text-center">
+                                      {parsed.availability.night?.sun ? (
+                                        <i className="fas fa-check text-success"></i>
+                                      ) : (
+                                        <i className="fas fa-times text-muted"></i>
+                                      )}
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </>
+                      )}
+
+                      {/* Availability Notes */}
+                      {parsed.availabilityNotes && (
+                        <>
+                          <hr />
+                          <div className="mb-4">
+                            <h6 className="text-muted mb-2">
+                              <i className="fas fa-sticky-note me-2"></i>
+                              Availability Notes
+                            </h6>
+                            <div className="bg-light p-3 rounded">
+                              <p className="mb-0" style={{ whiteSpace: 'pre-wrap' }}>
+                                {parsed.availabilityNotes}
+                              </p>
+                            </div>
+                          </div>
+                        </>
+                      )}
 
                       {/* Message */}
                       {parsed.message && (

@@ -346,8 +346,8 @@ function FindtTutors({ filters }) {
                                         </div>
                                     )}
                                 </div>
-                                <div className="d-flex justify-content-between align-items-center w-100 mt-3">
-                                    <span className="text-primary fw-semibold">{rate}</span>
+                                <div className="d-flex justify-content-center align-items-center w-100 mt-3">
+                                    <span className="text-primary fw-semibold" style={{ fontSize: '1.1rem' }}>{rate}</span>
                                     
                                 </div>
                             </a>
