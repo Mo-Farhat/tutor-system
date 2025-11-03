@@ -70,21 +70,32 @@ const FindTutorRequest = () => {
         return;
       }
 
-      // Build message from form data
-      let messageText = formData.message || '';
+      // Build formatted message from form data in structured order
+      const messageParts = [];
+      
       if (formData.subject) {
-        messageText = `Subject: ${formData.subject}\n` + messageText;
+        messageParts.push(`Subject: ${formData.subject}`);
       }
-      if (formData.preferredContact) {
-        messageText = messageText + `\nPreferred Contact: ${formData.preferredContact}`;
-      }
+      
       if (formData.phone) {
-        messageText = messageText + `\nPhone: ${formData.phone}`;
+        messageParts.push(`Phone: ${formData.phone}`);
       }
+      
+      if (formData.preferredContact) {
+        messageParts.push(`Preferred Contact: ${formData.preferredContact}`);
+      }
+      
+      if (formData.message) {
+        messageParts.push('');
+        messageParts.push('Message:');
+        messageParts.push(formData.message);
+      }
+      
+      const messageText = messageParts.join('\n').trim();
 
       const response = await api.post('/auth/student/tutor-requests', {
         tutorId: parseInt(tutorId),
-        message: messageText.trim() || null
+        message: messageText || null
       });
 
       if (response.data.success) {
