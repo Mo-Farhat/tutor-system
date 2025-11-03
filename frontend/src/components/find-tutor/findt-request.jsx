@@ -1,23 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { getTutorById } from '../../services/authService';
-import api from '../../services/api';
-import { useAuth } from '../../contexts/AuthContext';
-import TutorRequestModal from './TutorRequestModal';
 import '../../css/find-tutor/findt-request.css';
 
 const FindTutorRequest = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
   const tutorId = searchParams.get('tutorId');
 
   const [tutor, setTutor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [showModal, setShowModal] = useState(false);
   const [faqOpen, setFaqOpen] = useState({});
 
   useEffect(() => {
@@ -54,66 +47,6 @@ const FindTutorRequest = () => {
     }
   };
 
-  const handleModalSubmit = async (formData) => {
-    try {
-      setSubmitting(true);
-      setError(null);
-
-      // If user is not authenticated, redirect to signup/login
-      if (!user) {
-        // Store form data in sessionStorage for after signup
-        sessionStorage.setItem('pendingTutorRequest', JSON.stringify({
-          tutorId: parseInt(tutorId),
-          formData: formData
-        }));
-        navigate('/signup?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
-        return;
-      }
-
-      // Build formatted message from form data in structured order
-      const messageParts = [];
-      
-      if (formData.subject) {
-        messageParts.push(`Subject: ${formData.subject}`);
-      }
-      
-      if (formData.phone) {
-        messageParts.push(`Phone: ${formData.phone}`);
-      }
-      
-      if (formData.preferredContact) {
-        messageParts.push(`Preferred Contact: ${formData.preferredContact}`);
-      }
-      
-      if (formData.message) {
-        messageParts.push('');
-        messageParts.push('Message:');
-        messageParts.push(formData.message);
-      }
-      
-      const messageText = messageParts.join('\n').trim();
-
-      const response = await api.post('/auth/student/tutor-requests', {
-        tutorId: parseInt(tutorId),
-        message: messageText || null
-      });
-
-      if (response.data.success) {
-        setSubmitSuccess(true);
-        setShowModal(false);
-      } else {
-        setError(response.data.error || 'Failed to send request');
-        throw new Error(response.data.error || 'Failed to send request');
-      }
-    } catch (err) {
-      console.error('Error sending request:', err);
-      const errorMsg = err.response?.data?.error || 'Failed to send request. Please try again.';
-      setError(errorMsg);
-      throw err; // Re-throw so modal can handle it
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   const getDefaultImage = (name) => {
     const safeName = typeof name === 'string' && name.length > 0 ? name : 'Tutor';
@@ -334,27 +267,6 @@ const FindTutorRequest = () => {
           </button>
         </div>
 
-        {/* Success Message */}
-        {submitSuccess && (
-          <div className="alert alert-success mb-4" role="alert">
-            <h4 className="alert-heading">
-              <i className="fas fa-check-circle me-2"></i>
-              Request Sent Successfully!
-            </h4>
-            <p>
-              Your request has been sent to {tutorName}. They will review your request and respond soon.
-            </p>
-            <hr />
-            <div className="d-flex gap-2">
-              <button className="btn btn-primary" onClick={() => navigate('/dashboard/student/tutor-requests')}>
-                View My Requests
-              </button>
-              <button className="btn btn-outline-primary" onClick={() => navigate('/find-a-tutor')}>
-                Find More Tutors
-              </button>
-            </div>
-          </div>
-        )}
 
         {/* Main White Card */}
         <div className="tutor-details-main-card">
@@ -543,13 +455,21 @@ const FindTutorRequest = () => {
                 </div>
               )}
 
-              {/* Request Button */}
+              {/* Contact Button */}
               <button
                 className="btn tutor-details-request-btn"
-                onClick={() => setShowModal(true)}
+                onClick={() => navigate(`/tutor/contact?id=${tutorId}`)}
                 disabled={!isLive}
               >
-                Request Tutor
+                Contact
+              </button>
+              
+              {/* Book Consultation Button */}
+              <button
+                className="btn tutor-details-request-btn mt-3"
+                disabled={!isLive}
+              >
+                Book free 20 min academic consultation
               </button>
             </div>
           </div>
@@ -599,20 +519,6 @@ const FindTutorRequest = () => {
         </div>
       </div>
 
-      {/* Request Modal */}
-      <TutorRequestModal
-        isOpen={showModal}
-        onClose={() => {
-          setShowModal(false);
-          setError(null);
-        }}
-        tutorName={tutorName}
-        tutorSubjects={subjects}
-        onSubmit={handleModalSubmit}
-        user={user}
-        submitting={submitting}
-        error={error}
-      />
     </div>
   );
 };

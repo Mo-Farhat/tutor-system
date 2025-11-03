@@ -348,9 +348,7 @@ function FindtTutors({ filters }) {
                                 </div>
                                 <div className="d-flex justify-content-between align-items-center w-100 mt-3">
                                     <span className="text-primary fw-semibold">{rate}</span>
-                                    <button type="button" className="findt-tutors-book-btn" onClick={(e) => { e.preventDefault(); window.location.href = `/find-a-tutor/request?tutorId=${tutor.id}`; }}>
-                                        Request Tutor
-                                    </button>
+                                    
                                 </div>
                             </a>
                         </div>
