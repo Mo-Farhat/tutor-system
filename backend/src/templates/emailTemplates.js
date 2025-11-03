@@ -386,10 +386,10 @@ const getAdminNotificationTemplate = (applicationData) => {
 // Approval Notification Template
 const getApprovalNotificationTemplate = (tutorData, setupToken) => {
   const setupUrl = `${
-    process.env.FRONTEND_URL || "http://localhost:3000"
+    "https://striveacademics.com.au"
   }/tutor/setup-password/${setupToken}`;
   const tutorPortalUrl = `${
-    process.env.FRONTEND_URL || "http://localhost:3000"
+    "https://striveacademics.com.au"
   }/dashboard/tutor/profile`;
 
   const content = `
