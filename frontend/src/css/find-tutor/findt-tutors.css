@@ -134,3 +134,93 @@
     background: #004494;
 }
 
+/* Rating Styles */
+.findt-tutors-rating-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.findt-tutors-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.findt-tutors-rating-value {
+    font-weight: 600;
+    color: #0D2371;
+    font-size: 0.9rem;
+}
+
+.findt-tutors-stars {
+    display: flex;
+    gap: 0.15rem;
+    align-items: center;
+}
+
+.findt-tutors-star-filled {
+    color: #FFB800;
+    font-size: 0.85rem;
+}
+
+.findt-tutors-star-empty {
+    color: #E5E7EB;
+    font-size: 0.85rem;
+}
+
+/* Education Information Styles */
+.findt-tutors-education {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem 0;
+}
+
+.findt-tutors-university,
+.findt-tutors-studies {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6B7280;
+    font-size: 0.8rem;
+}
+
+.findt-tutors-university i,
+.findt-tutors-studies i {
+    color: #0C4DA2;
+    font-size: 0.75rem;
+}
+
+.findt-tutors-university small,
+.findt-tutors-studies small {
+    line-height: 1.4;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .findt-tutors-rating {
+        gap: 0.35rem;
+    }
+    
+    .findt-tutors-rating-value {
+        font-size: 0.85rem;
+    }
+    
+    .findt-tutors-star-filled,
+    .findt-tutors-star-empty {
+        font-size: 0.75rem;
+    }
+    
+    .findt-tutors-education {
+        gap: 0.3rem;
+    }
+    
+    .findt-tutors-university,
+    .findt-tutors-studies {
+        font-size: 0.75rem;
+    }
+}
+

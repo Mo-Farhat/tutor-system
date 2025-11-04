@@ -1,10 +1,24 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import { getTutorById } from '../../services/authService';
+import authService from '../../services/authService';
+import api from '../../services/api';
 import '../../css/tutor/tutor-contact.css';
 
 
 function TutorContact() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const { user, login } = useAuth();
+    const tutorId = searchParams.get('id');
+    
+    const [tutor, setTutor] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState(false);
+    
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -22,6 +36,102 @@ function TutorContact() {
         availabilityNotes: '',
         agreeToTerms: false
     });
+    
+    useEffect(() => {
+        if (tutorId) {
+            fetchTutorData();
+        }
+    }, [tutorId]);
+    
+    useEffect(() => {
+        // Pre-populate form for logged in users
+        if (user) {
+            setFormData(prev => ({
+                ...prev,
+                name: `${user.first_name || user.firstName || ''} ${user.last_name || user.lastName || ''}`.trim(),
+                email: user.email || ''
+            }));
+        }
+    }, [user]);
+    
+    const fetchTutorData = async () => {
+        try {
+            setLoading(true);
+            const result = await getTutorById(tutorId);
+            if (result.success && result.data) {
+                const tutorData = result.data.data || result.data;
+                setTutor(tutorData);
+            }
+        } catch (err) {
+            console.error('Error fetching tutor:', err);
+            setError('Failed to load tutor information');
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    const formatAvailabilityGrid = () => {
+        const availabilityParts = [];
+        const timeLabels = {
+            morning: 'Morning',
+            afternoon: 'Afternoon',
+            night: 'Night'
+        };
+        const dayLabels = {
+            mon: 'Mon',
+            tue: 'Tue',
+            wed: 'Wed',
+            thu: 'Thu',
+            fri: 'Fri',
+            sat: 'Sat',
+            sun: 'Sun'
+        };
+        
+        Object.entries(formData.availabilityGrid).forEach(([timeOfDay, days]) => {
+            const availableDays = Object.entries(days)
+                .filter(([day, isChecked]) => isChecked)
+                .map(([day]) => dayLabels[day]);
+            
+            if (availableDays.length > 0) {
+                availabilityParts.push(`${timeLabels[timeOfDay]}: ${availableDays.join(', ')}`);
+            }
+        });
+        
+        return availabilityParts.length > 0 ? availabilityParts.join('; ') : 'Not specified';
+    };
+    
+    const formatMessage = () => {
+        const messageParts = [];
+        
+        if (formData.subject) {
+            messageParts.push(`Subject: ${formData.subject}`);
+        }
+        
+        if (formData.phone) {
+            messageParts.push(`Phone: ${formData.phone}`);
+        }
+        
+        if (formData.preferredContact) {
+            messageParts.push(`Preferred Contact: ${formData.preferredContact}`);
+        }
+        
+        const availability = formatAvailabilityGrid();
+        if (availability !== 'Not specified') {
+            messageParts.push(`Availability: ${availability}`);
+        }
+        
+        if (formData.availabilityNotes) {
+            messageParts.push(`Availability Notes: ${formData.availabilityNotes}`);
+        }
+        
+        if (formData.message) {
+            messageParts.push('');
+            messageParts.push('Message:');
+            messageParts.push(formData.message);
+        }
+        
+        return messageParts.join('\n').trim();
+    };
     
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -44,19 +154,93 @@ function TutorContact() {
         }));
     };
     
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
+        setSuccess(false);
+        
+        // Validation
         if (!formData.agreeToTerms) {
-            alert("Please agree to the terms and conditions to proceed.");
+            setError("Please agree to the terms and conditions to proceed.");
             return;
         }
-        if (formData.password !== formData.confirmPassword) {
-            alert("Passwords don't match!");
+        
+        // If user is not authenticated, validate password fields
+        if (!user) {
+            if (!formData.password || formData.password.length < 8) {
+                setError("Password must be at least 8 characters.");
+                return;
+            }
+            if (formData.password !== formData.confirmPassword) {
+                setError("Passwords don't match!");
+                return;
+            }
+        }
+        
+        if (!tutorId) {
+            setError("Tutor ID is required. Please access this page from a tutor profile.");
             return;
         }
-        // Rest of the form submission logic
-        console.log('Form submitted:', formData);
-        };
+        
+        try {
+            setSubmitting(true);
+            
+            // Step 1: Create account if user is not authenticated
+            let currentUser = user;
+            if (!user) {
+                // Split name into firstName and lastName
+                const nameParts = formData.name.trim().split(' ');
+                const firstName = nameParts[0] || '';
+                const lastName = nameParts.slice(1).join(' ') || '';
+                
+                try {
+                    const registrationResponse = await authService.registerStudent({
+                        firstName,
+                        lastName,
+                        email: formData.email,
+                        password: formData.password,
+                        role: 'student'
+                    });
+                    
+                    // After registration, automatically log in
+                    await login({
+                        email: formData.email,
+                        password: formData.password
+                    });
+                    
+                    currentUser = registrationResponse.user;
+                } catch (regError) {
+                    setError(regError.message || 'Failed to create account. Please try again.');
+                    setSubmitting(false);
+                    return;
+                }
+            }
+            
+            // Step 2: Submit tutor request
+            const messageText = formatMessage();
+            
+            const response = await api.post('/auth/student/tutor-requests', {
+                tutorId: parseInt(tutorId),
+                message: messageText || null
+            });
+            
+            if (response.data.success) {
+                setSuccess(true);
+                // Redirect after 2 seconds
+                setTimeout(() => {
+                    navigate('/dashboard/student/tutor-requests');
+                }, 2000);
+            } else {
+                setError(response.data.error || 'Failed to send request');
+            }
+        } catch (err) {
+            console.error('Error submitting form:', err);
+            const errorMsg = err.response?.data?.error || err.message || 'Failed to submit request. Please try again.';
+            setError(errorMsg);
+        } finally {
+            setSubmitting(false);
+        }
+    };
 
     // Helper function to render checkbox with proper state binding
     const renderCheckbox = (timeOfDay, day) => (
@@ -77,27 +261,60 @@ function TutorContact() {
                             <div className="tutor-contact-card-body p-4 p-md-5">
                                 <div className="text-center mb-4">
                                     <h1 className="tutor-contact-title">Contact Tutor</h1>
-                                    <div className="tutor-contact-profile">
-                                        <div className="tutor-contact-profile-image">
-                                            <img 
-                                                src="https://cdn.pixabay.com/photo/2016/08/20/05/38/avatar-1606916_960_720.png" 
-                                                alt="Enola Holmes" 
-                                                className="tutor-contact-avatar"
-                                            />
-                                        </div>
-                                        <h2 className="tutor-contact-name">Enola Holmes</h2>
-                                        <div className="tutor-contact-stats">
-                                            <div className="tutor-contact-atar">
-                                                <span className="tutor-contact-score">94.27</span>
-                                                <span className="tutor-contact-label">ATAR</span>
-                                            </div>
-                                            <div className="tutor-contact-tier">
-                                                <span className="tutor-contact-badge">Gold Tutor</span>
-                                                <span className="tutor-contact-price">30$/h</span>
+                                    {loading ? (
+                                        <div className="text-center py-4">
+                                            <div className="spinner-border text-primary" role="status">
+                                                <span className="visually-hidden">Loading...</span>
                                             </div>
                                         </div>
-                                    </div>
+                                    ) : tutor ? (
+                                        <div className="tutor-contact-profile">
+                                            <div className="tutor-contact-profile-image">
+                                                <img 
+                                                    src={tutor.photo_url || tutor.image || "https://cdn.pixabay.com/photo/2016/08/20/05/38/avatar-1606916_960_720.png"} 
+                                                    alt={tutor.name || 'Tutor'} 
+                                                    className="tutor-contact-avatar"
+                                                />
+                                            </div>
+                                            <h2 className="tutor-contact-name">
+                                                {tutor.name || `${tutor.user?.first_name || ''} ${tutor.user?.last_name || ''}`.trim() || 'Tutor'}
+                                            </h2>
+                                            <div className="tutor-contact-stats">
+                                                {tutor.atar && (
+                                                    <div className="tutor-contact-atar">
+                                                        <span className="tutor-contact-score">{tutor.atar}</span>
+                                                        <span className="tutor-contact-label">ATAR</span>
+                                                    </div>
+                                                )}
+                                                {tutor.tier && (
+                                                    <div className="tutor-contact-tier">
+                                                        <span className="tutor-contact-badge">
+                                                            {tutor.tier === 'gold' ? 'Gold' : tutor.tier === 'silver' ? 'Silver' : tutor.tier === 'bronze' ? 'Bronze' : 'Tutor'} Tutor
+                                                        </span>
+                                                        <span className="tutor-contact-price">${tutor.hourly_rate || tutor.hourlyRate || 'N/A'}/h</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="tutor-contact-profile">
+                                            <div className="tutor-contact-profile-image">
+                                                <img 
+                                                    src="https://cdn.pixabay.com/photo/2016/08/20/05/38/avatar-1606916_960_720.png" 
+                                                    alt="Tutor" 
+                                                    className="tutor-contact-avatar"
+                                                />
+                                            </div>
+                                            <h2 className="tutor-contact-name">Tutor</h2>
+                                        </div>
+                                    )}
                                 </div>
+                                
+                                {(error || success) && (
+                                    <div className={`alert ${success ? 'alert-success' : 'alert-danger'} mb-4`} role="alert">
+                                        {error || (success && 'Request sent successfully! Redirecting...')}
+                                    </div>
+                                )}
                                     
                                 <form onSubmit={handleSubmit} className="tutor-contact-form">
                                     <div className="row g-4">
@@ -154,52 +371,64 @@ function TutorContact() {
                                                 required
                                             >
                                                 <option value="">Select a subject</option>
-                                                <option value="VCE Chemistry">VCE Chemistry</option>
-                                                <option value="HSC Physics">HSC Physics</option>
-                                                <option value="IB Biology HL">IB Biology HL</option>
-                                                <option value="QCE Mathematical Methods">QCE Mathematical Methods</option>
-                                                <option value="UCAT">UCAT (Medical Entrance)</option>
-                                                <option value="GAMSAT">GAMSAT (Medical Entrance)</option>
-                                                <option value="Year 1-10 Maths">Year 1-10 Maths</option>
-                                                <option value="Year 1-10 Science">Year 1-10 Science</option>
-                                                <option value="Selective Entry">Selective Entry</option>
-                                                <option value="Interview Preparation">Interview Preparation (Medical)</option>
+                                                {tutor && tutor.subjects && tutor.subjects.length > 0 ? (
+                                                    tutor.subjects.map((subject, idx) => (
+                                                        <option key={idx} value={subject}>{subject}</option>
+                                                    ))
+                                                ) : (
+                                                    <>
+                                                        <option value="VCE Chemistry">VCE Chemistry</option>
+                                                        <option value="HSC Physics">HSC Physics</option>
+                                                        <option value="IB Biology HL">IB Biology HL</option>
+                                                        <option value="QCE Mathematical Methods">QCE Mathematical Methods</option>
+                                                        <option value="UCAT">UCAT (Medical Entrance)</option>
+                                                        <option value="GAMSAT">GAMSAT (Medical Entrance)</option>
+                                                        <option value="Year 1-10 Maths">Year 1-10 Maths</option>
+                                                        <option value="Year 1-10 Science">Year 1-10 Science</option>
+                                                        <option value="Selective Entry">Selective Entry</option>
+                                                        <option value="Interview Preparation">Interview Preparation (Medical)</option>
+                                                    </>
+                                                )}
                                             </select>
                                             </div>
                                         </div>
-                                        <div className="col-md-6">
-                                            <div className="tutor-contact-form-group">
-                                                <label htmlFor="password" className="tutor-contact-label">Password *</label>
-                                                <input
-                                                    type="password"
-                                                    className="tutor-contact-input"
-                                                    id="password"
-                                                    name="password"
-                                                    value={formData.password}
-                                                    onChange={handleChange}
-                                                    required
-                                                    minLength="8"
-                                                    placeholder="Enter your password"
-                                                />
-                                                <small className="tutor-contact-help-text">Minimum 8 characters</small>
-                                            </div>
-                                        </div>
-                                        <div className="col-md-6">
-                                            <div className="tutor-contact-form-group">
-                                                <label htmlFor="confirmPassword" className="tutor-contact-label">Confirm Password *</label>
-                                            <input 
-                                                    type="password"
-                                                    className="tutor-contact-input"
-                                                    id="confirmPassword"
-                                                    name="confirmPassword"
-                                                    value={formData.confirmPassword}
-                                                onChange={handleChange}
-                                                required 
-                                                    minLength="8"
-                                                    placeholder="Confirm your password"
-                                            />
-                                            </div>
-                                        </div>
+                                        {!user && (
+                                            <>
+                                                <div className="col-md-6">
+                                                    <div className="tutor-contact-form-group">
+                                                        <label htmlFor="password" className="tutor-contact-label">Password *</label>
+                                                        <input
+                                                            type="password"
+                                                            className="tutor-contact-input"
+                                                            id="password"
+                                                            name="password"
+                                                            value={formData.password}
+                                                            onChange={handleChange}
+                                                            required
+                                                            minLength="8"
+                                                            placeholder="Enter your password"
+                                                        />
+                                                        <small className="tutor-contact-help-text">Minimum 8 characters</small>
+                                                    </div>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <div className="tutor-contact-form-group">
+                                                        <label htmlFor="confirmPassword" className="tutor-contact-label">Confirm Password *</label>
+                                                    <input 
+                                                            type="password"
+                                                            className="tutor-contact-input"
+                                                            id="confirmPassword"
+                                                            name="confirmPassword"
+                                                            value={formData.confirmPassword}
+                                                        onChange={handleChange}
+                                                        required 
+                                                            minLength="8"
+                                                            placeholder="Confirm your password"
+                                                    />
+                                                    </div>
+                                                </div>
+                                            </>
+                                        )}
                                         <div className="col-12">
                                             <div className="tutor-contact-form-group">
                                                 <label htmlFor="message" className="tutor-contact-label">Message *</label>
@@ -338,7 +567,20 @@ function TutorContact() {
                                         </div>
                                         <div className="col-12">
                                             <div className="tutor-contact-button-wrapper">
-                                                <button type="submit" className="tutor-contact-submit-btn">Signup and Send Message</button>
+                                                <button 
+                                                    type="submit" 
+                                                    className="tutor-contact-submit-btn"
+                                                    disabled={submitting}
+                                                >
+                                                    {submitting ? (
+                                                        <>
+                                                            <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                                                            {!user ? 'Creating account and sending...' : 'Sending message...'}
+                                                        </>
+                                                    ) : (
+                                                        !user ? 'Signup and Send Message' : 'Send Message'
+                                                    )}
+                                                </button>
                                             </div>
                                     </div>
                                     </div>

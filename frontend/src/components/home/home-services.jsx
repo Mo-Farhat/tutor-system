@@ -58,9 +58,9 @@ function Services() {
                     20-Minute Free Academic Consultation
                   </h4>
                 </div>
-                <p className="col-11 fw-light offset-1 d-flex service-sub-con">
+                <p className="col-12 fw-light d-flex service-sub-con">
                   Click "Find a Tutor" to connect with a tutor from our stellar
-                  team. Plus, enjoy a complimentary 30-minute FREE Academic
+                  team. Plus, enjoy a complimentary 20-minute FREE Academic
                   Consultation. No strings attached, no questions asked. It's
                   our way of ensuring you receive tailored support hassle-free
                   from a tutor that gets you.
@@ -91,7 +91,7 @@ function Services() {
                   </div>
                   <h4 className="fw-bold service-sub-h">Expert Tutors</h4>
                 </div>
-                <p className="col-11 fw-light offset-1 d-flex service-sub-con">
+                <p className="col-12 fw-light d-flex service-sub-con">
                   Our tutors embody academic excellence. They have achieved
                   stellar scores (top 3% ATAR or ranked no.1 in subjects) and
                   possess extensive tutoring experience. Many of them are
@@ -124,7 +124,7 @@ function Services() {
                     Personalised Approach
                   </h4>
                 </div>
-                <p className="col-11 fw-light offset-1 d-flex service-sub-con">
+                <p className="col-12 fw-light d-flex service-sub-con">
                   We understand that every student is unique. That's why we
                   tailor our tutoring sessions to meet your individual needs,
                   learning style, and pace.
@@ -147,11 +147,11 @@ function Services() {
         </div>
 
         <div className="row d-fex g-0 service-main">
-          <div className="col-8 g-0 d-flex service-main-t">
-            <h1 className="col-7 fw-bold offset-5 service-main-h">
+          <div className="col-8 g-0 d-flex service-main-t" style={{alignItems: 'flex-end', paddingLeft: '16%'}}>
+            <h1 className="col-7 fw-bold service-main-h">
               Bring a Friend and Save!
             </h1>
-            <span className="col-7 offset-5 text-right fw-light service-des">
+            <span className="col-7 text-left fw-light service-des">
               Unlock the power of group learning with our exclusive
               Bring-a-Friend offer! Enjoy a fantastic 12.5% discount when you
               and your friend book tutoring sessions together, whether it's for
@@ -176,7 +176,7 @@ function Services() {
                 alt=""
               />
             </div>
-            <div className="col-6 service-sub-l-col">
+            <div className="col-6 service-sub-l-col" style={{paddingLeft: '3.5rem'}}>
               <div className="col-12 d-flex g-0 service-sub-con">
                 <div className="d-flex service-sub-h-main">
                   <div className="p-3 service-sub-h-icn-main">
@@ -204,7 +204,7 @@ function Services() {
                     Learn Together, Save Together
                   </h4>
                 </div>
-                <p className="col-11 fw-light offset-1 d-flex service-sub-con">
+                <p className="col-12 fw-light d-flex service-sub-con">
                   The more friends you bring, the more you save. This means you
                   can get the same high-quality tutoring at a discounted rate,
                   making it more affordable for everyone involved.
@@ -235,7 +235,7 @@ function Services() {
                   </div>
                   <h4 className="fw-bold service-sub-h">Peer Support</h4>
                 </div>
-                <p className="col-11 fw-light offset-1 d-flex service-sub-con">
+                <p className="col-12 fw-light d-flex service-sub-con">
                   Having friends to learn with provides a built-in support
                   system. You can discuss concepts, ask questions, and celebrate
                   successes together, making the learning process more engaging
@@ -268,7 +268,7 @@ function Services() {
                     Commitment-Free Learning
                   </h4>
                 </div>
-                <p className="col-11 fw-light offset-1 d-flex service-sub-con">
+                <p className="col-12 fw-light d-flex service-sub-con">
                   We believe in transparency and flexibility which means no
                   lock-in contracts! Enjoy the flexibility of our tutoring
                   services without the worry of long-term commitments. You can

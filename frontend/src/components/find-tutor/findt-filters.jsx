@@ -1,20 +1,35 @@
 import { useState, useRef, useEffect } from "react";
 import "../../css/find-tutor/findt-filters.css"
 
-function FindtFilters({ onFiltersChange }) {
-    // Progressive filtering state
-    const [currentStep, setCurrentStep] = useState(1);
-    const [selectedFilters, setSelectedFilters] = useState({
-        yearLevel: '',
-        curriculum: '',
-        subject: '',
-        location: ''
-    });
+function FindtFilters({ onFiltersChange, initialFilters }) {
+    // Initialize step based on initial filters
+    const getInitialStep = () => {
+        if (initialFilters?.subject) return 4;
+        if (initialFilters?.curriculum) return 3;
+        if (initialFilters?.yearLevel) return 2;
+        return 1;
+    };
+
+    // Progressive filtering state - use lazy initialization
+    const [currentStep, setCurrentStep] = useState(() => getInitialStep());
+    const [selectedFilters, setSelectedFilters] = useState(() => ({
+        yearLevel: initialFilters?.yearLevel || '',
+        curriculum: initialFilters?.curriculum || '',
+        subject: initialFilters?.subject || '',
+        location: initialFilters?.location || ''
+    }));
 
     // Subject search state
-    const [subjectSearchTerm, setSubjectSearchTerm] = useState('');
+    const [subjectSearchTerm, setSubjectSearchTerm] = useState(() => initialFilters?.subject || '');
     const [filteredSubjects, setFilteredSubjects] = useState([]);
     const [showSubjectSuggestions, setShowSubjectSuggestions] = useState(false);
+    
+    // Log initial filters for debugging
+    useEffect(() => {
+        console.log('🎯 FindtFilters mounted/updated with initialFilters:', initialFilters);
+        console.log('🎯 Current step:', currentStep);
+        console.log('🎯 Selected filters:', selectedFilters);
+    }, [initialFilters]);
 
     // Location state
     const [postcode, setPostcode] = useState('');

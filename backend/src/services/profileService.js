@@ -599,7 +599,8 @@ class ProfileService {
         goldPoints:
           tutor.tier === "gold" ? 100 : tutor.tier === "premium" ? 200 : 300,
         atrPoints: tutor.atar ? Math.round(tutor.atar) : 0,
-        image: null, // Placeholder for now
+        image: tutor.photo_url || null,
+        photo_url: tutor.photo_url || null,
       }));
 
       const result = {
