@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -8,6 +8,9 @@ const ProtectedTutorRoute = ({ children, allowedRoutes = [] }) => {
   const location = useLocation();
   const [completionStatus, setCompletionStatus] = useState(null);
   const [loading, setLoading] = useState(true);
+  const completionStatusCache = useRef(null);
+  const lastFetchTime = useRef(null);
+  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
 
   // Routes that are always allowed (settings/profile page)
   const alwaysAllowedRoutes = [
@@ -17,7 +20,23 @@ const ProtectedTutorRoute = ({ children, allowedRoutes = [] }) => {
 
   useEffect(() => {
     const checkCompletionStatus = async () => {
+      // Check if we have a valid cache
+      const now = Date.now();
+      const isCacheValid = 
+        completionStatusCache.current && 
+        lastFetchTime.current && 
+        (now - lastFetchTime.current) < CACHE_DURATION;
+
+      // Use cache if valid and we're not on the profile page (profile page needs fresh data)
+      if (isCacheValid && location.pathname !== "/dashboard/tutor/profile") {
+        setCompletionStatus(completionStatusCache.current);
+        setLoading(false);
+        return;
+      }
+
+      // Otherwise, fetch fresh data
       try {
+        setLoading(true);
         const username = user?.username || "notmanu23";
         const response = await fetch(
           `${
@@ -28,6 +47,9 @@ const ProtectedTutorRoute = ({ children, allowedRoutes = [] }) => {
 
         if (data.success) {
           setCompletionStatus(data.data);
+          // Update cache
+          completionStatusCache.current = data.data;
+          lastFetchTime.current = now;
         } else {
           console.error("Failed to get completion status:", data.message);
         }
@@ -38,8 +60,20 @@ const ProtectedTutorRoute = ({ children, allowedRoutes = [] }) => {
       }
     };
 
-    checkCompletionStatus();
-  }, [user]);
+    // Only refetch if user changes or coming from profile page
+    const shouldRefetch = 
+      !user || 
+      location.pathname === "/dashboard/tutor/profile" ||
+      !completionStatusCache.current;
+
+    if (shouldRefetch) {
+      checkCompletionStatus();
+    } else {
+      // Use cached data
+      setCompletionStatus(completionStatusCache.current);
+      setLoading(false);
+    }
+  }, [user, location.pathname]);
 
   useEffect(() => {
     if (!loading && completionStatus) {
@@ -80,8 +114,11 @@ const ProtectedTutorRoute = ({ children, allowedRoutes = [] }) => {
   }
 
   // If profile is not complete and user is on a restricted route, show completion message
+  // Only check after loading is complete AND completionStatus exists
   if (
-    !completionStatus?.fully_complete &&
+    !loading &&
+    completionStatus &&
+    !completionStatus.fully_complete &&
     !alwaysAllowedRoutes.includes(location.pathname) &&
     !allowedRoutes.includes(location.pathname)
   ) {
