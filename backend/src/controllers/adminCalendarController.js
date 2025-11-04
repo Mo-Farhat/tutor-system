@@ -97,13 +97,16 @@ exports.addMaterial = async (req, res) => {
     const lessonId = Number(req.params.id);
     const file = req.file;
     const { title, url, type } = req.body || {};
+const finalUrl = file?.cloudUrl ?? url ?? file?.path ?? null;
+   const inferredType =
+     type ?? (file ? (file.mimetype || "").split("/")[1] : (url ? "link" : "other"));
     const result = await calendarService.addMaterial(lessonId, {
-      title: title ?? (file?.originalname || null),
-      type: type ?? (file ? (file.mimetype || "").split("/")[1] : (url ? "link" : "other")),
-      path: file?.path ?? null,
-      url: url ?? null,
-      addedBy: req.user.id,
-    });
+     title: title ?? (file?.originalname || null),
+     type: inferredType,
+     path: null,                // keep storage URL in `url` for consistency
+     url: finalUrl,
+     addedBy: req.user.id,
+        });
     res.status(201).json(result);
   } catch (e) {
     console.error("admin.calendar.addMaterial", e);

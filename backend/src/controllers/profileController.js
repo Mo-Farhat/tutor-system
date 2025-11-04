@@ -192,11 +192,12 @@ exports.uploadVideoIntro = async (req, res) => {
         .status(400)
         .json({ success: false, error: "videoIntro file is required" });
 
-    await tutorProfileModel.update(userId, { intro_video_path: file.path });
+    const finalUrl = file.cloudUrl || file.path; // prefer S3
+  await tutorProfileModel.update(userId, { intro_video_path: finalUrl });
     res.json({
       success: true,
       message: "Video intro uploaded",
-      path: file.path,
+      path: finalUrl,
     });
   } catch (e) {
     console.error("Upload video intro error:", e);
@@ -218,10 +219,12 @@ exports.uploadRequiredDocuments = async (req, res) => {
 
     const created = [];
     if (contract) {
-      created.push(await tutorDocumentModel.create(userId, "contract", contract.path, null));
+      const contractUrl = contract.cloudUrl || contract.path;
+ created.push(await tutorDocumentModel.create(userId, "contract", contractUrl, null));
     }
     if (wwcc) {
-      created.push(await tutorDocumentModel.create(userId, "wwcc", wwcc.path, wwccExpiry));
+      const wwccUrl = wwcc.cloudUrl || wwcc.path;
+   created.push(await tutorDocumentModel.create(userId, "wwcc", wwccUrl, wwccExpiry));
     }
 
     await profileService.markDocumentsFlag(userId);
@@ -279,9 +282,12 @@ exports.getLiveTutors = async (req, res) => {
 
 exports.uploadStudentPhoto = async (req, res) => {
   try {
-    if (!req.file?.path) return res.status(400).json({ success: false, error: "No file uploaded" });
-    await studentProfileModel.update(req.user.id, { photo_url: req.file.path });
-    res.json({ success: true, photo_url: req.file.path });
+    const f = req.file;
+   if (!f) return res.status(400).json({ success: false, error: "No file uploaded" });
+   const finalUrl = f.cloudUrl || f.path || null;
+       if (!finalUrl) return res.status(500).json({ success: false, error: "Upload failed" });
+   await studentProfileModel.update(req.user.id, { photo_url: finalUrl });
+  res.json({ success: true, photo_url: finalUrl });
   } catch (e) {
     console.error("uploadStudentPhoto", e);
     res.status(500).json({ success: false, error: "Internal server error" });

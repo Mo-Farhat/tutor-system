@@ -202,10 +202,12 @@ exports.submitTutorApplication = async (req, res) => {
 
     if (req.files) {
       if (req.files.videoSubmission && req.files.videoSubmission[0]) {
-        videoSubmissionPath = req.files.videoSubmission[0].path;
+         const f = req.files.videoSubmission[0];
+videoSubmissionPath = f.cloudUrl || f.path || null;
       }
       if (req.files.resume && req.files.resume[0]) {
-        resumePath = req.files.resume[0].path;
+        const f = req.files.resume[0];
+  resumePath = f.cloudUrl || f.path || null;
       }
     }
 

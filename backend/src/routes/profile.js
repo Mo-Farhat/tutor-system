@@ -20,6 +20,8 @@ const {
   handleUploadError,
 } = require("../middleware/upload");
 
+const { s3PostProcess } = require("../middleware/s3PostProcess");
+
 // Get tutor profile (public endpoint for profile viewing)
 router.get("/tutor/profile", profileController.getTutorProfile);
 
@@ -95,6 +97,7 @@ router.post(
   requireTutor,
   tutorVideoUpload,
   handleUploadError,
+  s3PostProcess("tutor/videos"),
   profileController.uploadVideoIntro
 );
 
@@ -105,6 +108,7 @@ router.post(
   requireTutor,
   tutorDocsUpload,
   handleUploadError,
+  s3PostProcess("tutor/docs"),
   profileController.uploadRequiredDocuments
 );
 
@@ -138,6 +142,7 @@ router.post(
   requireStudent,
   studentPhotoUpload,
   handleUploadError,
+  s3PostProcess("students/photos"),
   profileController.uploadStudentPhoto
 );
 
