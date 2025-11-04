@@ -118,7 +118,7 @@ function Login() {
 
       switch (userRole) {
         case "student":
-          navigate("/");
+          navigate("/dashboard/student/home");
           break;
         case "tutor":
           navigate("/dashboard/tutor/profile", {

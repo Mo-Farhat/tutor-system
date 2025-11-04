@@ -120,8 +120,8 @@ function Signup() {
                 // role: 'student' is automatically set in the service
             });
 
-            // Redirect to home page after successful registration
-            navigate('/');
+            // Redirect to student dashboard after successful registration
+            navigate('/dashboard/student/home');
         } catch (err) {
             console.error('Registration failed:', err);
             // Error is handled by the AuthContext

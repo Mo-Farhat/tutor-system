@@ -332,94 +332,32 @@ function Navbar() {
                             openDropdowns.user ? "show" : ""
                           }`}
                         >
-                          {user?.role === "student" && (
-                            <>
-                              <li>
-                                <Link
-                                  className="dropdown-item nav-item-drop-down-item"
-                                  to="/profile"
-                                  onClick={handleNavigation("/profile")}
-                                >
-                                  My Profile
-                                </Link>
-                              </li>
-                              <li>
-                                <Link
-                                  className="dropdown-item nav-item-drop-down-item"
-                                  to="/my-sessions"
-                                  onClick={handleNavigation("/my-sessions")}
-                                >
-                                  My Sessions
-                                </Link>
-                              </li>
-                            </>
-                          )}
-                          {user?.role === "tutor" && (
-                            <>
-                              <li>
-                                <Link
-                                  className="dropdown-item nav-item-drop-down-item"
-                                  to="/tutor/account-settings"
-                                  onClick={handleNavigation(
-                                    "/tutor/account-settings"
-                                  )}
-                                >
-                                  Account Settings
-                                </Link>
-                              </li>
-                              <li>
-                                <Link
-                                  className="dropdown-item nav-item-drop-down-item"
-                                  to="/tutor/documents"
-                                  onClick={handleNavigation("/tutor/documents")}
-                                >
-                                  Documents
-                                </Link>
-                              </li>
-                              <li>
-                                <Link
-                                  className="dropdown-item nav-item-drop-down-item"
-                                  to="/tutor/payment-details"
-                                  onClick={handleNavigation(
-                                    "/tutor/payment-details"
-                                  )}
-                                >
-                                  Payment Details
-                                </Link>
-                              </li>
-                            </>
-                          )}
-                          {user?.role === "admin" && (
-                            <>
-                              <li>
-                                <Link
-                                  className="dropdown-item nav-item-drop-down-item"
-                                  to="/admin/dashboard"
-                                  onClick={handleNavigation("/admin/dashboard")}
-                                >
-                                  Admin Dashboard
-                                </Link>
-                              </li>
-                              <li>
-                                <Link
-                                  className="dropdown-item nav-item-drop-down-item"
-                                  to="/admin/users"
-                                  onClick={handleNavigation("/admin/users")}
-                                >
-                                  Manage Users
-                                </Link>
-                              </li>
-                              <li>
-                                <Link
-                                  className="dropdown-item nav-item-drop-down-item"
-                                  to="/admin/tutors"
-                                  onClick={handleNavigation("/admin/tutors")}
-                                >
-                                  Manage Tutors
-                                </Link>
-                              </li>
-                            </>
-                          )}
+                          <li>
+                            <Link
+                              className="dropdown-item nav-item-drop-down-item"
+                              to={
+                                user?.role === "student"
+                                  ? "/dashboard/student/home"
+                                  : user?.role === "tutor"
+                                  ? "/dashboard/tutor/home"
+                                  : user?.role === "admin"
+                                  ? "/dashboard/admin/home"
+                                  : "/"
+                              }
+                              onClick={handleNavigation(
+                                user?.role === "student"
+                                  ? "/dashboard/student/home"
+                                  : user?.role === "tutor"
+                                  ? "/dashboard/tutor/home"
+                                  : user?.role === "admin"
+                                  ? "/dashboard/admin/home"
+                                  : "/"
+                              )}
+                            >
+                              <i className="bi bi-speedometer2 me-2"></i>
+                              Go to dashboard
+                            </Link>
+                          </li>
                           <li>
                             <hr className="dropdown-divider" />
                           </li>
