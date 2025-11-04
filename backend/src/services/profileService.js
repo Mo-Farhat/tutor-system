@@ -4,6 +4,7 @@ const {
   studentProfileModel,
   tutorPaymentModel,
   tutorDocumentModel,
+  tutorApplicationModel,
 } = require("../models");
 const bcrypt = require("bcrypt");
 
@@ -14,6 +15,9 @@ class ProfileService {
     if (!tutorProfile || tutorProfile.user.role !== "tutor") {
       return { success: false, error: "Tutor profile not found" };
     }
+
+    // Fetch linked tutor application if it exists
+    const application = await tutorApplicationModel.findByUserId(userId);
 
     // NEW: compute WWCC status and include documents flag
     const wwcc = await this.wwccStatus(tutorProfile.userId);
@@ -42,6 +46,7 @@ class ProfileService {
         ...tutorProfile,
         wwcc_status: wwcc, // ⬅️ convenient for the UI
         completion_status: completionStatus,
+        application: application || null, // Include application data for pre-filling
       },
     };
   }
@@ -57,6 +62,9 @@ class ProfileService {
     if (!tutorProfile) {
       return { success: false, error: "Tutor profile not found" };
     }
+
+    // Fetch linked tutor application if it exists
+    const application = await tutorApplicationModel.findByUserId(user.id);
 
     const wwcc = await this.wwccStatus(user.id);
     const completionStatus = this.calculateCompletionStatus(
@@ -84,6 +92,7 @@ class ProfileService {
         ...tutorProfile,
         wwcc_status: wwcc,
         completion_status: completionStatus,
+        application: application || null, // Include application data for pre-filling
       },
     };
   }
