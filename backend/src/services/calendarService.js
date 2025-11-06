@@ -1,6 +1,7 @@
 const prisma = require("../db/prisma");
 const { zoomLinkModel, lessonMaterialModel } = require("../models");
 const crypto = require("crypto");
+const emailService = require("./emailService");
 
 class CalendarService {
   // List lessons with filters for admin calendar
@@ -75,10 +76,64 @@ class CalendarService {
   }
 
   async markCompleted(id) {
+    // Get lesson with student and tutor info before updating
+    const lesson = await prisma.lesson.findUnique({
+      where: { id: Number(id) },
+      include: {
+        student: {
+          select: { id: true, firstName: true, lastName: true, email: true },
+        },
+        tutor: {
+          select: { id: true, firstName: true, lastName: true, email: true },
+        },
+        feedback: true,
+      },
+    });
+
+    if (!lesson) {
+      return { success: false, error: "Lesson not found" };
+    }
+
+    // Update lesson status to completed
     const row = await prisma.lesson.update({
       where: { id: Number(id) },
       data: { status: "completed" },
+      include: {
+        student: {
+          select: { id: true, firstName: true, lastName: true, email: true },
+        },
+        tutor: {
+          select: { id: true, firstName: true, lastName: true, email: true },
+        },
+        feedback: true,
+      },
     });
+
+    // If no feedback exists, send reminder email
+    if (!lesson.feedback) {
+      try {
+        await emailService.sendFeedbackReminderEmail(
+          lesson.student.email,
+          {
+            firstName: lesson.student.firstName,
+            lastName: lesson.student.lastName,
+          },
+          {
+            firstName: lesson.tutor.firstName,
+            lastName: lesson.tutor.lastName,
+          },
+          {
+            id: lesson.id,
+            subject: lesson.subject,
+            startAt: lesson.startAt,
+          }
+        );
+      } catch (e) {
+        console.error("Failed to send feedback reminder email:", e.message);
+        // Don't fail the request if email fails
+      }
+    }
+
     return { success: true, data: row };
   }
 

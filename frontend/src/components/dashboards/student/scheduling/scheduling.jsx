@@ -34,6 +34,8 @@ function StudentScheduling() {
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [feedback, setFeedback] = useState({ rating: "", comment: "" });
+  const [pendingFeedbackCount, setPendingFeedbackCount] = useState(0);
+  const [hasShownAutoPrompt, setHasShownAutoPrompt] = useState(false);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -74,8 +76,23 @@ function StudentScheduling() {
 
         if (completedRes?.success && Array.isArray(completedRes.data)) {
           setCompletedLessons(completedRes.data);
+          
+          // Calculate pending feedback count
+          const pending = completedRes.data.filter(lesson => !lesson.feedback);
+          setPendingFeedbackCount(pending.length);
+          
+          // Show auto-prompt for first lesson without feedback if not already shown
+          if (pending.length > 0 && !hasShownAutoPrompt) {
+            // Show prompt for the most recent lesson without feedback
+            const mostRecentPending = pending[0];
+            setSelectedLesson(mostRecentPending);
+            setFeedback({ rating: "", comment: "" });
+            setShowFeedbackModal(true);
+            setHasShownAutoPrompt(true);
+          }
         } else {
           setCompletedLessons([]);
+          setPendingFeedbackCount(0);
         }
       } catch (e) {
         setError("Failed to load lessons");
@@ -181,10 +198,16 @@ function StudentScheduling() {
       if (res?.success) {
         alert("Feedback submitted successfully!");
         setShowFeedbackModal(false);
+        setSelectedLesson(null);
+        setFeedback({ rating: "", comment: "" });
         // Refresh completed lessons to show updated feedback
         const completedRes = await studentService.getCompletedLessons();
         if (completedRes?.success && Array.isArray(completedRes.data)) {
           setCompletedLessons(completedRes.data);
+          
+          // Update pending feedback count
+          const pending = completedRes.data.filter(lesson => !lesson.feedback);
+          setPendingFeedbackCount(pending.length);
         }
       } else {
         alert("Failed to submit feedback: " + (res?.error || "Unknown error"));
@@ -432,9 +455,16 @@ function StudentScheduling() {
             {/* Completed Sessions Section */}
             {completedLessons.length > 0 && (
               <div className="student-scheduling-section">
-                <h4 className="student-scheduling-section-title">
-                  Recent Sessions
-                </h4>
+                <div className="d-flex align-items-center justify-content-between mb-3">
+                  <h4 className="student-scheduling-section-title mb-0">
+                    Recent Sessions
+                  </h4>
+                  {pendingFeedbackCount > 0 && (
+                    <span className="badge bg-warning text-dark">
+                      {pendingFeedbackCount} {pendingFeedbackCount === 1 ? 'feedback' : 'feedbacks'} pending
+                    </span>
+                  )}
+                </div>
                 <div className="student-scheduling-card student-scheduling-upcoming-card">
                   <div className="student-scheduling-card-body">
                     {completedLessons.slice(0, 3).map((lesson, idx) => (
@@ -473,6 +503,7 @@ function StudentScheduling() {
                               onClick={() => handleGiveFeedback(lesson)}
                             >
                               <i className="fas fa-star me-1"></i>Give Feedback
+                              <span className="badge bg-warning text-dark ms-2">!</span>
                             </button>
                           )}
                         </div>
@@ -500,6 +531,10 @@ function StudentScheduling() {
                       ></button>
                     </div>
                     <div className="modal-body">
+                      <div className="alert alert-info mb-3">
+                        <strong>Please provide feedback for your tutor.</strong>
+                        <p className="mb-0 mt-2">Is there anything you'd like to share to help improve future sessions?</p>
+                      </div>
                       <div className="mb-3">
                         <label className="form-label">Rating (1-5)</label>
                         <select
@@ -537,7 +572,11 @@ function StudentScheduling() {
                       <button
                         type="button"
                         className="btn btn-secondary"
-                        onClick={() => setShowFeedbackModal(false)}
+                        onClick={() => {
+                          setShowFeedbackModal(false);
+                          setSelectedLesson(null);
+                          setFeedback({ rating: "", comment: "" });
+                        }}
                       >
                         Cancel
                       </button>

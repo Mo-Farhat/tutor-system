@@ -129,6 +129,17 @@ class StudentService {
     }
   }
 
+  // Get pending feedback lessons
+  async getPendingFeedbackLessons() {
+    try {
+      const response = await api.get("/auth/student/lessons/pending-feedback");
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching pending feedback lessons:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
   // Get specific lesson details
   async getLesson(lessonId) {
     try {

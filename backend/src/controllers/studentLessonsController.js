@@ -15,7 +15,24 @@ exports.upcoming = async (req, res) => {
 exports.completed = async (req, res) => {
   try {
     const data = await lessonModel.listCompletedByStudent(req.user.id, Number(req.query.limit || 50));
-    res.json({ success: true, data });
+    
+    // Calculate feedback statistics
+    const totalCompleted = data.length;
+    const pendingFeedback = data.filter(lesson => !lesson.feedback).length;
+    const withFeedback = totalCompleted - pendingFeedback;
+    
+    // Add metadata about feedback status
+    const response = {
+      success: true,
+      data,
+      metadata: {
+        totalCompleted,
+        pendingFeedback,
+        withFeedback,
+      },
+    };
+    
+    res.json(response);
   } catch (e) {
     console.error("lessons.completed", e);
     res.status(500).json({ success: false, error: "Internal server error" });
@@ -47,6 +64,18 @@ exports.giveFeedback = async (req, res) => {
     res.status(201).json({ success: true, data: created });
   } catch (e) {
     console.error("lessons.giveFeedback", e);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};
+
+// Student: get pending feedback lessons
+exports.pendingFeedback = async (req, res) => {
+  try {
+    const allCompleted = await lessonModel.listCompletedByStudent(req.user.id, Number(req.query.limit || 50));
+    const pending = allCompleted.filter(lesson => !lesson.feedback);
+    res.json({ success: true, data: pending, count: pending.length });
+  } catch (e) {
+    console.error("lessons.pendingFeedback", e);
     res.status(500).json({ success: false, error: "Internal server error" });
   }
 };
