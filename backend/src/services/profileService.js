@@ -124,6 +124,18 @@ class ProfileService {
     // Transform data types to match Prisma schema
     const transformedData = { ...updateData };
 
+    // Handle fullName: if provided, split into firstName and lastName
+    if (transformedData.fullName !== undefined && transformedData.fullName !== null) {
+      const fullName = String(transformedData.fullName).trim();
+      if (fullName) {
+        const nameParts = fullName.split(' ');
+        transformedData.firstName = nameParts[0] || '';
+        transformedData.lastName = nameParts.slice(1).join(' ') || '';
+      }
+      // Remove fullName from transformedData as it's not a database field
+      delete transformedData.fullName;
+    }
+
     // Transform subjects array from objects to strings (for subjects field)
     if (transformedData.subjects && Array.isArray(transformedData.subjects)) {
       transformedData.subjects = transformedData.subjects.map((subject) => {

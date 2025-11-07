@@ -33,6 +33,18 @@ function TutorNavbar2() {
     if (user) {
       fetchProfile();
     }
+    
+    // Listen for profile update events to refresh navbar
+    const handleProfileUpdate = () => {
+      if (user) {
+        fetchProfile();
+      }
+    };
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    
+    return () => {
+      window.removeEventListener('profileUpdated', handleProfileUpdate);
+    };
   }, [user]);
 
   const handleLogout = async () => {
@@ -80,10 +92,13 @@ function TutorNavbar2() {
                 {loading
                   ? "Loading..."
                   : profileData?.user
-                  ? `${profileData.user.first_name || ""} ${
-                      profileData.user.last_name || ""
-                    }`.trim() || profileData.user.username
-                  : user?.username || "Tutor"}
+                  ? (() => {
+                      const firstName = profileData.user.first_name || profileData.user.firstName || "";
+                      const lastName = profileData.user.last_name || profileData.user.lastName || "";
+                      const fullName = `${firstName} ${lastName}`.trim();
+                      return fullName || "Tutor";
+                    })()
+                  : "Tutor"}
               </h6>
               <p className="navbar2-user-role">
                 {loading
@@ -260,10 +275,13 @@ function TutorNavbar2() {
                 {loading
                   ? "Loading..."
                   : profileData?.user
-                  ? `${profileData.user.first_name || ""} ${
-                      profileData.user.last_name || ""
-                    }`.trim() || profileData.user.username
-                  : user?.username || "Tutor"}
+                  ? (() => {
+                      const firstName = profileData.user.first_name || profileData.user.firstName || "";
+                      const lastName = profileData.user.last_name || profileData.user.lastName || "";
+                      const fullName = `${firstName} ${lastName}`.trim();
+                      return fullName || "Tutor";
+                    })()
+                  : "Tutor"}
               </h6>
               <p className="navbar2-user-role">
                 {loading

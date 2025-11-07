@@ -315,7 +315,12 @@ function Navbar() {
                         >
                           <span>
                             <i className="bi bi-person-circle me-1"></i>{" "}
-                            {user?.first_name || user?.username}
+                            {(() => {
+                              const firstName = user?.first_name || user?.firstName || "";
+                              const lastName = user?.last_name || user?.lastName || "";
+                              const fullName = `${firstName} ${lastName}`.trim();
+                              return fullName || "";
+                            })()}
                           </span>
                           <span className="dropdown-arrow">
                             <i
