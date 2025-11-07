@@ -59,7 +59,16 @@ function TutorProfile() {
       const username = user?.username || 'notmanu23'; // Use logged in user or fallback to existing user
       console.log('Fetching profile for username:', username);
       
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000'}/api/auth/tutor/profile/?username=${username}`);
+      // Add auth header to fetch request
+      const token = authService.getAccessToken();
+      const headers = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000'}/api/auth/tutor/profile/?username=${username}`, {
+        headers
+      });
       console.log('Response status:', response.status);
 
       if (!response.ok) {
@@ -84,10 +93,18 @@ function TutorProfile() {
 
         // Update form data with real user data, using application data as fallback
         const userData = data.data.user;
+        console.log("User data from API:", userData);
+        console.log("First name:", userData.first_name, "Last name:", userData.last_name);
+        
+        // Build fullName - handle both snake_case and camelCase, and handle empty values
+        const firstName = userData.first_name || userData.firstName || "";
+        const lastName = userData.last_name || userData.lastName || "";
+        const fullName = `${firstName} ${lastName}`.trim();
+        
+        console.log("Computed fullName:", fullName);
+        
         const newFormData = {
-          fullName: `${userData.first_name || ""} ${
-            userData.last_name || ""
-          }`.trim(),
+          fullName: fullName || applicationData?.fullName || "",
           email: userData.email || "",
           username: userData.username || "",
           // Use profile phone_number, fallback to application phone
@@ -375,6 +392,7 @@ function TutorProfile() {
 
       // Prepare the update data
       const updateData = {
+        fullName: formData.fullName,
         bio: formData.bio,
         hourly_rate: parseFloat(formData.hourly_rate) || 45.0,
         university: formData.university || "",
@@ -397,11 +415,18 @@ function TutorProfile() {
       };
 
 
+      // Get auth token for the request
+      const token = authService.getAccessToken();
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000'}/api/auth/tutor/profile/?username=${username}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: headers,
         body: JSON.stringify(updateData)
       });
 
@@ -415,6 +440,8 @@ function TutorProfile() {
         setWwccFile(null);
         // Refresh the data including completion status
         fetchProfileData();
+        // Dispatch event to notify navbar to refresh
+        window.dispatchEvent(new CustomEvent('profileUpdated'));
       } else {
         setError("Failed to update profile");
       }

@@ -166,7 +166,12 @@ const FindTutorRequest = () => {
 
   // Extract data for top section
   const isLive = tutor.is_live !== false;
-  const tutorName = `${tutor.name || tutor.user?.first_name || tutor.first_name || ''} ${tutor.user?.last_name || tutor.last_name || ''}`.trim() || 'Tutor';
+  
+  // Build full name - handle both user object and direct properties, and both snake_case and camelCase
+  const firstName = tutor.user?.first_name || tutor.user?.firstName || tutor.first_name || tutor.firstName || "";
+  const lastName = tutor.user?.last_name || tutor.user?.lastName || tutor.last_name || tutor.lastName || "";
+  const tutorName = `${firstName} ${lastName}`.trim() || 'Tutor';
+  
   const profileImage = tutor.photo_url || tutor.image || tutor.user?.profile_picture || getDefaultImage(tutorName);
   const hourlyRate = tutor.hourly_rate || tutor.rate || 0;
   const tier = tutor.tier || 'gold';
