@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getStudentProfile, updateStudentProfile } from "../../../../services/adminService";
+import pipelineService from "../../../../services/pipelineService";
 import "../../../../css/dashboards/admin/students/studentProfile.css";
 
 const StudentProfileModal = ({ student, onClose, onUpdate }) => {
@@ -18,6 +19,9 @@ const StudentProfileModal = ({ student, onClose, onUpdate }) => {
   const [showNotesModal, setShowNotesModal] = useState(false);
   const [showMaterialsModal, setShowMaterialsModal] = useState(false);
   const [selectedSession, setSelectedSession] = useState(null);
+  const [pipelineData, setPipelineData] = useState(null);
+  const [pipelineLoading, setPipelineLoading] = useState(false);
+  const [pipelineError, setPipelineError] = useState(null);
 
   // Fetch real student data
   useEffect(() => {
@@ -49,6 +53,33 @@ const StudentProfileModal = ({ student, onClose, onUpdate }) => {
 
     fetchStudentData();
   }, [student]);
+
+  // Fetch pipeline data when pipeline tab is active
+  useEffect(() => {
+    const fetchPipelineData = async () => {
+      if (activeTab === 'pipeline' && student && student.id) {
+        try {
+          setPipelineLoading(true);
+          setPipelineError(null);
+          
+          const result = await pipelineService.getAdminStudentPipeline(student.id);
+          
+          if (result.success) {
+            setPipelineData(result.data);
+          } else {
+            setPipelineError(result.error || 'Failed to load pipeline data');
+          }
+        } catch (err) {
+          console.error('Error fetching pipeline data:', err);
+          setPipelineError('Failed to load pipeline data');
+        } finally {
+          setPipelineLoading(false);
+        }
+      }
+    };
+
+    fetchPipelineData();
+  }, [activeTab, student]);
 
   // Mock data for other tabs (Pipeline, Sessions, etc.)
   useEffect(() => {
@@ -714,85 +745,134 @@ const StudentProfileModal = ({ student, onClose, onUpdate }) => {
     </div>
   );
 
-  const renderPipelineTab = () => (
-    <div className="student-profile-pipeline">
-      <div className="row mb-4">
-        <div className="col-md-6">
-          <div className="student-profile-card">
-            <h6>Pipeline Progress</h6>
-            <div className="pipeline-tracker">
-              {studentData.pipeline.stages.map((stage, index) => (
-                <div key={index} className="pipeline-stage">
-                  <div className={`pipeline-stage-indicator ${stage.status}`}>
-                    <i
-                      className={`fas fa-${
-                        stage.status === "completed"
-                          ? "check"
-                          : stage.status === "in_progress"
-                          ? "clock"
-                          : "circle"
-                      }`}
-                    ></i>
-                  </div>
-                  <div className="pipeline-stage-content">
-                    <div className="pipeline-stage-name">{stage.name}</div>
-                    <div className="pipeline-stage-status">
-                      <span
-                        className={`badge bg-${
-                          stage.status === "completed"
-                            ? "success"
-                            : stage.status === "in_progress"
-                            ? "primary"
-                            : "secondary"
-                        }`}
-                      >
-                        {stage.status.replace("_", " ")}
-                      </span>
-                    </div>
-                    {stage.date && (
-                      <div className="pipeline-stage-date">
-                        {new Date(stage.date).toLocaleDateString()}
+  const renderPipelineTab = () => {
+    if (pipelineLoading) {
+      return (
+        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '300px' }}>
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading pipeline data...</span>
+          </div>
+        </div>
+      );
+    }
+
+    if (pipelineError) {
+      return (
+        <div className="alert alert-warning" role="alert">
+          <i className="fas fa-exclamation-triangle me-2"></i>
+          {pipelineError}
+        </div>
+      );
+    }
+
+    if (!pipelineData || !pipelineData.tutors || pipelineData.tutors.length === 0) {
+      return (
+        <div className="text-center py-5">
+          <i className="fas fa-inbox fa-3x text-muted mb-3"></i>
+          <h5 className="text-muted">No Pipeline Data</h5>
+          <p className="text-muted">This student doesn't have any tutors assigned yet.</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="student-profile-pipeline">
+        {pipelineData.tutors.map((tutorPipeline, tutorIndex) => (
+          <div key={tutorIndex} className="row mb-4">
+            <div className="col-12">
+              <h6 className="mb-3">
+                <i className="fas fa-user-tie me-2"></i>
+                Tutor: {tutorPipeline.tutor.firstName} {tutorPipeline.tutor.lastName}
+              </h6>
+            </div>
+            <div className="col-md-8">
+              <div className="student-profile-card">
+                <h6>Pipeline Progress</h6>
+                <div className="pipeline-tracker">
+                  {tutorPipeline.stages.map((stage, index) => (
+                    <div key={index} className="pipeline-stage">
+                      <div className={`pipeline-stage-indicator ${stage.status}`}>
+                        <i
+                          className={`fas fa-${
+                            stage.status === "completed"
+                              ? "check"
+                              : stage.status === "in_progress"
+                              ? "clock"
+                              : "circle"
+                          }`}
+                        ></i>
                       </div>
-                    )}
-                    <div className="pipeline-stage-notes">{stage.notes}</div>
+                      <div className="pipeline-stage-content">
+                        <div className="pipeline-stage-name">{stage.name}</div>
+                        <div className="pipeline-stage-status">
+                          <span
+                            className={`badge bg-${
+                              stage.status === "completed"
+                                ? "success"
+                                : stage.status === "in_progress"
+                                ? "primary"
+                                : "secondary"
+                            }`}
+                          >
+                            {stage.status.replace("_", " ")}
+                          </span>
+                        </div>
+                        {stage.date && (
+                          <div className="pipeline-stage-date">
+                            {new Date(stage.date).toLocaleDateString()}
+                          </div>
+                        )}
+                        {stage.notes && (
+                          <div className="pipeline-stage-notes">{stage.notes}</div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="col-md-4">
+              <div className="student-profile-card">
+                <h6>Pipeline Summary</h6>
+                <div className="pipeline-metrics">
+                  <div className="metric-item">
+                    <strong>Completed Stages:</strong>{" "}
+                    {tutorPipeline.stages.filter(s => s.status === 'completed').length} of {tutorPipeline.stages.length}
+                  </div>
+                  <div className="metric-item">
+                    <strong>In Progress:</strong>{" "}
+                    {tutorPipeline.stages.filter(s => s.status === 'in_progress').length}
+                  </div>
+                  <div className="metric-item mt-3">
+                    <div className="progress" style={{ height: '25px' }}>
+                      {(() => {
+                        const completedCount = tutorPipeline.stages.filter(s => s.status === 'completed').length;
+                        const totalCount = tutorPipeline.stages.length;
+                        const percentage = Math.round((completedCount / totalCount) * 100);
+
+                        return (
+                          <div 
+                            className="progress-bar bg-success" 
+                            role="progressbar" 
+                            style={{ width: `${percentage}%` }}
+                            aria-valuenow={percentage} 
+                            aria-valuemin="0" 
+                            aria-valuemax="100"
+                          >
+                            {percentage}%
+                          </div>
+                        );
+                      })()}
+                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div className="col-md-6">
-          <div className="student-profile-card">
-            <h6>Pipeline Metrics</h6>
-            <div className="pipeline-metrics">
-              <div className="metric-item">
-                <strong>Time to Consultation:</strong>{" "}
-                {studentData.pipeline.timeToConsultation} days
-              </div>
-              <div className="metric-item">
-                <strong>Conversion Rate:</strong>{" "}
-                {studentData.pipeline.conversionRate}%
               </div>
             </div>
-            <div className="mt-3">
-              <button
-                className="btn btn-success btn-sm"
-                onClick={handleMarkConsultationCompleted}
-                disabled={
-                  studentData.pipeline.stages.find(
-                    (s) => s.name === "Academic Consultation"
-                  )?.status === "completed"
-                }
-              >
-                <i className="fas fa-check me-1"></i>
-                Mark Consultation Completed
-              </button>
-            </div>
           </div>
-        </div>
+        ))}
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderPackagesTab = () => (
     <div className="student-profile-packages">
