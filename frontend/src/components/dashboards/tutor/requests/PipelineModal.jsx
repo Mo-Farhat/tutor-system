@@ -200,22 +200,31 @@ const PipelineModal = ({ show, onHide, studentId, studentName }) => {
                             </span>
                           </div>
 
-                          {/* Status Dropdown */}
-                          <div className="mt-2">
-                            <label className="form-label small text-muted mb-1">
-                              Update Status
-                            </label>
-                            <select
-                              className="form-select form-select-sm"
-                              value={stage.status}
-                              onChange={(e) => handleStatusChange(stage.key, e.target.value)}
-                              disabled={updating}
-                            >
-                              <option value="pending">Pending</option>
-                              <option value="in_progress">In Progress</option>
-                              <option value="completed">Completed</option>
-                            </select>
-                          </div>
+                          {/* Status controls */}
+                          {stage.key === 'payment_method_added' ? (
+                            <div className="mt-2">
+                              <small className="text-muted">
+                                <i className="fas fa-info-circle me-1"></i>
+                                This stage updates automatically when the student adds a payment method.
+                              </small>
+                            </div>
+                          ) : (
+                            <div className="mt-2">
+                              <label className="form-label small text-muted mb-1">
+                                Update Status
+                              </label>
+                              <select
+                                className="form-select form-select-sm"
+                                value={stage.status}
+                                onChange={(e) => handleStatusChange(stage.key, e.target.value)}
+                                disabled={updating}
+                              >
+                                <option value="pending">Pending</option>
+                                <option value="in_progress">In Progress</option>
+                                <option value="completed">Completed</option>
+                              </select>
+                            </div>
+                          )}
 
                           {stage.notes && (
                             <div className="mt-2">

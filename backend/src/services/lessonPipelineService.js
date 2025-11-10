@@ -16,7 +16,7 @@ async function getPipeline(studentId, tutorId) {
     const stages = [
       { key: 'initial_contact', name: 'Initial Contact' },
       { key: 'academic_consultation', name: 'Academic Consultation' },
-      { key: 'payment_method_added', name: 'Payment Method Added' },
+      { key: 'payment_method_added', name: 'Student Added Payment Method' },
       { key: 'first_paid_lesson', name: 'First Paid Lesson' },
       { key: 'package_purchase', name: 'Package Purchase' },
       { key: 'regular_sessions', name: 'Regular Sessions' },

@@ -213,7 +213,7 @@ class PipelineService {
     const stageNames = {
       initial_contact: 'Initial Contact',
       academic_consultation: 'Academic Consultation',
-      payment_method_added: 'Payment Method Added',
+      payment_method_added: 'Student Added Payment Method',
       first_paid_lesson: 'First Paid Lesson',
       package_purchase: 'Package Purchase',
       regular_sessions: 'Regular Sessions',

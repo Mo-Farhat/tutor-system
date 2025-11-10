@@ -46,6 +46,14 @@ async function updateTutorStudentPipelineStage(req, res) {
       return res.status(400).json({ error: "Student ID and stage name are required" });
     }
 
+    // Tutors cannot update the auto stage for payment method
+    if (stageName === 'payment_method_added') {
+      return res.status(403).json({
+        success: false,
+        error: "This stage is updated automatically when the student adds a payment method",
+      });
+    }
+
     const updateData = {
       status,
       date,
