@@ -1,6 +1,8 @@
 const profileService = require("../services/profileService");
+const prisma = require("../db/prisma");
 const { tutorProfileModel, tutorDocumentModel } = require("../models");
 const { studentProfileModel } = require("../models");
+const { createMediaAsset } = require("../services/mediaAssetService");
 
 // Get tutor profile
 exports.getTutorProfile = async (req, res) => {
@@ -185,55 +187,87 @@ exports.updateStudentProfile = async (req, res) => {
 // Upload video intro
 exports.uploadVideoIntro = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const { user } = req;
     const file = req.files?.videoIntro?.[0];
-    if (!file)
-      return res
-        .status(400)
-        .json({ success: false, error: "videoIntro file is required" });
 
-    const finalUrl = file.cloudUrl || file.path; // prefer S3
-  await tutorProfileModel.update(userId, { intro_video_path: finalUrl });
-    res.json({
-      success: true,
-      message: "Video intro uploaded",
-      path: finalUrl,
+    if (!file || !file.cloudUrl) {
+      return res.status(400).json({ success: false, error: "No video uploaded" });
+    }
+
+    const asset = await createMediaAsset({
+      kind: "tutor/videos",
+      key: file.s3Key,
+      url: file.cloudUrl,
+      mimeType: file.mimetype,
+      userId: user.id,
     });
-  } catch (e) {
-    console.error("Upload video intro error:", e);
-    res.status(500).json({ success: false, error: "Internal server error" });
+
+    const profile = await prisma.tutorProfile.upsert({
+      where: { userId: user.id },
+      update: { videoAssetId: asset.id },
+      create: { userId: user.id, videoAssetId: asset.id },
+    });
+
+    res.json({ success: true, videoUrl: asset.url, assetId: asset.id, profile });
+  } catch (err) {
+    console.error("UploadVideoIntro error:", err);
+    res.status(500).json({ success: false, error: "Failed to upload video intro" });
   }
 };
+
 
 // Upload required documents
 exports.uploadRequiredDocuments = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const contract = req.files?.contract?.[0];
-    const wwcc = req.files?.wwcc?.[0];
-    const wwccExpiry = req.body?.wwccExpiry || req.body?.wwcc_expires_at || null; // form-data text
-
-    if (!contract && !wwcc) {
-      return res.status(400).json({ success: false, error: "No documents uploaded" });
+    const { user } = req;
+    if (!req.files) {
+      return res.status(400).json({ success: false, error: "No files uploaded" });
     }
 
-    const created = [];
-    if (contract) {
-      const contractUrl = contract.cloudUrl || contract.path;
- created.push(await tutorDocumentModel.create(userId, "contract", contractUrl, null));
-    }
-    if (wwcc) {
-      const wwccUrl = wwcc.cloudUrl || wwcc.path;
-   created.push(await tutorDocumentModel.create(userId, "wwcc", wwccUrl, wwccExpiry));
+    const results = [];
+
+    for (const field in req.files) {
+      const fileArr = req.files[field];
+      if (!fileArr?.length) continue;
+
+      const f = fileArr[0]; // single file per field
+      if (!f.cloudUrl || !f.s3Key) continue; // S3 upload failed earlier
+
+      // 1️⃣ Save media asset
+      const asset = await createMediaAsset({
+        kind: "tutor/docs",
+        key: f.s3Key,
+        url: f.cloudUrl,
+        mimeType: f.mimetype,
+        userId: user.id,
+      });
+
+      // 2️⃣ Link to TutorDocument
+      const doc = await prisma.tutorDocument.upsert({
+        where: {
+          tutorId_type: {
+            tutorId: user.id,
+            type: field, // "contract" or "wwcc"
+          },
+        },
+        update: { assetId: asset.id },
+        create: {
+          tutorId: user.id,
+          type: field,
+          assetId: asset.id,
+        },
+      });
+
+      results.push({ type: field, asset, document: doc });
     }
 
-    await profileService.markDocumentsFlag(userId);
-    res.json({ success: true, message: "Documents uploaded", data: created });
-  } catch (e) {
-    console.error("Upload documents error:", e);
-    res.status(500).json({ success: false, error: "Internal server error" });
+    res.json({ success: true, uploaded: results });
+  } catch (err) {
+    console.error("UploadRequiredDocuments error:", err);
+    res.status(500).json({ success: false, error: "Failed to upload documents" });
   }
 };
+
 
 // Payment info
 exports.getPaymentInfo = async (req, res) => {
@@ -282,17 +316,34 @@ exports.getLiveTutors = async (req, res) => {
 
 exports.uploadStudentPhoto = async (req, res) => {
   try {
-    const f = req.file;
-   if (!f) return res.status(400).json({ success: false, error: "No file uploaded" });
-   const finalUrl = f.cloudUrl || f.path || null;
-       if (!finalUrl) return res.status(500).json({ success: false, error: "Upload failed" });
-   await studentProfileModel.update(req.user.id, { photo_url: finalUrl });
-  res.json({ success: true, photo_url: finalUrl });
-  } catch (e) {
-    console.error("uploadStudentPhoto", e);
-    res.status(500).json({ success: false, error: "Internal server error" });
+    const { user } = req;
+    const file = req.file;
+
+    if (!file || !file.cloudUrl) {
+      return res.status(400).json({ success: false, error: "No photo uploaded" });
+    }
+
+    const asset = await createMediaAsset({
+      kind: "students/photos",
+      key: file.s3Key,
+      url: file.cloudUrl,
+      mimeType: file.mimetype,
+      userId: user.id,
+    });
+
+    const updated = await prisma.studentProfile.upsert({
+      where: { userId: user.id },
+      update: { photoAssetId: asset.id },
+      create: { userId: user.id, photoAssetId: asset.id },
+    });
+
+    res.json({ success: true, photoUrl: asset.url, assetId: asset.id, profile: updated });
+  } catch (err) {
+    console.error("UploadStudentPhoto error:", err);
+    res.status(500).json({ success: false, error: "Failed to upload student photo" });
   }
 };
+
 
 // Get tutor by ID (public endpoint)
 exports.getTutorById = async (req, res) => {
