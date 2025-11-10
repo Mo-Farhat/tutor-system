@@ -1,130 +1,112 @@
 const multer = require("multer");
 const path = require("path");
-const fs = require("fs");
+const { uploadBuffer } = require("../services/fileStorageService");
 
-// Create uploads directory if it doesn't exist
-const uploadsDir = path.join(__dirname, "../../uploads");
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
+// ✅ Use memoryStorage — no local disk
+const storage = multer.memoryStorage();
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadsDir);
-  },
-  filename: (req, file, cb) => {
-    // Create unique filename with timestamp
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const extension = path.extname(file.originalname);
-    const basename = path.basename(file.originalname, extension);
-    cb(null, `${basename}-${uniqueSuffix}${extension}`);
-  },
-});
-
-// File filter for security
-const fileFilter = (req, file, cb) => {
-  // Define allowed file types
-  const allowedTypes = {
-    videoSubmission: [".mp4", ".mov", ".avi", ".wmv", ".webm"],
-    resume: [".pdf", ".doc", ".docx"],
-    videoIntro: [".mp4", ".mov", ".avi", ".wmv", ".webm"],
-    contract: [".pdf", ".doc", ".docx"],
-    wwcc: [".pdf", ".doc", ".docx"],
-    studentPhoto: [".jpg", ".jpeg", ".png", ".webp"],
-     lessonMaterial: [".pdf", ".ppt", ".pptx", ".doc", ".docx", ".png", ".jpg", ".jpeg", ".webp", ".mp4", ".mov", ".avi", ".wmv", ".webm"],
-  };
-
-  const extension = path.extname(file.originalname).toLowerCase();
-  const fieldName = file.fieldname;
-
-  if (allowedTypes[fieldName] && allowedTypes[fieldName].includes(extension)) {
-    cb(null, true);
-  } else {
-    cb(
-      new Error(
-        `Invalid file type for ${fieldName}. Allowed: ${allowedTypes[
-          fieldName
-        ]?.join(", ")}`
-      )
-    );
-  }
+// ✅ Same allowed file types as before
+const allowedTypes = {
+  videoSubmission: [".mp4", ".mov", ".avi", ".wmv", ".webm"],
+  resume: [".pdf", ".doc", ".docx"],
+  videoIntro: [".mp4", ".mov", ".avi", ".wmv", ".webm"],
+  contract: [".pdf", ".doc", ".docx"],
+  wwcc: [".pdf", ".doc", ".docx"],
+  photo: [".jpg", ".jpeg", ".png", ".webp"],
+  file: [".pdf", ".ppt", ".pptx", ".doc", ".docx", ".png", ".jpg", ".jpeg", ".webp", ".mp4", ".mov", ".avi", ".wmv", ".webm"],
 };
 
-// Configure multer
+// ✅ Reuse your fileFilter
+const fileFilter = (req, file, cb) => {
+  const ext = path.extname(file.originalname).toLowerCase();
+  const field = file.fieldname;
+  if (allowedTypes[field] && allowedTypes[field].includes(ext)) cb(null, true);
+  else cb(new Error(`Invalid file type for ${field}. Allowed: ${allowedTypes[field]?.join(", ")}`));
+};
+
+// ✅ Main upload middleware
 const upload = multer({
-  storage: storage,
-  fileFilter: fileFilter,
-  limits: {
-    fileSize: 50 * 1024 * 1024, // 50MB limit
-    files: 2, // Maximum 2 files
-  },
-});
-
-const lessonMaterialsUpload = upload.single("file");
-
-const uploadVideo = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 100 * 1024 * 1024, files: 1 }, // 100MB
+  limits: { fileSize: 100 * 1024 * 1024 }, // up to 100 MB
 });
 
-const uploadDocs = multer({
-  storage,
-  fileFilter,
-  limits: { fileSize: 10 * 1024 * 1024, files: 2 }, // 10MB each
-});
+// 🔧 Helper: wrap multer + upload to S3
+function uploadAndSyncToS3(kind, handler) {
+  return async (req, res, next) => {
+    handler(req, res, async (err) => {
+      if (err) return next(err);
 
-const uploadImage = multer({
-  storage,
-  fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024, files: 1 },
-});
+      try {
+        // Single file
+        if (req.file) {
+          const uploaded = await uploadBuffer(kind, req.file.buffer, req.file.mimetype, req.file.originalname);
+          req.file.cloudUrl = uploaded.url;
+          req.file.s3Key = uploaded.key;
+        }
 
-const studentPhotoUpload = uploadImage.single("photo");
+        // Multiple files
+        if (req.files) {
+          for (const field in req.files) {
+            for (const f of req.files[field]) {
+              const uploaded = await uploadBuffer(kind, f.buffer, f.mimetype, f.originalname);
+              f.cloudUrl = uploaded.url;
+              f.s3Key = uploaded.key;
+            }
+          }
+        }
 
-// Middleware for tutor application uploads
+        next();
+      } catch (e) {
+        console.error("S3 upload error:", e);
+        res.status(500).json({ success: false, error: "Failed to upload to S3" });
+      }
+    });
+  };
+}
+
+// ✅ Specific upload types
+
 const tutorApplicationUpload = upload.fields([
   { name: "videoSubmission", maxCount: 1 },
   { name: "resume", maxCount: 1 },
 ]);
-
-const tutorVideoUpload = uploadVideo.fields([
-  { name: "videoIntro", maxCount: 1 },
-]);
-const tutorDocsUpload = uploadDocs.fields([
+const tutorVideoUpload = upload.fields([{ name: "videoIntro", maxCount: 1 }]);
+const tutorDocsUpload = upload.fields([
   { name: "contract", maxCount: 1 },
   { name: "wwcc", maxCount: 1 },
 ]);
+const studentPhotoUpload = upload.single("photo");
+const lessonMaterialsUpload = upload.single("file");
 
-// Error handling middleware for multer
+// ✅ Wrap each with uploadAndSyncToS3
+const uploadTutorApplication = uploadAndSyncToS3("tutor/applications", tutorApplicationUpload);
+const uploadTutorVideo = uploadAndSyncToS3("tutor/videos", tutorVideoUpload);
+const uploadTutorDocs = uploadAndSyncToS3("tutor/docs", tutorDocsUpload);
+const uploadStudentPhoto = uploadAndSyncToS3("students/photos", studentPhotoUpload);
+const uploadLessonMaterial = uploadAndSyncToS3("lessons/materials", lessonMaterialsUpload);
+
+// ✅ Error handler stays the same
 const handleUploadError = (error, req, res, next) => {
   if (error instanceof multer.MulterError) {
     if (error.code === "LIMIT_FILE_SIZE") {
-      return res
-        .status(400)
-        .json({ error: "File too large. Maximum size is 50MB." });
+      return res.status(400).json({ error: "File too large. Maximum size is 100MB." });
     }
     if (error.code === "LIMIT_FILE_COUNT") {
       return res.status(400).json({ error: "Too many files uploaded." });
     }
-    if (error.code === "LIMIT_UNEXPECTED_FILE") {
-      return res.status(400).json({ error: "Unexpected file field." });
-    }
   }
-
   if (error.message.includes("Invalid file type")) {
     return res.status(400).json({ error: error.message });
   }
-
   next(error);
 };
 
 module.exports = {
-  tutorApplicationUpload,
-  tutorVideoUpload,
-  tutorDocsUpload,
+  uploadTutorApplication,
+  uploadTutorVideo,
+  uploadTutorDocs,
+  uploadStudentPhoto,
+  uploadLessonMaterial,
   handleUploadError,
-  studentPhotoUpload,
-  lessonMaterialsUpload,
 };

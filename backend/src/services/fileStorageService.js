@@ -24,7 +24,6 @@ async function uploadBuffer(kind, fileBuffer, mimeType, originalName) {
       Key,
       Body: fileBuffer,
       ContentType: mimeType || "application/octet-stream",
-      ACL: "public-read", // if bucket policy allows public read; otherwise remove
     },
   });
   await uploader.done();
