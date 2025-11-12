@@ -58,6 +58,16 @@ exports.attachPaymentMethod = async (req, res) => {
 
     const paymentMethod = await stripeService.attachPaymentMethod(req.user.id, payment_method_id);
     
+    // Update pipeline for all tutors when payment method is added
+    try {
+      const lessonPipelineService = require('../services/lessonPipelineService');
+      await lessonPipelineService.updatePipelineOnPaymentMethodAdded(req.user.id);
+      console.log('Pipeline updated for student payment method addition');
+    } catch (pipelineError) {
+      // Log but don't fail the payment method attachment
+      console.error('Failed to update pipeline:', pipelineError);
+    }
+    
     res.status(201).json({ success: true, data: paymentMethod });
   } catch (e) {
     console.error("pm.attachPaymentMethod", e);
