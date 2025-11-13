@@ -26,11 +26,12 @@ function StudentNavbar() {
         if (res?.success && res.data) {
           const u = res.data.user || {};
           const p = res.data;
+          const firstName = u.first_name || u.firstName || "";
+          const lastName = u.last_name || u.lastName || "";
+          const fullName = `${firstName} ${lastName}`.trim();
+
           setProfile({
-            fullName:
-              `${u.first_name || ""} ${u.last_name || ""}`.trim() ||
-              u.username ||
-              "",
+            fullName,
             email: u.email || "",
             studentId: p.userId || u.id || "",
             avatar: p.photo_url || "/Images/site-images/com/hero.png",
