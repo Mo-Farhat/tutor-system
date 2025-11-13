@@ -8,6 +8,7 @@ const {
   getTutorRequestNotificationTemplate,
   getFeedbackReminderTemplate,
   getStudentOnboardingTemplate,
+  getStudentReadyForFirstLessonTemplate,
 } = require("../templates/emailTemplates");
 
 class EmailService {
@@ -304,6 +305,35 @@ https://www.striveacademics.com.au
 `;
 
     return await this.sendEmail(studentEmail, subject, htmlContent, textContent);
+  }
+
+  // Notify tutor when student is ready for first lesson (after payment added)
+  async sendStudentReadyForFirstLessonEmail(tutorEmail, studentData, tutorData) {
+    const subject = `Student Ready for First Lesson – ${
+      `${studentData.firstName || studentData.first_name || ""} ${studentData.lastName || studentData.last_name || ""}`.trim() ||
+      "Student"
+    }`;
+    const htmlContent = getStudentReadyForFirstLessonTemplate(studentData, tutorData);
+    const supportEmail = process.env.SUPPORT_EMAIL || "support@striveacademics.com.au";
+    const textContent = `
+Hi ${tutorData.firstName || tutorData.first_name || "Tutor"},
+
+Good news — ${studentData.firstName || studentData.first_name || "Student"} ${studentData.lastName || studentData.last_name || ""} has now updated their payment details and is ready to begin regular lessons with you. 🎉
+You’ve already completed their Free Academic Consultation, so this is the time to lock in their first official session and begin their ongoing tutoring plan.
+
+Next Steps:
+- Confirm the first lesson time (use tentative time from consultation or agree on new time)
+- Prepare the first full lesson (focus on the goals identified)
+- Update your Strive dashboard once confirmed
+
+If any details need adjusting or you encounter an issue, please reach out to ${supportEmail}.
+
+Best regards,
+Strive Academics
+https://www.striveacademics.com.au
+`;
+
+    return await this.sendEmail(tutorEmail, subject, htmlContent, textContent);
   }
 }
 

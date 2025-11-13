@@ -1,4 +1,5 @@
 const { studentPaymentMethodModel } = require("../models");
+const emailService = require("../services/emailService");
 const stripeService = require('../services/stripeService');
 const { PrismaClient } = require('@prisma/client');
 
@@ -63,6 +64,38 @@ exports.attachPaymentMethod = async (req, res) => {
       const lessonPipelineService = require('../services/lessonPipelineService');
       await lessonPipelineService.updatePipelineOnPaymentMethodAdded(req.user.id);
       console.log('Pipeline updated for student payment method addition');
+
+      // Notify each active tutor that the student is ready for first lesson (best-effort)
+      try {
+        const { studentTutorModel } = require('../models');
+        const pairs = await studentTutorModel.listByStudent(req.user.id);
+
+        // Fetch student user details for name in email
+        const { userModel } = require('../models');
+        const studentUser = await userModel.findById(req.user.id);
+
+        const sendPromises = (pairs || []).map(async (pair) => {
+          const tutor = pair.tutor;
+          if (!tutor?.email) return;
+          // Shape student and tutor data to expected template fields
+          const studentData = {
+            firstName: studentUser?.firstName || studentUser?.first_name || '',
+            lastName: studentUser?.lastName || studentUser?.last_name || '',
+          };
+          const tutorData = {
+            firstName: tutor.firstName || tutor.first_name || 'Tutor',
+          };
+          await emailService.sendStudentReadyForFirstLessonEmail(
+            tutor.email,
+            studentData,
+            tutorData
+          );
+        });
+        await Promise.allSettled(sendPromises);
+        console.log('Ready-for-first-lesson emails dispatched to tutors');
+      } catch (notifyErr) {
+        console.error('Failed to dispatch ready-for-first-lesson emails:', notifyErr);
+      }
     } catch (pipelineError) {
       // Log but don't fail the payment method attachment
       console.error('Failed to update pipeline:', pipelineError);

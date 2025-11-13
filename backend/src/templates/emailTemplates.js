@@ -839,6 +839,50 @@ function getStudentOnboardingTemplate(studentData, loginUrl) {
   return getBaseTemplate("Welcome to Strive Academics – Let’s Get You Started", content);
 }
 
+// Student Ready for First Lesson (to Tutor) - sent when student adds payment method after consultation
+function getStudentReadyForFirstLessonTemplate(studentData, tutorData) {
+  const tutorFirstName = tutorData.firstName || tutorData.first_name || "Tutor";
+  const studentFullName = `${studentData.firstName || studentData.first_name || ""} ${studentData.lastName || studentData.last_name || ""}`.trim();
+  const supportEmail = process.env.SUPPORT_EMAIL || "support@striveacademics.com.au";
+
+  const content = `
+        <div class="greeting">Hi ${tutorFirstName},</div>
+
+        <div class="message">
+            Good news — ${studentFullName} has now updated their payment details and is ready to begin regular lessons with you. 🎉<br/>
+            You’ve already completed their Free Academic Consultation, so this is the time to lock in their first official session and begin their ongoing tutoring plan.
+        </div>
+
+        <div class="highlight-box">
+            <h3 style="margin-bottom: 10px; color: #2c3e50;">🗓️ Next Steps</h3>
+            <p>Here’s what to do next:</p>
+            <ul style="padding-left: 20px; line-height: 1.8;">
+              <li><strong>Confirm the first lesson time</strong> — use the tentative time discussed during the consultation or agree on a new time if needed.</li>
+              <li><strong>Prepare the first full lesson</strong> — focus on the key topic or goal identified during the consultation.</li>
+              <li><strong>Update your Strive dashboard</strong> once the first lesson is confirmed. This ensures the student’s schedule and payment processing run smoothly.</li>
+            </ul>
+        </div>
+
+        <div class="highlight-box">
+            <h3 style="margin-bottom: 10px; color: #2c3e50;">💡 A Quick Reminder</h3>
+            <p>Students’ first lessons set the tone for their whole journey with Strive. Keep it engaging, supportive, and structured around their goals. You already know what works best — that’s why you’re part of Australia’s top tutoring team.</p>
+            <p>If any details need adjusting or you encounter an issue with scheduling, please reach out to <a href="mailto:${supportEmail}" style="color:#667eea; text-decoration:none;">${supportEmail}</a> and we’ll assist promptly.</p>
+        </div>
+
+        <div class="message">
+            <p>Thank you for maintaining the Strive standard — connecting, inspiring, and helping every student reach their potential.</p>
+        </div>
+
+        <div class="message">
+            <p>Best regards,<br/>Strive Academics<br/>
+            <a href="https://www.striveacademics.com.au" style="color:#667eea; text-decoration:none;">www.striveacademics.com.au</a></p>
+        </div>
+    `;
+
+  const title = `Student Ready for First Lesson – ${studentFullName || "Student"}`;
+  return getBaseTemplate(title, content);
+}
+
 module.exports = {
   getApplicationConfirmationTemplate,
   getAdminNotificationTemplate,
@@ -848,4 +892,5 @@ module.exports = {
   getTutorRequestNotificationTemplate,
   getFeedbackReminderTemplate,
   getStudentOnboardingTemplate,
+  getStudentReadyForFirstLessonTemplate,
 };
