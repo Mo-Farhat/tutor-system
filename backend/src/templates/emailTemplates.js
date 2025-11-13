@@ -598,22 +598,115 @@ const getSetupReminderTemplate = (tutorData, setupToken) => {
 
 // Student requests tutor
 function getTutorRequestNotificationTemplate(student, tutor) {
-  return `
-  <h2>New Tutor Request</h2>
-  <p>Hello ${tutor.firstName},</p>
-  <p>${student.firstName} ${student.lastName} has requested you as their tutor on <b>Strive Academy</b>.</p>
-  
-  <h3>Student Details</h3>
-  <ul>
-    <li><b>Name:</b> ${student.firstName} ${student.lastName}</li>
-    <li><b>Email:</b> ${student.email}</li>
-  </ul>
+  const tutorRequestsUrl = `${process.env.FRONTEND_URL || "https://striveacademics.com.au"}/tutor/requests`;
+  const studentFullName = `${student.firstName || ""} ${student.lastName || ""}`.trim();
 
-  <p>Please log in to your tutor dashboard to accept or reject the request.</p>
-  <p><a href="${process.env.FRONTEND_URL}/tutor/requests" 
-        style="background-color:#4CAF50;color:white;padding:10px 15px;text-decoration:none;border-radius:5px;">View Requests</a></p>
-  
-  <p>Best regards,<br/>Strive Academy Team</p>
+  return `
+    <div class="greeting">Hi ${tutor.firstName},</div>
+
+    <div class="message">
+      A new student has just contacted you through the Strive Academics platform!<br/>
+      It’s now time to schedule their <strong>Free Academic Consultation</strong> — a short 15–20 minute Zoom session where you’ll meet the student, understand their goals, and show them what makes Strive Academics special.
+    </div>
+
+    <div class="highlight-box">
+      <h3 style="margin-bottom: 10px; color: #2c3e50;">Student Details</h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-label">Name</div>
+          <div class="info-value">${studentFullName || "N/A"}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Email</div>
+          <div class="info-value">${student.email || "N/A"}</div>
+        </div>
+      </div>
+      <div style="text-align:center; margin-top: 8px;">
+        <a href="${tutorRequestsUrl}" class="cta-button">Open Tutor Requests</a>
+      </div>
+    </div>
+
+    <div class="message">
+      This consultation is designed to build rapport, explore their academic needs, and set the foundation for ongoing paid lessons.<br/>
+      Below is a quick guide, taken from the Tutor Handbook (link to be added once domain is live).
+    </div>
+
+    <div class="highlight-box">
+      <h3 style="margin-bottom: 10px; color: #2c3e50;">🎯 Purpose of the Free Academic Consultation</h3>
+      <ul style="padding-left: 20px; line-height: 1.8;">
+        <li>Meet the student (and parent, if present)</li>
+        <li>Understand their academic goals and challenges</li>
+        <li>Demonstrate your teaching approach</li>
+        <li>Plan the next steps for their first full paid lesson</li>
+      </ul>
+      <p style="margin-top: 10px;">Keep it warm, genuine, and efficient — the goal is to connect, impress, and get the student excited to start learning with you.</p>
+    </div>
+
+    <div class="message">
+      <h3 style="color: #2c3e50; margin: 15px 0 8px;">1) Start with Rapport</h3>
+      <p>This is the most important part. Students learn best from people they like and trust. Start light — ask about school, hobbies, or how their term is going. Keep it conversational.</p>
+      <p style="font-style: italic; background:#f8f9fa; padding:12px; border-radius:6px;">“Hey! Great to meet you — I’m really looking forward to working with you. Why don’t you tell me a bit about yourself and what subjects you’re doing this year?”</p>
+      <p>If a parent joins, acknowledge them and explain: <em>“This consultation is just a short 15–20 minute chat to understand how we can best support [Student Name] and set some goals before lessons begin.”</em></p>
+
+      <h3 style="color: #2c3e50; margin: 15px 0 8px;">2) Signpost the Session Structure</h3>
+      <p><em>“Okay, let’s get started! I’m going to ask a few questions to understand your strengths and where you might need extra support, and then we’ll talk about your goals so we can put together a personalised tutoring plan that works for you.”</em></p>
+
+      <h3 style="color: #2c3e50; margin: 15px 0 8px;">3) Explore Their Academic Picture</h3>
+      <ul style="padding-left: 20px; line-height: 1.8;">
+        <li>How do you usually find [Subject]?</li>
+        <li>Which topics are easiest or most challenging?</li>
+        <li>How have your recent grades or assessments been?</li>
+        <li>What’s your target grade and how do you learn best?</li>
+      </ul>
+
+      <h3 style="color: #2c3e50; margin: 15px 0 8px;">4) Discuss Motivation and Future Goals</h3>
+      <p>Keep this part positive — help them see the bigger picture.</p>
+      <p style="font-style: italic; background:#f8f9fa; padding:12px; border-radius:6px;">“Now that we’ve talked about [Subject], let’s take a step back and think about the bigger picture. What do you hope to get out of tutoring? Any exams or goals coming up? What are you thinking about for uni or career pathways?”</p>
+
+      <h3 style="color: #2c3e50; margin: 15px 0 8px;">5) Parent Priorities (if applicable)</h3>
+      <ul style="padding-left: 20px; line-height: 1.8;">
+        <li>Any specific goals or concerns for [Student Name]</li>
+        <li>Preferred communication method for updates or scheduling</li>
+      </ul>
+
+      <h3 style="color: #2c3e50; margin: 15px 0 8px;">6) Plan for the First Lesson</h3>
+      <p><em>“Based on what we’ve discussed, it looks like your first session will focus on [topic/subject area]. I’ll prepare the lesson to help you strengthen your understanding. How does that sound?”</em></p>
+      <p>Set a tentative date and time for their first full session — ideally within the next few days. Remind them that the booking will be confirmed once their profile and payment details are complete.</p>
+      <p><strong>Tutor-to-Student Script:</strong><br/>
+        <em>“Okay, before we finish, let’s pick a tentative time for your first lesson. Once your profile and payment details are completed, this booking will be confirmed. Which day and time works best for you?”</em>
+      </p>
+      <p>Share this link in the Zoom chat:<br/>
+        <strong>Log in:</strong> <a href="${process.env.FRONTEND_URL || "https://striveacademics.com.au"}/login">${process.env.FRONTEND_URL || "https://striveacademics.com.au"}/login</a>
+      </p>
+
+      <h3 style="color: #2c3e50; margin: 15px 0 8px;">7) After the Consultation</h3>
+      <p><strong>Send a quick, friendly follow-up message:</strong></p>
+      <p style="background:#f8f9fa; padding:12px; border-radius:6px;">
+        Hi ${studentFullName || "there"}, it was great meeting you for our consultation today! Please log in to your Strive account to complete your profile and add your payment details so we can confirm your first lesson. I’ve tentatively booked your first full lesson for [first lesson time]. Looking forward to seeing you then!
+      </p>
+
+      <h3 style="color: #2c3e50; margin: 15px 0 8px;">8) Update Your Lesson Pipeline</h3>
+      <ol style="padding-left: 20px; line-height: 1.8;">
+        <li>Log in to your Strive account</li>
+        <li>Click on the student’s name</li>
+        <li>Update their status to “Free Academic Consultation Completed”</li>
+        <li>Record the tentative date and time for their first lesson</li>
+      </ol>
+      <p><strong>Why this matters:</strong></p>
+      <ul style="padding-left: 20px; line-height: 1.8;">
+        <li>Triggers the automated follow-up to the student/parent</li>
+        <li>Keeps your pipeline organised</li>
+        <li>Ensures the first paid lesson can proceed smoothly</li>
+      </ul>
+    </div>
+
+    <div class="message">
+      Thanks for delivering such a high standard of care and professionalism — these consultations are the key to building trust and helping students start strong.
+    </div>
+    <div class="message">
+      <p>Best regards,<br/>Strive Academics<br/>
+      <a href="https://www.striveacademics.com.au" style="color:#667eea; text-decoration:none;">www.striveacademics.com.au</a></p>
+    </div>
   `;
 }
 
@@ -677,6 +770,75 @@ function getFeedbackReminderTemplate(studentData, tutorData, lessonData) {
   return getBaseTemplate("Please Provide Feedback - Strive Academics", content);
 }
 
+// Student Onboarding Template (sent when a student contacts a tutor)
+function getStudentOnboardingTemplate(studentData, loginUrl) {
+  const firstName = studentData.firstName || studentData.first_name || "Student";
+
+  const content = `
+        <div class="greeting">Hi ${firstName},</div>
+        
+        <div class="message">
+            Welcome to Strive Academics! 👋 It’s great to have you on board. Your message has been sent to your chosen tutor — and you’re in excellent hands.
+            Your tutor is one of the best in Australia, and we make sure of it.
+        </div>
+        
+        <div class="message">
+            Before your first session can go ahead, there are just a few quick steps to complete.
+        </div>
+        
+        <div class="highlight-box">
+            <h3 style="margin-bottom: 15px; color: #2c3e50;">Step 1: Confirm Your Payment Details</h3>
+            <p>To lock in your first lesson, please make sure your payment details are up to date. Here’s how:</p>
+            <ol style="padding-left:20px; line-height:1.8;">
+              <li>Log in to your Strive Academics account.</li>
+              <li>Head to the <strong>Payment Details</strong> section.</li>
+              <li>Add or update your payment method.</li>
+            </ol>
+            <p>Once that’s done, your tentatively scheduled lesson will be confirmed.</p>
+            <div style="text-align:center; margin-top: 16px;">
+              <a href="${loginUrl}" class="cta-button">Log in to your account</a>
+            </div>
+            <p style="margin-top:10px; font-size:14px; color:#6c757d;">This only needs to be done once — after that, you’ll be all set for future sessions. Payment details can also be updated in the same section of your account.</p>
+        </div>
+        
+        <div class="highlight-box">
+            <h3 style="margin-bottom: 15px; color: #2c3e50;">Step 2: Know Our Lesson Policies</h3>
+            <p>We understand that things can change! We just ask that you try to reschedule rather than cancel wherever possible.</p>
+            <p style="margin:12px 0 6px 0;"><strong>✔ Valid reasons (no fee):</strong></p>
+            <ul style="padding-left:20px; line-height:1.8;">
+              <li>Illness (with a doctor’s note if required)</li>
+              <li>Tutor absence</li>
+              <li>Urgent, non-reschedulable appointments</li>
+              <li>Court appearances</li>
+              <li>Unforeseen emergencies</li>
+            </ul>
+            <p style="margin:12px 0 6px 0;"><strong>✖ Invalid reasons (50% session fee applies):</strong></p>
+            <ul style="padding-left:20px; line-height:1.8;">
+              <li>Lateness (including transport issues)</li>
+              <li>Foreseeable or reschedulable events</li>
+              <li>Poor planning or double-booking</li>
+              <li>Work or study clashes</li>
+              <li>Unexplained no-shows</li>
+            </ul>
+            <p><strong>Notice:</strong> If you need to cancel a lesson, please give at least <strong>1 hour’s notice</strong>. If less than 1 hour’s notice is given (and it’s not for a valid reason above), the full session fee will apply.</p>
+        </div>
+        
+        <div class="highlight-box">
+            <h3 style="margin-bottom: 15px; color: #2c3e50;">Step 3: Get Ready for Your First Lesson</h3>
+            <p>Once your payment details are confirmed, your tutor will reach out to finalise the date and time. From there, you’ll be ready to begin!</p>
+            <p>If you have any questions or need a hand with anything, just reply to this email — we’re always happy to help.</p>
+        </div>
+        
+        <div class="message">
+            <p>Looking forward to seeing you Strive for Success,</p>
+            <p>Strive Academics<br/>
+            <a href="https://www.striveacademics.com.au" style="color:#667eea; text-decoration:none;">www.striveacademics.com.au</a></p>
+        </div>
+    `;
+
+  return getBaseTemplate("Welcome to Strive Academics – Let’s Get You Started", content);
+}
+
 module.exports = {
   getApplicationConfirmationTemplate,
   getAdminNotificationTemplate,
@@ -685,4 +847,5 @@ module.exports = {
   getSetupReminderTemplate,
   getTutorRequestNotificationTemplate,
   getFeedbackReminderTemplate,
+  getStudentOnboardingTemplate,
 };

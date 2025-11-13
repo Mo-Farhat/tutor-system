@@ -48,6 +48,13 @@ exports.requestTutor = async (req, res) => {
       console.error("Email notify failed:", e.message);
     }
 
+    // Send onboarding email to student (best-effort)
+    try {
+      await emailService.sendStudentOnboardingEmail(student.email, student);
+    } catch (e) {
+      console.error("Student onboarding email failed:", e.message);
+    }
+
     res.status(201).json({ success: true, data: created, message: "Request sent" });
   } catch (e) {
     console.error("requestTutor", e);

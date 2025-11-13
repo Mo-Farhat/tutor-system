@@ -7,6 +7,7 @@ const {
   getSetupReminderTemplate,
   getTutorRequestNotificationTemplate,
   getFeedbackReminderTemplate,
+  getStudentOnboardingTemplate,
 } = require("../templates/emailTemplates");
 
 class EmailService {
@@ -210,22 +211,33 @@ The Strive Academics Team
   }
 
   async sendTutorRequestNotification(tutorEmail, studentData, tutorData) {
-    const subject = `${studentData.firstName} ${studentData.lastName} requested you as a tutor`;
+    const subject = "New Student Enquiry – Schedule Your Free Academic Consultation";
     const htmlContent = getTutorRequestNotificationTemplate(studentData, tutorData);
+    const loginBase = process.env.FRONTEND_URL || "https://striveacademics.com.au";
     const textContent = `
 Hi ${tutorData.firstName},
 
-${studentData.firstName} ${studentData.lastName} has requested you as their tutor on Strive Academy.
+A new student has just contacted you through the Strive Academics platform!
+It’s now time to schedule their Free Academic Consultation — a short 15–20 minute Zoom session where you’ll meet the student, understand their goals, and show them what makes Strive Academics special.
 
 Student Details:
 - Name: ${studentData.firstName} ${studentData.lastName}
 - Email: ${studentData.email}
 
-Please log in to your tutor dashboard to respond:
-${process.env.FRONTEND_URL}/tutor/requests
+Open Tutor Requests: ${loginBase}/tutor/requests
+
+Guidance:
+- Build rapport and understand goals/challenges
+- Demonstrate your approach and plan next steps for first paid lesson
+- Tentatively schedule first lesson; confirm once profile and payment are complete
+
+After the consultation:
+1) Send a friendly follow-up to the student
+2) Update pipeline status to “Free Academic Consultation Completed” and record tentative first lesson
 
 Best regards,
-Strive Academy Team
+Strive Academics
+https://www.striveacademics.com.au
     `;
 
     return await this.sendEmail(tutorEmail, subject, htmlContent, textContent);
@@ -258,6 +270,38 @@ Thank you for being part of Strive Academics!
 Best regards,
 The Strive Academics Team
     `;
+
+    return await this.sendEmail(studentEmail, subject, htmlContent, textContent);
+  }
+
+  // Send Student Onboarding Email (when a student contacts a tutor)
+  async sendStudentOnboardingEmail(studentEmail, studentData) {
+    const subject = "Welcome to Strive Academics – Let’s Get You Started";
+    const loginUrl = `${process.env.FRONTEND_URL || "https://striveacademics.com.au"}/login`;
+    const htmlContent = getStudentOnboardingTemplate(studentData, loginUrl);
+    const textContent = `
+Hi ${studentData.firstName || studentData.first_name || "Student"},
+
+Welcome to Strive Academics! Your message has been sent to your chosen tutor.
+
+Step 1: Confirm Your Payment Details
+1) Log in: ${loginUrl}
+2) Go to Payment Details
+3) Add or update your payment method
+
+Step 2: Know Our Lesson Policies
+- Valid: Illness, Tutor absence, Urgent non-reschedulable appointments, Court appearances, Emergencies
+- Invalid (50% fee): Lateness/transport, Reschedulable events, Poor planning/double-booking, Work/study clashes, No-shows
+- Notice: Please give at least 1 hour’s notice to cancel, otherwise full fee may apply.
+
+Step 3: Get Ready for Your First Lesson
+Your tutor will reach out to confirm time/date after payment details are confirmed.
+
+If you have questions, reply to this email.
+
+Strive Academics
+https://www.striveacademics.com.au
+`;
 
     return await this.sendEmail(studentEmail, subject, htmlContent, textContent);
   }
