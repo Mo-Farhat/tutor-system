@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../../../contexts/AuthContext";
+import authService from "../../../../services/authService";
 import "../../../../css/dashboards/tutor/snippets/navbar.css";
 
 function TutorNavbar() {
@@ -13,6 +14,16 @@ function TutorNavbar() {
 
   useEffect(() => {
     fetchTutorData();
+    
+    // Listen for profile update events to refresh navbar
+    const handleProfileUpdate = () => {
+      fetchTutorData();
+    };
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    
+    return () => {
+      window.removeEventListener('profileUpdated', handleProfileUpdate);
+    };
   }, []);
 
   const fetchTutorData = async () => {
@@ -21,10 +32,19 @@ function TutorNavbar() {
 
       // Fetch profile data from our new API
       const username = user?.username || "notmanu23"; // Use logged in user or fallback to existing user
+      const token = authService.getAccessToken();
+      const headers = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
       const response = await fetch(
-        `http://localhost:8000/api/auth/tutor/profile/?username=${username}`
+        `${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000'}/api/auth/tutor/profile/?username=${username}`,
+        { headers }
       );
       const data = await response.json();
+      
+      console.log("Navbar fetch response:", data);
 
       if (data.success) {
         setTutorProfile(data.data);
@@ -138,11 +158,13 @@ function TutorNavbar() {
             <h6 className="tutor-navbar-greeting">Good morning</h6>
             <h5 className="tutor-navbar-username">
               {tutorProfile
-                ? `${tutorProfile.user.first_name || ""} ${
-                    tutorProfile.user.last_name || ""
-                  }`.trim() ||
-                  tutorProfile.user.username ||
-                  "Tutor"
+                ? (() => {
+                    // Handle both snake_case and camelCase
+                    const firstName = tutorProfile.user.first_name || tutorProfile.user.firstName || "";
+                    const lastName = tutorProfile.user.last_name || tutorProfile.user.lastName || "";
+                    const fullName = `${firstName} ${lastName}`.trim();
+                    return fullName || "Tutor";
+                  })()
                 : "Tutor Name"}
             </h5>
           </div>

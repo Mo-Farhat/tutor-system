@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../../contexts/AuthContext';
 import api from '../../../../services/api';
 import { parseTutorRequestMessage } from '../../../../utils/messageParser';
+import PipelineModal from './PipelineModal';
+import pipelineService from '../../../../services/pipelineService';
 
 const StudentRequests = () => {
   const { user } = useAuth();
@@ -10,10 +12,20 @@ const StudentRequests = () => {
   const [error, setError] = useState(null);
   const [actionLoading, setActionLoading] = useState({});
   const [selectedRequest, setSelectedRequest] = useState(null);
+  const [showPipelineModal, setShowPipelineModal] = useState(false);
+  const [selectedPipelineStudent, setSelectedPipelineStudent] = useState(null);
+  const [pipelinesData, setPipelinesData] = useState({});
 
   useEffect(() => {
     fetchRequests();
   }, []);
+
+  useEffect(() => {
+    // Fetch pipeline data for each accepted request
+    if (requests.length > 0) {
+      fetchAllPipelines();
+    }
+  }, [requests]);
 
   const fetchRequests = async () => {
     try {
@@ -30,6 +42,52 @@ const StudentRequests = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchAllPipelines = async () => {
+    // Fetch pipeline data for all accepted students
+    const acceptedRequests = requests.filter(req => req.status === 'accepted');
+    
+    for (const request of acceptedRequests) {
+      try {
+        const response = await pipelineService.getTutorStudentPipeline(request.student.id);
+        if (response.success) {
+          setPipelinesData(prev => ({
+            ...prev,
+            [request.student.id]: response.data.stages
+          }));
+        }
+      } catch (err) {
+        console.error(`Error fetching pipeline for student ${request.student.id}:`, err);
+      }
+    }
+  };
+
+  const handleOpenPipeline = (student) => {
+    setSelectedPipelineStudent(student);
+    setShowPipelineModal(true);
+  };
+
+  const handleClosePipeline = () => {
+    setShowPipelineModal(false);
+    setSelectedPipelineStudent(null);
+    // Refresh the pipeline data after closing
+    if (selectedPipelineStudent) {
+      fetchAllPipelines();
+    }
+  };
+
+  const getPipelineProgress = (studentId) => {
+    const pipeline = pipelinesData[studentId];
+    if (!pipeline || pipeline.length === 0) {
+      return { completed: 0, total: 0, percentage: 0 };
+    }
+    
+    const completed = pipeline.filter(stage => stage.status === 'completed').length;
+    const total = pipeline.length;
+    const percentage = Math.round((completed / total) * 100);
+    
+    return { completed, total, percentage };
   };
 
   const handleRespond = async (requestId, action) => {
@@ -181,10 +239,50 @@ const StudentRequests = () => {
                             {formatDate(request.createdAt)}
                           </small>
                         </div>
+
+                        {/* Pipeline Progress - Only show for accepted requests */}
+                        {request.status === 'accepted' && (
+                          <div className="mb-3">
+                            <div className="d-flex justify-content-between align-items-center mb-1">
+                              <small className="text-muted">
+                                <i className="fas fa-tasks me-1"></i>
+                                Pipeline Progress
+                              </small>
+                              <small className="text-muted">
+                                {(() => {
+                                  const progress = getPipelineProgress(request.student.id);
+                                  return `${progress.completed}/${progress.total}`;
+                                })()}
+                              </small>
+                            </div>
+                            <div className="progress" style={{ height: '8px' }}>
+                              <div 
+                                className="progress-bar bg-success" 
+                                role="progressbar" 
+                                style={{ width: `${getPipelineProgress(request.student.id).percentage}%` }}
+                                aria-valuenow={getPipelineProgress(request.student.id).percentage}
+                                aria-valuemin="0" 
+                                aria-valuemax="100"
+                              ></div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                       
                       <div className="card-footer bg-transparent">
                         <div className="d-flex gap-2 flex-column">
+                          {/* Pipeline Button - Only show for accepted requests */}
+                          {request.status === 'accepted' && (
+                            <button
+                              className="btn btn-outline-secondary btn-sm w-100"
+                              onClick={() => handleOpenPipeline(request.student)}
+                            >
+                              <i className="fas fa-tasks me-1"></i>
+                              Pipeline
+                              <i className="fas fa-chevron-right ms-1"></i>
+                            </button>
+                          )}
+                          
                           <button
                             className="btn btn-outline-primary btn-sm w-100"
                             onClick={() => setSelectedRequest(request)}
@@ -648,6 +746,16 @@ const StudentRequests = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Pipeline Modal */}
+      {showPipelineModal && selectedPipelineStudent && (
+        <PipelineModal
+          show={showPipelineModal}
+          onHide={handleClosePipeline}
+          studentId={selectedPipelineStudent.id}
+          studentName={`${selectedPipelineStudent.firstName} ${selectedPipelineStudent.lastName}`}
+        />
       )}
     </div>
   );

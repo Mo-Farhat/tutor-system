@@ -65,6 +65,8 @@ class LessonModel {
         zoomLink: payload.zoomLink ?? null,
         prepNotes: payload.prepNotes ?? null,
         homework: payload.homework ?? null,
+        seriesId: payload.seriesId ?? null,
+        recurrenceRule: payload.recurrenceRule ?? null,
       },
     });
   }
@@ -237,6 +239,16 @@ class LessonModel {
   removeByTutor(id, tutorId) {
     return prisma.lesson.delete({
       where: { id: Number(id) }, // tutorId can't be here unless unique composite key
+    });
+  }
+
+  findBySeriesId(seriesId, tutorId) {
+    return prisma.lesson.findMany({
+      where: {
+        seriesId: String(seriesId),
+        tutorId: Number(tutorId),
+      },
+      orderBy: { startAt: "asc" },
     });
   }
 }

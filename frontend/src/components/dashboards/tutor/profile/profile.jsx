@@ -59,7 +59,16 @@ function TutorProfile() {
       const username = user?.username || 'notmanu23'; // Use logged in user or fallback to existing user
       console.log('Fetching profile for username:', username);
       
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000'}/api/auth/tutor/profile/?username=${username}`);
+      // Add auth header to fetch request
+      const token = authService.getAccessToken();
+      const headers = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000'}/api/auth/tutor/profile/?username=${username}`, {
+        headers
+      });
       console.log('Response status:', response.status);
 
       if (!response.ok) {
@@ -70,20 +79,41 @@ function TutorProfile() {
       console.log("API response:", data);
 
       if (data.success) {
-        setProfileData(data.data);
+        // Get application data for pre-filling (if available)
+        const applicationData = data.data.application;
+        
+        // Merge application data into profile data where profile fields are empty
+        const mergedProfileData = {
+          ...data.data,
+          // Merge ATAR if profile doesn't have it but application does
+          atar: data.data.atar || (applicationData?.atar ? parseFloat(applicationData.atar) : null),
+        };
+        
+        setProfileData(mergedProfileData);
 
-        // Update form data with real user data
+        // Update form data with real user data, using application data as fallback
         const userData = data.data.user;
+        console.log("User data from API:", userData);
+        console.log("First name:", userData.first_name, "Last name:", userData.last_name);
+        
+        // Build fullName - handle both snake_case and camelCase, and handle empty values
+        const firstName = userData.first_name || userData.firstName || "";
+        const lastName = userData.last_name || userData.lastName || "";
+        const fullName = `${firstName} ${lastName}`.trim();
+        
+        console.log("Computed fullName:", fullName);
+        
         const newFormData = {
-          fullName: `${userData.first_name || ""} ${
-            userData.last_name || ""
-          }`.trim(),
+          fullName: fullName || applicationData?.fullName || "",
           email: userData.email || "",
           username: userData.username || "",
-          phoneNumber: data.data.phone_number || "",
-          bio: data.data.bio || "",
+          // Use profile phone_number, fallback to application phone
+          phoneNumber: data.data.phone_number || applicationData?.phone || "",
+          // Use profile bio, fallback to application motivation
+          bio: data.data.bio || applicationData?.motivation || "",
           hourly_rate: data.data.hourly_rate || "",
-          university: data.data.university || "",
+          // Use profile university, fallback to application currentStudy
+          university: data.data.university || applicationData?.currentStudy || "",
           currentPassword: "",
           newPassword: "",
           confirmPassword: "",
@@ -96,26 +126,49 @@ function TutorProfile() {
 
         console.log("Setting form data:", newFormData);
         console.log("Phone number from API:", data.data.phone_number);
+        console.log("Application data:", applicationData);
         setFormData(newFormData);
 
-        // Set locations
+        // Set locations - use profile data, fallback to application currentState
+        const profileLocations = data.data.preferred_locations || data.data.locations || [];
+        const applicationLocations = applicationData?.currentState ? [applicationData.currentState] : [];
         setSelectedLocations(
-          data.data.preferred_locations || data.data.locations || []
+          profileLocations.length > 0 ? profileLocations : applicationLocations
         );
 
-        // Set subjects
-        const subjects =
-          data.data.subjects_selected || data.data.subjects || [];
+        // Set subjects - use profile data, fallback to parsing application subjectsToTutor
+        const profileSubjects = data.data.subjects_selected || data.data.subjects || [];
+        let subjectsToUse = profileSubjects;
+        
+        // If no profile subjects but application has subjectsToTutor, parse it
+        if (profileSubjects.length === 0 && applicationData?.subjectsToTutor) {
+          // subjectsToTutor is typically a string, may need parsing
+          // For now, create a basic subject entry
+          const subjectStr = applicationData.subjectsToTutor;
+          if (typeof subjectStr === 'string' && subjectStr.trim()) {
+            subjectsToUse = [{
+              year_level: "",
+              curriculum: "",
+              subject: subjectStr
+            }];
+          }
+        }
+        
         setSubjectEntries(
-          subjects.map((subject) => ({
+          subjectsToUse.map((subject) => ({
             yearLevel: subject.year_level || "",
             curriculumOrState: subject.curriculum || "",
-            subject: subject.subject || "",
+            subject: subject.subject || subject || "",
           }))
         );
 
-        // Set current studies
-        setCurrentStudies(data.data.current_studies || []);
+        // Set current studies - use profile data, fallback to application currentStudy
+        const profileStudies = data.data.current_studies || [];
+        const applicationStudies = applicationData?.currentStudy ? [applicationData.currentStudy] : [];
+        setCurrentStudies(
+          profileStudies.length > 0 ? profileStudies : applicationStudies
+        );
+        
         // Set schools
         setSchools(data.data.schools_attended || []);
 
@@ -339,6 +392,7 @@ function TutorProfile() {
 
       // Prepare the update data
       const updateData = {
+        fullName: formData.fullName,
         bio: formData.bio,
         hourly_rate: parseFloat(formData.hourly_rate) || 45.0,
         university: formData.university || "",
@@ -361,11 +415,18 @@ function TutorProfile() {
       };
 
 
+      // Get auth token for the request
+      const token = authService.getAccessToken();
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000'}/api/auth/tutor/profile/?username=${username}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: headers,
         body: JSON.stringify(updateData)
       });
 
@@ -379,6 +440,8 @@ function TutorProfile() {
         setWwccFile(null);
         // Refresh the data including completion status
         fetchProfileData();
+        // Dispatch event to notify navbar to refresh
+        window.dispatchEvent(new CustomEvent('profileUpdated'));
       } else {
         setError("Failed to update profile");
       }

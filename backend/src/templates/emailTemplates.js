@@ -617,11 +617,72 @@ function getTutorRequestNotificationTemplate(student, tutor) {
   `;
 }
 
+// Feedback Reminder Template
+function getFeedbackReminderTemplate(studentData, tutorData, lessonData) {
+  const schedulingUrl = `${process.env.FRONTEND_URL || "https://striveacademics.com.au"}/dashboard/student/scheduling`;
+  const lessonDate = new Date(lessonData.startAt).toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+  const content = `
+        <div class="greeting">Hello ${studentData.firstName}!</div>
+        
+        <div class="message">
+            Your recent tutoring session with ${tutorData.firstName} ${tutorData.lastName} has been completed.
+        </div>
+        
+        <div class="highlight-box">
+            <h3 style="margin-bottom: 15px; color: #2c3e50;">Session Details</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Subject</div>
+                    <div class="info-value">${lessonData.subject}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Date</div>
+                    <div class="info-value">${lessonDate}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Tutor</div>
+                    <div class="info-value">${tutorData.firstName} ${tutorData.lastName}</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="message">
+            <h3 style="color: #2c3e50; margin-bottom: 15px;">Please Provide Feedback</h3>
+            <p style="font-size: 18px; font-weight: 500; color: #667eea; margin-bottom: 15px;">
+                Please provide feedback for your tutor. Is there anything you'd like to share to help improve future sessions?
+            </p>
+            <p>Your feedback helps us:</p>
+            <ul style="padding-left: 20px; line-height: 1.8; margin-top: 10px;">
+                <li>Improve the quality of tutoring sessions</li>
+                <li>Better match students with tutors</li>
+                <li>Enhance the overall learning experience</li>
+            </ul>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="${schedulingUrl}" class="cta-button">Leave Feedback</a>
+        </div>
+        
+        <div class="message">
+            <p>Thank you for being part of Strive Academics and helping us create the best learning experience for all students!</p>
+        </div>
+    `;
+
+  return getBaseTemplate("Please Provide Feedback - Strive Academics", content);
+}
+
 module.exports = {
   getApplicationConfirmationTemplate,
   getAdminNotificationTemplate,
   getApprovalNotificationTemplate,
   getRejectionNotificationTemplate,
   getSetupReminderTemplate,
-    getTutorRequestNotificationTemplate,
+  getTutorRequestNotificationTemplate,
+  getFeedbackReminderTemplate,
 };

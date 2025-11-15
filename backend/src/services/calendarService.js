@@ -1,8 +1,34 @@
 const prisma = require("../db/prisma");
 const { zoomLinkModel, lessonMaterialModel } = require("../models");
 const crypto = require("crypto");
+const emailService = require("./emailService");
 
 class CalendarService {
+  // Generate RRULE string for recurring lessons
+  generateRRULE({ recurrenceType, startAt, endDate }) {
+    if (!recurrenceType || !startAt) return null;
+
+    const start = new Date(startAt);
+    const dayOfWeek = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"][start.getUTCDay()];
+    const dayOfMonth = start.getUTCDate();
+
+    let rrule = `FREQ=${recurrenceType.toUpperCase()};BYDAY=${dayOfWeek}`;
+
+    if (recurrenceType === "monthly") {
+      // For monthly, use BYMONTHDAY instead of BYDAY for more predictable behavior
+      rrule = `FREQ=MONTHLY;BYMONTHDAY=${dayOfMonth}`;
+    }
+
+    if (endDate) {
+      const end = new Date(endDate);
+      // Set to end of day
+      end.setUTCHours(23, 59, 59, 999);
+      const endStr = end.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+      rrule += `;UNTIL=${endStr}`;
+    }
+
+    return rrule;
+  }
   // List lessons with filters for admin calendar
   async listLessons({ dateFrom, dateTo, tutorId, studentId, subject, status, view = "month" }) {
     const where = {};
@@ -75,10 +101,64 @@ class CalendarService {
   }
 
   async markCompleted(id) {
+    // Get lesson with student and tutor info before updating
+    const lesson = await prisma.lesson.findUnique({
+      where: { id: Number(id) },
+      include: {
+        student: {
+          select: { id: true, firstName: true, lastName: true, email: true },
+        },
+        tutor: {
+          select: { id: true, firstName: true, lastName: true, email: true },
+        },
+        feedback: true,
+      },
+    });
+
+    if (!lesson) {
+      return { success: false, error: "Lesson not found" };
+    }
+
+    // Update lesson status to completed
     const row = await prisma.lesson.update({
       where: { id: Number(id) },
       data: { status: "completed" },
+      include: {
+        student: {
+          select: { id: true, firstName: true, lastName: true, email: true },
+        },
+        tutor: {
+          select: { id: true, firstName: true, lastName: true, email: true },
+        },
+        feedback: true,
+      },
     });
+
+    // If no feedback exists, send reminder email
+    if (!lesson.feedback) {
+      try {
+        await emailService.sendFeedbackReminderEmail(
+          lesson.student.email,
+          {
+            firstName: lesson.student.firstName,
+            lastName: lesson.student.lastName,
+          },
+          {
+            firstName: lesson.tutor.firstName,
+            lastName: lesson.tutor.lastName,
+          },
+          {
+            id: lesson.id,
+            subject: lesson.subject,
+            startAt: lesson.startAt,
+          }
+        );
+      } catch (e) {
+        console.error("Failed to send feedback reminder email:", e.message);
+        // Don't fail the request if email fails
+      }
+    }
+
     return { success: true, data: row };
   }
 
