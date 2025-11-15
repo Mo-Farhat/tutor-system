@@ -3,7 +3,7 @@ const router = express.Router();
 const authController = require("../controllers/authController");
 const { authenticateToken, requireRole } = require("../middleware/auth");
 const {
-  tutorApplicationUpload,
+  uploadTutorApplication,
   handleUploadError,
 } = require("../middleware/upload");
 
@@ -16,7 +16,7 @@ router.post("/login", authController.login);
 // Tutor application submission
 router.post(
   "/tutor/apply",
-  tutorApplicationUpload,
+  uploadTutorApplication,
   handleUploadError,
   authController.submitTutorApplication
 );

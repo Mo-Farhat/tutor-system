@@ -104,17 +104,17 @@ enum PackageCatalogStatus {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  firstName String
-  lastName  String
-  email     String   @unique
-  username  String   @unique
-  password  String
-  role      Role     @default(student)
-  status    String?
+  id               Int      @id @default(autoincrement())
+  firstName        String
+  lastName         String
+  email            String   @unique
+  username         String   @unique
+  password         String
+  role             Role     @default(student)
+  status           String?
   stripeCustomerId String?  @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   applications     TutorApplication[]
   profile          TutorProfile?
@@ -157,6 +157,7 @@ model User {
   tutorRequestsReceived TutorRequest[] @relation("TutorRequestsReceived")
   tutorRequestsSent     TutorRequest[] @relation("TutorRequestsSent")
 
+  mediaAssets MediaAsset[] @relation("UserMediaAssets")
   studentPipelinesAsStudent LessonPipeline[] @relation("StudentPipelines")
   tutorPipelinesAsTutor     LessonPipeline[] @relation("TutorPipelines")
 
@@ -252,6 +253,8 @@ model StudentProfile {
   subjects_interested String[]
   preferred_locations String[]
   photo_url           String?
+  photoAssetId        Int?
+  photoAsset          MediaAsset? @relation("StudentProfilePhoto", fields: [photoAssetId], references: [id])
   tier                StudentTier @default(basic)
   learning_goals      String?
   is_profile_complete Boolean     @default(false)
@@ -279,12 +282,16 @@ model TutorDocument {
   id         Int          @id @default(autoincrement())
   userId     Int
   type       DocumentType
-  path       String
-  number     String? // e.g., WWCC number
-  status     String       @default("pending") // pending, approved, expired
+  key        String?
+  bucket     String?
+  url        String?
+  number     String?
+  status     String       @default("pending")
   expiresAt  DateTime?
-  reviewedBy Int? // admin userId
+  reviewedBy Int?
   uploadedAt DateTime     @default(now())
+  assetId    Int?
+  asset      MediaAsset?  @relation("TutorDocumentAsset", fields: [assetId], references: [id])
 
   user               User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   TutorProfile       TutorProfile? @relation(fields: [tutorProfileUserId], references: [userId])
@@ -577,6 +584,7 @@ model TutorRequest {
   @@unique([studentId, tutorId])
   @@index([tutorId, studentId, status])
 }
+
 model TutorChangeRequest {
   id         Int       @id @default(autoincrement())
   tutorId    Int
@@ -618,14 +626,17 @@ model TutorReview {
 }
 
 model LessonMaterial {
-  id        Int      @id @default(autoincrement())
+  id        Int         @id @default(autoincrement())
   lessonId  Int
   title     String?
-  type      String? // "pdf" | "image" | "link" | "video" | "other"
-  path      String? // local file path (uploads)
-  url       String? // external link (if provided)
+  type      String?
+  key       String?
+  bucket    String?
+  url       String?
   addedBy   Int
-  createdAt DateTime @default(now())
+  assetId   Int?
+  asset     MediaAsset? @relation("LessonMaterialAsset", fields: [assetId], references: [id])
+  createdAt DateTime    @default(now())
 
   lesson Lesson @relation(fields: [lessonId], references: [id])
 
@@ -648,6 +659,23 @@ model ZoomLinkRegistry {
   @@index([isDefault])
 }
 
+model MediaAsset {
+  id          Int      @id @default(autoincrement())
+  ownerUserId Int?
+  key         String
+  bucket      String
+  contentType String?
+  size        Int?
+  url         String?
+  createdAt   DateTime @default(now())
+
+  // 🔁 Back-relations
+  owner         User?            @relation("UserMediaAssets", fields: [ownerUserId], references: [id])
+  tutorDocs     TutorDocument[]  @relation("TutorDocumentAsset")
+  lessonFiles   LessonMaterial[] @relation("LessonMaterialAsset")
+  profilePhotos StudentProfile[] @relation("StudentProfilePhoto")
+
+  @@index([ownerUserId])
 enum PipelineStage {
   initial_contact
   academic_consultation

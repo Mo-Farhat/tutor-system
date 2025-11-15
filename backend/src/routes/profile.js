@@ -14,16 +14,19 @@ const {
 } = require("../middleware/validation");
 
 const {
-  tutorVideoUpload, // NEW
-  tutorDocsUpload, // NEW
-  studentPhotoUpload,
+  uploadTutorApplication,
+  uploadTutorVideo,
+  uploadTutorDocs,
+  uploadStudentPhoto,
   handleUploadError,
 } = require("../middleware/upload");
 
-// Get tutor profile (public endpoint for profile viewing)
+// const { s3PostProcess } = require("../middleware/s3PostProcess");
+
+// Public: view tutor profile
 router.get("/tutor/profile", profileController.getTutorProfile);
 
-// Get my profile (authenticated endpoint)
+// Authenticated tutor: view own profile
 router.get(
   "/tutor/my-profile",
   authenticateToken,
@@ -31,10 +34,10 @@ router.get(
   profileController.getTutorProfile
 );
 
-// Get profile completion status (public endpoint)
+// Tutor completion status (public)
 router.get("/tutor/completion-status", profileController.getCompletionStatus);
 
-// Get my completion status (authenticated endpoint)
+// Tutor completion status (authenticated)
 router.get(
   "/tutor/my-completion-status",
   authenticateToken,
@@ -42,7 +45,7 @@ router.get(
   profileController.getCompletionStatus
 );
 
-// Update tutor profile (protected - tutors only, own profile only)
+// Update tutor profile
 router.put(
   "/tutor/profile",
   authenticateToken,
@@ -51,7 +54,7 @@ router.put(
   profileController.updateTutorProfile
 );
 
-// Change password (protected - tutors only)
+// Change password
 router.put(
   "/tutor/change-password",
   authenticateToken,
@@ -60,9 +63,10 @@ router.put(
   profileController.changePassword
 );
 
-// Student Profile Routes
+// -----------------------------------------------------------
+// Student profile routes
+// -----------------------------------------------------------
 
-// Get student profile (protected - students only)
 router.get(
   "/student/profile",
   authenticateToken,
@@ -70,7 +74,6 @@ router.get(
   profileController.getStudentProfile
 );
 
-// Update student profile (protected - students only)
 router.put(
   "/student/profile",
   authenticateToken,
@@ -79,7 +82,6 @@ router.put(
   profileController.updateStudentProfile
 );
 
-// Change password (protected - students only)
 router.put(
   "/student/change-password",
   authenticateToken,
@@ -88,27 +90,44 @@ router.put(
   profileController.changePassword
 );
 
-// Video Introduction
+// -----------------------------------------------------------
+// Upload endpoints (use new S3 upload middlewares)
+// -----------------------------------------------------------
+
+// Tutor video introduction
 router.post(
   "/tutor/upload/video-intro",
   authenticateToken,
   requireTutor,
-  tutorVideoUpload,
+  uploadTutorVideo,      // ✅ updated name
   handleUploadError,
   profileController.uploadVideoIntro
 );
 
-// Required Documents (contract, wwcc)
+// Tutor required documents
 router.post(
   "/tutor/upload/documents",
   authenticateToken,
   requireTutor,
-  tutorDocsUpload,
+  uploadTutorDocs,       // ✅ updated name
   handleUploadError,
   profileController.uploadRequiredDocuments
 );
 
-// Payment Info
+// Student profile photo
+router.post(
+  "/student/profile/photo",
+  authenticateToken,
+  requireStudent,
+  uploadStudentPhoto,    // ✅ updated name
+  handleUploadError,
+  profileController.uploadStudentPhoto
+);
+
+// -----------------------------------------------------------
+// Payment info
+// -----------------------------------------------------------
+
 router.get(
   "/tutor/payment",
   authenticateToken,
@@ -124,7 +143,11 @@ router.put(
   profileController.updatePaymentInfo
 );
 
-// List uploaded documents
+// -----------------------------------------------------------
+// Misc
+// -----------------------------------------------------------
+
+// List uploaded tutor documents
 router.get(
   "/tutor/documents",
   authenticateToken,
@@ -132,19 +155,10 @@ router.get(
   profileController.getDocuments
 );
 
-router.post(
-  "/student/profile/photo",
-  authenticateToken,
-  requireStudent,
-  studentPhotoUpload,
-  handleUploadError,
-  profileController.uploadStudentPhoto
-);
-
-// Get live tutors (public endpoint for find-tutor page)
+// Public: live tutors (for find-tutor page)
 router.get("/tutor/tutors/live", profileController.getLiveTutors);
 
-// Get tutor by ID (public endpoint)
+// Public: tutor by ID
 router.get("/tutor/tutors/:id", profileController.getTutorById);
 
 module.exports = router;

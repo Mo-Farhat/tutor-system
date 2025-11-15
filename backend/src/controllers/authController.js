@@ -202,10 +202,12 @@ exports.submitTutorApplication = async (req, res) => {
 
     if (req.files) {
       if (req.files.videoSubmission && req.files.videoSubmission[0]) {
-        videoSubmissionPath = req.files.videoSubmission[0].path;
+         const f = req.files.videoSubmission[0];
+videoSubmissionPath = f.cloudUrl || f.path || null;
       }
       if (req.files.resume && req.files.resume[0]) {
-        resumePath = req.files.resume[0].path;
+        const f = req.files.resume[0];
+  resumePath = f.cloudUrl || f.path || null;
       }
     }
 
@@ -547,65 +549,50 @@ exports.checkAuthStatus = async (req, res) => {
 };
 
 // Create Admin User (Development endpoint)
-exports.createAdmin = async (req, res) => {
+exports.createAdmin = async (req, res, next) => {
   try {
     const adminEmail = "admin@striveacademy.com";
-    const adminPassword = "admin123"; // Change this in production!
+    const adminPassword = "admin123"; // TODO: change in production
 
-    // Check if admin already exists
+    // 1) If already exists, return once and stop.
     const existingAdmin = await userModel.findByEmail(adminEmail);
     if (existingAdmin) {
-      return res.json({
+      return res.status(200).json({
         message: "Admin user already exists",
         email: adminEmail,
         note: "You can log in with this email and password: admin123",
       });
     }
 
-    // Hash password and create admin user
+    // 2) Create admin
     const hashedPassword = await authService.hashPassword(adminPassword);
-    const { generateUniqueUsername } = require("../services/usernameService");
+    // you already imported generateUniqueUsername at the top of the file
     const username = await generateUniqueUsername("admin");
 
-// Inside createAdmin controller
-try {
-  const admin = await userModel.create({
-    firstName: "Admin",
-    lastName: "User",
-    email: adminEmail,
-    username,
-    password: hashedPassword,
-    role: "admin",
-    status: "active",
-  });
+    const adminUser = await userModel.create({
+      firstName: "Admin",
+      lastName: "User",
+      email: adminEmail,
+      username,
+      password: hashedPassword,
+      role: "admin", // keep consistent with the rest of your codebase
+      status: "active",
+    });
 
-  res.json({
-    message: "Admin user created successfully",
-    email: adminEmail,
-    password: adminPassword,
-    adminId: admin.id,
-  });
-} catch (err) {
-  console.error("Full DB error during admin creation:", err);
-  res.status(500).json({
-    error: "Internal server error",
-    details: err.message || "No additional info",
-  });
-}
-
-
-    res.json({
+    // 3) Single success response (RETURN to avoid fallthrough)
+    return res.status(201).json({
       message: "Admin user created successfully",
       email: adminEmail,
       password: adminPassword,
       note: "Save these credentials and change the password after first login",
-      adminId: admin.id,
+      adminId: adminUser.id,
     });
-  } catch (error) {
-    console.error("Create admin error:", error);
-    res.status(500).json({ error: "Internal server error" });
+  } catch (err) {
+    // Single error path; let your global error middleware handle it
+    return next(err);
   }
 };
+
 
 // Get Application Stats (Debug endpoint)
 exports.getStats = async (req, res) => {

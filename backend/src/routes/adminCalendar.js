@@ -2,7 +2,11 @@ const express = require("express");
 const router = express.Router();
 const { authenticateToken, requireRole } = require("../middleware/auth");
 const ctrl = require("../controllers/adminCalendarController");
-const { lessonMaterialsUpload, handleUploadError } = require("../middleware/upload");
+
+const {
+  uploadLessonMaterial,   // ✅ new name
+  handleUploadError,
+} = require("../middleware/upload");
 
 // All routes are admin-protected
 router.get("/admin/calendar/lessons", authenticateToken, requireRole("admin"), ctrl.list);
@@ -20,7 +24,7 @@ router.post(
   "/admin/calendar/lessons/:id/materials",
   authenticateToken,
   requireRole("admin"),
-  lessonMaterialsUpload, // file field name: "file" | or pass url in body
+  uploadLessonMaterial,   // ✅ fixed name
   handleUploadError,
   ctrl.addMaterial
 );

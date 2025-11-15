@@ -1,4 +1,6 @@
+const prisma = require("../db/prisma");
 const calendarService = require("../services/calendarService");
+const { createMediaAsset } = require("../services/mediaAssetService");
 
 exports.list = async (req, res) => {
   try {
@@ -94,20 +96,36 @@ exports.createRecurring = async (req, res) => {
 // Materials
 exports.addMaterial = async (req, res) => {
   try {
-    const lessonId = Number(req.params.id);
+    const { id } = req.params; // lesson id
+    const { user } = req;
     const file = req.file;
-    const { title, url, type } = req.body || {};
-    const result = await calendarService.addMaterial(lessonId, {
-      title: title ?? (file?.originalname || null),
-      type: type ?? (file ? (file.mimetype || "").split("/")[1] : (url ? "link" : "other")),
-      path: file?.path ?? null,
-      url: url ?? null,
-      addedBy: req.user.id,
+
+    if (!file || !file.cloudUrl) {
+      return res.status(400).json({ success: false, error: "No file uploaded" });
+    }
+
+    const asset = await createMediaAsset({
+      kind: "lessons/materials",
+      key: file.s3Key,
+      url: file.cloudUrl,
+      mimeType: file.mimetype,
+      userId: user.id,
     });
-    res.status(201).json(result);
-  } catch (e) {
-    console.error("admin.calendar.addMaterial", e);
-    res.status(500).json({ success: false, error: "Internal server error" });
+
+    const material = await prisma.lessonMaterial.create({
+      data: {
+        lessonId: Number(id),
+        assetId: asset.id,
+      },
+      include: {
+        asset: true,
+      },
+    });
+
+    res.json({ success: true, material });
+  } catch (err) {
+    console.error("AddMaterial error:", err);
+    res.status(500).json({ success: false, error: "Failed to upload lesson material" });
   }
 };
 
