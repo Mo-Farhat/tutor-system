@@ -30,6 +30,22 @@ enum ReportType {
   termly
 }
 
+enum PipelineStage {
+  initial_contact
+  academic_consultation
+  payment_method_added
+  first_paid_lesson
+  package_purchase
+  regular_sessions
+}
+
+enum PipelineStatus {
+  pending
+  in_progress
+  completed
+}
+
+
 enum StudentTier {
   basic
   premium
@@ -157,7 +173,11 @@ model User {
   tutorRequestsReceived TutorRequest[] @relation("TutorRequestsReceived")
   tutorRequestsSent     TutorRequest[] @relation("TutorRequestsSent")
 
-  mediaAssets MediaAsset[] @relation("UserMediaAssets")
+  mediaAssets MediaAsset[]   @relation("UserMediaAssets")
+
+  // Pipelines
+  studentPipelinesAsStudent LessonPipeline[] @relation("StudentPipelines")
+  tutorPipelinesAsTutor     LessonPipeline[] @relation("TutorPipelines")
 
   @@index([role, createdAt])
 }
@@ -657,6 +677,25 @@ model ZoomLinkRegistry {
   @@index([isDefault])
 }
 
+model LessonPipeline {
+  id        Int            @id @default(autoincrement())
+  studentId Int
+  tutorId   Int
+  stage     PipelineStage
+  status    PipelineStatus @default(pending)
+  date      DateTime?
+  notes     String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  student User @relation("StudentPipelines", fields: [studentId], references: [id], onDelete: Cascade)
+  tutor   User @relation("TutorPipelines",  fields: [tutorId],   references: [id], onDelete: Cascade)
+
+  @@unique([studentId, tutorId, stage])
+  @@index([studentId, tutorId])
+  @@index([status])
+}
+
 model MediaAsset {
   id          Int      @id @default(autoincrement())
   ownerUserId Int?
@@ -675,3 +714,4 @@ model MediaAsset {
 
   @@index([ownerUserId])
 }
+
