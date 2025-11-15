@@ -20,6 +20,13 @@ class TutorApplicationModel {
     });
   }
 
+  // Find application by userId
+  async findByUserId(userId) {
+    return await prisma.tutorApplication.findFirst({
+      where: { userId: Number(userId) },
+    });
+  }
+
   // Update application
   async update(id, updateData) {
     return await prisma.tutorApplication.update({

@@ -34,10 +34,16 @@ function StudentScheduling() {
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [feedback, setFeedback] = useState({ rating: "", comment: "" });
+  const [pendingFeedbackCount, setPendingFeedbackCount] = useState(0);
+  const [hasShownAutoPrompt, setHasShownAutoPrompt] = useState(false);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
   const monthMatrix = getMonthMatrix(year, month);
+  
+  // Get year and month for recurring expansion
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth();
   const monthNames = [
     "January",
     "February",
@@ -74,8 +80,23 @@ function StudentScheduling() {
 
         if (completedRes?.success && Array.isArray(completedRes.data)) {
           setCompletedLessons(completedRes.data);
+          
+          // Calculate pending feedback count
+          const pending = completedRes.data.filter(lesson => !lesson.feedback);
+          setPendingFeedbackCount(pending.length);
+          
+          // Show auto-prompt for first lesson without feedback if not already shown
+          if (pending.length > 0 && !hasShownAutoPrompt) {
+            // Show prompt for the most recent lesson without feedback
+            const mostRecentPending = pending[0];
+            setSelectedLesson(mostRecentPending);
+            setFeedback({ rating: "", comment: "" });
+            setShowFeedbackModal(true);
+            setHasShownAutoPrompt(true);
+          }
         } else {
           setCompletedLessons([]);
+          setPendingFeedbackCount(0);
         }
       } catch (e) {
         setError("Failed to load lessons");
@@ -95,17 +116,36 @@ function StudentScheduling() {
     setCurrentDate(new Date(year, month + 1, 1));
   };
 
+  // Helper function to get timezone abbreviation (AEST/AEDT)
+  const getTimezoneAbbr = (dateStr) => {
+    try {
+      const date = new Date(dateStr);
+      const formatter = new Intl.DateTimeFormat("en-AU", {
+        timeZone: "Australia/Sydney",
+        timeZoneName: "short",
+      });
+      const parts = formatter.formatToParts(date);
+      const tzPart = parts.find((part) => part.type === "timeZoneName");
+      return tzPart ? tzPart.value : "AEST";
+    } catch (e) {
+      return "AEST";
+    }
+  };
+
   // Helper functions
   const formatTime = (dateStr) => {
     if (!dateStr) return "Invalid time";
     try {
       const date = new Date(dateStr);
       if (isNaN(date.getTime())) return "Invalid time";
-      return date.toLocaleTimeString("en-US", {
+      const timeStr = date.toLocaleTimeString("en-AU", {
+        timeZone: "Australia/Sydney",
         hour: "numeric",
         minute: "2-digit",
         hour12: true,
       });
+      const tzAbbr = getTimezoneAbbr(dateStr);
+      return `${timeStr} ${tzAbbr}`;
     } catch (e) {
       console.error("Error formatting time:", e, "for dateStr:", dateStr);
       return "Invalid time";
@@ -118,13 +158,19 @@ function StudentScheduling() {
       const date = new Date(dateStr);
       if (isNaN(date.getTime())) return "Invalid date";
       
-      const today = new Date();
+      // Create dates in Australia timezone for comparison
+      const now = new Date();
+      const today = new Date(now.toLocaleString("en-US", { timeZone: "Australia/Sydney" }));
       const tomorrow = new Date(today);
       tomorrow.setDate(tomorrow.getDate() + 1);
-
-      if (date.toDateString() === today.toDateString()) return "Today";
-      if (date.toDateString() === tomorrow.toDateString()) return "Tomorrow";
-      return date.toLocaleDateString("en-US", {
+      
+      const lessonDate = new Date(date.toLocaleString("en-US", { timeZone: "Australia/Sydney" }));
+      
+      if (lessonDate.toDateString() === today.toDateString()) return "Today";
+      if (lessonDate.toDateString() === tomorrow.toDateString()) return "Tomorrow";
+      
+      return date.toLocaleDateString("en-AU", {
+        timeZone: "Australia/Sydney",
         weekday: "short",
         month: "short",
         day: "numeric",
@@ -135,18 +181,125 @@ function StudentScheduling() {
     }
   };
 
+  // Expand recurring lessons to show all instances on calendar
+  const expandRecurringLessons = (lessons, viewStartDate, viewEndDate) => {
+    const expanded = [];
+    
+    lessons.forEach((lesson) => {
+      // Always include the original lesson
+      expanded.push(lesson);
+      
+      // If lesson has recurrenceRule, expand it (only for upcoming lessons, not completed)
+      if (lesson.recurrenceRule && lesson.seriesId && lesson.status === "scheduled") {
+        const instances = generateRecurringInstances(lesson, viewStartDate, viewEndDate);
+        expanded.push(...instances);
+      }
+    });
+    
+    return expanded;
+  };
+
+  // Generate recurring instances based on RRULE
+  const generateRecurringInstances = (lesson, viewStartDate, viewEndDate) => {
+    const instances = [];
+    const startDate = new Date(lesson.startAt);
+    const endDate = new Date(lesson.endAt);
+    const duration = endDate - startDate;
+    
+    // Parse RRULE
+    const rrule = lesson.recurrenceRule;
+    if (!rrule) return instances;
+    
+    // Extract frequency
+    const freqMatch = rrule.match(/FREQ=(\w+)/);
+    if (!freqMatch) return instances;
+    
+    const frequency = freqMatch[1].toLowerCase();
+    
+    // Extract UNTIL date if present
+    const untilMatch = rrule.match(/UNTIL=([^;]+)/);
+    let untilDate = null;
+    if (untilMatch) {
+      const untilStr = untilMatch[1];
+      // Parse YYYYMMDDTHHMMSSZ format
+      if (untilStr.length >= 15) {
+        const year = untilStr.substring(0, 4);
+        const month = untilStr.substring(4, 6);
+        const day = untilStr.substring(6, 8);
+        untilDate = new Date(`${year}-${month}-${day}T23:59:59Z`);
+      }
+    }
+    
+    // Set view boundaries (3 months ahead for calendar display)
+    const now = new Date();
+    const maxDate = viewEndDate || new Date(now.getFullYear(), now.getMonth() + 3, 0);
+    const endBoundary = untilDate && untilDate < maxDate ? untilDate : maxDate;
+    
+    // Generate instances
+    let currentDate = new Date(startDate);
+    let iteration = 0;
+    const maxIterations = frequency === 'weekly' ? 52 : 12; // Prevent infinite loops
+    
+    while (currentDate <= endBoundary && iteration < maxIterations) {
+      // Skip the original instance (already added) and only show future instances
+      if (currentDate.getTime() !== startDate.getTime() && currentDate >= now) {
+        const instanceEnd = new Date(currentDate.getTime() + duration);
+        
+        // Only include if within view range
+        if (currentDate >= viewStartDate && currentDate <= endBoundary) {
+          instances.push({
+            ...lesson,
+            id: `${lesson.id}-recur-${iteration}`, // Unique ID for display
+            startAt: currentDate.toISOString(),
+            endAt: instanceEnd.toISOString(),
+            isRecurringInstance: true, // Flag to identify expanded instances
+            originalLessonId: lesson.id,
+          });
+        }
+      }
+      
+      // Move to next occurrence
+      if (frequency === 'weekly') {
+        currentDate.setDate(currentDate.getDate() + 7);
+      } else if (frequency === 'monthly') {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+      } else {
+        break; // Unknown frequency
+      }
+      
+      iteration++;
+    }
+    
+    return instances;
+  };
+
   const getLessonsForDate = (dateStr) => {
     if (!dateStr) return [];
     try {
       const targetDate = new Date(dateStr);
       if (isNaN(targetDate.getTime())) return [];
       
-      return [...upcomingLessons, ...completedLessons].filter((lesson) => {
+      // Get view boundaries (current month)
+      const viewStart = new Date(currentYear, currentMonth, 1);
+      const viewEnd = new Date(currentYear, currentMonth + 1, 0);
+      
+      // Expand recurring lessons (only for upcoming lessons)
+      const expandedUpcoming = expandRecurringLessons(upcomingLessons, viewStart, viewEnd);
+      
+      // Combine expanded upcoming with completed (completed don't need expansion)
+      const allLessons = [...expandedUpcoming, ...completedLessons];
+      
+      return allLessons.filter((lesson) => {
         if (!lesson.startAt) return false;
         try {
           const lessonDate = new Date(lesson.startAt);
           if (isNaN(lessonDate.getTime())) return false;
-          return lessonDate.toDateString() === targetDate.toDateString();
+          
+          // Compare dates in Australia timezone
+          const lessonDateStr = lessonDate.toLocaleDateString("en-AU", { timeZone: "Australia/Sydney" });
+          const targetDateStr = targetDate.toLocaleDateString("en-AU", { timeZone: "Australia/Sydney" });
+          
+          return lessonDateStr === targetDateStr;
         } catch (e) {
           console.error("Error processing lesson date:", e, "for lesson:", lesson);
           return false;
@@ -181,10 +334,16 @@ function StudentScheduling() {
       if (res?.success) {
         alert("Feedback submitted successfully!");
         setShowFeedbackModal(false);
+        setSelectedLesson(null);
+        setFeedback({ rating: "", comment: "" });
         // Refresh completed lessons to show updated feedback
         const completedRes = await studentService.getCompletedLessons();
         if (completedRes?.success && Array.isArray(completedRes.data)) {
           setCompletedLessons(completedRes.data);
+          
+          // Update pending feedback count
+          const pending = completedRes.data.filter(lesson => !lesson.feedback);
+          setPendingFeedbackCount(pending.length);
         }
       } else {
         alert("Failed to submit feedback: " + (res?.error || "Unknown error"));
@@ -322,6 +481,9 @@ function StudentScheduling() {
                                         ) : (
                                           <i className="fas fa-clock student-scheduling-session-icon ms-1 text-warning"></i>
                                         )}
+                                        {(lesson.seriesId || lesson.isRecurringInstance) && (
+                                          <i className="fas fa-sync-alt student-scheduling-session-icon ms-1 text-info" title="Recurring lesson"></i>
+                                        )}
                                         <div className="text-muted small">
                                           {lesson.tutor?.firstName || "Unknown"}{" "}
                                           {lesson.tutor?.lastName || "Tutor"}
@@ -378,6 +540,11 @@ function StudentScheduling() {
                           <div>
                             <div className="student-scheduling-upcoming-title">
                               {lesson.subject || "No subject"}
+                              {(lesson.seriesId || lesson.isRecurringInstance) && (
+                                <span className="badge bg-info ms-2" title="Recurring lesson">
+                                  <i className="fas fa-sync-alt me-1"></i>Recurring
+                                </span>
+                              )}
                             </div>
                             <div className="student-scheduling-upcoming-tutor text-muted small">
                               with {lesson.tutor?.firstName || "Unknown"}{" "}
@@ -432,9 +599,16 @@ function StudentScheduling() {
             {/* Completed Sessions Section */}
             {completedLessons.length > 0 && (
               <div className="student-scheduling-section">
-                <h4 className="student-scheduling-section-title">
-                  Recent Sessions
-                </h4>
+                <div className="d-flex align-items-center justify-content-between mb-3">
+                  <h4 className="student-scheduling-section-title mb-0">
+                    Recent Sessions
+                  </h4>
+                  {pendingFeedbackCount > 0 && (
+                    <span className="badge bg-warning text-dark">
+                      {pendingFeedbackCount} {pendingFeedbackCount === 1 ? 'feedback' : 'feedbacks'} pending
+                    </span>
+                  )}
+                </div>
                 <div className="student-scheduling-card student-scheduling-upcoming-card">
                   <div className="student-scheduling-card-body">
                     {completedLessons.slice(0, 3).map((lesson, idx) => (
@@ -447,6 +621,11 @@ function StudentScheduling() {
                           <div>
                             <div className="student-scheduling-upcoming-title">
                               {lesson.subject || "No subject"}
+                              {lesson.seriesId && (
+                                <span className="badge bg-info ms-2" title="Recurring lesson">
+                                  <i className="fas fa-sync-alt me-1"></i>Recurring
+                                </span>
+                              )}
                             </div>
                             <div className="student-scheduling-upcoming-tutor text-muted small">
                               with {lesson.tutor?.firstName || "Unknown"}{" "}
@@ -473,6 +652,7 @@ function StudentScheduling() {
                               onClick={() => handleGiveFeedback(lesson)}
                             >
                               <i className="fas fa-star me-1"></i>Give Feedback
+                              <span className="badge bg-warning text-dark ms-2">!</span>
                             </button>
                           )}
                         </div>
@@ -500,6 +680,10 @@ function StudentScheduling() {
                       ></button>
                     </div>
                     <div className="modal-body">
+                      <div className="alert alert-info mb-3">
+                        <strong>Please provide feedback for your tutor.</strong>
+                        <p className="mb-0 mt-2">Is there anything you'd like to share to help improve future sessions?</p>
+                      </div>
                       <div className="mb-3">
                         <label className="form-label">Rating (1-5)</label>
                         <select
@@ -537,7 +721,11 @@ function StudentScheduling() {
                       <button
                         type="button"
                         className="btn btn-secondary"
-                        onClick={() => setShowFeedbackModal(false)}
+                        onClick={() => {
+                          setShowFeedbackModal(false);
+                          setSelectedLesson(null);
+                          setFeedback({ rating: "", comment: "" });
+                        }}
                       >
                         Cancel
                       </button>

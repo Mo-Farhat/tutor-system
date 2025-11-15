@@ -6,6 +6,7 @@ const {
   getRejectionNotificationTemplate,
   getSetupReminderTemplate,
   getTutorRequestNotificationTemplate,
+  getFeedbackReminderTemplate,
 } = require("../templates/emailTemplates");
 
 class EmailService {
@@ -228,6 +229,37 @@ Strive Academy Team
     `;
 
     return await this.sendEmail(tutorEmail, subject, htmlContent, textContent);
+  }
+
+  async sendFeedbackReminderEmail(studentEmail, studentData, tutorData, lessonData) {
+    const subject = "Please provide feedback for your tutor - Strive Academics";
+    const htmlContent = getFeedbackReminderTemplate(studentData, tutorData, lessonData);
+    const schedulingUrl = `${process.env.FRONTEND_URL || "https://striveacademics.com.au"}/dashboard/student/scheduling`;
+    const textContent = `
+Dear ${studentData.firstName},
+
+Your recent tutoring session with ${tutorData.firstName} ${tutorData.lastName} has been completed.
+
+Session Details:
+- Subject: ${lessonData.subject}
+- Date: ${new Date(lessonData.startAt).toLocaleDateString()}
+
+Please provide feedback for your tutor. Is there anything you'd like to share to help improve future sessions?
+
+Your feedback helps us:
+- Improve the quality of tutoring sessions
+- Better match students with tutors
+- Enhance the overall learning experience
+
+Leave feedback: ${schedulingUrl}
+
+Thank you for being part of Strive Academics!
+
+Best regards,
+The Strive Academics Team
+    `;
+
+    return await this.sendEmail(studentEmail, subject, htmlContent, textContent);
   }
 }
 

@@ -441,6 +441,9 @@ function TutorSettingsTutorAccountSettings() {
             // Refresh the profile data to show the updates
             await fetchTutorProfile();
             
+            // Dispatch event to notify navbar to refresh
+            window.dispatchEvent(new CustomEvent('profileUpdated'));
+            
             console.log('All profile data updated successfully');
             setIsEditMode(false);
             setError('');

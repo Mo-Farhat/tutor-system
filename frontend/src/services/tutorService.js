@@ -52,6 +52,16 @@ class TutorService {
     }
   }
 
+  async getUpcomingLessons() {
+    try {
+      const response = await api.get("/auth/tutor/lessons/upcoming");
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching upcoming lessons:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
   async deleteLesson(id) {
     try {
       const response = await api.delete(`/auth/tutor/lessons/${id}`);

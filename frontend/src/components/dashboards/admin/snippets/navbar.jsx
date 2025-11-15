@@ -59,9 +59,12 @@ function AdminNavbar() {
             >
               <h6 className="admin-navbar-username">
                 {user
-                  ? `${user.first_name || ""} ${user.last_name || ""}`.trim() ||
-                    user.username ||
-                    "Admin"
+                  ? (() => {
+                      const firstName = user.first_name || user.firstName || "";
+                      const lastName = user.last_name || user.lastName || "";
+                      const fullName = `${firstName} ${lastName}`.trim();
+                      return fullName || "Admin";
+                    })()
                   : "Admin User"}
               </h6>
               <p className="admin-navbar-user-role">Administrator</p>
@@ -129,9 +132,12 @@ function AdminNavbar() {
             <div className="admin-navbar-user-info">
               <h6 className="admin-navbar-username">
                 {user
-                  ? `${user.first_name || ""} ${user.last_name || ""}`.trim() ||
-                    user.username ||
-                    "Admin"
+                  ? (() => {
+                      const firstName = user.first_name || user.firstName || "";
+                      const lastName = user.last_name || user.lastName || "";
+                      const fullName = `${firstName} ${lastName}`.trim();
+                      return fullName || "Admin";
+                    })()
                   : "Admin User"}
               </h6>
               <p className="admin-navbar-user-role">Administrator</p>
