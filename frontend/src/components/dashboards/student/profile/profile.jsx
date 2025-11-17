@@ -96,19 +96,32 @@ function StudentProfileManagement() {
 
         if (profileRes?.success && profileRes.data) {
           const p = profileRes.data;
+          // Debug: Log the raw data to see what we're getting
+          console.log('Profile data:', p);
+          console.log('User data:', p.user);
+          
+          // Properly concatenate first_name and last_name
+          const firstName = p.user?.first_name || '';
+          const lastName = p.user?.last_name || '';
+          const concatenatedName = `${firstName} ${lastName}`.trim();
+          
+          console.log('First name:', firstName);
+          console.log('Last name:', lastName);
+          console.log('Concatenated name:', concatenatedName);
+          
           setStudentData((prev) => ({
             ...prev,
-            fullName: p.fullName || p.name || "",
-            email: p.email || "",
+            fullName: concatenatedName || p.fullName || p.name || "Student",
+            email: p.user?.email || p.email || "",
             grade: p.grade || "",
             stream: p.stream || p.studyStream || "",
-            joinedDate: p.joinedDate || p.createdAt || "",
-            status: p.status || "",
+            status: p.status || "Active",
+            joinedDate: p.user?.created_at || p.joinedDate || "",
             avatar: p.avatarUrl || prev.avatar,
           }));
           setDetailsData({
-            fullName: p.fullName || p.name || "",
-            email: p.email || "",
+            fullName: concatenatedName || p.fullName || p.name || "Student",
+            email: p.user?.email || p.email || "",
             phoneNumber: p.phone || p.phoneNumber || "",
             subjects: p.subjects || [],
             studentId: p.studentId || p.id || "",
@@ -467,8 +480,10 @@ function StudentProfileManagement() {
                 </div>
                 <div className="col">
                   <div className="student-profile-header-info">
+                    {/* Debug: Log what we're actually displaying */}
+                    {console.log('Rendering fullName:', studentData.fullName)}
                     <h4 className="student-profile-name">
-                      {studentData.fullName}
+                      {studentData.fullName || 'Loading...'}
                     </h4>
                     <p className="student-profile-details">
                       {studentData.grade} • {studentData.stream}
