@@ -1,19 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import api from '../../../../services/api';
 import { parseTutorRequestMessage } from '../../../../utils/messageParser';
 
 const TutorRequests = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showNewRequestForm, setShowNewRequestForm] = useState(false);
-  const [newRequest, setNewRequest] = useState({
-    tutorId: '',
-    message: ''
-  });
-  const [submitting, setSubmitting] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
 
   useEffect(() => {
@@ -37,36 +33,6 @@ const TutorRequests = () => {
     }
   };
 
-  const handleSubmitRequest = async (e) => {
-    e.preventDefault();
-    if (!newRequest.tutorId.trim()) {
-      setError('Please enter a tutor ID');
-      return;
-    }
-
-    try {
-      setSubmitting(true);
-      setError(null);
-      const response = await api.post('/auth/student/tutor-requests', {
-        tutorId: parseInt(newRequest.tutorId),
-        message: newRequest.message.trim() || null
-      });
-
-      if (response.data.success) {
-        // Add the new request to the list
-        setRequests(prev => [response.data.data, ...prev]);
-        setNewRequest({ tutorId: '', message: '' });
-        setShowNewRequestForm(false);
-      } else {
-        setError(response.data.error || 'Failed to send request');
-      }
-    } catch (err) {
-      console.error('Error sending request:', err);
-      setError(err.response?.data?.error || 'Failed to send request');
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   const getStatusBadge = (status) => {
     const statusClasses = {
@@ -128,10 +94,10 @@ const TutorRequests = () => {
                 </button>
                 <button 
                   className="btn btn-primary btn-sm"
-                  onClick={() => setShowNewRequestForm(!showNewRequestForm)}
+                  onClick={() => navigate('/find-a-tutor')}
                 >
-                  <i className="fas fa-plus me-1"></i>
-                  New Request
+                  <i className="fas fa-search me-1"></i>
+                  Find a Tutor
                 </button>
               </div>
             </div>
@@ -148,78 +114,6 @@ const TutorRequests = () => {
               </div>
             )}
 
-            {/* New Request Form */}
-            {showNewRequestForm && (
-              <div className="card mb-4">
-                <div className="card-header">
-                  <h5 className="mb-0">Send New Tutor Request</h5>
-                </div>
-                <div className="card-body">
-                  <form onSubmit={handleSubmitRequest}>
-                    <div className="mb-3">
-                      <label htmlFor="tutorId" className="form-label">
-                        Tutor ID <span className="text-danger">*</span>
-                      </label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        id="tutorId"
-                        value={newRequest.tutorId}
-                        onChange={(e) => setNewRequest(prev => ({ ...prev, tutorId: e.target.value }))}
-                        placeholder="Enter tutor ID"
-                        required
-                      />
-                      <div className="form-text">
-                        You can find tutor IDs in the tutor directory or from your tutor's profile.
-                      </div>
-                    </div>
-                    <div className="mb-3">
-                      <label htmlFor="message" className="form-label">Message (Optional)</label>
-                      <textarea
-                        className="form-control"
-                        id="message"
-                        rows="3"
-                        value={newRequest.message}
-                        onChange={(e) => setNewRequest(prev => ({ ...prev, message: e.target.value }))}
-                        placeholder="Add a personal message to your request..."
-                      />
-                    </div>
-                    <div className="d-flex gap-2">
-                      <button
-                        type="submit"
-                        className="btn btn-primary"
-                        disabled={submitting}
-                      >
-                        {submitting ? (
-                          <>
-                            <span className="spinner-border spinner-border-sm me-1" role="status">
-                              <span className="visually-hidden">Loading...</span>
-                            </span>
-                            Sending...
-                          </>
-                        ) : (
-                          <>
-                            <i className="fas fa-paper-plane me-1"></i>
-                            Send Request
-                          </>
-                        )}
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-secondary"
-                        onClick={() => {
-                          setShowNewRequestForm(false);
-                          setNewRequest({ tutorId: '', message: '' });
-                          setError(null);
-                        }}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            )}
 
             {/* Requests List */}
             {requests.length === 0 ? (
@@ -229,10 +123,10 @@ const TutorRequests = () => {
                 <p className="text-muted">You haven't sent any tutor requests yet.</p>
                 <button 
                   className="btn btn-primary"
-                  onClick={() => setShowNewRequestForm(true)}
+                  onClick={() => navigate('/find-a-tutor')}
                 >
-                  <i className="fas fa-plus me-1"></i>
-                  Send Your First Request
+                  <i className="fas fa-search me-1"></i>
+                  Find a Tutor
                 </button>
               </div>
             ) : (
