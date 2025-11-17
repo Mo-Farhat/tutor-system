@@ -466,20 +466,22 @@ function StudentProfileManagement() {
                   </div>
                 </div>
                 <div className="col">
-                  <h4 className="student-profile-name">
-                    {studentData.fullName}
-                  </h4>
-                  <p className="student-profile-details">
-                    {studentData.grade} • {studentData.stream}
-                  </p>
-                  <div className="student-profile-badges">
-                    <span className="badge student-profile-status-badge">
-                      {studentData.status}
-                    </span>
-                    <span className="student-profile-joined">
-                      <i className="fas fa-clock me-1"></i>
-                      Joined {studentData.joinedDate}
-                    </span>
+                  <div className="student-profile-header-info">
+                    <h4 className="student-profile-name">
+                      {studentData.fullName}
+                    </h4>
+                    <p className="student-profile-details">
+                      {studentData.grade} • {studentData.stream}
+                    </p>
+                    <div className="student-profile-badges">
+                      <span className="badge student-profile-status-badge">
+                        {studentData.status}
+                      </span>
+                      <span className="student-profile-joined">
+                        <i className="fas fa-clock me-1"></i>
+                        Joined {studentData.joinedDate ? new Date(studentData.joinedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) : ''}
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <div className="col-auto">
@@ -496,21 +498,129 @@ function StudentProfileManagement() {
           </div>
         </div>
 
-        <div className="row">
-          {/* SMART Goals Section and Details combined layout */}
+        {/* Quick Stats Row */}
+        <div className="row student-profile-quick-stats">
+          {/* SMART Goals Tile */}
+          <div className="col-lg-4 col-md-6 mb-4">
+            <div className="student-profile-section h-100">
+              <div className="card student-profile-goals-tile h-100">
+                <div className="card-body">
+                  <div className="d-flex justify-content-between align-items-center mb-3">
+                    <h5 className="student-profile-section-title mb-0">
+                      <i className="fas fa-bullseye me-2"></i>
+                      SMART Goals
+                    </h5>
+                    <button
+                      className="btn student-profile-add-btn btn-sm"
+                      onClick={() => handleEditGoal("")}
+                    >
+                      <i className="fas fa-plus"></i>
+                    </button>
+                  </div>
+
+                  {goalsLoading && (
+                    <div className="text-muted small">Loading goals...</div>
+                  )}
+                  {goalsError && <div className="text-danger small">{goalsError}</div>}
+                  
+                  {goals.length > 0 ? (
+                    <div className="student-profile-goals-tile-list">
+                      {goals.slice(0, 3).map((g) => (
+                        <div key={g.id} className="student-profile-goal-tile-item">
+                          <div className="d-flex justify-content-between align-items-start">
+                            <div className="flex-grow-1">
+                              <div className="fw-semibold small">{g.title}</div>
+                              {g.subject && (
+                                <div className="text-muted small">{g.subject}</div>
+                              )}
+                              {g.targetDate && (
+                                <div className="text-muted small">Target: {formatDate(g.targetDate)}</div>
+                              )}
+                            </div>
+                            <div className="d-flex gap-1">
+                              <button
+                                className="btn btn-outline-primary btn-sm"
+                                onClick={() => handleEditGoal(g.subject, g.id)}
+                                title="Edit goal"
+                              >
+                                <i className="fas fa-edit"></i>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      {goals.length > 3 && (
+                        <div className="text-center mt-2">
+                          <small className="text-muted">+{goals.length - 3} more goals</small>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-muted text-center py-3">
+                      <i className="fas fa-bullseye fa-2x mb-2"></i>
+                      <div className="small">No goals yet</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Learning Preferences Tile */}
+          <div className="col-lg-4 col-md-6 mb-4">
+            <div className="student-profile-section h-100">
+              <PreferencesPanel
+                learningPreferences={learningPreferences}
+                onEdit={() => {
+                  setEditingPreferences({ ...learningPreferences });
+                  setShowPreferencesModal(true);
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Current Subjects Tile */}
+          <div className="col-lg-4 col-md-12 mb-4">
+            <div className="student-profile-section h-100">
+              <div className="card student-profile-subjects-card h-100">
+                <div className="card-body">
+                  <h6 className="student-profile-card-title mb-3">
+                    <i className="fas fa-book me-2"></i>
+                    Current Subjects
+                  </h6>
+                  <div className="student-profile-subjects-list">
+                    {currentSubjects.map((subject, index) => (
+                      <div key={index} className="student-profile-subject-item">
+                        <div className="student-profile-subject-icon">
+                          {subject.icon}
+                        </div>
+                        <div className="student-profile-subject-name">
+                          {subject.name}
+                        </div>
+                        <span
+                          className={`badge student-profile-subject-status ${subject.status.toLowerCase()}`}
+                        >
+                          {subject.status}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content Area */}
+        <div className="row student-profile-main-content">
           <div className="col-lg-8 col-md-12">
+            {/* Goals Section */}
             <div className="student-profile-section">
-              <div className="d-flex justify-content-between align-items-center mb-3">
+              <div className="student-profile-section-header">
                 <h5 className="student-profile-section-title">
-                  SMART Goals by Subject
+                  <i className="fas fa-bullseye me-2"></i>
+                  All Goals by Subject
                 </h5>
-                <button
-                  className="btn student-profile-add-btn"
-                  onClick={() => handleEditGoal("")}
-                >
-                  <i className="fas fa-plus me-2"></i>
-                  Add Goal
-                </button>
               </div>
 
               {goalsLoading && (
@@ -580,24 +690,24 @@ function StudentProfileManagement() {
             </div>
 
             {/* Personal Information Section */}
-            <div className="student-profile-section mt-4">
+            <div className="student-profile-section">
+              <div className="student-profile-section-header">
+                <h5 className="student-profile-section-title">
+                  <i className="fas fa-user me-2"></i>
+                  Personal Information
+                </h5>
+                {editingSection !== 'personal' && (
+                  <button
+                    className="btn btn-sm btn-outline-primary"
+                    onClick={() => startEditingSection('personal')}
+                  >
+                    <i className="fas fa-edit me-1"></i>
+                    Edit
+                  </button>
+                )}
+              </div>
               <div className="card">
                 <div className="card-body">
-                  <div className="d-flex justify-content-between align-items-center mb-3">
-                    <h6 className="student-profile-card-title mb-0">
-                      <i className="fas fa-user me-2"></i>
-                      Personal Information
-                    </h6>
-                    {editingSection !== 'personal' && (
-                      <button
-                        className="btn btn-sm btn-outline-primary"
-                        onClick={() => startEditingSection('personal')}
-                      >
-                        <i className="fas fa-edit me-1"></i>
-                        Edit
-                      </button>
-                    )}
-                  </div>
 
                   {sectionError && editingSection === 'personal' && (
                     <div className="alert alert-danger alert-sm">
@@ -683,25 +793,24 @@ function StudentProfileManagement() {
             </div>
 
             {/* Academic Information Section */}
-            <div className="student-profile-section mt-4">
+            <div className="student-profile-section">
+              <div className="student-profile-section-header">
+                <h5 className="student-profile-section-title">
+                  <i className="fas fa-graduation-cap me-2"></i>
+                  Academic Information
+                </h5>
+                {editingSection !== 'academic' && (
+                  <button
+                    className="btn btn-sm btn-outline-primary"
+                    onClick={() => startEditingSection('academic')}
+                  >
+                    <i className="fas fa-edit me-1"></i>
+                    Edit
+                  </button>
+                )}
+              </div>
               <div className="card">
                 <div className="card-body">
-                  <div className="d-flex justify-content-between align-items-center mb-3">
-                    <h6 className="student-profile-card-title mb-0">
-                      <i className="fas fa-graduation-cap me-2"></i>
-                      Academic Information
-                    </h6>
-                    {editingSection !== 'academic' && (
-                      <button
-                        className="btn btn-sm btn-outline-primary"
-                        onClick={() => startEditingSection('academic')}
-                      >
-                        <i className="fas fa-edit me-1"></i>
-                        Edit
-                      </button>
-                    )}
-                  </div>
-
                   {sectionError && editingSection === 'academic' && (
                     <div className="alert alert-danger alert-sm">
                       <i className="fas fa-exclamation-triangle me-2"></i>
@@ -874,51 +983,12 @@ function StudentProfileManagement() {
               </div>
             </div>
 
-            {/* Details panel below (achievements and reports) */}
+            {/* Progress Details */}
             <DetailsPanel
               studentData={detailsData}
               studentBadges={studentBadges}
               previousReports={previousReports}
             />
-          </div>
-
-          {/* Sidebar */}
-          <div className="col-lg-4 col-md-12">
-            <PreferencesPanel
-              learningPreferences={learningPreferences}
-              onEdit={() => {
-                setEditingPreferences({ ...learningPreferences });
-                setShowPreferencesModal(true);
-              }}
-            />
-
-            {/* Current Subjects */}
-            <div className="student-profile-section">
-              <div className="card student-profile-subjects-card">
-                <div className="card-body">
-                  <h6 className="student-profile-card-title mb-3">
-                    Current Subjects
-                  </h6>
-                  <div className="student-profile-subjects-list">
-                    {currentSubjects.map((subject, index) => (
-                      <div key={index} className="student-profile-subject-item">
-                        <div className="student-profile-subject-icon">
-                          {subject.icon}
-                        </div>
-                        <div className="student-profile-subject-name">
-                          {subject.name}
-                        </div>
-                        <span
-                          className={`badge student-profile-subject-status ${subject.status.toLowerCase()}`}
-                        >
-                          {subject.status}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>

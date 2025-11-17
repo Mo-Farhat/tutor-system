@@ -25,9 +25,41 @@
     margin-bottom: 0;
 }
 
+/* Section Header */
+.student-profile-section-header {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.student-profile-section-header .student-profile-section-title {
+    margin-bottom: 0;
+}
+
+/* Quick Stats Row */
+.student-profile-quick-stats {
+    margin-bottom: 40px;
+}
+
+/* Main Content Area */
+.student-profile-main-content {
+    margin-top: 20px;
+}
+
+/* Header Info */
+.student-profile-header-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 /* Cards */
 .student-profile-header-card,
 .student-profile-goals-card,
+.student-profile-goals-tile,
 .student-profile-preferences-card,
 .student-profile-subjects-card {
     background: #ffffff;
@@ -39,6 +71,7 @@
 
 .student-profile-header-card:hover,
 .student-profile-goals-card:hover,
+.student-profile-goals-tile:hover,
 .student-profile-preferences-card:hover,
 .student-profile-subjects-card:hover {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
@@ -149,6 +182,30 @@
     background-color: #218838;
     border-color: #218838;
     color: white;
+}
+
+/* SMART Goals Tile */
+.student-profile-goals-tile {
+    border-left: 4px solid #28a745;
+}
+
+.student-profile-goals-tile-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.student-profile-goal-tile-item {
+    padding: 12px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border-left: 3px solid #28a745;
+    transition: all 0.3s ease;
+}
+
+.student-profile-goal-tile-item:hover {
+    background-color: #e9ecef;
+    transform: translateX(2px);
 }
 
 /* SMART Goals */
@@ -310,10 +367,12 @@
     background-color: #f8f9fa;
     border-radius: 8px;
     transition: all 0.3s ease;
+    border-left: 3px solid #007bff;
 }
 
 .student-profile-subject-item:hover {
     background-color: #e9ecef;
+    transform: translateX(2px);
 }
 
 .student-profile-subject-icon {
@@ -395,6 +454,10 @@
     .student-profile-section-title {
         font-size: 18px;
     }
+
+    .student-profile-quick-stats {
+        margin-bottom: 30px;
+    }
 }
 
 @media (max-width: 767.98px) {
@@ -436,6 +499,12 @@
         font-size: 16px;
         text-align: center;
         margin-bottom: 15px;
+    }
+
+    .student-profile-section-header {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
     }
 
     .student-profile-edit-btn,
@@ -532,12 +601,17 @@
     }
 
     .student-profile-goals-card .card-body,
+    .student-profile-goals-tile .card-body,
     .student-profile-preferences-card .card-body,
     .student-profile-subjects-card .card-body {
         padding: 15px;
     }
 
     .student-profile-goal-item {
+        padding: 8px;
+    }
+
+    .student-profile-goal-tile-item {
         padding: 8px;
     }
 

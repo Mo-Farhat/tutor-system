@@ -65,8 +65,8 @@ function StudentReferrals() {
                         <div className="card student-referrals-summary h-100">
                             <div className="card-body">
                                 <div className="student-referrals-summary-title">Rewards Earned <span className="student-referrals-info-icon">🎁</span></div>
-                                <div className="student-referrals-summary-value">$240</div>
-                                <div className="student-referrals-summary-sub">$30 per referral</div>
+                                <div className="student-referrals-summary-value">$160</div>
+                                <div className="student-referrals-summary-sub">$20 per referral</div>
                             </div>
                         </div>
                     </div>
@@ -86,8 +86,8 @@ function StudentReferrals() {
                     <div className="card-body">
                         <div className="student-referrals-link-title mb-3">Your Referral Link</div>
                         <p className="student-referrals-link-description">
-                            Share this link with friends and family. When they sign up and complete their first session, 
-                            you'll earn $30 in credits and they'll get a 20% discount on their first package!
+                            Share this link with friends and family. When they sign up and complete their first paid session, 
+                            you'll earn $20 in credits and they'll get a 20% discount on their first package!
                         </p>
                         
                         <div className="student-referrals-link-container">
@@ -188,7 +188,7 @@ function StudentReferrals() {
                                             Sarah Wilson
                                         </td>
                                         <td><span className="badge bg-success student-referrals-status">Completed</span></td>
-                                        <td>$30.00</td>
+                                        <td>$20.00</td>
                                         <td>
                                             <button className="btn btn-sm student-referrals-view-btn">View</button>
                                         </td>
@@ -216,7 +216,7 @@ function StudentReferrals() {
                                             Emma Davis
                                         </td>
                                         <td><span className="badge bg-success student-referrals-status">Completed</span></td>
-                                        <td>$30.00</td>
+                                        <td>$20.00</td>
                                         <td>
                                             <button className="btn btn-sm student-referrals-view-btn">View</button>
                                         </td>
@@ -263,16 +263,16 @@ function StudentReferrals() {
                                     <div className="student-referrals-step-number">2</div>
                                     <h6 className="student-referrals-step-title">They Sign Up</h6>
                                     <p className="student-referrals-step-description">
-                                        Your friend creates an account and gets 20% off their first package.
+                                        Your friend creates an account and has their first paid session.
                                     </p>
                                 </div>
                             </div>
                             <div className="col-md-4 mb-3">
                                 <div className="student-referrals-step">
                                     <div className="student-referrals-step-number">3</div>
-                                    <h6 className="student-referrals-step-title">You Both Win</h6>
+                                    <h6 className="student-referrals-step-title">You Get Rewarded</h6>
                                     <p className="student-referrals-step-description">
-                                        After their first session, you receive $30 in credits to your account.
+                                        As soon as they have their first paid session, you will receive $20 in credits that can be used for your sessions.
                                     </p>
                                 </div>
                             </div>
