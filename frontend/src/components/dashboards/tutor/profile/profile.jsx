@@ -27,6 +27,7 @@ function TutorProfile() {
     accountName: "",
     bsb: "",
     accountNumber: "",
+    paypalEmail: "",
   });
 
   const [selectedLocations, setSelectedLocations] = useState([]);
@@ -117,11 +118,13 @@ function TutorProfile() {
           currentPassword: "",
           newPassword: "",
           confirmPassword: "",
-          abnNumber: "",
-          paymentMethod: "bank",
-          accountName: "",
-          bsb: "",
-          accountNumber: "",
+          // Use payment info from API if available
+          abnNumber: data.data.paymentInfo?.abnNumber || "",
+          paymentMethod: data.data.paymentInfo?.paymentMethod || "bank",
+          accountName: data.data.paymentInfo?.accountName || "",
+          bsb: data.data.paymentInfo?.bsb || "",
+          accountNumber: data.data.paymentInfo?.accountNumber || "",
+          paypalEmail: data.data.paymentInfo?.paypalEmail || "",
         };
 
         console.log("Setting form data:", newFormData);
@@ -412,6 +415,13 @@ function TutorProfile() {
         })),
         phone_number: formData.phoneNumber,
         is_profile_complete: isComplete,
+        // Add payment fields
+        abnNumber: formData.abnNumber,
+        paymentMethod: formData.paymentMethod,
+        accountName: formData.accountName,
+        bsb: formData.bsb,
+        accountNumber: formData.accountNumber,
+        paypalEmail: formData.paypalEmail,
       };
 
 
@@ -1281,6 +1291,27 @@ function TutorProfile() {
                               name="accountNumber"
                               value={formData.accountNumber}
                               onChange={handleInputChange}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {formData.paymentMethod === "paypal" && (
+                      <div className="row">
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label htmlFor="paypalEmail" className="form-label">
+                              PayPal Email Address
+                            </label>
+                            <input
+                              type="email"
+                              className="form-control"
+                              id="paypalEmail"
+                              name="paypalEmail"
+                              value={formData.paypalEmail || ""}
+                              onChange={handleInputChange}
+                              placeholder="Enter your PayPal email address"
                             />
                           </div>
                         </div>

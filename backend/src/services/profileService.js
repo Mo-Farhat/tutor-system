@@ -19,6 +19,14 @@ class ProfileService {
     // Fetch linked tutor application if it exists
     const application = await tutorApplicationModel.findByUserId(userId);
 
+    // Fetch payment information
+    const paymentInfo = await tutorPaymentModel.findByUserId(userId);
+    
+    // Transform payment method back to frontend format
+    if (paymentInfo && paymentInfo.paymentMethod === "bank_transfer") {
+      paymentInfo.paymentMethod = "bank";
+    }
+
     // NEW: compute WWCC status and include documents flag
     const wwcc = await this.wwccStatus(tutorProfile.userId);
     const completionStatus = this.calculateCompletionStatus(
@@ -47,6 +55,7 @@ class ProfileService {
         wwcc_status: wwcc, // ⬅️ convenient for the UI
         completion_status: completionStatus,
         application: application || null, // Include application data for pre-filling
+        paymentInfo: paymentInfo || {}, // Include payment information
       },
     };
   }
@@ -65,6 +74,14 @@ class ProfileService {
 
     // Fetch linked tutor application if it exists
     const application = await tutorApplicationModel.findByUserId(user.id);
+
+    // Fetch payment information
+    const paymentInfo = await tutorPaymentModel.findByUserId(user.id);
+    
+    // Transform payment method back to frontend format
+    if (paymentInfo && paymentInfo.paymentMethod === "bank_transfer") {
+      paymentInfo.paymentMethod = "bank";
+    }
 
     const wwcc = await this.wwccStatus(user.id);
     const completionStatus = this.calculateCompletionStatus(
@@ -93,6 +110,7 @@ class ProfileService {
         wwcc_status: wwcc,
         completion_status: completionStatus,
         application: application || null, // Include application data for pre-filling
+        paymentInfo: paymentInfo || {}, // Include payment information
       },
     };
   }
@@ -244,6 +262,26 @@ class ProfileService {
 
     // Update TutorProfile model
     await tutorProfileModel.update(userId, profileDataToUpdate);
+
+    // Handle payment fields - update TutorPaymentInfo if payment data is present
+    const paymentFields = ["abnNumber", "paymentMethod", "accountName", "bsb", "accountNumber", "paypalEmail"];
+    const paymentDataToUpdate = {};
+    paymentFields.forEach((field) => {
+      if (updatedProfile[field] !== undefined && updatedProfile[field] !== null && updatedProfile[field] !== "") {
+        let value = updatedProfile[field];
+        // Transform payment method to match database enum
+        if (field === "paymentMethod" && value === "bank") {
+          value = "bank_transfer";
+        }
+        paymentDataToUpdate[field] = value;
+      }
+    });
+
+    if (Object.keys(paymentDataToUpdate).length > 0) {
+      console.log("🔍 Updating TutorPaymentInfo with:", paymentDataToUpdate);
+      await tutorPaymentModel.upsert(userId, paymentDataToUpdate);
+      console.log("✅ TutorPaymentInfo updated successfully");
+    }
 
     console.log("✅ Database update completed successfully");
 
