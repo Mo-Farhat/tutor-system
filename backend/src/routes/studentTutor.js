@@ -11,5 +11,7 @@ router.delete("/admin/assignments/:id", authenticateToken, requireRole("admin"),
 // Authenticated self-views
 router.get("/auth/student/my-tutors", authenticateToken, requireStudent, ctrl.myTutors);
 router.get("/auth/tutor/my-students", authenticateToken, requireTutor, ctrl.myStudents);
+router.get("/auth/tutor/students/:pairId/profile", authenticateToken, requireTutor, ctrl.getStudentProfile);
+
 
 module.exports = router;

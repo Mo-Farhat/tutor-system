@@ -32,6 +32,12 @@ function TutorStudents() {
   const [submitting, setSubmitting] = useState(false);
   const [reportError, setReportError] = useState("");
 
+  // Profile modal state
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [selectedStudentProfile, setSelectedStudentProfile] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileError, setProfileError] = useState("");
+
   useEffect(() => {
     loadStudents();
   }, []);
@@ -219,6 +225,31 @@ function TutorStudents() {
     }
   };
 
+  const handleOpenProfileModal = async (pair) => {
+    setProfileError("");
+    setShowProfileModal(true);
+    setProfileLoading(true);
+
+    try {
+      const result = await tutorService.getStudentProfile(pair.id);
+      if (result.success) {
+        setSelectedStudentProfile(result.data);
+      } else {
+        setProfileError(result.error || "Failed to load student profile");
+      }
+    } catch (err) {
+      setProfileError(err.message || "Failed to load student profile");
+    } finally {
+      setProfileLoading(false);
+    }
+  };
+
+  const handleCloseProfileModal = () => {
+    setShowProfileModal(false);
+    setSelectedStudentProfile(null);
+    setProfileError("");
+  };
+
   if (loading) {
     return (
       <div className="tutor-students-container container-fluid">
@@ -320,12 +351,25 @@ function TutorStudents() {
                                   {s.username}
                                 </span>
                               )}
+                              {s.studentProfile?.phone_number && (
+                                <span className="tutor-students-card-phone">
+                                  <i className="fas fa-phone me-1"></i>
+                                  {s.studentProfile.phone_number}
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
                         <div className="d-flex gap-2">
                           <button
-                            className="btn btn-sm btn-primary flex-grow-1"
+                            className="btn btn-sm btn-outline-primary flex-grow-1"
+                            onClick={() => handleOpenProfileModal(pair)}
+                          >
+                            <i className="fas fa-user-circle me-1"></i>
+                            View Profile & Goals
+                          </button>
+                          <button
+                            className="btn btn-sm btn-primary"
                             onClick={() => handleOpenReportModal(s, pair)}
                           >
                             <i className="fas fa-file-alt me-1"></i>
@@ -719,6 +763,205 @@ function TutorStudents() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Student Profile Modal */}
+      {showProfileModal && (
+        <div
+          className="modal show d-block"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+          onClick={handleCloseProfileModal}
+        >
+          <div
+            className="modal-dialog modal-lg modal-dialog-scrollable"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">
+                  <i className="fas fa-user-circle me-2"></i>
+                  Student Profile & Learning Goals
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={handleCloseProfileModal}
+                ></button>
+              </div>
+              <div className="modal-body">
+                {profileLoading && (
+                  <div className="text-center py-4">
+                    <div className="spinner-border" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </div>
+                    <p className="mt-2">Loading student profile...</p>
+                  </div>
+                )}
+
+                {profileError && (
+                  <div className="alert alert-danger">{profileError}</div>
+                )}
+
+                {!profileLoading && !profileError && selectedStudentProfile && (
+                  <div>
+                    {/* Student Info */}
+                    <div className="mb-4">
+                      <h6 className="border-bottom pb-2 mb-3">
+                        <i className="fas fa-info-circle me-2 text-primary"></i>
+                        Student Information
+                      </h6>
+                      <div className="row g-3">
+                        <div className="col-md-6">
+                          <label className="form-label fw-bold small text-muted">Full Name</label>
+                          <p className="mb-0">{selectedStudentProfile.firstName} {selectedStudentProfile.lastName}</p>
+                        </div>
+                        <div className="col-md-6">
+                          <label className="form-label fw-bold small text-muted">Email</label>
+                          <p className="mb-0">
+                            <a href={`mailto:${selectedStudentProfile.email}`}>
+                              {selectedStudentProfile.email}
+                            </a>
+                          </p>
+                        </div>
+                        {selectedStudentProfile.studentProfile?.phone_number && (
+                          <div className="col-md-6">
+                            <label className="form-label fw-bold small text-muted">Phone Number</label>
+                            <p className="mb-0">
+                              <a href={`tel:${selectedStudentProfile.studentProfile.phone_number}`}>
+                                {selectedStudentProfile.studentProfile.phone_number}
+                              </a>
+                            </p>
+                          </div>
+                        )}
+                        {selectedStudentProfile.studentProfile?.current_school && (
+                          <div className="col-md-6">
+                            <label className="form-label fw-bold small text-muted">Current School</label>
+                            <p className="mb-0">{selectedStudentProfile.studentProfile.current_school}</p>
+                          </div>
+                        )}
+                        {selectedStudentProfile.studentProfile?.year_level && (
+                          <div className="col-md-6">
+                            <label className="form-label fw-bold small text-muted">Year Level</label>
+                            <p className="mb-0">{selectedStudentProfile.studentProfile.year_level}</p>
+                          </div>
+                        )}
+                        {selectedStudentProfile.studentProfile?.tier && (
+                          <div className="col-md-6">
+                            <label className="form-label fw-bold small text-muted">Tier</label>
+                            <p className="mb-0">
+                              <span className="badge bg-secondary text-capitalize">
+                                {selectedStudentProfile.studentProfile.tier}
+                              </span>
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Learning Goals */}
+                    {selectedStudentProfile.studentProfile?.learning_goals && (
+                      <div className="mb-4">
+                        <h6 className="border-bottom pb-2 mb-3">
+                          <i className="fas fa-bullseye me-2 text-success"></i>
+                          Learning Goals
+                        </h6>
+                        <div className="alert alert-light">
+                          {selectedStudentProfile.studentProfile.learning_goals}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Student Goals (from StudentGoal table) */}
+                    {selectedStudentProfile.goals && selectedStudentProfile.goals.length > 0 && (
+                      <div className="mb-4">
+                        <h6 className="border-bottom pb-2 mb-3">
+                          <i className="fas fa-tasks me-2 text-warning"></i>
+                          Set Goals
+                        </h6>
+                        <div className="list-group">
+                          {selectedStudentProfile.goals.map((goal) => (
+                            <div key={goal.id} className="list-group-item">
+                              <div className="d-flex w-100 justify-content-between">
+                                <h6 className="mb-1">{goal.title} - {goal.subject}</h6>
+                                {goal.targetDate && (
+                                  <small className="text-muted">
+                                    Target: {new Date(goal.targetDate).toLocaleDateString()}
+                                  </small>
+                                )}
+                              </div>
+                              {goal.details && (
+                                <p className="mb-0 small">{goal.details}</p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Subjects Interested */}
+                    {selectedStudentProfile.studentProfile?.subjects_interested &&
+                      selectedStudentProfile.studentProfile.subjects_interested.length > 0 && (
+                        <div className="mb-4">
+                          <h6 className="border-bottom pb-2 mb-3">
+                            <i className="fas fa-book me-2 text-info"></i>
+                            Subjects of Interest
+                          </h6>
+                          <div className="d-flex flex-wrap gap-2">
+                            {selectedStudentProfile.studentProfile.subjects_interested.map((subject, idx) => (
+                              <span key={idx} className="badge bg-info">{subject}</span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                    {/* Preferred Locations */}
+                    {selectedStudentProfile.studentProfile?.preferred_locations &&
+                      selectedStudentProfile.studentProfile.preferred_locations.length > 0 && (
+                        <div className="mb-4">
+                          <h6 className="border-bottom pb-2 mb-3">
+                            <i className="fas fa-map-marker-alt me-2 text-danger"></i>
+                            Preferred Locations
+                          </h6>
+                          <div className="d-flex flex-wrap gap-2">
+                            {selectedStudentProfile.studentProfile.preferred_locations.map((location, idx) => (
+                              <span key={idx} className="badge bg-secondary">{location}</span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                    {/* Bio */}
+                    {selectedStudentProfile.studentProfile?.bio && (
+                      <div className="mb-4">
+                        <h6 className="border-bottom pb-2 mb-3">
+                          <i className="fas fa-align-left me-2 text-secondary"></i>
+                          About
+                        </h6>
+                        <p className="mb-0">{selectedStudentProfile.studentProfile.bio}</p>
+                      </div>
+                    )}
+
+                    {!selectedStudentProfile.studentProfile && (
+                      <div className="alert alert-info">
+                        <i className="fas fa-info-circle me-2"></i>
+                        This student hasn't completed their profile yet.
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={handleCloseProfileModal}
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
