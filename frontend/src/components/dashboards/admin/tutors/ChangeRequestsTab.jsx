@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getChangeRequests, approveChangeRequest, rejectChangeRequest } from "../../../../services/adminService";
+import ProfileDiffView from "./ProfileDiffView";
 
 const ChangeRequestsTab = () => {
   const [changeRequests, setChangeRequests] = useState([]);
@@ -37,7 +38,7 @@ const ChangeRequestsTab = () => {
     try {
       setProcessing(prev => ({ ...prev, [requestId]: true }));
       const response = await approveChangeRequest(requestId, "Approved by admin");
-      
+
       if (response.success) {
         // Update local state
         setChangeRequests((prev) =>
@@ -61,7 +62,7 @@ const ChangeRequestsTab = () => {
     try {
       setProcessing(prev => ({ ...prev, [requestId]: true }));
       const response = await rejectChangeRequest(requestId, reason);
-      
+
       if (response.success) {
         // Update local state
         setChangeRequests((prev) =>
@@ -124,8 +125,8 @@ const ChangeRequestsTab = () => {
         <div className="alert alert-danger" role="alert">
           <i className="fas fa-exclamation-triangle me-2"></i>
           {error}
-          <button 
-            className="btn btn-sm btn-outline-danger ms-2" 
+          <button
+            className="btn btn-sm btn-outline-danger ms-2"
             onClick={loadChangeRequests}
           >
             Retry
@@ -144,7 +145,7 @@ const ChangeRequestsTab = () => {
             {changeRequests.filter((req) => req.status === "pending").length}{" "}
             Pending
           </span>
-          <button 
+          <button
             className="btn btn-sm btn-outline-primary"
             onClick={loadChangeRequests}
             disabled={loading}
@@ -162,73 +163,83 @@ const ChangeRequestsTab = () => {
       ) : (
         <div className="change-requests-list">
           {changeRequests.map((request) => (
-            <div key={request.id} className="change-request-card">
+            <div key={request.id} className="change-request-card mb-3 border rounded p-3">
               <div className="change-request-header">
                 <div className="d-flex justify-content-between align-items-start">
                   <div>
                     <h6 className="mb-1">
-                      {request.field === "intro"
-                        ? "Profile Introduction"
-                        : request.field === "subjects"
-                        ? "Subject Changes"
-                        : "Profile Update"}
+                      {request.type === "profile_update"
+                        ? "🔄 Full Profile Update"
+                        : request.type === "intro"
+                          ? "Profile Introduction"
+                          : request.type === "subjects"
+                            ? "Subject Changes"
+                            : `${request.type} Update`}
                     </h6>
                     <small className="text-muted">
                       Submitted:{" "}
                       {request.createdAt ? new Date(request.createdAt).toLocaleDateString(
-                        "en-AU"
+                        "en-AU",
+                        { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }
                       ) : "Unknown date"}
                     </small>
                   </div>
                   <span
-                    className={`badge bg-${
-                      request.status === "pending"
+                    className={`badge bg-${request.status === "pending"
                         ? "warning"
                         : request.status === "approved"
-                        ? "success"
-                        : "danger"
-                    }`}
+                          ? "success"
+                          : "danger"
+                      }`}
                   >
                     {request.status === "pending"
                       ? "Pending"
                       : request.status === "approved"
-                      ? "Approved"
-                      : "Rejected"}
+                        ? "Approved"
+                        : "Rejected"}
                   </span>
                 </div>
               </div>
 
               <div className="change-request-content mt-3">
-                <div className="row">
-                  <div className="col-md-6">
-                    <h6 className="text-danger">Current Value:</h6>
-                    <div className="change-value-box">
-                      {Array.isArray(request.oldValue)
-                        ? request.oldValue.map((item, idx) => (
+                {/* Show ProfileDiffView for profile_update type */}
+                {request.type === "profile_update" ? (
+                  <ProfileDiffView changeRequest={request} />
+                ) : (
+                  /* Original view for field-level changes */
+                  <div className="row">
+                    <div className="col-md-6">
+                      <h6 className="text-danger">Current Value:</h6>
+                      <div className="change-value-box p-2 bg-light rounded">
+                        {Array.isArray(request.oldValue)
+                          ? request.oldValue.map((item, idx) => (
                             <span key={idx} className="badge bg-secondary me-1">
                               {item}
                             </span>
                           ))
-                        : request.oldValue}
+                          : request.oldValue || <span className="text-muted">(empty)</span>}
+                      </div>
                     </div>
-                  </div>
-                  <div className="col-md-6">
-                    <h6 className="text-success">Requested Change:</h6>
-                    <div className="change-value-box">
-                      {Array.isArray(request.newValue)
-                        ? request.newValue.map((item, idx) => (
+                    <div className="col-md-6">
+                      <h6 className="text-success">Requested Change:</h6>
+                      <div className="change-value-box p-2 bg-light rounded">
+                        {Array.isArray(request.newValue)
+                          ? request.newValue.map((item, idx) => (
                             <span key={idx} className="badge bg-primary me-1">
                               {item}
                             </span>
                           ))
-                        : request.newValue}
+                          : request.newValue || <span className="text-muted">(empty)</span>}
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
 
-                <div className="change-request-comments mt-3">
-                  <strong>Comments:</strong> {request.comments}
-                </div>
+                {request.comments && (
+                  <div className="change-request-comments mt-3 p-2 bg-light rounded">
+                    <strong>Admin Comments:</strong> {request.comments}
+                  </div>
+                )}
 
                 {request.status === "pending" && (
                   <div className="change-request-actions mt-3">
@@ -259,7 +270,7 @@ const ChangeRequestsTab = () => {
                 )}
 
                 {request.status === "rejected" && request.rejectionReason && (
-                  <div className="rejection-reason mt-2">
+                  <div className="rejection-reason mt-2 p-2 alert alert-danger">
                     <strong className="text-danger">Rejection Reason:</strong>{" "}
                     {request.rejectionReason}
                   </div>

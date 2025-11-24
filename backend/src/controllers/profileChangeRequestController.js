@@ -155,7 +155,7 @@ class ProfileChangeRequestController {
             const newProfile = JSON.parse(changeRequest.newValue || '{}');
 
             // Generate diff object showing what changed
-            const diff = this.generateDiff(oldProfile, newProfile);
+            const diff = generateDiff(oldProfile, newProfile);
 
             res.json({
                 success: true,
@@ -176,36 +176,36 @@ class ProfileChangeRequestController {
             });
         }
     }
+}
 
-    /**
-     * Helper function to generate diff between old and new profile
-     */
-    generateDiff(oldProfile, newProfile) {
-        const diff = {};
-        const allKeys = new Set([
-            ...Object.keys(oldProfile),
-            ...Object.keys(newProfile)
-        ]);
+/**
+ * Helper function to generate diff between old and new profile
+ */
+function generateDiff(oldProfile, newProfile) {
+    const diff = {};
+    const allKeys = new Set([
+        ...Object.keys(oldProfile),
+        ...Object.keys(newProfile)
+    ]);
 
-        for (const key of allKeys) {
-            const oldVal = oldProfile[key];
-            const newVal = newProfile[key];
+    for (const key of allKeys) {
+        const oldVal = oldProfile[key];
+        const newVal = newProfile[key];
 
-            // Deep comparison for arrays and objects
-            const oldStr = JSON.stringify(oldVal);
-            const newStr = JSON.stringify(newVal);
+        // Deep comparison for arrays and objects
+        const oldStr = JSON.stringify(oldVal);
+        const newStr = JSON.stringify(newVal);
 
-            if (oldStr !== newStr) {
-                diff[key] = {
-                    old: oldVal,
-                    new: newVal,
-                    changed: true
-                };
-            }
+        if (oldStr !== newStr) {
+            diff[key] = {
+                old: oldVal,
+                new: newVal,
+                changed: true
+            };
         }
-
-        return diff;
     }
+
+    return diff;
 }
 
 module.exports = new ProfileChangeRequestController();

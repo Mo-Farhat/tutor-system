@@ -52,8 +52,8 @@ class TutorService {
         ...where.user,
         OR: [
           { firstName: { contains: search, mode: "insensitive" } },
-          { lastName:  { contains: search, mode: "insensitive" } },
-          { email:     { contains: search, mode: "insensitive" } },
+          { lastName: { contains: search, mode: "insensitive" } },
+          { email: { contains: search, mode: "insensitive" } },
         ],
       };
     }
@@ -232,11 +232,46 @@ class TutorService {
    * Admin: approve/reject a change request
    */
   async approveChangeRequest(changeRequestId, adminId, comments = "") {
+    // First, get the change request to check its type
+    const changeRequest = await tutorChangeRequestModel.findById(
+      Number(changeRequestId)
+    );
+
+    if (!changeRequest) {
+      return { success: false, error: "Change request not found" };
+    }
+
+    // Approve the change request
     const updated = await tutorChangeRequestModel.approve(
       Number(changeRequestId),
       Number(adminId),
       String(comments ?? "")
     );
+
+    // If it's a profile_update type, apply the changes to the tutor's profile
+    if (changeRequest.type === "profile_update" && changeRequest.newValue) {
+      try {
+        const newProfileData = JSON.parse(changeRequest.newValue);
+
+        // Update the tutor's profile with the new data
+        await tutorProfileModel.update(changeRequest.tutorId, {
+          bio: newProfileData.bio,
+          hourly_rate: newProfileData.hourly_rate,
+          university: newProfileData.university,
+          current_studies: newProfileData.current_studies,
+          subjects_selected: newProfileData.subjects_selected,
+          preferred_locations: newProfileData.preferred_locations,
+          schools_attended: newProfileData.schools_attended,
+          phone_number: newProfileData.phone_number,
+        });
+
+        console.log(`Applied profile changes for tutor ${changeRequest.tutorId}`);
+      } catch (error) {
+        console.error("Error applying profile changes:", error);
+        // Don't fail the approval, but log the error
+      }
+    }
+
     return { success: true, data: updated };
   }
 
