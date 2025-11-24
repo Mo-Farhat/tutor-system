@@ -36,6 +36,19 @@ const tutorChangeRequestModel = {
       where: { id: Number(id) },
       data: { status: "rejected", reviewedBy: Number(adminId), reviewedAt: new Date(), comments },
     }),
+
+  // Find by ID
+  findById: (id) =>
+    prisma.tutorChangeRequest.findUnique({
+      where: { id: Number(id) },
+    }),
+
+  // Update change description
+  updateDescription: (id, changeDescription) =>
+    prisma.tutorChangeRequest.update({
+      where: { id: Number(id) },
+      data: { changeDescription },
+    }),
 };
 
 module.exports = tutorChangeRequestModel;
