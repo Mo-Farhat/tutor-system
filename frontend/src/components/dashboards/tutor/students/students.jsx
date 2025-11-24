@@ -6,7 +6,7 @@ function TutorStudents() {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  
+
   // Report modal state
   const [showReportModal, setShowReportModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -118,9 +118,61 @@ function TutorStudents() {
     e.preventDefault();
     setReportError("");
 
-    // Validation
+    // Validation - All fields required
     if (!reportFormData.subject.trim()) {
       setReportError("Subject is required");
+      return;
+    }
+    if (!reportFormData.term.trim()) {
+      setReportError("Term is required");
+      return;
+    }
+    if (!reportFormData.starRating) {
+      setReportError("Star rating is required");
+      return;
+    }
+    if (!reportFormData.progressSummary.trim()) {
+      setReportError("Progress summary is required");
+      return;
+    }
+    if (!reportFormData.overview.trim()) {
+      setReportError("Overview is required");
+      return;
+    }
+    if (reportFormData.keyAchievements.filter(item => item.trim()).length === 0) {
+      setReportError("At least one key achievement is required");
+      return;
+    }
+    if (reportFormData.skillsCovered.filter(item => item.trim()).length === 0) {
+      setReportError("At least one skill covered is required");
+      return;
+    }
+    if (reportFormData.areasToImprove.filter(item => item.trim()).length === 0) {
+      setReportError("At least one area to improve is required");
+      return;
+    }
+    if (reportFormData.nextTermGoals.filter(item => item.trim()).length === 0) {
+      setReportError("At least one next term goal is required");
+      return;
+    }
+    if (!reportFormData.homeworkCompletion.trim()) {
+      setReportError("Homework completion is required");
+      return;
+    }
+    if (!reportFormData.engagement.trim()) {
+      setReportError("Engagement level is required");
+      return;
+    }
+    if (!reportFormData.attendanceNote.trim()) {
+      setReportError("Attendance note is required");
+      return;
+    }
+    if (!reportFormData.nextGoal.trim()) {
+      setReportError("Next goal is required");
+      return;
+    }
+    if (!reportFormData.overallProgress.trim()) {
+      setReportError("Overall progress is required");
       return;
     }
 
@@ -132,19 +184,19 @@ function TutorStudents() {
         studentId: selectedStudent.id,
         type: reportFormData.type,
         subject: reportFormData.subject.trim(),
-        starRating: reportFormData.starRating ? parseInt(reportFormData.starRating) : null,
-        progressSummary: reportFormData.progressSummary.trim() || null,
-        overview: reportFormData.overview.trim() || null,
+        starRating: parseInt(reportFormData.starRating),
+        progressSummary: reportFormData.progressSummary.trim(),
+        overview: reportFormData.overview.trim(),
         keyAchievements: reportFormData.keyAchievements.filter((item) => item.trim()),
         skillsCovered: reportFormData.skillsCovered.filter((item) => item.trim()),
         areasToImprove: reportFormData.areasToImprove.filter((item) => item.trim()),
         nextTermGoals: reportFormData.nextTermGoals.filter((item) => item.trim()),
-        homeworkCompletion: reportFormData.homeworkCompletion.trim() || null,
-        engagement: reportFormData.engagement.trim() || null,
-        attendanceNote: reportFormData.attendanceNote.trim() || null,
-        nextGoal: reportFormData.nextGoal.trim() || null,
-        term: reportFormData.term.trim() || null,
-        overallProgress: reportFormData.overallProgress.trim() || null,
+        homeworkCompletion: reportFormData.homeworkCompletion.trim(),
+        engagement: reportFormData.engagement.trim(),
+        attendanceNote: reportFormData.attendanceNote.trim(),
+        nextGoal: reportFormData.nextGoal.trim(),
+        term: reportFormData.term.trim(),
+        overallProgress: reportFormData.overallProgress.trim(),
       };
 
       let result;
@@ -242,13 +294,12 @@ function TutorStudents() {
                                 {name}
                               </div>
                               <span
-                                className={`badge bg-${
-                                  pair.status === "active"
-                                    ? "success"
-                                    : pair.status === "paused"
+                                className={`badge bg-${pair.status === "active"
+                                  ? "success"
+                                  : pair.status === "paused"
                                     ? "warning"
                                     : "secondary"
-                                }`}
+                                  }`}
                               >
                                 {pair.status}
                               </span>
@@ -354,7 +405,7 @@ function TutorStudents() {
 
                   {/* Term */}
                   <div className="mb-3">
-                    <label className="form-label">Term</label>
+                    <label className="form-label">Term <span className="text-danger">*</span></label>
                     <input
                       type="text"
                       className="form-control"
@@ -362,19 +413,21 @@ function TutorStudents() {
                       value={reportFormData.term}
                       onChange={handleInputChange}
                       placeholder="e.g., Term 1 2025"
+                      required
                     />
                   </div>
 
                   {/* Star Rating */}
                   <div className="mb-3">
-                    <label className="form-label">Star Rating (1-5)</label>
+                    <label className="form-label">Star Rating (1-5) <span className="text-danger">*</span></label>
                     <select
                       className="form-select"
                       name="starRating"
                       value={reportFormData.starRating || ""}
                       onChange={handleInputChange}
+                      required
                     >
-                      <option value="">No rating</option>
+                      <option value="">Select rating</option>
                       <option value="1">1 Star</option>
                       <option value="2">2 Stars</option>
                       <option value="3">3 Stars</option>
@@ -385,7 +438,7 @@ function TutorStudents() {
 
                   {/* Progress Summary */}
                   <div className="mb-3">
-                    <label className="form-label">Progress Summary</label>
+                    <label className="form-label">Progress Summary <span className="text-danger">*</span></label>
                     <textarea
                       className="form-control"
                       name="progressSummary"
@@ -393,12 +446,13 @@ function TutorStudents() {
                       onChange={handleInputChange}
                       rows="3"
                       placeholder="Summarize the student's progress..."
+                      required
                     ></textarea>
                   </div>
 
                   {/* Overview */}
                   <div className="mb-3">
-                    <label className="form-label">Overview</label>
+                    <label className="form-label">Overview <span className="text-danger">*</span></label>
                     <textarea
                       className="form-control"
                       name="overview"
@@ -406,12 +460,13 @@ function TutorStudents() {
                       onChange={handleInputChange}
                       rows="3"
                       placeholder="General overview of the session/term..."
+                      required
                     ></textarea>
                   </div>
 
                   {/* Key Achievements */}
                   <div className="mb-3">
-                    <label className="form-label">Key Achievements</label>
+                    <label className="form-label">Key Achievements <span className="text-danger">*</span></label>
                     {reportFormData.keyAchievements.map((achievement, index) => (
                       <div key={index} className="input-group mb-2">
                         <input
@@ -450,7 +505,7 @@ function TutorStudents() {
 
                   {/* Skills Covered */}
                   <div className="mb-3">
-                    <label className="form-label">Skills Covered</label>
+                    <label className="form-label">Skills Covered <span className="text-danger">*</span></label>
                     {reportFormData.skillsCovered.map((skill, index) => (
                       <div key={index} className="input-group mb-2">
                         <input
@@ -489,7 +544,7 @@ function TutorStudents() {
 
                   {/* Areas to Improve */}
                   <div className="mb-3">
-                    <label className="form-label">Areas to Improve</label>
+                    <label className="form-label">Areas to Improve <span className="text-danger">*</span></label>
                     {reportFormData.areasToImprove.map((area, index) => (
                       <div key={index} className="input-group mb-2">
                         <input
@@ -528,7 +583,7 @@ function TutorStudents() {
 
                   {/* Next Term Goals */}
                   <div className="mb-3">
-                    <label className="form-label">Next Term Goals</label>
+                    <label className="form-label">Next Term Goals <span className="text-danger">*</span></label>
                     {reportFormData.nextTermGoals.map((goal, index) => (
                       <div key={index} className="input-group mb-2">
                         <input
@@ -567,7 +622,7 @@ function TutorStudents() {
 
                   {/* Homework Completion */}
                   <div className="mb-3">
-                    <label className="form-label">Homework Completion</label>
+                    <label className="form-label">Homework Completion <span className="text-danger">*</span></label>
                     <input
                       type="text"
                       className="form-control"
@@ -575,12 +630,13 @@ function TutorStudents() {
                       value={reportFormData.homeworkCompletion}
                       onChange={handleInputChange}
                       placeholder="e.g., 90%, Excellent, Needs improvement"
+                      required
                     />
                   </div>
 
                   {/* Engagement */}
                   <div className="mb-3">
-                    <label className="form-label">Engagement Level</label>
+                    <label className="form-label">Engagement Level <span className="text-danger">*</span></label>
                     <input
                       type="text"
                       className="form-control"
@@ -588,12 +644,13 @@ function TutorStudents() {
                       value={reportFormData.engagement}
                       onChange={handleInputChange}
                       placeholder="e.g., High, Moderate, Low"
+                      required
                     />
                   </div>
 
                   {/* Attendance Note */}
                   <div className="mb-3">
-                    <label className="form-label">Attendance Note</label>
+                    <label className="form-label">Attendance Note <span className="text-danger">*</span></label>
                     <input
                       type="text"
                       className="form-control"
@@ -601,12 +658,13 @@ function TutorStudents() {
                       value={reportFormData.attendanceNote}
                       onChange={handleInputChange}
                       placeholder="Any attendance-related notes..."
+                      required
                     />
                   </div>
 
                   {/* Next Goal */}
                   <div className="mb-3">
-                    <label className="form-label">Next Goal</label>
+                    <label className="form-label">Next Goal <span className="text-danger">*</span></label>
                     <textarea
                       className="form-control"
                       name="nextGoal"
@@ -614,12 +672,13 @@ function TutorStudents() {
                       onChange={handleInputChange}
                       rows="2"
                       placeholder="What should the student focus on next?"
+                      required
                     ></textarea>
                   </div>
 
                   {/* Overall Progress */}
                   <div className="mb-3">
-                    <label className="form-label">Overall Progress</label>
+                    <label className="form-label">Overall Progress <span className="text-danger">*</span></label>
                     <textarea
                       className="form-control"
                       name="overallProgress"
@@ -627,6 +686,7 @@ function TutorStudents() {
                       onChange={handleInputChange}
                       rows="2"
                       placeholder="Overall assessment of progress..."
+                      required
                     ></textarea>
                   </div>
                 </div>
