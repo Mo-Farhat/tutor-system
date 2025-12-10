@@ -1,13 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import tutorService from '../../../../services/tutorService';
+import notificationService from '../../../../services/notificationService';
 import '../../../../css/dashboards/tutor/notifications/notifications.css';
 
 function TutorNotifications() {
     const [notifications, setNotifications] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    
     useEffect(() => {
         async function fetchNotifications() {
-            const res = await tutorService.getNotifications();
-            setNotifications(Array.isArray(res) ? res : []);
+            try {
+                setIsLoading(true);
+                const data = await notificationService.getNotifications();
+                setNotifications(Array.isArray(data.notifications) ? data.notifications : []);
+            } catch (error) {
+                console.error("Error fetching notifications:", error);
+                setNotifications([]);
+            } finally {
+                setIsLoading(false);
+            }
         }
         fetchNotifications();
     }, []);
@@ -15,24 +25,39 @@ function TutorNotifications() {
     const [filter, setFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
 
-    const markAsRead = (id) => {
-        setNotifications(prev => 
-            prev.map(notification => 
-                notification.id === id 
-                    ? { ...notification, read: true }
-                    : notification
-            )
-        );
+    const markAsRead = async (id) => {
+        try {
+            await notificationService.markAsRead(id);
+            setNotifications(prev => 
+                prev.map(notification => 
+                    notification.id === id 
+                        ? { ...notification, read: true }
+                        : notification
+                )
+            );
+        } catch (error) {
+            console.error("Error marking as read:", error);
+        }
     };
 
-    const markAllAsRead = () => {
-        setNotifications(prev => 
-            prev.map(notification => ({ ...notification, read: true }))
-        );
+    const markAllAsRead = async () => {
+        try {
+            await notificationService.markAllAsRead();
+            setNotifications(prev => 
+                prev.map(notification => ({ ...notification, read: true }))
+            );
+        } catch (error) {
+            console.error("Error marking all as read:", error);
+        }
     };
 
-    const deleteNotification = (id) => {
-        setNotifications(prev => prev.filter(notification => notification.id !== id));
+    const deleteNotification = async (id) => {
+        try {
+            await notificationService.deleteNotification(id);
+            setNotifications(prev => prev.filter(notification => notification.id !== id));
+        } catch (error) {
+            console.error("Error deleting notification:", error);
+        }
     };
 
     const filteredNotifications = notifications.filter(notification => {
