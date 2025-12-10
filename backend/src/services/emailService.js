@@ -10,6 +10,7 @@ const {
   getStudentOnboardingTemplate,
   getStudentReadyForFirstLessonTemplate,
 } = require("../templates/emailTemplates");
+const notificationService = require("./notificationService");
 
 class EmailService {
   constructor() {
@@ -103,7 +104,7 @@ The Strive Academics Team
   }
 
   async sendAdminNotification(applicationData) {
-    const adminEmail = process.env.EMAIL_HOST_USER;
+    const adminEmail = process.env.EMAIL_HOST_USER; // Email to send to
     const subject = `New Tutor Application - ${applicationData.fullName}`;
     const htmlContent = getAdminNotificationTemplate(applicationData);
     const textContent = `
@@ -130,7 +131,31 @@ Approve: POST ${
 Applied at: ${applicationData.createdAt}
     `;
 
-    return await this.sendEmail(adminEmail, subject, htmlContent, textContent);
+    const emailResult = await this.sendEmail(adminEmail, subject, htmlContent, textContent);
+    
+    // Create notification for admin user (hardcoded admin@striveacademy.com)
+    try {
+      const { userModel } = require("../models");
+      const adminUser = await userModel.findByEmail("admin@striveacademy.com");
+      if (adminUser) {
+        await notificationService.createNotification(
+          adminUser.id,
+          "new_application",
+          `New Tutor Application - ${applicationData.fullName}`,
+          `${applicationData.fullName} has submitted a tutor application. ATAR: ${applicationData.atar}`,
+          "high",
+          `/dashboard/admin/applications/${applicationData.id}`,
+          { applicationId: applicationData.id }
+        );
+        console.log(`✅ Created notification for admin - New application from ${applicationData.fullName}`);
+      } else {
+        console.warn(`⚠️ Admin user not found with email: admin@striveacademy.com`);
+      }
+    } catch (error) {
+      console.error("Error creating admin notification:", error);
+    }
+    
+    return emailResult;
   }
 
   async sendApprovalNotification(email, tutorData, setupToken) {
@@ -241,7 +266,31 @@ Strive Academics
 https://www.striveacademics.com.au
     `;
 
-    return await this.sendEmail(tutorEmail, subject, htmlContent, textContent);
+    const emailResult = await this.sendEmail(tutorEmail, subject, htmlContent, textContent);
+    
+    // Create notification for tutor
+    try {
+      const { userModel } = require("../models");
+      const tutorUser = await userModel.findByEmail(tutorEmail);
+      if (tutorUser) {
+        await notificationService.createNotification(
+          tutorUser.id,
+          "student_request",
+          "New Student Request",
+          `${studentData.firstName} ${studentData.lastName} has requested you as their tutor. Schedule their free consultation now!`,
+          "high",
+          `/dashboard/tutor/requests`,
+          { studentId: studentData.id, studentEmail: studentData.email }
+        );
+        console.log(`✅ Created notification for tutor (${tutorEmail}) - New student request`);
+      } else {
+        console.warn(`⚠️ Tutor user not found with email: ${tutorEmail}`);
+      }
+    } catch (error) {
+      console.error("Error creating tutor notification:", error);
+    }
+    
+    return emailResult;
   }
 
   async sendFeedbackReminderEmail(studentEmail, studentData, tutorData, lessonData) {
@@ -272,7 +321,31 @@ Best regards,
 The Strive Academics Team
     `;
 
-    return await this.sendEmail(studentEmail, subject, htmlContent, textContent);
+    const emailResult = await this.sendEmail(studentEmail, subject, htmlContent, textContent);
+    
+    // Create notification for student
+    try {
+      const { userModel } = require("../models");
+      const studentUser = await userModel.findByEmail(studentEmail);
+      if (studentUser) {
+        await notificationService.createNotification(
+          studentUser.id,
+          "feedback_reminder",
+          "Feedback Requested",
+          `Please provide feedback for your recent ${lessonData.subject} session with ${tutorData.firstName} ${tutorData.lastName}.`,
+          "medium",
+          `/dashboard/student/scheduling`,
+          { lessonId: lessonData.id, tutorId: tutorData.id }
+        );
+        console.log(`✅ Created notification for student (${studentEmail}) - Feedback reminder`);
+      } else {
+        console.warn(`⚠️ Student user not found with email: ${studentEmail}`);
+      }
+    } catch (error) {
+      console.error("Error creating student notification:", error);
+    }
+    
+    return emailResult;
   }
 
   // Send Student Onboarding Email (when a student contacts a tutor)
@@ -333,7 +406,32 @@ Strive Academics
 https://www.striveacademics.com.au
 `;
 
-    return await this.sendEmail(tutorEmail, subject, htmlContent, textContent);
+    const emailResult = await this.sendEmail(tutorEmail, subject, htmlContent, textContent);
+    
+    // Create notification for tutor
+    try {
+      const { userModel } = require("../models");
+      const tutorUser = await userModel.findByEmail(tutorEmail);
+      if (tutorUser) {
+        const studentFullName = `${studentData.firstName || studentData.first_name || ""} ${studentData.lastName || studentData.last_name || ""}`.trim();
+        await notificationService.createNotification(
+          tutorUser.id,
+          "student_ready",
+          "Student Ready for First Lesson",
+          `${studentFullName} has added payment details and is ready to begin lessons. Confirm their first session now!`,
+          "high",
+          `/dashboard/tutor/students`,
+          { studentId: studentData.id }
+        );
+        console.log(`✅ Created notification for tutor (${tutorEmail}) - Student ready for first lesson`);
+      } else {
+        console.warn(`⚠️ Tutor user not found with email: ${tutorEmail}`);
+      }
+    } catch (error) {
+      console.error("Error creating tutor notification:", error);
+    }
+    
+    return emailResult;
   }
 }
 
