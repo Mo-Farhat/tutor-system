@@ -153,8 +153,8 @@ function AdminStudents() {
     if (searchTerm) {
       filtered = filtered.filter(
         (student) =>
-          student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          student.email.toLowerCase().includes(searchTerm.toLowerCase())
+          (student.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (student.email || "").toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -180,9 +180,9 @@ function AdminStudents() {
     filtered.sort((a, b) => {
       switch (sortBy) {
         case "name_asc":
-          return a.name.localeCompare(b.name);
+          return (a.name || "").localeCompare(b.name || "");
         case "name_desc":
-          return b.name.localeCompare(a.name);
+          return (b.name || "").localeCompare(a.name || "");
         case "joined_newest":
           return new Date(b.joinedDate) - new Date(a.joinedDate);
         case "joined_oldest":
@@ -479,7 +479,7 @@ function AdminStudents() {
                                     />
                                   ) : (
                                     <div className="admin-avatar-placeholder">
-                                      {student.name
+                                      {(student.name || "?")
                                         .split(" ")
                                         .map((n) => n[0])
                                         .join("")}

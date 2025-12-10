@@ -331,15 +331,55 @@ class AdminService {
   }
 
   async makeTutorLive(userId) {
-    return this.makeAdminRequest(`/admin/profiles/${userId}/make-live`, {
-      method: "PUT",
-    });
+    try {
+      console.log('📡 API Call: makeTutorLive', userId);
+      
+      if (!userId) {
+        throw new Error("User ID is required");
+      }
+
+      const response = await this.makeAdminRequest(`/admin/profiles/${userId}/make-live`, {
+        method: "PUT",
+      });
+
+      console.log('✅ makeTutorLive response:', response);
+
+      // Validate response
+      if (!response) {
+        throw new Error("No response from server");
+      }
+
+      return response;
+    } catch (error) {
+      console.error('❌ makeTutorLive error:', error);
+      throw error;
+    }
   }
 
   async makeTutorOffline(userId) {
-    return this.makeAdminRequest(`/admin/profiles/${userId}/make-offline`, {
-      method: "PUT",
-    });
+    try {
+      console.log('📡 API Call: makeTutorOffline', userId);
+      
+      if (!userId) {
+        throw new Error("User ID is required");
+      }
+
+      const response = await this.makeAdminRequest(`/admin/profiles/${userId}/make-offline`, {
+        method: "PUT",
+      });
+
+      console.log('✅ makeTutorOffline response:', response);
+
+      // Validate response
+      if (!response) {
+        throw new Error("No response from server");
+      }
+
+      return response;
+    } catch (error) {
+      console.error('❌ makeTutorOffline error:', error);
+      throw error;
+    }
   }
 
   // Document Management

@@ -118,17 +118,17 @@ function AdminAssignments() {
     filtered.sort((a, b) => {
       switch (sortBy) {
         case "name_asc":
-          return a.student.name.localeCompare(b.student.name);
+          return (a.student?.name || "").localeCompare(b.student?.name || "");
         case "name_desc":
-          return b.student.name.localeCompare(a.student.name);
+          return (b.student?.name || "").localeCompare(a.student?.name || "");
         case "assigned_newest":
           return new Date(b.assignedDate) - new Date(a.assignedDate);
         case "assigned_oldest":
           return new Date(a.assignedDate) - new Date(b.assignedDate);
         case "subject_asc":
-          return a.subject.localeCompare(b.subject);
+          return (a.subject || "").localeCompare(b.subject || "");
         case "subject_desc":
-          return b.subject.localeCompare(a.subject);
+          return (b.subject || "").localeCompare(a.subject || "");
         default:
           return 0;
       }

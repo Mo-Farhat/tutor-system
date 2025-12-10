@@ -352,8 +352,8 @@ function AdminTutors() {
     if (searchTerm) {
       filtered = filtered.filter(
         (tutor) =>
-          tutor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          tutor.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (tutor.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (tutor.email || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
           (tutor.applicationId &&
             tutor.applicationId
               .toLowerCase()
@@ -386,9 +386,9 @@ function AdminTutors() {
     filtered.sort((a, b) => {
       switch (sortBy) {
         case "name_asc":
-          return a.name.localeCompare(b.name);
+          return (a.name || "").localeCompare(b.name || "");
         case "name_desc":
-          return b.name.localeCompare(a.name);
+          return (b.name || "").localeCompare(a.name || "");
         case "joined_newest":
           return new Date(b.joinedDate) - new Date(a.joinedDate);
         case "joined_oldest":
@@ -904,7 +904,7 @@ function AdminTutors() {
                                     />
                                   ) : (
                                     <div className="admin-avatar-placeholder">
-                                      {tutor.name
+                                      {(tutor.name || "?")
                                         .split(" ")
                                         .map((n) => n[0])
                                         .join("")}
