@@ -224,6 +224,9 @@ exports.uploadRequiredDocuments = async (req, res) => {
       return res.status(400).json({ success: false, error: "No files uploaded" });
     }
 
+    // Extract wwccExpiry from request body (sent as FormData field)
+    const wwccExpiry = req.body?.wwccExpiry;
+    
     const results = [];
 
     for (const field in req.files) {
@@ -242,24 +245,52 @@ exports.uploadRequiredDocuments = async (req, res) => {
         userId: user.id,
       });
 
-      // 2️⃣ Link to TutorDocument
-      const doc = await prisma.tutorDocument.upsert({
+      // Prepare document data
+      const docData = { 
+        assetId: asset.id,
+        url: f.cloudUrl,
+        key: f.s3Key,
+        status: "uploaded",
+      };
+
+      // If this is WWCC and expiry date was provided, add it
+      if (field === "wwcc" && wwccExpiry) {
+        docData.expiresAt = new Date(wwccExpiry);
+      }
+
+      // 2️⃣ Link to TutorDocument - find existing or create new
+      const existingDoc = await prisma.tutorDocument.findFirst({
         where: {
-          tutorId_type: {
-            tutorId: user.id,
-            type: field, // "contract" or "wwcc"
-          },
-        },
-        update: { assetId: asset.id },
-        create: {
-          tutorId: user.id,
-          type: field,
-          assetId: asset.id,
+          userId: user.id,
+          type: field, // "contract" or "wwcc"
         },
       });
 
+      let doc;
+      if (existingDoc) {
+        // Update existing document with new uploadedAt timestamp
+        doc = await prisma.tutorDocument.update({
+          where: { id: existingDoc.id },
+          data: {
+            ...docData,
+            uploadedAt: new Date(), // Refresh upload timestamp
+          },
+        });
+      } else {
+        doc = await prisma.tutorDocument.create({
+          data: {
+            userId: user.id,
+            type: field,
+            ...docData,
+          },
+        });
+      }
+
       results.push({ type: field, asset, document: doc });
     }
+
+    // Mark documents_uploaded flag if both are present
+    await profileService.markDocumentsFlag(user.id);
 
     res.json({ success: true, uploaded: results });
   } catch (err) {

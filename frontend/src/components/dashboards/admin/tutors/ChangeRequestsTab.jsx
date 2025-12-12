@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { getChangeRequests, approveChangeRequest, rejectChangeRequest } from "../../../../services/adminService";
 import ProfileDiffView from "./ProfileDiffView";
 
-const ChangeRequestsTab = () => {
+const ChangeRequestsTab = ({ tutorId }) => {
   const [changeRequests, setChangeRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -11,16 +11,16 @@ const ChangeRequestsTab = () => {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [selectedRequestId, setSelectedRequestId] = useState(null);
 
-  // Load change requests on component mount
+  // Load change requests on component mount or when tutorId changes
   useEffect(() => {
     loadChangeRequests();
-  }, []);
+  }, [tutorId]);
 
   const loadChangeRequests = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await getChangeRequests();
+      const response = await getChangeRequests({ tutorId });
       if (response.success && Array.isArray(response.data)) {
         setChangeRequests(response.data);
       } else {

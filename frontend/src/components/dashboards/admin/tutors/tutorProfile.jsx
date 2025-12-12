@@ -34,7 +34,7 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
         // If this is an application, use the application data directly
         if (tutor.isApplication) {
           const applicationData = tutor.applicationData || tutor;
-          
+
           if (isMounted) {
             setTutorData({
               ...applicationData,
@@ -123,10 +123,10 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
 
     try {
       setIsProcessing(true);
-      console.log('🔍 Making tutor live:', userIdToUse);
-      
+      console.log("🔍 Making tutor live:", userIdToUse);
+
       const response = await makeTutorLive(userIdToUse);
-      
+
       // Validate response
       if (!response || !response.success) {
         throw new Error(response?.error || "Failed to make tutor live");
@@ -139,16 +139,19 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
       };
 
       setTutorData(updatedTutor);
-      
+
       // Only call onUpdate if it exists and is a function
-      if (typeof onUpdate === 'function') {
+      if (typeof onUpdate === "function") {
         onUpdate(updatedTutor);
       }
-      
+
       alert("✅ Tutor is now live and can receive bookings!");
     } catch (error) {
       console.error("Error making tutor live:", error);
-      const errorMessage = error?.message || error?.error || "Failed to make tutor live. Please try again.";
+      const errorMessage =
+        error?.message ||
+        error?.error ||
+        "Failed to make tutor live. Please try again.";
       alert(`❌ Error: ${errorMessage}`);
     } finally {
       setIsProcessing(false);
@@ -170,10 +173,10 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
 
     try {
       setIsProcessing(true);
-      console.log('🔍 Making tutor offline:', userIdToUse);
-      
+      console.log("🔍 Making tutor offline:", userIdToUse);
+
       const response = await makeTutorOffline(userIdToUse);
-      
+
       // Validate response
       if (!response || !response.success) {
         throw new Error(response?.error || "Failed to make tutor offline");
@@ -186,16 +189,19 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
       };
 
       setTutorData(updatedTutor);
-      
+
       // Only call onUpdate if it exists and is a function
-      if (typeof onUpdate === 'function') {
+      if (typeof onUpdate === "function") {
         onUpdate(updatedTutor);
       }
-      
+
       alert("✅ Tutor is now offline.");
     } catch (error) {
       console.error("Error making tutor offline:", error);
-      const errorMessage = error?.message || error?.error || "Failed to make tutor offline. Please try again.";
+      const errorMessage =
+        error?.message ||
+        error?.error ||
+        "Failed to make tutor offline. Please try again.";
       alert(`❌ Error: ${errorMessage}`);
     } finally {
       setIsProcessing(false);
@@ -367,6 +373,62 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
                   </div>
                 </div>
               )}
+              {/* Application Files Section */}
+              {tutor?.isApplication && tutorData.files && (
+                <div className="mt-4">
+                  <h6>Application Files</h6>
+                  {tutorData.files.resume && (
+                    <div className="mb-3">
+                      <div className="d-flex align-items-center mb-2">
+                        <strong className="me-2">Resume:</strong>
+                        <a 
+                          href={tutorData.files.resume} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          className="btn btn-sm btn-outline-primary"
+                        >
+                          <i className="fas fa-download me-1"></i> Download
+                        </a>
+                      </div>
+                      {tutorData.files.resume.toLowerCase().endsWith('.pdf') && (
+                        <iframe
+                          src={tutorData.files.resume}
+                          width="100%"
+                          height="300"
+                          style={{ border: '1px solid #ddd', borderRadius: '8px' }}
+                          title="Resume"
+                        />
+                      )}
+                    </div>
+                  )}
+                  {tutorData.files.videoSubmission && (
+                    <div className="mb-3">
+                      <div className="d-flex align-items-center mb-2">
+                        <strong className="me-2">Video Submission:</strong>
+                        <a 
+                          href={tutorData.files.videoSubmission} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          className="btn btn-sm btn-outline-primary"
+                        >
+                          <i className="fas fa-download me-1"></i> Download
+                        </a>
+                      </div>
+                      <video
+                        controls
+                        width="100%"
+                        style={{ borderRadius: '8px', maxHeight: '300px' }}
+                      >
+                        <source src={tutorData.files.videoSubmission} />
+                        Your browser does not support the video tag.
+                      </video>
+                    </div>
+                  )}
+                  {!tutorData.files.resume && !tutorData.files.videoSubmission && (
+                    <p className="text-muted">No files uploaded with application</p>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -378,6 +440,67 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
     // Get documents by type
     const wwccDoc = documents.find((doc) => doc.type === "wwcc");
     const contractDoc = documents.find((doc) => doc.type === "contract");
+
+    // Helper to get the correct URL from document
+    const getDocUrl = (doc) => doc?.url || doc?.path || null;
+
+    // Helper to check if URL is a PDF
+    const isPdf = (url) =>
+      url &&
+      (url.toLowerCase().endsWith(".pdf") || url.includes("application/pdf"));
+
+    // Helper to check if URL is a video
+    const isVideo = (url) => url && /\.(mp4|mov|avi|wmv|webm)$/i.test(url);
+
+    // Render embedded document preview
+    const renderDocumentPreview = (doc, title) => {
+      const url = getDocUrl(doc);
+      if (!url) return null;
+
+      if (isPdf(url)) {
+        return (
+          <div className="document-preview mt-3">
+            <iframe
+              src={url}
+              width="100%"
+              height="400"
+              style={{ border: "1px solid #ddd", borderRadius: "8px" }}
+              title={title}
+            />
+          </div>
+        );
+      }
+
+      if (isVideo(url)) {
+        return (
+          <div className="document-preview mt-3">
+            <video
+              controls
+              width="100%"
+              style={{ borderRadius: "8px", maxHeight: "400px" }}
+            >
+              <source src={url} />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        );
+      }
+
+      // For other file types, show a link
+      return (
+        <div className="document-preview mt-3">
+          <a
+            href={url}
+            target="_blank"
+            rel="noreferrer"
+            className="btn btn-outline-secondary"
+          >
+            <i className="fas fa-external-link-alt me-2"></i>
+            Open Document
+          </a>
+        </div>
+      );
+    };
 
     return (
       <div className="tutor-profile-compliance">
@@ -395,10 +518,10 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
               </div>
               <div className="compliance-item">
                 <strong>Document:</strong>
-                {wwccDoc ? (
+                {wwccDoc && getDocUrl(wwccDoc) ? (
                   <button
                     className="btn btn-sm btn-outline-primary ms-2"
-                    onClick={() => window.open(wwccDoc.path, "_blank")}
+                    onClick={() => window.open(getDocUrl(wwccDoc), "_blank")}
                   >
                     <i className="fas fa-download"></i> Download
                   </button>
@@ -412,7 +535,8 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
                   ? new Date(wwccDoc.uploadedAt).toLocaleDateString("en-AU")
                   : "Not uploaded"}
               </div>
-              <div className="compliance-item">
+              {renderDocumentPreview(wwccDoc, "WWCC Document")}
+              <div className="compliance-item mt-3">
                 {wwccDoc ? (
                   <button className="btn btn-sm btn-info">
                     <i className="fas fa-bell"></i> Send Expiry Reminder
@@ -440,10 +564,12 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
               </div>
               <div className="compliance-item">
                 <strong>Document:</strong>
-                {contractDoc ? (
+                {contractDoc && getDocUrl(contractDoc) ? (
                   <button
                     className="btn btn-sm btn-outline-primary ms-2"
-                    onClick={() => window.open(contractDoc.path, "_blank")}
+                    onClick={() =>
+                      window.open(getDocUrl(contractDoc), "_blank")
+                    }
                   >
                     <i className="fas fa-download"></i> Download
                   </button>
@@ -457,10 +583,11 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
                   ? new Date(contractDoc.uploadedAt).toLocaleDateString("en-AU")
                   : "Not uploaded"}
               </div>
-              <div className="compliance-item">
+              {renderDocumentPreview(contractDoc, "Contract Document")}
+              <div className="compliance-item mt-3">
                 {contractDoc ? (
                   <button className="btn btn-sm btn-primary me-2">
-                    <i className="fas fa-file-pdf"></i> View Contract
+                    <i className="fas fa-check"></i> Approve Contract
                   </button>
                 ) : (
                   <button className="btn btn-sm btn-warning me-2">
@@ -514,7 +641,7 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
     );
   };
 
-  const renderChangeRequestsTab = () => <ChangeRequestsTab />;
+  const renderChangeRequestsTab = () => <ChangeRequestsTab tutorId={tutorData?.userId || tutor?.id} />;
 
   const renderSessionsTab = () => <SessionsTab />;
 

@@ -7,12 +7,17 @@ const tutorChangeRequestModel = {
       data: { tutorId: Number(tutorId), type, oldValue, newValue },
     }),
 
-  // List by status (admin) or all if none
-  list: ({ status } = {}) =>
-    prisma.tutorChangeRequest.findMany({
-      where: status ? { status } : undefined,
+  // List by status and/or tutorId (admin)
+  list: ({ status, tutorId } = {}) => {
+    const where = {};
+    if (status) where.status = status;
+    if (tutorId) where.tutorId = Number(tutorId);
+    
+    return prisma.tutorChangeRequest.findMany({
+      where: Object.keys(where).length > 0 ? where : undefined,
       orderBy: { createdAt: "desc" },
-    }),
+    });
+  },
 
   // Pending only (admin quick)
   findPending: () =>

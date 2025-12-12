@@ -143,6 +143,7 @@ class ProfileService {
 
   async getDocuments() {
     try {
+      // Profile routes are mounted at /api/auth
       const response = await api.get("/auth/tutor/documents");
       return response.data;
     } catch (error) {

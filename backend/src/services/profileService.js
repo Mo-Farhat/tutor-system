@@ -36,6 +36,7 @@ class ProfileService {
         requireDocuments: true,
         documentsUploaded: !!tutorProfile.documents_uploaded,
         wwccStatus: wwcc.status,
+        application: application,  // Pass application for fallback values
       }
     );
 
@@ -91,6 +92,7 @@ class ProfileService {
         requireDocuments: true,
         documentsUploaded: !!tutorProfile.documents_uploaded,
         wwccStatus: wwcc.status,
+        application: application,  // Pass application for fallback values
       }
     );
 
@@ -335,25 +337,51 @@ class ProfileService {
 
   // Calculate profile completion status
   calculateCompletionStatus(profile, user, extra = {}) {
-    const requiredFields = [
-      "bio",
-      "hourly_rate",
-      "university",
-      "phone_number",
-      "subjects_selected",
-      "preferred_locations",
-    ];
-
+    const application = extra.application || null;
+    
+    // Field mappings: profile field -> application field fallback
+    const fieldMappings = {
+      bio: 'motivation',  // bio can be pre-filled from application motivation
+      hourly_rate: null,  // no fallback
+      university: 'currentStudy',  // university can be pre-filled from currentStudy  
+      phone_number: 'phone',  // phone from application
+      subjects_selected: 'subjectsToTutor',  // subjects from application
+      preferred_locations: 'currentState',  // location from application state
+    };
+    
+    const requiredFields = Object.keys(fieldMappings);
     const missingItems = [];
     let completedFields = 0;
 
+    // Helper to check if value is valid (not empty)
+    const isValid = (v) => {
+      if (!v) return false;
+      if (Array.isArray(v) && v.length === 0) return false;
+      if (typeof v === "string" && v.trim() === "") return false;
+      return true;
+    };
+
     requiredFields.forEach((field) => {
-      const v = profile[field];
-      if (
-        !v ||
-        (Array.isArray(v) && v.length === 0) ||
-        (typeof v === "string" && v.trim() === "")
-      ) {
+      // Check profile value first
+      let v = profile[field];
+      
+      // If profile value is empty and we have an application fallback, check that
+      if (!isValid(v) && application && fieldMappings[field]) {
+        const appField = fieldMappings[field];
+        const appValue = application[appField];
+        
+        // For fields that need transformation (e.g., currentState -> array)
+        if (field === 'preferred_locations' && appValue && typeof appValue === 'string') {
+          v = [appValue];  // Wrap single state in array
+        } else if (field === 'subjects_selected' && appValue && typeof appValue === 'string') {
+          // subjectsToTutor is usually a string, consider it valid if not empty
+          v = appValue.trim() ? [{ subject: appValue }] : null;
+        } else {
+          v = appValue;
+        }
+      }
+      
+      if (!isValid(v)) {
         missingItems.push(field);
       } else {
         completedFields++;
@@ -597,15 +625,48 @@ class ProfileService {
       console.log("❌ User not found or not a tutor:", { user: user?.role });
       return { success: false, error: "Tutor not found" };
     }
-    console.log("✅ User found, fetching documents...");
-    console.log("🔍 tutorDocumentModel:", typeof tutorDocumentModel);
-    console.log(
-      "🔍 tutorDocumentModel.findByUserId:",
-      typeof tutorDocumentModel?.findByUserId
-    );
-    const docs = await tutorDocumentModel.findByUserId(userId);
-    console.log("✅ Documents fetched:", docs);
-    return { success: true, data: docs };
+    console.log("✅ User found, fetching documents with asset relation...");
+    
+    // Use Prisma directly to include asset relation
+    const prisma = require("../db/prisma");
+    const { getSignedUrl } = require("./fileStorageService");
+    
+    const docs = await prisma.tutorDocument.findMany({
+      where: { userId: Number(userId) },
+      include: { asset: true },
+      orderBy: { uploadedAt: "desc" },
+    });
+    
+    // Transform to include pre-signed URL from asset key
+    const transformedDocs = await Promise.all(docs.map(async (doc) => {
+      const key = doc.asset?.key || doc.key;
+      let signedUrl = null;
+      
+      if (key) {
+        try {
+          signedUrl = await getSignedUrl(key, 3600); // 1 hour expiry
+        } catch (err) {
+          console.error("Error generating signed URL for key:", key, err);
+        }
+      }
+      
+      return {
+        id: doc.id,
+        userId: doc.userId,
+        type: doc.type,
+        url: signedUrl || doc.asset?.url || doc.url || null,
+        key: key || null,
+        bucket: doc.asset?.bucket || doc.bucket || null,
+        number: doc.number,
+        status: doc.status,
+        expiresAt: doc.expiresAt,
+        uploadedAt: doc.uploadedAt,
+        assetId: doc.assetId,
+      };
+    }));
+    
+    console.log("✅ Documents fetched with pre-signed URLs:", transformedDocs.length);
+    return { success: true, data: transformedDocs };
   }
 
   async markDocumentsFlag(userId) {

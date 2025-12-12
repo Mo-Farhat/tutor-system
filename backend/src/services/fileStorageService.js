@@ -1,11 +1,13 @@
 const path = require("path");
 const crypto = require("crypto");
 const { Upload } = require("@aws-sdk/lib-storage");
-const { PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
+const { PutObjectCommand, DeleteObjectCommand, GetObjectCommand } = require("@aws-sdk/client-s3");
+const { getSignedUrl: awsGetSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const s3 = require("../lib/s3");
 
 const BUCKET = process.env.AWS_S3_BUCKET;
-const PUBLIC_URL = process.env.AWS_S3_PUBLIC_URL; // optional convenience
+// const PUBLIC_URL = process.env.AWS_S3_PUBLIC_URL; // optional convenience
+const PUBLIC_URL = "https://striveacademy-new.s3.ap-southeast-2.amazonaws.com"; // Hardcoded for now
 
 function keyFor(kind, originalName) {
   const ext = path.extname(originalName || "");
@@ -38,4 +40,23 @@ async function deleteObject(key) {
   return { success: true };
 }
 
-module.exports = { uploadBuffer, deleteObject };
+/**
+ * Generate a pre-signed URL for temporary access to a private S3 object
+ * @param {string} key - S3 object key
+ * @param {number} expiresIn - URL expiry in seconds (default 1 hour)
+ * @returns {Promise<string>} Pre-signed URL
+ */
+async function getSignedUrl(key, expiresIn = 3600) {
+  if (!BUCKET) throw new Error("AWS_S3_BUCKET not set");
+  if (!key) throw new Error("S3 key is required");
+  
+  const command = new GetObjectCommand({
+    Bucket: BUCKET,
+    Key: key,
+  });
+  
+  const signedUrl = await awsGetSignedUrl(s3, command, { expiresIn });
+  return signedUrl;
+}
+
+module.exports = { uploadBuffer, deleteObject, getSignedUrl };
