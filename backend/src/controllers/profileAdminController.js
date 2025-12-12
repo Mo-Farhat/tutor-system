@@ -205,3 +205,65 @@ exports.updateStudentProfile = async (req, res) => {
     });
   }
 };
+
+// GET /api/admin/tutors/:userId/documents - Get tutor documents with S3 URLs
+exports.getTutorDocuments = async (req, res) => {
+  try {
+    const userId = Number(req.params.userId);
+    
+    if (!userId || isNaN(userId)) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Valid user ID is required" 
+      });
+    }
+
+    // Import prisma and getSignedUrl
+    const prisma = require("../db/prisma");
+    const { getSignedUrl } = require("../services/fileStorageService");
+    
+    const documents = await prisma.tutorDocument.findMany({
+      where: { userId },
+      include: {
+        asset: true, // Include linked MediaAsset for S3 URL
+      },
+      orderBy: { uploadedAt: "desc" },
+    });
+
+    // Transform to include pre-signed URL from asset key
+    const transformedDocs = await Promise.all(documents.map(async (doc) => {
+      const key = doc.asset?.key || doc.key;
+      let signedUrl = null;
+      
+      if (key) {
+        try {
+          signedUrl = await getSignedUrl(key, 3600); // 1 hour expiry
+        } catch (err) {
+          console.error("Error generating signed URL for key:", key, err);
+        }
+      }
+      
+      return {
+        id: doc.id,
+        userId: doc.userId,
+        type: doc.type,
+        url: signedUrl || doc.asset?.url || doc.url || null,
+        key: key || null,
+        bucket: doc.asset?.bucket || doc.bucket || null,
+        number: doc.number,
+        status: doc.status,
+        expiresAt: doc.expiresAt,
+        uploadedAt: doc.uploadedAt,
+        assetId: doc.assetId,
+      };
+    }));
+
+    res.json(transformedDocs);
+  } catch (e) {
+    console.error("admin.getTutorDocuments", e);
+    res.status(500).json({ 
+      success: false, 
+      error: "Internal server error" 
+    });
+  }
+};

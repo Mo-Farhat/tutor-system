@@ -48,17 +48,52 @@ function TutorProfile() {
     confirmPassword: false,
   });
   const [introVideo, setIntroVideo] = useState(null);
+  const [existingIntroVideoUrl, setExistingIntroVideoUrl] = useState(null);
   const [tutorContractFile, setTutorContractFile] = useState(null);
   const [wwccFile, setWwccFile] = useState(null);
   const [wwccExpiry, setWwccExpiry] = useState("");
   const [passwordErrors, setPasswordErrors] = useState({});
   const [passwordLoading, setPasswordLoading] = useState(false);
+  const [uploadedDocuments, setUploadedDocuments] = useState([]);
 
-  // Fetch profile data and pending changes on component mount
+  // Fetch profile data, pending changes, and uploaded documents on component mount
   useEffect(() => {
     fetchProfileData();
     checkPendingChanges();
+    fetchUploadedDocuments();
   }, []);
+
+  // Fetch already-uploaded documents from the server
+  const fetchUploadedDocuments = async () => {
+    try {
+      console.log('🔍 Fetching uploaded documents...');
+      const response = await authService.getTutorDocuments();
+      console.log('📄 getTutorDocuments response:', response);
+      
+      // Handle different response structures
+      let documents = [];
+      if (response?.success && Array.isArray(response.data)) {
+        documents = response.data;
+      } else if (response?.data && Array.isArray(response.data)) {
+        documents = response.data;
+      } else if (Array.isArray(response)) {
+        documents = response;
+      }
+      
+      console.log('✅ Parsed documents:', documents);
+      setUploadedDocuments(documents);
+      
+      // Find WWCC document and set expiry date if available
+      const wwccDoc = documents.find(doc => doc.type === 'wwcc');
+      if (wwccDoc?.expiresAt) {
+        // Format date for input[type="date"] (YYYY-MM-DD)
+        const expiryDate = new Date(wwccDoc.expiresAt).toISOString().split('T')[0];
+        setWwccExpiry(expiryDate);
+      }
+    } catch (err) {
+      console.error("❌ Error fetching uploaded documents:", err);
+    }
+  };
 
   const fetchProfileData = async () => {
     try {
@@ -183,6 +218,11 @@ function TutorProfile() {
 
         // Set schools
         setSchools(data.data.schools_attended || []);
+
+        // Set existing intro video URL if available
+        if (data.data.intro_video_path) {
+          setExistingIntroVideoUrl(data.data.intro_video_path);
+        }
 
         // Fetch completion status
 
@@ -569,8 +609,9 @@ function TutorProfile() {
         // Reset local doc state after successful upload/save
         setTutorContractFile(null);
         setWwccFile(null);
-        // Refresh the data including completion status
+        // Refresh the data including completion status and documents
         fetchProfileData();
+        fetchUploadedDocuments(); // Refresh uploaded documents display
         // Dispatch event to notify navbar to refresh
         window.dispatchEvent(new CustomEvent('profileUpdated'));
       } else {
@@ -1491,6 +1532,22 @@ function TutorProfile() {
 
                 <div className="tutor-profile-card">
                   <div className="tutor-profile-card-body">
+                    {/* Show existing video if available */}
+                    {existingIntroVideoUrl && !introVideo && (
+                      <div className="mb-4">
+                        <h6 className="mb-3">
+                          <i className="fas fa-check-circle text-success me-2"></i>
+                          Current Video
+                        </h6>
+                        <div className="ratio ratio-16x9 mb-3" style={{ maxWidth: '500px' }}>
+                          <video controls src={existingIntroVideoUrl}>
+                            Your browser does not support video playback.
+                          </video>
+                        </div>
+                        <p className="text-muted small">Upload a new video below to replace the current one.</p>
+                      </div>
+                    )}
+                    
                     <div className="tutor-profile-upload-area">
                       {introVideo ? (
                         <div className="tutor-profile-file-preview">
@@ -1520,7 +1577,7 @@ function TutorProfile() {
                             className="tutor-profile-upload-label"
                           >
                             <i className="fas fa-cloud-upload-alt fa-3x mb-3"></i>
-                            <h5>Upload Video Introduction</h5>
+                            <h5>{existingIntroVideoUrl ? 'Upload New Video' : 'Upload Video Introduction'}</h5>
                             <p className="text-muted">
                               Click to upload or drag and drop
                             </p>
@@ -1547,89 +1604,161 @@ function TutorProfile() {
                 <div className="tutor-profile-card">
                   <div className="tutor-profile-card-body">
                     <div className="row">
+                      {/* Tutor Contract */}
                       <div className="col-md-6">
                         <div className="tutor-profile-upload-area">
                           <label className="form-label">Tutor Contract</label>
-                          {tutorContractFile ? (
-                            <div className="tutor-profile-file-preview">
-                              <div className="tutor-profile-file-info">
-                                <i className="fas fa-file-pdf me-2"></i>
-                                <span>{tutorContractFile.name}</span>
-                              </div>
-                              <button
-                                type="button"
-                                className="btn btn-outline-danger btn-sm"
-                                onClick={removeTutorContract}
-                              >
-                                <i className="fas fa-trash"></i>
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="tutor-profile-upload-placeholder">
-                              <input
-                                type="file"
-                                className="tutor-profile-file-input"
-                                accept=".pdf,.doc,.docx"
-                                onChange={(e) =>
-                                  handleFileUpload(e, "tutorContract")
-                                }
-                                id="tutor-contract-upload"
-                              />
-                              <label
-                                htmlFor="tutor-contract-upload"
-                                className="tutor-profile-upload-label"
-                              >
-                                <i className="fas fa-file-pdf fa-2x mb-2"></i>
-                                <p className="mb-0">Upload Tutor Contract</p>
-                                <p className="text-muted small">
-                                  PDF, DOC, DOCX
-                                </p>
-                              </label>
-                            </div>
-                          )}
+                          {(() => {
+                            const existingContract = uploadedDocuments.find(doc => doc.type === 'contract');
+                            const hasExisting = !!existingContract && !tutorContractFile;
+                            
+                            if (tutorContractFile) {
+                              // User selected a new file to upload
+                              return (
+                                <div className="tutor-profile-file-preview">
+                                  <div className="tutor-profile-file-info">
+                                    <i className="fas fa-file-pdf me-2"></i>
+                                    <span>{tutorContractFile.name}</span>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    className="btn btn-outline-danger btn-sm"
+                                    onClick={removeTutorContract}
+                                  >
+                                    <i className="fas fa-times"></i>
+                                  </button>
+                                </div>
+                              );
+                            } else if (hasExisting) {
+                              // Document already uploaded - show clean status
+                              return (
+                                <div className="d-flex flex-column align-items-center p-4 border rounded bg-light">
+                                  <div className="d-flex align-items-center mb-2">
+                                    <i className="fas fa-check-circle text-success fa-2x me-2"></i>
+                                    <span className="fw-bold text-success">Uploaded</span>
+                                  </div>
+                                  <small className="text-muted mb-3">
+                                    Uploaded on {new Date(existingContract.uploadedAt).toLocaleDateString('en-AU')}
+                                  </small>
+                                  <label 
+                                    htmlFor="tutor-contract-upload"
+                                    className="btn btn-outline-secondary btn-sm"
+                                    style={{ cursor: 'pointer' }}
+                                  >
+                                    <i className="fas fa-sync-alt me-1"></i>
+                                    Replace Document
+                                  </label>
+                                  <input
+                                    type="file"
+                                    className="d-none"
+                                    accept=".pdf,.doc,.docx"
+                                    onChange={(e) => handleFileUpload(e, "tutorContract")}
+                                    id="tutor-contract-upload"
+                                  />
+                                </div>
+                              );
+                            } else {
+                              // No document - show upload UI
+                              return (
+                                <div className="tutor-profile-upload-placeholder">
+                                  <input
+                                    type="file"
+                                    className="tutor-profile-file-input"
+                                    accept=".pdf,.doc,.docx"
+                                    onChange={(e) => handleFileUpload(e, "tutorContract")}
+                                    id="tutor-contract-upload"
+                                  />
+                                  <label
+                                    htmlFor="tutor-contract-upload"
+                                    className="tutor-profile-upload-label"
+                                  >
+                                    <i className="fas fa-file-pdf fa-2x mb-2"></i>
+                                    <p className="mb-0">Upload Tutor Contract</p>
+                                    <p className="text-muted small">PDF, DOC, DOCX</p>
+                                  </label>
+                                </div>
+                              );
+                            }
+                          })()}
                         </div>
                       </div>
 
+                      {/* WWCC */}
                       <div className="col-md-6">
                         <div className="tutor-profile-upload-area">
-                          <label className="form-label">
-                            Working with Children Check
-                          </label>
-                          {wwccFile ? (
-                            <div className="tutor-profile-file-preview">
-                              <div className="tutor-profile-file-info">
-                                <i className="fas fa-file-pdf me-2"></i>
-                                <span>{wwccFile.name}</span>
-                              </div>
-                              <button
-                                type="button"
-                                className="btn btn-outline-danger btn-sm"
-                                onClick={removeWWCC}
-                              >
-                                <i className="fas fa-trash"></i>
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="tutor-profile-upload-placeholder">
-                              <input
-                                type="file"
-                                className="tutor-profile-file-input"
-                                accept=".pdf,.doc,.docx"
-                                onChange={(e) => handleFileUpload(e, "wwcc")}
-                                id="wwcc-upload"
-                              />
-                              <label
-                                htmlFor="wwcc-upload"
-                                className="tutor-profile-upload-label"
-                              >
-                                <i className="fas fa-file-pdf fa-2x mb-2"></i>
-                                <p className="mb-0">Upload WWCC</p>
-                                <p className="text-muted small">
-                                  PDF, DOC, DOCX
-                                </p>
-                              </label>
-                            </div>
-                          )}
+                          <label className="form-label">Working with Children Check</label>
+                          {(() => {
+                            const existingWWCC = uploadedDocuments.find(doc => doc.type === 'wwcc');
+                            const hasExisting = !!existingWWCC && !wwccFile;
+                            
+                            if (wwccFile) {
+                              // User selected a new file to upload
+                              return (
+                                <div className="tutor-profile-file-preview">
+                                  <div className="tutor-profile-file-info">
+                                    <i className="fas fa-file-pdf me-2"></i>
+                                    <span>{wwccFile.name}</span>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    className="btn btn-outline-danger btn-sm"
+                                    onClick={removeWWCC}
+                                  >
+                                    <i className="fas fa-times"></i>
+                                  </button>
+                                </div>
+                              );
+                            } else if (hasExisting) {
+                              // Document already uploaded - show clean status
+                              return (
+                                <div className="d-flex flex-column align-items-center p-4 border rounded bg-light">
+                                  <div className="d-flex align-items-center mb-2">
+                                    <i className="fas fa-check-circle text-success fa-2x me-2"></i>
+                                    <span className="fw-bold text-success">Uploaded</span>
+                                  </div>
+                                  <small className="text-muted mb-3">
+                                    Uploaded on {new Date(existingWWCC.uploadedAt).toLocaleDateString('en-AU')}
+                                  </small>
+                                  <label 
+                                    htmlFor="wwcc-upload"
+                                    className="btn btn-outline-secondary btn-sm"
+                                    style={{ cursor: 'pointer' }}
+                                  >
+                                    <i className="fas fa-sync-alt me-1"></i>
+                                    Replace Document
+                                  </label>
+                                  <input
+                                    type="file"
+                                    className="d-none"
+                                    accept=".pdf,.doc,.docx"
+                                    onChange={(e) => handleFileUpload(e, "wwcc")}
+                                    id="wwcc-upload"
+                                  />
+                                </div>
+                              );
+                            } else {
+                              // No document - show upload UI
+                              return (
+                                <div className="tutor-profile-upload-placeholder">
+                                  <input
+                                    type="file"
+                                    className="tutor-profile-file-input"
+                                    accept=".pdf,.doc,.docx"
+                                    onChange={(e) => handleFileUpload(e, "wwcc")}
+                                    id="wwcc-upload"
+                                  />
+                                  <label
+                                    htmlFor="wwcc-upload"
+                                    className="tutor-profile-upload-label"
+                                  >
+                                    <i className="fas fa-file-pdf fa-2x mb-2"></i>
+                                    <p className="mb-0">Upload WWCC</p>
+                                    <p className="text-muted small">PDF, DOC, DOCX</p>
+                                  </label>
+                                </div>
+                              );
+                            }
+                          })()}
                           <div className="mt-2">
                             <label htmlFor="wwcc-expiry" className="form-label">
                               WWCC Expiry Date

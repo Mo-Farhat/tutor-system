@@ -384,9 +384,11 @@ class AuthService {
   // Document management methods (keeping existing functionality)
   async getTutorDocuments() {
     try {
-      const data = await this.makeRequest("/tutor/documents/");
-      return { success: true, data };
+      // Profile routes are mounted at /api/auth
+      const data = await this.makeRequest("/tutor/documents");
+      return data;
     } catch (error) {
+      console.error('Error fetching tutor documents:', error);
       return { success: false, error: error.message };
     }
   }

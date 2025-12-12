@@ -60,4 +60,12 @@ router.get("/mock/profiles", ctrl.list);
 router.put("/mock/profiles/:userId/make-live", ctrl.makeLive);
 router.put("/mock/profiles/:userId/make-offline", ctrl.makeOffline);
 
+// Admin: Get tutor documents by userId
+router.get(
+  "/admin/tutors/:userId/documents",
+  authenticateToken,
+  requireRole("admin"),
+  ctrl.getTutorDocuments
+);
+
 module.exports = router;

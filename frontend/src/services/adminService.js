@@ -384,7 +384,7 @@ class AdminService {
 
   // Document Management
   async getTutorDocuments(userId) {
-    return this.makeAdminRequest(`/admin/profiles/${userId}`);
+    return this.makeAdminRequest(`/admin/tutors/${userId}/documents`);
   }
 
   // Get tutor applications with detailed info

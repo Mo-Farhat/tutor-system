@@ -597,15 +597,48 @@ class ProfileService {
       console.log("❌ User not found or not a tutor:", { user: user?.role });
       return { success: false, error: "Tutor not found" };
     }
-    console.log("✅ User found, fetching documents...");
-    console.log("🔍 tutorDocumentModel:", typeof tutorDocumentModel);
-    console.log(
-      "🔍 tutorDocumentModel.findByUserId:",
-      typeof tutorDocumentModel?.findByUserId
-    );
-    const docs = await tutorDocumentModel.findByUserId(userId);
-    console.log("✅ Documents fetched:", docs);
-    return { success: true, data: docs };
+    console.log("✅ User found, fetching documents with asset relation...");
+    
+    // Use Prisma directly to include asset relation
+    const prisma = require("../db/prisma");
+    const { getSignedUrl } = require("./fileStorageService");
+    
+    const docs = await prisma.tutorDocument.findMany({
+      where: { userId: Number(userId) },
+      include: { asset: true },
+      orderBy: { uploadedAt: "desc" },
+    });
+    
+    // Transform to include pre-signed URL from asset key
+    const transformedDocs = await Promise.all(docs.map(async (doc) => {
+      const key = doc.asset?.key || doc.key;
+      let signedUrl = null;
+      
+      if (key) {
+        try {
+          signedUrl = await getSignedUrl(key, 3600); // 1 hour expiry
+        } catch (err) {
+          console.error("Error generating signed URL for key:", key, err);
+        }
+      }
+      
+      return {
+        id: doc.id,
+        userId: doc.userId,
+        type: doc.type,
+        url: signedUrl || doc.asset?.url || doc.url || null,
+        key: key || null,
+        bucket: doc.asset?.bucket || doc.bucket || null,
+        number: doc.number,
+        status: doc.status,
+        expiresAt: doc.expiresAt,
+        uploadedAt: doc.uploadedAt,
+        assetId: doc.assetId,
+      };
+    }));
+    
+    console.log("✅ Documents fetched with pre-signed URLs:", transformedDocs.length);
+    return { success: true, data: transformedDocs };
   }
 
   async markDocumentsFlag(userId) {

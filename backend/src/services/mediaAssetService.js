@@ -5,7 +5,7 @@ const { deleteObject } = require("./fileStorageService");
 /**
  * Create a MediaAsset record for a file uploaded to S3.
  * @param {Object} params
- * @param {string} params.kind - Logical folder (e.g., "tutor/docs", "students/photos").
+ * @param {string} params.kind - Logical folder (used as bucket identifier).
  * @param {string} params.key - S3 object key.
  * @param {string} params.url - Public or signed URL.
  * @param {string} params.mimeType - MIME type of the file.
@@ -15,13 +15,16 @@ const { deleteObject } = require("./fileStorageService");
 async function createMediaAsset({ kind, key, url, mimeType, userId }) {
   if (!key || !url) throw new Error("Missing key or URL for MediaAsset");
 
+  // Extract bucket from environment or use kind as bucket identifier
+  const bucket = process.env.AWS_S3_BUCKET || kind || "default";
+
   const asset = await prisma.mediaAsset.create({
     data: {
-      kind,
-      s3Key: key,
-      url,
-      mimeType,
-      uploadedById: userId || null,
+      key,           // S3 object key (required)
+      bucket,        // Bucket name (required)
+      url,           // Full URL to asset
+      contentType: mimeType || null,
+      ownerUserId: userId || null,
     },
   });
 
@@ -38,8 +41,8 @@ async function deleteMediaAsset(id) {
   if (!asset) return { success: false, message: "Asset not found" };
 
   try {
-    if (asset.s3Key) {
-      await deleteObject(asset.s3Key);
+    if (asset.key) {
+      await deleteObject(asset.key);
     }
     await prisma.mediaAsset.delete({ where: { id } });
     return { success: true, message: "Asset deleted successfully" };
