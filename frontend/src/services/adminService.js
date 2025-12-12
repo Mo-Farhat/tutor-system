@@ -176,8 +176,11 @@ class AdminService {
   }
 
   // List tutor change requests
-  async getTutorChangeRequests() {
-    return this.makeAdminRequest(`/admin/tutor-change-requests`);
+  async getTutorChangeRequests(tutorId = null) {
+    const endpoint = tutorId 
+      ? `/admin/tutor-change-requests?tutorId=${tutorId}` 
+      : `/admin/tutor-change-requests`;
+    return this.makeAdminRequest(endpoint);
   }
 
   // Tutor Applications Management
@@ -462,7 +465,7 @@ class AdminService {
 
   // Tutor Change Requests (using the methods from tutor management)
   async getChangeRequests(filters = {}) {
-    return this.getTutorChangeRequests();
+    return this.getTutorChangeRequests(filters.tutorId);
   }
 
   async approveChangeRequest(changeRequestId, comments = "") {

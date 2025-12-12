@@ -641,7 +641,7 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
     );
   };
 
-  const renderChangeRequestsTab = () => <ChangeRequestsTab />;
+  const renderChangeRequestsTab = () => <ChangeRequestsTab tutorId={tutorData?.userId || tutor?.id} />;
 
   const renderSessionsTab = () => <SessionsTab />;
 

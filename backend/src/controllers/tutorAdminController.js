@@ -99,11 +99,15 @@ exports.rejectChangeRequest = async (req, res) => {
   }
 };
 
-// GET /api/admin/tutor-change-requests?status=pending|approved|rejected
+// GET /api/admin/tutor-change-requests?status=pending|approved|rejected&tutorId=123
 exports.listChangeRequests = async (req, res) => {
   try {
-    const status = req.query.status;
-    const rows = await tutorChangeRequestModel.list({ status });
+    const { status, tutorId } = req.query;
+    const filters = {};
+    if (status) filters.status = status;
+    if (tutorId) filters.tutorId = Number(tutorId);
+    
+    const rows = await tutorChangeRequestModel.list(filters);
     res.json({ success: true, data: rows });
   } catch (e) {
     console.error("admin.tutors.listChangeRequests", e);
