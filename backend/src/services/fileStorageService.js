@@ -6,7 +6,8 @@ const { getSignedUrl: awsGetSignedUrl } = require("@aws-sdk/s3-request-presigner
 const s3 = require("../lib/s3");
 
 const BUCKET = process.env.AWS_S3_BUCKET;
-const PUBLIC_URL = process.env.AWS_S3_PUBLIC_URL; // optional convenience
+// const PUBLIC_URL = process.env.AWS_S3_PUBLIC_URL; // optional convenience
+const PUBLIC_URL = "https://striveacademy-new.s3.ap-southeast-2.amazonaws.com"; // Hardcoded for now
 
 function keyFor(kind, originalName) {
   const ext = path.extname(originalName || "");
