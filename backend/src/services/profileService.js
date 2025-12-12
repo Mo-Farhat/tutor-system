@@ -36,6 +36,7 @@ class ProfileService {
         requireDocuments: true,
         documentsUploaded: !!tutorProfile.documents_uploaded,
         wwccStatus: wwcc.status,
+        application: application,  // Pass application for fallback values
       }
     );
 
@@ -91,6 +92,7 @@ class ProfileService {
         requireDocuments: true,
         documentsUploaded: !!tutorProfile.documents_uploaded,
         wwccStatus: wwcc.status,
+        application: application,  // Pass application for fallback values
       }
     );
 
@@ -335,25 +337,51 @@ class ProfileService {
 
   // Calculate profile completion status
   calculateCompletionStatus(profile, user, extra = {}) {
-    const requiredFields = [
-      "bio",
-      "hourly_rate",
-      "university",
-      "phone_number",
-      "subjects_selected",
-      "preferred_locations",
-    ];
-
+    const application = extra.application || null;
+    
+    // Field mappings: profile field -> application field fallback
+    const fieldMappings = {
+      bio: 'motivation',  // bio can be pre-filled from application motivation
+      hourly_rate: null,  // no fallback
+      university: 'currentStudy',  // university can be pre-filled from currentStudy  
+      phone_number: 'phone',  // phone from application
+      subjects_selected: 'subjectsToTutor',  // subjects from application
+      preferred_locations: 'currentState',  // location from application state
+    };
+    
+    const requiredFields = Object.keys(fieldMappings);
     const missingItems = [];
     let completedFields = 0;
 
+    // Helper to check if value is valid (not empty)
+    const isValid = (v) => {
+      if (!v) return false;
+      if (Array.isArray(v) && v.length === 0) return false;
+      if (typeof v === "string" && v.trim() === "") return false;
+      return true;
+    };
+
     requiredFields.forEach((field) => {
-      const v = profile[field];
-      if (
-        !v ||
-        (Array.isArray(v) && v.length === 0) ||
-        (typeof v === "string" && v.trim() === "")
-      ) {
+      // Check profile value first
+      let v = profile[field];
+      
+      // If profile value is empty and we have an application fallback, check that
+      if (!isValid(v) && application && fieldMappings[field]) {
+        const appField = fieldMappings[field];
+        const appValue = application[appField];
+        
+        // For fields that need transformation (e.g., currentState -> array)
+        if (field === 'preferred_locations' && appValue && typeof appValue === 'string') {
+          v = [appValue];  // Wrap single state in array
+        } else if (field === 'subjects_selected' && appValue && typeof appValue === 'string') {
+          // subjectsToTutor is usually a string, consider it valid if not empty
+          v = appValue.trim() ? [{ subject: appValue }] : null;
+        } else {
+          v = appValue;
+        }
+      }
+      
+      if (!isValid(v)) {
         missingItems.push(field);
       } else {
         completedFields++;

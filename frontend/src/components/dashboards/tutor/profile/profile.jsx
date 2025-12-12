@@ -902,7 +902,7 @@ function TutorProfile() {
                             name="phoneNumber"
                             value={formData.phoneNumber}
                             onChange={handleInputChange}
-                            disabled={!isEditMode}
+                            disabled={!isEditMode && profileData?.is_live}
                           />
                         </div>
                       </div>
@@ -922,7 +922,7 @@ function TutorProfile() {
                             value={formData.hourly_rate}
                             onChange={handleInputChange}
                             placeholder="45.00"
-                            disabled={!isEditMode}
+                            disabled={!isEditMode && profileData?.is_live}
                           />
                         </div>
                       </div>
@@ -939,7 +939,7 @@ function TutorProfile() {
                             value={formData.university}
                             onChange={handleInputChange}
                             placeholder="e.g., University of Melbourne"
-                            disabled={!isEditMode}
+                            disabled={!isEditMode && profileData?.is_live}
                           />
                         </div>
                       </div>
@@ -957,7 +957,7 @@ function TutorProfile() {
                         value={formData.bio}
                         onChange={handleInputChange}
                         placeholder="Tell us about yourself and your teaching experience..."
-                        disabled={!isEditMode}
+                        disabled={!isEditMode && profileData?.is_live}
                       />
                     </div>
                   </div>
