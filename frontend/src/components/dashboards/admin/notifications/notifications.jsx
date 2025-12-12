@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../../../../css/dashboards/admin/notifications/notifications.css";
+import notificationService from "../../../../services/notificationService";
 
 function AdminNotifications() {
   const [notifications, setNotifications] = useState([]);
@@ -13,55 +14,11 @@ function AdminNotifications() {
   const loadNotifications = async () => {
     try {
       setIsLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Mock notifications
-      const mockNotifications = [
-        {
-          id: 1,
-          type: "payment_due",
-          title: "Payment Overdue",
-          message: "Student Alice Chen has an overdue payment of $150",
-          priority: "high",
-          timestamp: "2024-03-20 10:30",
-          read: false,
-          actionUrl: "/dashboard/admin/finance",
-        },
-        {
-          id: 2,
-          type: "session_reminder",
-          title: "Upcoming Session",
-          message: "Mathematics session with Michael Chen starts in 1 hour",
-          priority: "medium",
-          timestamp: "2024-03-20 09:00",
-          read: false,
-          actionUrl: "/dashboard/admin/calendar",
-        },
-        {
-          id: 3,
-          type: "compliance_alert",
-          title: "WWCC Expiring",
-          message: "Tutor Sarah Johnson's WWCC expires in 7 days",
-          priority: "high",
-          timestamp: "2024-03-20 08:15",
-          read: true,
-          actionUrl: "/dashboard/admin/tutors",
-        },
-        {
-          id: 4,
-          type: "package_expiring",
-          title: "Package Expiring",
-          message: "Student Emma Wilson's package expires in 3 days",
-          priority: "medium",
-          timestamp: "2024-03-19 16:45",
-          read: true,
-          actionUrl: "/dashboard/admin/students",
-        },
-      ];
-
-      setNotifications(mockNotifications);
+      const data = await notificationService.getNotifications();
+      setNotifications(data.notifications || []);
     } catch (error) {
       console.error("Error loading notifications:", error);
+      setNotifications([]);
     } finally {
       setIsLoading(false);
     }
@@ -69,10 +26,11 @@ function AdminNotifications() {
 
   const getNotificationIcon = (type) => {
     const icons = {
-      payment_due: "fas fa-exclamation-circle text-danger",
-      session_reminder: "fas fa-clock text-info",
-      compliance_alert: "fas fa-shield-alt text-warning",
-      package_expiring: "fas fa-box text-warning",
+      new_application: "fas fa-user-plus text-primary",
+      payment_issue: "fas fa-exclamation-circle text-danger",
+      wwcc_expiry: "fas fa-shield-alt text-warning",
+      compliance_alert: "fas fa-exclamation-triangle text-warning",
+      welcome: "fas fa-hand-wave text-success",
     };
     return icons[type] || "fas fa-bell text-secondary";
   };
@@ -99,12 +57,17 @@ function AdminNotifications() {
     });
   };
 
-  const markAsRead = (notificationId) => {
-    setNotifications((prev) =>
-      prev.map((notif) =>
-        notif.id === notificationId ? { ...notif, read: true } : notif
-      )
-    );
+  const markAsRead = async (notificationId) => {
+    try {
+      await notificationService.markAsRead(notificationId);
+      setNotifications((prev) =>
+        prev.map((notif) =>
+          notif.id === notificationId ? { ...notif, read: true } : notif
+        )
+      );
+    } catch (error) {
+      console.error("Error marking as read:", error);
+    }
   };
 
   const filteredNotifications = notifications.filter((notif) => {
@@ -225,7 +188,7 @@ function AdminNotifications() {
                           <div className="admin-notification-meta">
                             {getPriorityBadge(notification.priority)}
                             <small className="text-muted ms-2">
-                              {formatTimestamp(notification.timestamp)}
+                              {formatTimestamp(notification.createdAt)}
                             </small>
                           </div>
                         </div>
@@ -233,11 +196,7 @@ function AdminNotifications() {
                           {notification.message}
                         </p>
                         <div className="admin-notification-actions">
-                          {notification.actionUrl && (
-                            <button className="btn btn-sm btn-outline-primary me-2">
-                              View Details
-                            </button>
-                          )}
+                          
                           {!notification.read && (
                             <button
                               className="btn btn-sm btn-outline-secondary"

@@ -19,6 +19,7 @@ const tutorChangeRequestModel = require("./tutorChangeRequestModel");
 const tutorReviewModel = require("./tutorReviewModel");
 const lessonMaterialModel = require("./lessonMaterialModel");
 const zoomLinkModel = require("./zoomLinkModel");
+const notificationModel = require("./notificationModel");
 
 module.exports = {
   userModel,
@@ -42,4 +43,5 @@ module.exports = {
   tutorReviewModel,
   lessonMaterialModel,
   zoomLinkModel,
+  notificationModel,
 };

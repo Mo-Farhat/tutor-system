@@ -1,94 +1,62 @@
 import React, { useState, useEffect } from 'react';
 import '../../../../css/dashboards/student/notifications/notifications.css';
+import notificationService from '../../../../services/notificationService';
 
 function StudentNotifications() {
-    const [notifications, setNotifications] = useState([
-        {
-            id: 1,
-            type: 'success',
-            title: 'Session Confirmed',
-            message: 'Your tutoring session with Dr. Sarah Johnson has been confirmed for tomorrow at 2:00 PM',
-            time: '1 hour ago',
-            read: false,
-            icon: '📅'
-        },
-        {
-            id: 2,
-            type: 'info',
-            title: 'Payment Processed',
-            message: 'Your payment of $120 for this month\'s tutoring package has been processed successfully',
-            time: '3 hours ago',
-            read: true,
-            icon: '💳'
-        },
-        {
-            id: 3,
-            type: 'warning',
-            title: 'Assignment Reminder',
-            message: 'Don\'t forget to submit your Chemistry homework before the next session',
-            time: '1 day ago',
-            read: false,
-            icon: '📝'
-        },
-        {
-            id: 4,
-            type: 'success',
-            title: 'Progress Update',
-            message: 'Great job! You\'ve completed 80% of your Mathematics curriculum',
-            time: '2 days ago',
-            read: true,
-            icon: '🎯'
-        },
-        {
-            id: 5,
-            type: 'info',
-            title: 'New Tutor Assigned',
-            message: 'Dr. Michael Chen has been assigned as your new Physics tutor',
-            time: '3 days ago',
-            read: true,
-            icon: '👨‍🏫'
-        },
-        {
-            id: 6,
-            type: 'warning',
-            title: 'Session Rescheduled',
-            message: 'Your session with Dr. Sarah Johnson has been moved to Friday at 3:00 PM',
-            time: '4 days ago',
-            read: true,
-            icon: '🔄'
-        },
-        {
-            id: 7,
-            type: 'success',
-            title: 'Achievement Unlocked',
-            message: 'Congratulations! You\'ve earned the "Consistent Learner" badge',
-            time: '1 week ago',
-            read: true,
-            icon: '🏆'
-        }
-    ]);
-
+    const [notifications, setNotifications] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [filter, setFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
 
-    const markAsRead = (id) => {
-        setNotifications(prev => 
-            prev.map(notification => 
-                notification.id === id 
-                    ? { ...notification, read: true }
-                    : notification
-            )
-        );
+    useEffect(() => {
+        async function fetchNotifications() {
+            try {
+                setIsLoading(true);
+                const data = await notificationService.getNotifications();
+                setNotifications(Array.isArray(data.notifications) ? data.notifications : []);
+            } catch (error) {
+                console.error("Error fetching notifications:", error);
+                setNotifications([]);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+        fetchNotifications();
+    }, []);
+
+    const markAsRead = async (id) => {
+        try {
+            await notificationService.markAsRead(id);
+            setNotifications(prev => 
+                prev.map(notification => 
+                    notification.id === id 
+                        ? { ...notification, read: true }
+                        : notification
+                )
+            );
+        } catch (error) {
+            console.error("Error marking as read:", error);
+        }
     };
 
-    const markAllAsRead = () => {
-        setNotifications(prev => 
-            prev.map(notification => ({ ...notification, read: true }))
-        );
+    const markAllAsRead = async () => {
+        try {
+            await notificationService.markAllAsRead();
+            setNotifications(prev => 
+                prev.map(notification => ({ ...notification, read: true }))
+            );
+        } catch (error) {
+            console.error("Error marking all as read:", error);
+        }
     };
 
-    const deleteNotification = (id) => {
-        setNotifications(prev => prev.filter(notification => notification.id !== id));
+    const deleteNotification = async (id) => {
+        try {
+            await notificationService.deleteNotification(id);
+            setNotifications(prev => prev.filter(notification => notification.id !== id));
+        } catch (error) {
+            console.error("Error deleting notification:", error);
+        }
     };
 
     const filteredNotifications = notifications.filter(notification => {

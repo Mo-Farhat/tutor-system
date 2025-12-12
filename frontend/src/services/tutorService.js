@@ -83,16 +83,26 @@ class TutorService {
     }
   }
 
-    // Tutor earnings
-    async getEarnings() {
-      try {
-        const response = await api.get("/auth/tutor/earnings");
-        return response.data;
-      } catch (error) {
-        console.error("Error fetching tutor earnings:", error);
-        return { success: false, error: error.message };
-      }
+  async getStudentProfile(pairId) {
+    try {
+      const response = await api.get(`/auth/tutor/students/${pairId}/profile`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching student profile:", error);
+      return { success: false, error: error.message };
     }
+  }
+
+  // Tutor earnings
+  async getEarnings() {
+    try {
+      const response = await api.get("/auth/tutor/earnings");
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching tutor earnings:", error);
+      return { success: false, error: error.message };
+    }
+  }
 
   // Tutor notifications
   async getNotifications() {
@@ -156,26 +166,26 @@ class TutorService {
     }
   }
 
-    // Change Requests
-    async submitChangeRequest(changeRequestData) {
-      try {
-        const response = await api.post("/auth/tutor/change-requests", changeRequestData);
-        return response.data;
-      } catch (error) {
-        console.error("Error submitting change request:", error);
-        return { success: false, error: error.message };
-      }
+  // Change Requests
+  async submitChangeRequest(changeRequestData) {
+    try {
+      const response = await api.post("/auth/tutor/change-requests", changeRequestData);
+      return response.data;
+    } catch (error) {
+      console.error("Error submitting change request:", error);
+      return { success: false, error: error.message };
     }
+  }
 
-    async getMyChangeRequests() {
-      try {
-        const response = await api.get("/auth/tutor/change-requests");
-        return response.data;
-      } catch (error) {
-        console.error("Error fetching change requests:", error);
-        return { success: false, error: error.message };
-      }
+  async getMyChangeRequests() {
+    try {
+      const response = await api.get("/auth/tutor/change-requests");
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching change requests:", error);
+      return { success: false, error: error.message };
     }
+  }
 }
 
 export default new TutorService();

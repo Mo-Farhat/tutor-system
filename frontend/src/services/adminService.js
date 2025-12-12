@@ -1,8 +1,7 @@
 import authService from "./authService";
 
-const API_BASE_URL = `${
-  process.env.REACT_APP_BACKEND_URL || "http://localhost:8000"
-}/api`;
+const API_BASE_URL = `${process.env.REACT_APP_BACKEND_URL || "http://localhost:8000"
+  }/api`;
 
 class AdminService {
   constructor() {
@@ -82,9 +81,8 @@ class AdminService {
       queryParams.append("pageSize", 20);
     }
 
-    const endpoint = `/admin/users${
-      queryParams.toString() ? "?" + queryParams.toString() : ""
-    }`;
+    const endpoint = `/admin/users${queryParams.toString() ? "?" + queryParams.toString() : ""
+      }`;
     const response = await this.makeAdminRequest(endpoint);
 
     // Transform response to match expected format
@@ -190,9 +188,8 @@ class AdminService {
     if (filters.page) queryParams.append("page", filters.page);
     if (filters.limit) queryParams.append("limit", filters.limit);
 
-    const endpoint = `/admin/applications${
-      queryParams.toString() ? "?" + queryParams.toString() : ""
-    }`;
+    const endpoint = `/admin/applications${queryParams.toString() ? "?" + queryParams.toString() : ""
+      }`;
     const response = await this.makeAdminRequest(endpoint);
 
     // Transform response to match expected format
@@ -235,9 +232,8 @@ class AdminService {
     if (filters.page) queryParams.append("page", filters.page);
     if (filters.limit) queryParams.append("limit", filters.limit);
 
-    const endpoint = `/admin/profiles${
-      queryParams.toString() ? "?" + queryParams.toString() : ""
-    }`;
+    const endpoint = `/admin/profiles${queryParams.toString() ? "?" + queryParams.toString() : ""
+      }`;
     return this.makeAdminRequest(endpoint);
   }
 
@@ -260,9 +256,8 @@ class AdminService {
     if (filters.page) queryParams.append("page", filters.page);
     if (filters.limit) queryParams.append("limit", filters.limit);
 
-    const endpoint = `/admin/tokens${
-      queryParams.toString() ? "?" + queryParams.toString() : ""
-    }`;
+    const endpoint = `/admin/tokens${queryParams.toString() ? "?" + queryParams.toString() : ""
+      }`;
     return this.makeAdminRequest(endpoint);
   }
 
@@ -336,15 +331,55 @@ class AdminService {
   }
 
   async makeTutorLive(userId) {
-    return this.makeAdminRequest(`/admin/profiles/${userId}/make-live`, {
-      method: "PUT",
-    });
+    try {
+      console.log('📡 API Call: makeTutorLive', userId);
+      
+      if (!userId) {
+        throw new Error("User ID is required");
+      }
+
+      const response = await this.makeAdminRequest(`/admin/profiles/${userId}/make-live`, {
+        method: "PUT",
+      });
+
+      console.log('✅ makeTutorLive response:', response);
+
+      // Validate response
+      if (!response) {
+        throw new Error("No response from server");
+      }
+
+      return response;
+    } catch (error) {
+      console.error('❌ makeTutorLive error:', error);
+      throw error;
+    }
   }
 
   async makeTutorOffline(userId) {
-    return this.makeAdminRequest(`/admin/profiles/${userId}/make-offline`, {
-      method: "PUT",
-    });
+    try {
+      console.log('📡 API Call: makeTutorOffline', userId);
+      
+      if (!userId) {
+        throw new Error("User ID is required");
+      }
+
+      const response = await this.makeAdminRequest(`/admin/profiles/${userId}/make-offline`, {
+        method: "PUT",
+      });
+
+      console.log('✅ makeTutorOffline response:', response);
+
+      // Validate response
+      if (!response) {
+        throw new Error("No response from server");
+      }
+
+      return response;
+    } catch (error) {
+      console.error('❌ makeTutorOffline error:', error);
+      throw error;
+    }
   }
 
   // Document Management
@@ -360,9 +395,8 @@ class AdminService {
     if (filters.page) queryParams.append("page", filters.page);
     if (filters.limit) queryParams.append("limit", filters.limit);
 
-    const endpoint = `/admin/applications${
-      queryParams.toString() ? "?" + queryParams.toString() : ""
-    }`;
+    const endpoint = `/admin/applications${queryParams.toString() ? "?" + queryParams.toString() : ""
+      }`;
     const response = await this.makeAdminRequest(endpoint);
 
     // Transform response to match expected format
@@ -437,6 +471,11 @@ class AdminService {
 
   async rejectChangeRequest(changeRequestId, comments = "") {
     return this.rejectTutorChangeRequest(changeRequestId, comments);
+  }
+
+  // Get profile diff for change request
+  async getProfileDiff(changeRequestId) {
+    return this.makeAdminRequest(`/tutor/profile/change-diff/${changeRequestId}`);
   }
 
   // Package Management
@@ -586,6 +625,8 @@ export const approveChangeRequest = (changeRequestId, comments) =>
   adminService.approveChangeRequest(changeRequestId, comments);
 export const rejectChangeRequest = (changeRequestId, comments) =>
   adminService.rejectChangeRequest(changeRequestId, comments);
+export const getProfileDiff = (changeRequestId) =>
+  adminService.getProfileDiff(changeRequestId);
 
 // Package Management
 export const getPackages = (filters) => adminService.getPackages(filters);

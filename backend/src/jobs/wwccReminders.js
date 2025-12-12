@@ -1,7 +1,7 @@
-// FILE: src/jobs/wwccReminders.js
 const cron = require("node-cron");
 const { tutorDocumentModel, tutorProfileModel, userModel } = require("../models");
 const emailService = require("../services/emailService");
+const notificationService = require("../services/notificationService");
 
 async function sendReminders() {
   try {
@@ -19,6 +19,38 @@ async function sendReminders() {
             "WWCC Expiry Reminder",
             `<p>Hi ${u.firstName}, your WWCC expires in ${days} day(s). Please upload a renewed WWCC.</p>`
           );
+          
+          // Create notification for tutor
+          await notificationService.createNotification(
+            u.id,
+            "wwcc_expiry",
+            "WWCC Expiring Soon",
+            `Your Working with Children Check expires in ${days} day(s). Please upload a renewed WWCC to continue tutoring.`,
+            "high",
+            `/dashboard/tutor/documents`,
+            { expiresAt: wwcc.expiresAt, daysRemaining: days }
+          );
+          
+          // Create notification for admin user (hardcoded admin@striveacademy.com)
+          try {
+            const adminUser = await userModel.findByEmail("admin@striveacademy.com");
+            if (adminUser) {
+              await notificationService.createNotification(
+                adminUser.id,
+                "compliance_alert",
+                `WWCC Expiring - ${u.firstName} ${u.lastName}`,
+                `Tutor ${u.firstName} ${u.lastName}'s WWCC expires in ${days} day(s). Follow up required.`,
+                "high",
+                `/dashboard/admin/tutors/${u.id}`,
+                { tutorId: u.id, expiresAt: wwcc.expiresAt, daysRemaining: days }
+              );
+              console.log(`✅ Created WWCC compliance alert for admin - ${u.firstName} ${u.lastName} (${days} days)`);
+            } else {
+              console.warn(`⚠️ Admin user not found with email: admin@striveacademy.com`);
+            }
+          } catch (error) {
+            console.error("Error creating admin WWCC notification:", error);
+          }
         }
       }
     }

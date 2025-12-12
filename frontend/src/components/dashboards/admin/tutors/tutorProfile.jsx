@@ -22,6 +22,8 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
 
   // Load tutor data and documents
   useEffect(() => {
+    let isMounted = true; // Track if component is mounted
+
     const loadTutorData = async () => {
       if (!tutor?.id) return;
 
@@ -32,33 +34,36 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
         // If this is an application, use the application data directly
         if (tutor.isApplication) {
           const applicationData = tutor.applicationData || tutor;
-          setTutorData({
-            ...applicationData,
-            user: {
-              firstName: applicationData.fullName?.split(" ")[0] || "",
-              lastName:
-                applicationData.fullName?.split(" ").slice(1).join(" ") || "",
-              email: applicationData.email,
-              createdAt: applicationData.createdAt,
-            },
-            phone_number: applicationData.phone,
-            university: applicationData.currentStudy,
-            atar: applicationData.atar,
-            bio: applicationData.motivation,
-            subjects: applicationData.subjectsToTutor
-              ? [applicationData.subjectsToTutor]
-              : [],
-            is_live: false,
-            documents_uploaded: false,
-            tier: "bronze",
-            rating: null,
-            hourly_rate: 0,
-          });
-          setDocuments([]); // Applications don't have documents yet
+          
+          if (isMounted) {
+            setTutorData({
+              ...applicationData,
+              user: {
+                firstName: applicationData.fullName?.split(" ")[0] || "",
+                lastName:
+                  applicationData.fullName?.split(" ").slice(1).join(" ") || "",
+                email: applicationData.email,
+                createdAt: applicationData.createdAt,
+              },
+              phone_number: applicationData.phone,
+              university: applicationData.currentStudy,
+              atar: applicationData.atar,
+              bio: applicationData.motivation,
+              subjects: applicationData.subjectsToTutor
+                ? [applicationData.subjectsToTutor]
+                : [],
+              is_live: false,
+              documents_uploaded: false,
+              tier: "bronze",
+              rating: null,
+              hourly_rate: 0,
+            });
+            setDocuments([]); // Applications don't have documents yet
+          }
         } else {
           // Load detailed tutor profile for existing tutors
           const profileResponse = await getTutorProfile(tutor.id);
-          if (profileResponse) {
+          if (profileResponse && isMounted) {
             setTutorData({
               ...profileResponse,
               id: tutor.id, // Preserve the original user ID
@@ -67,7 +72,7 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
 
           // Load tutor documents
           const documentsResponse = await getTutorDocuments(tutor.id);
-          if (documentsResponse) {
+          if (documentsResponse && isMounted) {
             setDocuments(
               Array.isArray(documentsResponse) ? documentsResponse : []
             );
@@ -75,13 +80,22 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
         }
       } catch (err) {
         console.error("Error loading tutor data:", err);
-        setError("Failed to load tutor data");
+        if (isMounted) {
+          setError("Failed to load tutor data");
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     loadTutorData();
+
+    // Cleanup function
+    return () => {
+      isMounted = false;
+    };
   }, [tutor?.id, tutor?.isApplication]);
 
   const handleSave = () => {
@@ -95,18 +109,28 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
 
   // Make tutor live/offline handlers
   const handleMakeLive = async () => {
+    // Validation
+    if (!tutorData) {
+      alert("Tutor data not loaded. Please try again.");
+      return;
+    }
+
+    const userIdToUse = tutorData.id || tutorData.userId || tutor.id;
+    if (!userIdToUse) {
+      alert("Unable to identify tutor. Please refresh and try again.");
+      return;
+    }
+
     try {
       setIsProcessing(true);
-      console.log('🔍 handleMakeLive called');
-      console.log('🔍 tutorData:', tutorData);
-      console.log('🔍 tutorData.id:', tutorData.id);
-      console.log('🔍 tutorData.userId:', tutorData.userId);
-      console.log('🔍 original tutor.id:', tutor.id);
+      console.log('🔍 Making tutor live:', userIdToUse);
       
-      const userIdToUse = tutorData.id || tutorData.userId || tutor.id;
-      console.log('🔍 Using ID:', userIdToUse);
+      const response = await makeTutorLive(userIdToUse);
       
-      await makeTutorLive(userIdToUse);
+      // Validate response
+      if (!response || !response.success) {
+        throw new Error(response?.error || "Failed to make tutor live");
+      }
 
       // Update tutor status
       const updatedTutor = {
@@ -115,20 +139,45 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
       };
 
       setTutorData(updatedTutor);
-      onUpdate(updatedTutor);
-      alert("Tutor is now live and can receive bookings!");
+      
+      // Only call onUpdate if it exists and is a function
+      if (typeof onUpdate === 'function') {
+        onUpdate(updatedTutor);
+      }
+      
+      alert("✅ Tutor is now live and can receive bookings!");
     } catch (error) {
       console.error("Error making tutor live:", error);
-      alert("Failed to make tutor live. Please try again.");
+      const errorMessage = error?.message || error?.error || "Failed to make tutor live. Please try again.";
+      alert(`❌ Error: ${errorMessage}`);
     } finally {
       setIsProcessing(false);
     }
   };
 
   const handleMakeOffline = async () => {
+    // Validation
+    if (!tutorData) {
+      alert("Tutor data not loaded. Please try again.");
+      return;
+    }
+
+    const userIdToUse = tutorData.id || tutorData.userId || tutor.id;
+    if (!userIdToUse) {
+      alert("Unable to identify tutor. Please refresh and try again.");
+      return;
+    }
+
     try {
       setIsProcessing(true);
-      await makeTutorOffline(tutorData.id);
+      console.log('🔍 Making tutor offline:', userIdToUse);
+      
+      const response = await makeTutorOffline(userIdToUse);
+      
+      // Validate response
+      if (!response || !response.success) {
+        throw new Error(response?.error || "Failed to make tutor offline");
+      }
 
       // Update tutor status
       const updatedTutor = {
@@ -137,11 +186,17 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
       };
 
       setTutorData(updatedTutor);
-      onUpdate(updatedTutor);
-      alert("Tutor is now offline.");
+      
+      // Only call onUpdate if it exists and is a function
+      if (typeof onUpdate === 'function') {
+        onUpdate(updatedTutor);
+      }
+      
+      alert("✅ Tutor is now offline.");
     } catch (error) {
       console.error("Error making tutor offline:", error);
-      alert("Failed to make tutor offline. Please try again.");
+      const errorMessage = error?.message || error?.error || "Failed to make tutor offline. Please try again.";
+      alert(`❌ Error: ${errorMessage}`);
     } finally {
       setIsProcessing(false);
     }

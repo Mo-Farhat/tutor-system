@@ -11,6 +11,14 @@ function TutorProfile() {
   const [error, setError] = useState("");
   const [completionStatus, setCompletionStatus] = useState(null);
 
+  // Edit mode and change request states
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [pendingChanges, setPendingChanges] = useState(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [changeDescription, setChangeDescription] = useState("");
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -46,9 +54,10 @@ function TutorProfile() {
   const [passwordErrors, setPasswordErrors] = useState({});
   const [passwordLoading, setPasswordLoading] = useState(false);
 
-  // Fetch profile data on component mount
+  // Fetch profile data and pending changes on component mount
   useEffect(() => {
     fetchProfileData();
+    checkPendingChanges();
   }, []);
 
   const fetchProfileData = async () => {
@@ -56,17 +65,17 @@ function TutorProfile() {
       setLoading(true);
 
       setError(''); // Clear any previous errors
-      
+
       const username = user?.username || 'notmanu23'; // Use logged in user or fallback to existing user
       console.log('Fetching profile for username:', username);
-      
+
       // Add auth header to fetch request
       const token = authService.getAccessToken();
       const headers = {};
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }
-      
+
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000'}/api/auth/tutor/profile/?username=${username}`, {
         headers
       });
@@ -82,28 +91,28 @@ function TutorProfile() {
       if (data.success) {
         // Get application data for pre-filling (if available)
         const applicationData = data.data.application;
-        
+
         // Merge application data into profile data where profile fields are empty
         const mergedProfileData = {
           ...data.data,
           // Merge ATAR if profile doesn't have it but application does
           atar: data.data.atar || (applicationData?.atar ? parseFloat(applicationData.atar) : null),
         };
-        
+
         setProfileData(mergedProfileData);
 
         // Update form data with real user data, using application data as fallback
         const userData = data.data.user;
         console.log("User data from API:", userData);
         console.log("First name:", userData.first_name, "Last name:", userData.last_name);
-        
+
         // Build fullName - handle both snake_case and camelCase, and handle empty values
         const firstName = userData.first_name || userData.firstName || "";
         const lastName = userData.last_name || userData.lastName || "";
         const fullName = `${firstName} ${lastName}`.trim();
-        
+
         console.log("Computed fullName:", fullName);
-        
+
         const newFormData = {
           fullName: fullName || applicationData?.fullName || "",
           email: userData.email || "",
@@ -142,7 +151,7 @@ function TutorProfile() {
         // Set subjects - use profile data, fallback to parsing application subjectsToTutor
         const profileSubjects = data.data.subjects_selected || data.data.subjects || [];
         let subjectsToUse = profileSubjects;
-        
+
         // If no profile subjects but application has subjectsToTutor, parse it
         if (profileSubjects.length === 0 && applicationData?.subjectsToTutor) {
           // subjectsToTutor is typically a string, may need parsing
@@ -156,7 +165,7 @@ function TutorProfile() {
             }];
           }
         }
-        
+
         setSubjectEntries(
           subjectsToUse.map((subject) => ({
             yearLevel: subject.year_level || "",
@@ -171,7 +180,7 @@ function TutorProfile() {
         setCurrentStudies(
           profileStudies.length > 0 ? profileStudies : applicationStudies
         );
-        
+
         // Set schools
         setSchools(data.data.schools_attended || []);
 
@@ -201,13 +210,125 @@ function TutorProfile() {
     }
   };
 
+  // Check for pending change requests
+  const checkPendingChanges = async () => {
+    try {
+      const token = authService.getAccessToken();
+      const headers = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000'}/api/tutor/profile/pending-changes`, {
+        headers
+      });
+
+      const data = await response.json();
+      if (data.success && data.data.length > 0) {
+        setPendingChanges(data.data[0]);
+      } else {
+        setPendingChanges(null);
+      }
+    } catch (err) {
+      console.error('Error checking pending changes:', err);
+    }
+  };
+
+  // Enter edit mode (only if no pending changes and profile is complete)
+  const handleEditProfile = () => {
+    if (pendingChanges) {
+      alert('You have pending changes awaiting admin approval. Please wait for review before making additional changes.');
+      return;
+    }
+    setIsEditMode(true);
+  };
+
+  // Cancel edit mode
+  const handleCancelEdit = () => {
+    if (hasUnsavedChanges) {
+      const confirmed = window.confirm('You have unsaved changes. Are you sure you want to cancel?');
+      if (!confirmed) return;
+    }
+
+    fetchProfileData(); // Reload original data
+    setIsEditMode(false);
+    setHasUnsavedChanges(false);
+  };
+
+  // Submit changes for review
+  const handleSubmitForReview = () => {
+    setShowSubmitModal(true);
+  };
+
+  // Confirm and submit changes
+  const confirmSubmitForReview = async () => {
+    try {
+      setSubmitLoading(true);
+
+      const profileData = {
+        bio: formData.bio,
+        hourly_rate: parseFloat(formData.hourly_rate) || 45.0,
+        university: formData.university,
+        current_studies: currentStudies,
+        subjects_selected: subjectEntries.map((entry) => ({
+          year_level: entry.yearLevel,
+          curriculum: entry.curriculumOrState,
+          subject: entry.subject,
+        })),
+        preferred_locations: selectedLocations,
+        schools_attended: schools,
+        phone_number: formData.phoneNumber,
+      };
+
+      const token = authService.getAccessToken();
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000'}/api/tutor/profile/submit-changes`, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({
+          profileData,
+          changeDescription
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert('Profile changes submitted successfully! Your changes will be reviewed by an administrator.');
+        setIsEditMode(false);
+        setShowSubmitModal(false);
+        setChangeDescription('');
+        setHasUnsavedChanges(false);
+        await checkPendingChanges(); // Refresh pending changes
+      } else {
+        alert(`Failed to submit changes: ${data.error || 'Unknown error'}`);
+      }
+    } catch (err) {
+      console.error('Error submitting changes:', err);
+      alert('Failed to submit changes. Please try again.');
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
-    
+
+    // Track unsaved changes
+    if (isEditMode) {
+      setHasUnsavedChanges(true);
+    }
+
     // Clear password errors when user starts typing
     if (passwordErrors[name]) {
       setPasswordErrors((prev) => ({
@@ -614,16 +735,49 @@ function TutorProfile() {
                               <i className="fas fa-calendar-alt"></i> Joined{" "}
                               {profileData?.approved_at
                                 ? new Date(
-                                    profileData.approved_at
-                                  ).toLocaleDateString()
+                                  profileData.approved_at
+                                ).toLocaleDateString()
                                 : "Recently"}
                             </span>
                           </div>
                         </div>
                       </div>
-                      <button className="btn btn-dark tutor-profile-edit-btn">
-                        <i className="fas fa-pencil-alt me-2"></i> Edit Profile
-                      </button>
+                      <div className="d-flex gap-2 align-items-start">
+                        {!isEditMode && !pendingChanges && (
+                          <button
+                            className="btn btn-dark tutor-profile-edit-btn"
+                            onClick={handleEditProfile}
+                          >
+                            <i className="fas fa-pencil-alt me-2"></i> Edit Profile
+                          </button>
+                        )}
+
+                        {isEditMode && (
+                          <>
+                            <button
+                              className="btn btn-outline-secondary"
+                              onClick={handleCancelEdit}
+                            >
+                              <i className="fas fa-times me-2"></i> Cancel
+                            </button>
+                            <button
+                              className="btn btn-success"
+                              onClick={handleSubmitForReview}
+                            >
+                              <i className="fas fa-check me-2"></i> Submit for Review
+                            </button>
+                          </>
+                        )}
+
+                        {pendingChanges && (
+                          <div className="alert alert-warning mb-0 py-2">
+                            <i className="fas fa-clock me-2"></i>
+                            <strong>Pending Changes</strong> - Awaiting admin review
+                            <br />
+                            <small>Submitted {new Date(pendingChanges.createdAt).toLocaleDateString()}</small>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -636,6 +790,12 @@ function TutorProfile() {
                 </h2>
                 <p className="tutor-profile-section-description">
                   Update your personal information and contact details.
+                  {!isEditMode && profileData?.is_live && (
+                    <span className="text-muted ms-2">
+                      <i className="fas fa-lock me-1"></i>
+                      Profile is live - Click "Edit Profile" to make changes
+                    </span>
+                  )}
                 </p>
 
                 <div className="tutor-profile-card">
@@ -701,6 +861,7 @@ function TutorProfile() {
                             name="phoneNumber"
                             value={formData.phoneNumber}
                             onChange={handleInputChange}
+                            disabled={!isEditMode}
                           />
                         </div>
                       </div>
@@ -720,6 +881,7 @@ function TutorProfile() {
                             value={formData.hourly_rate}
                             onChange={handleInputChange}
                             placeholder="45.00"
+                            disabled={!isEditMode}
                           />
                         </div>
                       </div>
@@ -736,6 +898,7 @@ function TutorProfile() {
                             value={formData.university}
                             onChange={handleInputChange}
                             placeholder="e.g., University of Melbourne"
+                            disabled={!isEditMode}
                           />
                         </div>
                       </div>
@@ -753,6 +916,7 @@ function TutorProfile() {
                         value={formData.bio}
                         onChange={handleInputChange}
                         placeholder="Tell us about yourself and your teaching experience..."
+                        disabled={!isEditMode}
                       />
                     </div>
                   </div>
@@ -1011,9 +1175,8 @@ function TutorProfile() {
                                   ? "text"
                                   : "password"
                               }
-                              className={`form-control ${
-                                passwordErrors.currentPassword ? "is-invalid" : ""
-                              }`}
+                              className={`form-control ${passwordErrors.currentPassword ? "is-invalid" : ""
+                                }`}
                               id="currentPassword"
                               name="currentPassword"
                               value={formData.currentPassword}
@@ -1030,11 +1193,10 @@ function TutorProfile() {
                               }
                             >
                               <i
-                                className={`fas fa-${
-                                  showPasswords.currentPassword
-                                    ? "eye-slash"
-                                    : "eye"
-                                }`}
+                                className={`fas fa-${showPasswords.currentPassword
+                                  ? "eye-slash"
+                                  : "eye"
+                                  }`}
                               ></i>
                             </button>
                           </div>
@@ -1055,9 +1217,8 @@ function TutorProfile() {
                               type={
                                 showPasswords.newPassword ? "text" : "password"
                               }
-                              className={`form-control ${
-                                passwordErrors.newPassword ? "is-invalid" : ""
-                              }`}
+                              className={`form-control ${passwordErrors.newPassword ? "is-invalid" : ""
+                                }`}
                               id="newPassword"
                               name="newPassword"
                               value={formData.newPassword}
@@ -1074,11 +1235,10 @@ function TutorProfile() {
                               }
                             >
                               <i
-                                className={`fas fa-${
-                                  showPasswords.newPassword
-                                    ? "eye-slash"
-                                    : "eye"
-                                }`}
+                                className={`fas fa-${showPasswords.newPassword
+                                  ? "eye-slash"
+                                  : "eye"
+                                  }`}
                               ></i>
                             </button>
                           </div>
@@ -1104,9 +1264,8 @@ function TutorProfile() {
                                   ? "text"
                                   : "password"
                               }
-                              className={`form-control ${
-                                passwordErrors.confirmPassword ? "is-invalid" : ""
-                              }`}
+                              className={`form-control ${passwordErrors.confirmPassword ? "is-invalid" : ""
+                                }`}
                               id="confirmPassword"
                               name="confirmPassword"
                               value={formData.confirmPassword}
@@ -1123,11 +1282,10 @@ function TutorProfile() {
                               }
                             >
                               <i
-                                className={`fas fa-${
-                                  showPasswords.confirmPassword
-                                    ? "eye-slash"
-                                    : "eye"
-                                }`}
+                                className={`fas fa-${showPasswords.confirmPassword
+                                  ? "eye-slash"
+                                  : "eye"
+                                  }`}
                               ></i>
                             </button>
                           </div>
@@ -1139,14 +1297,14 @@ function TutorProfile() {
                         </div>
                       </div>
                     </div>
-                    
+
                     {/* General error message */}
                     {passwordErrors.general && (
                       <div className="alert alert-danger">
                         {passwordErrors.general}
                       </div>
                     )}
-                    
+
                     {/* Change Password Button */}
                     <div className="d-flex justify-content-end mt-3">
                       <button
@@ -1507,6 +1665,76 @@ function TutorProfile() {
           </div>
         </div>
       </div>
+
+      {/* Submit for Review Modal */}
+      {showSubmitModal && (
+        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Submit Profile Changes for Review</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowSubmitModal(false)}
+                  disabled={submitLoading}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <p>
+                  Your profile changes will be submitted to an administrator for review.
+                  Please provide a brief description of what you've changed:
+                </p>
+                <div className="mb-3">
+                  <label htmlFor="changeDescription" className="form-label">
+                    Description of Changes
+                  </label>
+                  <textarea
+                    id="changeDescription"
+                    className="form-control"
+                    rows="4"
+                    value={changeDescription}
+                    onChange={(e) => setChangeDescription(e.target.value)}
+                    placeholder="e.g., Updated my bio to reflect new teaching experience, added new subjects..."
+                    disabled={submitLoading}
+                  />
+                  <small className="text-muted">
+                    This helps administrators understand what has changed in your profile.
+                  </small>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowSubmitModal(false)}
+                  disabled={submitLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-success"
+                  onClick={confirmSubmitForReview}
+                  disabled={submitLoading}
+                >
+                  {submitLoading ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2"></span>
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <i className="fas fa-paper-plane me-2"></i>
+                      Submit for Review
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

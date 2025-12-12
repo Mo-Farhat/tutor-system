@@ -56,10 +56,10 @@ exports.adminList = async (req, res) => {
   try {
     // Extract query parameters for filtering
     const { status, studentId, tutorId } = req.query;
-    
+
     // Get all assignments with student and tutor details
     const assignments = await studentTutorModel.listAll();
-    
+
     // Apply filters if any
     let filteredAssignments = assignments;
     if (status || studentId || tutorId) {
@@ -70,7 +70,7 @@ exports.adminList = async (req, res) => {
         return true;
       });
     }
-    
+
     res.json({ success: true, data: filteredAssignments });
   } catch (e) {
     console.error("adminList error:", e);
@@ -85,5 +85,56 @@ exports.myStudents = async (req, res) => {
   } catch (e) {
     console.error("myStudents error:", e);
     res.status(500).json({ success: false, error: "Internal server error" });
- }
+  }
+};
+
+// Get detailed student profile for a specific student-tutor pair
+exports.getStudentProfile = async (req, res) => {
+  try {
+    const pairId = Number(req.params.pairId);
+    const tutorId = req.user.id;
+
+    // First verify this tutor is assigned to this student pair
+    const prisma = require("../db/prisma");
+    const pair = await prisma.studentTutor.findUnique({
+      where: { id: pairId },
+      include: {
+        student: {
+          include: {
+            studentProfile: true
+          }
+        }
+      }
+    });
+
+    if (!pair) {
+      return res.status(404).json({ success: false, error: "Student pair not found" });
+    }
+
+    if (pair.tutorId !== tutorId) {
+      return res.status(403).json({ success: false, error: "Not authorized to view this student" });
+    }
+
+    //Get student goals
+    const goals = await prisma.studentGoal.findMany({
+      where: { studentId: pair.studentId },
+      orderBy: { createdAt: "desc" }
+    });
+
+    // Format response
+    const studentData = {
+      id: pair.student.id,
+      firstName: pair.student.firstName,
+      lastName: pair.student.lastName,
+      email: pair.student.email,
+      username: pair.student.username,
+      studentProfile: pair.student.studentProfile || {},
+      goals: goals || []
+    };
+
+    res.json({ success: true, data: studentData });
+  } catch (e) {
+    console.error("getStudentProfile error:", e);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
 };

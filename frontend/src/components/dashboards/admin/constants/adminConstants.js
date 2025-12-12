@@ -8,11 +8,7 @@ export const ADMIN_NAV_LINKS = [
     path: "/dashboard/admin/home",
     icon: "fas fa-tachometer-alt",
   },
-  {
-    name: "Users",
-    path: "/dashboard/admin/users",
-    icon: "fas fa-users",
-  },
+ 
   {
     name: "Tutors",
     path: "/dashboard/admin/tutors",
