@@ -268,9 +268,13 @@ exports.uploadRequiredDocuments = async (req, res) => {
 
       let doc;
       if (existingDoc) {
+        // Update existing document with new uploadedAt timestamp
         doc = await prisma.tutorDocument.update({
           where: { id: existingDoc.id },
-          data: docData,
+          data: {
+            ...docData,
+            uploadedAt: new Date(), // Refresh upload timestamp
+          },
         });
       } else {
         doc = await prisma.tutorDocument.create({
