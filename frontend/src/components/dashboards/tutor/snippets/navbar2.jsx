@@ -216,18 +216,7 @@ function TutorNavbar2() {
                 </span>
               </a>
             </li>
-            <li className="navbar2-menu-item">
-              <a
-                href="/dashboard/tutor/change-requests"
-                className="navbar2-menu-link"
-                title="Change Requests"
-              >
-                <i className="fas fa-edit navbar2-icon"></i>
-                <span className={!isNavbarExpanded ? "navbar2-hidden" : ""}>
-                  Change Requests
-                </span>
-              </a>
-            </li>
+
             <li className="navbar2-menu-item">
               <a
                 href="/dashboard/tutor/settings"
@@ -347,12 +336,7 @@ function TutorNavbar2() {
                 <span>Notifications</span>
               </a>
             </li>
-            <li className="navbar2-menu-item">
-              <a href="/dashboard/tutor/change-requests" className="navbar2-menu-link">
-                <i className="fas fa-edit navbar2-icon"></i>
-                <span>Change Requests</span>
-              </a>
-            </li>
+
             <li className="navbar2-menu-item">
               <a href="/dashboard/tutor/settings" className="navbar2-menu-link">
                 <i className="fas fa-cog navbar2-icon"></i>
