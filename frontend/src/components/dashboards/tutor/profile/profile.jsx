@@ -676,6 +676,35 @@ function TutorProfile() {
               {/* Page Title */}
               <h1 className="tutor-profile-title">Account Management</h1>
 
+              {/* Live Profile Notice - Changes Go to Admin Review */}
+              {profileData?.is_live && (
+                <div className="tutor-profile-live-notice">
+                  <div className="alert alert-info d-flex align-items-start" role="alert">
+                    <div className="live-notice-icon me-3">
+                      <i className="fas fa-shield-alt fa-2x"></i>
+                    </div>
+                    <div className="live-notice-content">
+                      <h5 className="alert-heading mb-1">
+                        <i className="fas fa-broadcast-tower me-2"></i>
+                        Your Profile is Live
+                      </h5>
+                      <p className="mb-2">
+                        Your profile is now visible to students. To maintain quality standards, 
+                        <strong> any changes you make will be submitted for admin review</strong> before appearing on your public profile.
+                      </p>
+                      <div className="live-notice-steps">
+                        <small className="text-muted">
+                          <i className="fas fa-edit me-1"></i> Make edits → 
+                          <i className="fas fa-paper-plane mx-1"></i> Submit for review → 
+                          <i className="fas fa-check-circle mx-1"></i> Admin approves → 
+                          <i className="fas fa-eye mx-1"></i> Changes go live
+                        </small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Profile Completion Status */}
               {completionStatus && (
                 <div className="tutor-profile-section">
