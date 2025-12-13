@@ -56,12 +56,15 @@ function TutorProfile() {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [uploadedDocuments, setUploadedDocuments] = useState([]);
 
-  // Fetch profile data, pending changes, and uploaded documents on component mount
+  // Fetch profile data, pending changes, and uploaded documents on component mount or when user changes
   useEffect(() => {
-    fetchProfileData();
-    checkPendingChanges();
-    fetchUploadedDocuments();
-  }, []);
+    // Only fetch if user is loaded
+    if (user?.username) {
+      fetchProfileData();
+      checkPendingChanges();
+      fetchUploadedDocuments();
+    }
+  }, [user]);
 
   // Fetch already-uploaded documents from the server
   const fetchUploadedDocuments = async () => {
@@ -101,7 +104,7 @@ function TutorProfile() {
 
       setError(''); // Clear any previous errors
 
-      const username = user?.username || 'notmanu23'; // Use logged in user or fallback to existing user
+      const username = user?.username;
       console.log('Fetching profile for username:', username);
 
       // Add auth header to fetch request
@@ -528,7 +531,7 @@ function TutorProfile() {
   const handleSaveProfile = async () => {
     try {
       setLoading(true);
-      const username = user?.username || "notmanu23"; // Use logged in user or fallback to existing user
+      const username = user?.username;
 
       // Check if all required fields are filled
       const isComplete =
