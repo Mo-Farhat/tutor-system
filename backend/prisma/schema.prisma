@@ -89,6 +89,13 @@ enum DocumentType {
   wwcc
 }
 
+enum IntroVideoStatus {
+  none
+  pending
+  approved
+  rejected
+}
+
 enum PairStatus {
   active
   paused
@@ -285,6 +292,7 @@ model TutorProfile {
   preferred_locations String[]
   schools_attended    String[]
   intro_video_path    String?
+  intro_video_status  IntroVideoStatus @default(none)
   is_profile_complete Boolean   @default(false)
   documents_uploaded  Boolean   @default(false)
   is_live             Boolean   @default(false)

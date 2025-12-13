@@ -7,6 +7,7 @@ const {
   tutorApplicationModel,
 } = require("../models");
 const bcrypt = require("bcrypt");
+const { getSignedUrl } = require("./fileStorageService");
 
 class ProfileService {
   // Get tutor profile by user ID
@@ -40,6 +41,16 @@ class ProfileService {
       }
     );
 
+    // Generate signed URL for intro video if S3 key exists
+    let introVideoUrl = null;
+    if (tutorProfile.intro_video_path) {
+      try {
+        introVideoUrl = await getSignedUrl(tutorProfile.intro_video_path, 86400); // 24 hour validity
+      } catch (err) {
+        console.error("Error generating signed URL for intro video:", err);
+      }
+    }
+
     return {
       success: true,
       data: {
@@ -53,6 +64,7 @@ class ProfileService {
           created_at: tutorProfile.user.createdAt,
         },
         ...tutorProfile,
+        intro_video_path: introVideoUrl,  // Override with signed URL
         wwcc_status: wwcc, // ⬅️ convenient for the UI
         completion_status: completionStatus,
         application: application || null, // Include application data for pre-filling
@@ -96,6 +108,16 @@ class ProfileService {
       }
     );
 
+    // Generate signed URL for intro video if S3 key exists
+    let introVideoUrl = null;
+    if (tutorProfile.intro_video_path) {
+      try {
+        introVideoUrl = await getSignedUrl(tutorProfile.intro_video_path, 86400); // 24 hour validity
+      } catch (err) {
+        console.error("Error generating signed URL for intro video:", err);
+      }
+    }
+
     return {
       success: true,
       data: {
@@ -109,6 +131,7 @@ class ProfileService {
           created_at: user.createdAt,
         },
         ...tutorProfile,
+        intro_video_path: introVideoUrl,  // Override with signed URL
         wwcc_status: wwcc,
         completion_status: completionStatus,
         application: application || null, // Include application data for pre-filling

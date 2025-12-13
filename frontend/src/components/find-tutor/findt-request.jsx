@@ -287,7 +287,8 @@ const FindTutorRequest = () => {
                   Introduction video
                 </h2>
                 <div className="tutor-info-video-placeholder">
-                  {videoUrl ? (
+                  {/* Only show video if it exists AND is approved */}
+                  {videoUrl && tutor.intro_video_status === 'approved' ? (
                     <div className="ratio ratio-16x9">
                       <video
                         controls
@@ -305,7 +306,9 @@ const FindTutorRequest = () => {
                     <div className="ratio ratio-16x9 d-flex align-items-center justify-content-center bg-light">
                       <div className="text-center text-muted">
                         <i className="fas fa-video fa-3x mb-3"></i>
-                        <p>No introduction video available</p>
+                        <p>{videoUrl && tutor.intro_video_status === 'pending' 
+                          ? 'Video coming soon' 
+                          : 'No introduction video available'}</p>
                       </div>
                     </div>
                   )}

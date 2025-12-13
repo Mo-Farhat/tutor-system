@@ -390,6 +390,20 @@ class AdminService {
     return this.makeAdminRequest(`/admin/tutors/${userId}/documents`);
   }
 
+  // Intro Video Approval
+  async approveIntroVideo(userId) {
+    return this.makeAdminRequest(`/admin/tutors/${userId}/intro-video/approve`, {
+      method: "POST",
+    });
+  }
+
+  async rejectIntroVideo(userId, reason = "") {
+    return this.makeAdminRequest(`/admin/tutors/${userId}/intro-video/reject`, {
+      method: "POST",
+      body: JSON.stringify({ reason }),
+    });
+  }
+
   // Get tutor applications with detailed info
   async getTutorApplications(filters = {}) {
     const queryParams = new URLSearchParams();
@@ -606,6 +620,12 @@ export const getTutorDocuments = (userId) =>
 // Tutor Applications
 export const getTutorApplications = (filters) =>
   adminService.getTutorApplications(filters);
+
+// Intro Video Approval
+export const approveIntroVideo = (userId) =>
+  adminService.approveIntroVideo(userId);
+export const rejectIntroVideo = (userId, reason) =>
+  adminService.rejectIntroVideo(userId, reason);
 
 // Tutor Management
 export const getTutors = (filters) => adminService.getTutors(filters);

@@ -1,0 +1,260 @@
+/* VideoRecorder Component Styles */
+
+.video-recorder {
+  padding: 1rem 0;
+}
+
+/* Tab Navigation */
+.video-recorder-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 0;
+}
+
+.video-recorder-tab {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  background-color: transparent;
+  color: #6c757d;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+}
+
+.video-recorder-tab:hover:not(:disabled) {
+  color: #0D2371;
+  background-color: rgba(13, 35, 113, 0.05);
+}
+
+.video-recorder-tab.active {
+  color: #0D2371;
+  border-bottom-color: #0D2371;
+  background-color: transparent;
+}
+
+.video-recorder-tab:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Status Badge */
+.video-status-container {
+  text-align: center;
+}
+
+.video-status-badge {
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+}
+
+/* Video Preview Container */
+.video-preview-container {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto 1.5rem;
+  background-color: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+}
+
+.camera-preview,
+.recorded-video-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.camera-preview.recording {
+  border: 3px solid #dc3545;
+  border-radius: 12px;
+}
+
+/* Countdown Overlay */
+.countdown-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.countdown-number {
+  font-size: 8rem;
+  font-weight: 700;
+  color: #fff;
+  animation: countdownPulse 1s ease-in-out infinite;
+}
+
+@keyframes countdownPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+}
+
+/* Recording Indicator */
+.recording-indicator {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  color: #fff;
+  font-weight: 500;
+  z-index: 5;
+}
+
+.recording-dot {
+  width: 12px;
+  height: 12px;
+  background-color: #dc3545;
+  border-radius: 50%;
+  animation: recordingBlink 1s ease-in-out infinite;
+}
+
+@keyframes recordingBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.recording-time {
+  font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+  font-size: 0.9rem;
+}
+
+/* Controls */
+.video-recorder-controls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.recording-controls,
+.recorded-controls {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.video-recorder-controls .btn {
+  min-width: 150px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.video-recorder-controls .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Browser Not Supported */
+.browser-not-supported {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  border: 1px dashed #dee2e6;
+}
+
+/* Recording Tips */
+.recording-tips {
+  background-color: #f0f7ff;
+  border: 1px solid #b6d4fe;
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+}
+
+.recording-tips h6 {
+  color: #0D2371;
+  margin-bottom: 0.75rem;
+}
+
+.recording-tips ul {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.recording-tips li {
+  margin-bottom: 0.25rem;
+}
+
+/* Upload Section */
+.video-recorder-upload-section {
+  padding: 1rem 0;
+}
+
+.existing-video-preview {
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.upload-hint {
+  background-color: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+  .video-recorder-tabs {
+    flex-direction: column;
+    border-bottom: none;
+    gap: 0.25rem;
+  }
+  
+  .video-recorder-tab {
+    border-bottom: none;
+    border-radius: 8px;
+    margin-bottom: 0;
+  }
+  
+  .video-recorder-tab.active {
+    background-color: rgba(13, 35, 113, 0.1);
+    border-bottom: none;
+  }
+  
+  .video-preview-container {
+    border-radius: 8px;
+  }
+  
+  .countdown-number {
+    font-size: 5rem;
+  }
+  
+  .video-recorder-controls {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .recording-controls,
+  .recorded-controls {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .video-recorder-controls .btn {
+    width: 100%;
+    min-width: auto;
+  }
+}

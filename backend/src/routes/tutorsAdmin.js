@@ -22,5 +22,8 @@ router.post("/admin/tutor-change-requests/:id/reject", authenticateToken, requir
 
 router.get("/admin/tutor-change-requests", authenticateToken, requireRole("admin"), ctrl.listChangeRequests);
 
+// Intro Video approval/rejection
+router.post("/admin/tutors/:userId/intro-video/approve", authenticateToken, requireRole("admin"), ctrl.approveIntroVideo);
+router.post("/admin/tutors/:userId/intro-video/reject", authenticateToken, requireRole("admin"), ctrl.rejectIntroVideo);
 
 module.exports = router;

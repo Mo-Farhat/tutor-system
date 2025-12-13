@@ -4,6 +4,7 @@ const {
   tutorProfileModel,
   tutorDocumentModel,
 } = require("../models");
+const { getSignedUrl } = require("./fileStorageService");
 
 // Now use your provided models
 const tutorChangeRequestModel = require("../models/tutorChangeRequestModel");
@@ -153,6 +154,11 @@ class TutorService {
           tier: profile.tier,
           rating: profile.rating,
           atar: profile.atar,
+          // Generate signed URL for video if S3 key exists
+          intro_video_path: profile.intro_video_path 
+            ? await getSignedUrl(profile.intro_video_path, 86400) // 24 hour validity
+            : null,
+          intro_video_status: profile.intro_video_status,
           approved_at: profile.approved_at,
           createdAt: profile.createdAt,
           updatedAt: profile.updatedAt,
@@ -282,6 +288,48 @@ class TutorService {
       String(comments ?? "")
     );
     return { success: true, data: updated };
+  }
+
+  /**
+   * Admin: Update intro video status (approve/reject)
+   */
+  async updateIntroVideoStatus(userId, status, reason = null) {
+    const validStatuses = ['none', 'pending', 'approved', 'rejected'];
+    if (!validStatuses.includes(status)) {
+      return { success: false, error: `Invalid status. Allowed: ${validStatuses.join(", ")}` };
+    }
+
+    const profile = await tutorProfileModel.findByUserId(Number(userId));
+    if (!profile) {
+      return { success: false, error: "Tutor profile not found" };
+    }
+
+    const updateData = { intro_video_status: status };
+    
+    // If rejecting, optionally clear the video path (or keep for re-review)
+    // For now, keep the video and just change status
+    
+    const updated = await tutorProfileModel.update(Number(userId), updateData);
+    
+    // Generate signed URL for video if it exists
+    let signedVideoUrl = null;
+    if (updated.intro_video_path) {
+      try {
+        signedVideoUrl = await getSignedUrl(updated.intro_video_path, 86400);
+      } catch (err) {
+        console.error("Error generating signed URL:", err);
+      }
+    }
+    
+    return { 
+      success: true, 
+      data: {
+        userId: updated.userId,
+        intro_video_path: signedVideoUrl,  // Return signed URL
+        intro_video_status: updated.intro_video_status,
+      },
+      message: `Video ${status === 'approved' ? 'approved' : 'rejected'} successfully`
+    };
   }
 }
 
