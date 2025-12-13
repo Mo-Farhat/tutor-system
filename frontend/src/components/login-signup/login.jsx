@@ -144,10 +144,6 @@ function Login() {
     }
   };
 
-  const handleAdminLogin = () => {
-    navigate("/admin/login");
-  };
-
   return (
     <div className="login-container">
       <div className="login-overlay">
@@ -276,27 +272,6 @@ function Login() {
                     </Link>
                   </div>
                 </form>
-
-                {/* Admin Demo Login */}
-                <div className="mt-4 pt-4 border-top">
-                  <div className="text-center mb-3">
-                    <small className="text-muted">Demo Admin Access</small>
-                  </div>
-                  <button
-                    type="button"
-                    className="btn btn-outline-warning w-100"
-                    onClick={handleAdminLogin}
-                    disabled={isSubmitting || isLoading}
-                  >
-                    <i className="fas fa-user-shield me-2"></i>
-                    Login as Admin
-                  </button>
-                  <div className="text-center mt-2">
-                    <small className="text-muted">
-                      Click to access admin login page
-                    </small>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
