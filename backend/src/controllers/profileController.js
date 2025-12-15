@@ -184,16 +184,17 @@ exports.updateStudentProfile = async (req, res) => {
   }
 };
 
-// Upload video intro
+// Upload video intro (file upload or recorded video)
 exports.uploadVideoIntro = async (req, res) => {
   try {
     const { user } = req;
     const file = req.files?.videoIntro?.[0];
 
-    if (!file || !file.cloudUrl) {
+    if (!file || !file.s3Key) {
       return res.status(400).json({ success: false, error: "No video uploaded" });
     }
 
+    // Create media asset for tracking
     const asset = await createMediaAsset({
       kind: "tutor/videos",
       key: file.s3Key,
@@ -202,13 +203,35 @@ exports.uploadVideoIntro = async (req, res) => {
       userId: user.id,
     });
 
+    // Store s3Key (not the public URL) for later signed URL generation
+    // Update tutor profile with video path and set status to pending for admin review
     const profile = await prisma.tutorProfile.upsert({
       where: { userId: user.id },
-      update: { videoAssetId: asset.id },
-      create: { userId: user.id, videoAssetId: asset.id },
+      update: { 
+        intro_video_path: file.s3Key,  // Store S3 key, not full URL
+        intro_video_status: 'pending'
+      },
+      create: { 
+        userId: user.id, 
+        intro_video_path: file.s3Key,  // Store S3 key, not full URL
+        intro_video_status: 'pending',
+        subjects_selected: []
+      },
     });
 
-    res.json({ success: true, videoUrl: asset.url, assetId: asset.id, profile });
+    // Generate signed URL for immediate playback (valid for 1 hour)
+    const { getSignedUrl } = require("../services/fileStorageService");
+    const signedVideoUrl = await getSignedUrl(file.s3Key, 3600);
+
+    res.json({ 
+      success: true, 
+      videoUrl: signedVideoUrl,  // Return signed URL for immediate playback
+      videoS3Key: file.s3Key,
+      videoStatus: 'pending',
+      assetId: asset.id, 
+      profile,
+      message: 'Video uploaded successfully and is pending admin review'
+    });
   } catch (err) {
     console.error("UploadVideoIntro error:", err);
     res.status(500).json({ success: false, error: "Failed to upload video intro" });
@@ -372,6 +395,54 @@ exports.uploadStudentPhoto = async (req, res) => {
   } catch (err) {
     console.error("UploadStudentPhoto error:", err);
     res.status(500).json({ success: false, error: "Failed to upload student photo" });
+  }
+};
+
+// Upload tutor profile photo
+exports.uploadTutorPhoto = async (req, res) => {
+  try {
+    const { user } = req;
+    const file = req.file;
+
+    if (!file || !file.s3Key) {
+      return res.status(400).json({ success: false, error: "No photo uploaded" });
+    }
+
+    // Create media asset for tracking
+    const asset = await createMediaAsset({
+      kind: "tutor/photos",
+      key: file.s3Key,
+      url: file.cloudUrl,
+      mimeType: file.mimetype,
+      userId: user.id,
+    });
+
+    // Store S3 key in photo_url for presigned URL generation
+    const profile = await prisma.tutorProfile.upsert({
+      where: { userId: user.id },
+      update: { photo_url: file.s3Key },
+      create: { 
+        userId: user.id, 
+        photo_url: file.s3Key,
+        subjects_selected: []
+      },
+    });
+
+    // Generate presigned URL for immediate display
+    const { getSignedUrl } = require("../services/fileStorageService");
+    const signedPhotoUrl = await getSignedUrl(file.s3Key, 86400); // 24 hour validity
+
+    res.json({ 
+      success: true, 
+      photoUrl: signedPhotoUrl,
+      photoS3Key: file.s3Key,
+      assetId: asset.id, 
+      profile,
+      message: 'Profile photo uploaded successfully'
+    });
+  } catch (err) {
+    console.error("UploadTutorPhoto error:", err);
+    res.status(500).json({ success: false, error: "Failed to upload tutor photo" });
   }
 };
 

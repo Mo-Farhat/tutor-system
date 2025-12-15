@@ -95,6 +95,21 @@
 .tutor-calendar-empty {
   background: #f8f9fa;
 }
+
+/* Past dates styling */
+.tutor-calendar-past-date {
+  background-color: #f0f0f0;
+  cursor: not-allowed !important;
+}
+
+.tutor-calendar-past-date:hover {
+  background-color: #f0f0f0;
+}
+
+.tutor-calendar-past-cell {
+  opacity: 0.5;
+}
+
 .tutor-calendar-date-cell {
   min-height: 60px;
 }

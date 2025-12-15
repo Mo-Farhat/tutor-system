@@ -50,6 +50,18 @@ exports.completedLessons = async (req, res) => {
   }
 };
 
+// GET /api/admin/tutors/:userId/lessons
+exports.allLessons = async (req, res) => {
+  try {
+    const limit = Number(req.query.limit || 100);
+    const result = await tutorService.getAllLessons(req.params.userId, limit);
+    res.json(result);
+  } catch (e) {
+    console.error("admin.tutors.allLessons", e);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};
+
 // POST /api/admin/tutors/:userId/reviews
 exports.addReview = async (req, res) => {
   try {
@@ -111,6 +123,39 @@ exports.listChangeRequests = async (req, res) => {
     res.json({ success: true, data: rows });
   } catch (e) {
     console.error("admin.tutors.listChangeRequests", e);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};
+
+// POST /api/admin/tutors/:userId/intro-video/approve
+exports.approveIntroVideo = async (req, res) => {
+  try {
+    const userId = parseInt(req.params.userId);
+    if (isNaN(userId)) {
+      return res.status(400).json({ success: false, error: "Invalid user ID" });
+    }
+    
+    const result = await tutorService.updateIntroVideoStatus(userId, 'approved');
+    res.json(result);
+  } catch (e) {
+    console.error("admin.tutors.approveIntroVideo", e);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};
+
+// POST /api/admin/tutors/:userId/intro-video/reject
+exports.rejectIntroVideo = async (req, res) => {
+  try {
+    const userId = parseInt(req.params.userId);
+    if (isNaN(userId)) {
+      return res.status(400).json({ success: false, error: "Invalid user ID" });
+    }
+    
+    const { reason } = req.body || {};
+    const result = await tutorService.updateIntroVideoStatus(userId, 'rejected', reason);
+    res.json(result);
+  } catch (e) {
+    console.error("admin.tutors.rejectIntroVideo", e);
     res.status(500).json({ success: false, error: "Internal server error" });
   }
 };

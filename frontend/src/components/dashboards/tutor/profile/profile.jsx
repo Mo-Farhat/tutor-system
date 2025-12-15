@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../../../../contexts/AuthContext";
 import profileService from "../../../../services/profileService";
 import authService from "../../../../services/authService";
+import VideoRecorder from "./VideoRecorder";
 
 function TutorProfile() {
   const { user } = useAuth();
@@ -49,6 +50,11 @@ function TutorProfile() {
   });
   const [introVideo, setIntroVideo] = useState(null);
   const [existingIntroVideoUrl, setExistingIntroVideoUrl] = useState(null);
+  const [introVideoStatus, setIntroVideoStatus] = useState('none');
+  const [videoUploadLoading, setVideoUploadLoading] = useState(false);
+  const [profilePhoto, setProfilePhoto] = useState(null);
+  const [existingPhotoUrl, setExistingPhotoUrl] = useState(null);
+  const [photoUploadLoading, setPhotoUploadLoading] = useState(false);
   const [tutorContractFile, setTutorContractFile] = useState(null);
   const [wwccFile, setWwccFile] = useState(null);
   const [wwccExpiry, setWwccExpiry] = useState("");
@@ -56,12 +62,15 @@ function TutorProfile() {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [uploadedDocuments, setUploadedDocuments] = useState([]);
 
-  // Fetch profile data, pending changes, and uploaded documents on component mount
+  // Fetch profile data, pending changes, and uploaded documents on component mount or when user changes
   useEffect(() => {
-    fetchProfileData();
-    checkPendingChanges();
-    fetchUploadedDocuments();
-  }, []);
+    // Only fetch if user is loaded
+    if (user?.username) {
+      fetchProfileData();
+      checkPendingChanges();
+      fetchUploadedDocuments();
+    }
+  }, [user]);
 
   // Fetch already-uploaded documents from the server
   const fetchUploadedDocuments = async () => {
@@ -101,7 +110,7 @@ function TutorProfile() {
 
       setError(''); // Clear any previous errors
 
-      const username = user?.username || 'notmanu23'; // Use logged in user or fallback to existing user
+      const username = user?.username;
       console.log('Fetching profile for username:', username);
 
       // Add auth header to fetch request
@@ -222,6 +231,16 @@ function TutorProfile() {
         // Set existing intro video URL if available
         if (data.data.intro_video_path) {
           setExistingIntroVideoUrl(data.data.intro_video_path);
+        }
+        
+        // Set intro video status
+        if (data.data.intro_video_status) {
+          setIntroVideoStatus(data.data.intro_video_status);
+        }
+
+        // Set existing photo URL if available
+        if (data.data.photo_url) {
+          setExistingPhotoUrl(data.data.photo_url);
         }
 
         // Fetch completion status
@@ -439,7 +458,8 @@ function TutorProfile() {
     if (file) {
       switch (type) {
         case "introVideo":
-          setIntroVideo(file);
+          // Upload video file immediately
+          handleVideoFileUpload(file);
           break;
         case "tutorContract":
           setTutorContractFile(file);
@@ -453,8 +473,165 @@ function TutorProfile() {
     }
   };
 
+  // Handle video file upload (for file input, not recorded video)
+  const handleVideoFileUpload = async (videoFile) => {
+    try {
+      setVideoUploadLoading(true);
+      setIntroVideo(videoFile); // Show the file name in UI
+      
+      const token = authService.getAccessToken();
+      if (!token) {
+        alert('You must be logged in to upload a video');
+        setIntroVideo(null);
+        return;
+      }
+
+      // Create FormData with the video file
+      const formDataUpload = new FormData();
+      formDataUpload.append('videoIntro', videoFile);
+
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000'}/api/auth/tutor/upload/video-intro`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+          body: formDataUpload,
+        }
+      );
+
+      const result = await response.json();
+
+      if (result.success) {
+        setExistingIntroVideoUrl(result.videoUrl);
+        setIntroVideoStatus('pending');
+        setIntroVideo(null);
+        alert('Video uploaded successfully! It is now pending admin review.');
+      } else {
+        alert(`Failed to upload video: ${result.error || 'Unknown error'}`);
+        setIntroVideo(null);
+      }
+    } catch (err) {
+      console.error('Error uploading video file:', err);
+      alert('Failed to upload video. Please try again.');
+      setIntroVideo(null);
+    } finally {
+      setVideoUploadLoading(false);
+    }
+  };
+
+  // Handle profile photo upload
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('Invalid file type. Please upload a JPG, PNG, or WebP image.');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File too large. Maximum size is 5MB.');
+      return;
+    }
+
+    try {
+      setPhotoUploadLoading(true);
+      setProfilePhoto(file);
+      
+      const token = authService.getAccessToken();
+      if (!token) {
+        alert('You must be logged in to upload a photo');
+        setProfilePhoto(null);
+        return;
+      }
+
+      // Create FormData with the photo file
+      const formDataUpload = new FormData();
+      formDataUpload.append('photo', file);
+
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000'}/api/auth/tutor/upload/photo`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+          body: formDataUpload,
+        }
+      );
+
+      const result = await response.json();
+
+      if (result.success) {
+        setExistingPhotoUrl(result.photoUrl);
+        setProfilePhoto(null);
+        alert('Profile photo uploaded successfully!');
+      } else {
+        alert(`Failed to upload photo: ${result.error || 'Unknown error'}`);
+        setProfilePhoto(null);
+      }
+    } catch (err) {
+      console.error('Error uploading photo:', err);
+      alert('Failed to upload photo. Please try again.');
+      setProfilePhoto(null);
+    } finally {
+      setPhotoUploadLoading(false);
+    }
+  };
+
   const removeIntroVideo = () => {
     setIntroVideo(null);
+  };
+
+  // Handle recorded video upload from VideoRecorder
+  const handleRecordedVideoUpload = async (videoBlob) => {
+    try {
+      setVideoUploadLoading(true);
+      const token = authService.getAccessToken();
+      
+      if (!token) {
+        alert('You must be logged in to upload a video');
+        return;
+      }
+
+      // Create FormData with the video blob
+      const formDataUpload = new FormData();
+      const fileName = `recorded-intro-${Date.now()}.webm`;
+      const videoFile = new File([videoBlob], fileName, { type: videoBlob.type || 'video/webm' });
+      formDataUpload.append('videoIntro', videoFile);
+
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000'}/api/auth/tutor/upload/video-intro`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+          body: formDataUpload,
+        }
+      );
+
+      const result = await response.json();
+
+      if (result.success) {
+        setExistingIntroVideoUrl(result.videoUrl);
+        setIntroVideoStatus('pending');
+        setIntroVideo(null);
+        alert('Video uploaded successfully! It is now pending admin review.');
+      } else {
+        alert(`Failed to upload video: ${result.error || 'Unknown error'}`);
+      }
+    } catch (err) {
+      console.error('Error uploading recorded video:', err);
+      alert('Failed to upload video. Please try again.');
+    } finally {
+      setVideoUploadLoading(false);
+    }
   };
 
   const removeTutorContract = () => {
@@ -528,7 +705,7 @@ function TutorProfile() {
   const handleSaveProfile = async () => {
     try {
       setLoading(true);
-      const username = user?.username || "notmanu23"; // Use logged in user or fallback to existing user
+      const username = user?.username;
 
       // Check if all required fields are filled
       const isComplete =
@@ -676,6 +853,35 @@ function TutorProfile() {
               {/* Page Title */}
               <h1 className="tutor-profile-title">Account Management</h1>
 
+              {/* Live Profile Notice - Changes Go to Admin Review */}
+              {profileData?.is_live && (
+                <div className="tutor-profile-live-notice">
+                  <div className="alert alert-info d-flex align-items-start" role="alert">
+                    <div className="live-notice-icon me-3">
+                      <i className="fas fa-shield-alt fa-2x"></i>
+                    </div>
+                    <div className="live-notice-content">
+                      <h5 className="alert-heading mb-1">
+                        <i className="fas fa-broadcast-tower me-2"></i>
+                        Your Profile is Live
+                      </h5>
+                      <p className="mb-2">
+                        Your profile is now visible to students. To maintain quality standards, 
+                        <strong> any changes you make will be submitted for admin review</strong> before appearing on your public profile.
+                      </p>
+                      <div className="live-notice-steps">
+                        <small className="text-muted">
+                          <i className="fas fa-edit me-1"></i> Make edits → 
+                          <i className="fas fa-paper-plane mx-1"></i> Submit for review → 
+                          <i className="fas fa-check-circle mx-1"></i> Admin approves → 
+                          <i className="fas fa-eye mx-1"></i> Changes go live
+                        </small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Profile Completion Status */}
               {completionStatus && (
                 <div className="tutor-profile-section">
@@ -735,19 +941,41 @@ function TutorProfile() {
                     <div className="d-flex justify-content-between align-items-start">
                       <div className="tutor-profile-summary">
                         <div className="tutor-profile-avatar">
-                          <div className="tutor-profile-avatar-placeholder">
+                          {existingPhotoUrl ? (
+                            <img 
+                              src={existingPhotoUrl} 
+                              alt="Profile" 
+                              className="tutor-profile-avatar-img"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'flex';
+                              }}
+                            />
+                          ) : null}
+                          <div 
+                            className="tutor-profile-avatar-placeholder" 
+                            style={{ display: existingPhotoUrl ? 'none' : 'flex' }}
+                          >
                             <i className="fas fa-user"></i>
                           </div>
                           <label
                             htmlFor="profile-upload"
                             className="tutor-profile-avatar-upload"
                           >
-                            <i className="fas fa-camera"></i>
+                            {photoUploadLoading ? (
+                              <div className="spinner-border spinner-border-sm" role="status">
+                                <span className="visually-hidden">Uploading...</span>
+                              </div>
+                            ) : (
+                              <i className="fas fa-camera"></i>
+                            )}
                             <input
                               type="file"
                               id="profile-upload"
                               className="d-none"
-                              accept="image/*"
+                              accept="image/jpeg,image/png,image/webp"
+                              onChange={handlePhotoUpload}
+                              disabled={photoUploadLoading}
                             />
                           </label>
                         </div>
@@ -1522,33 +1750,63 @@ function TutorProfile() {
 
               {/* Video Introduction Section */}
               <div className="tutor-profile-section">
-                <h2 className="tutor-profile-section-title">
-                  Video Introduction
-                </h2>
+                <div className="d-flex align-items-center justify-content-between mb-2">
+                  <h2 className="tutor-profile-section-title mb-0">
+                    Video Introduction
+                  </h2>
+                  {/* Video Status Badge */}
+                  {introVideoStatus && introVideoStatus !== 'none' && (
+                    <span className={`badge ${
+                      introVideoStatus === 'pending' ? 'bg-warning text-dark' :
+                      introVideoStatus === 'approved' ? 'bg-success' :
+                      introVideoStatus === 'rejected' ? 'bg-danger' : ''
+                    }`}>
+                      <i className={`fas ${
+                        introVideoStatus === 'pending' ? 'fa-clock' :
+                        introVideoStatus === 'approved' ? 'fa-check-circle' :
+                        introVideoStatus === 'rejected' ? 'fa-times-circle' : ''
+                      } me-1`}></i>
+                      {introVideoStatus === 'pending' ? 'Pending Review' :
+                       introVideoStatus === 'approved' ? 'Approved' :
+                       introVideoStatus === 'rejected' ? 'Rejected' : ''}
+                    </span>
+                  )}
+                </div>
                 <p className="tutor-profile-section-description">
-                  Upload a short video introducing yourself to potential
-                  students.
+                  Upload or record a short video introducing yourself to potential students.
+                  Videos are reviewed before appearing on your public profile.
                 </p>
 
                 <div className="tutor-profile-card">
                   <div className="tutor-profile-card-body">
-                    {/* Show existing video if available */}
-                    {existingIntroVideoUrl && !introVideo && (
-                      <div className="mb-4">
-                        <h6 className="mb-3">
-                          <i className="fas fa-check-circle text-success me-2"></i>
-                          Current Video
-                        </h6>
-                        <div className="ratio ratio-16x9 mb-3" style={{ maxWidth: '500px' }}>
-                          <video controls src={existingIntroVideoUrl}>
-                            Your browser does not support video playback.
-                          </video>
+                    {videoUploadLoading && (
+                      <div className="alert alert-info d-flex align-items-center mb-4">
+                        <div className="spinner-border spinner-border-sm me-2" role="status">
+                          <span className="visually-hidden">Loading...</span>
                         </div>
-                        <p className="text-muted small">Upload a new video below to replace the current one.</p>
+                        Uploading video... Please wait.
                       </div>
                     )}
                     
-                    <div className="tutor-profile-upload-area">
+                    {introVideoStatus === 'rejected' && (
+                      <div className="alert alert-warning mb-4">
+                        <i className="fas fa-exclamation-triangle me-2"></i>
+                        Your video was not approved. Please upload a new video following our guidelines.
+                      </div>
+                    )}
+
+                    {/* VideoRecorder Component - handles both recording and shows existing video */}
+                    <VideoRecorder
+                      existingVideoUrl={existingIntroVideoUrl}
+                      videoStatus={introVideoStatus}
+                      onVideoReady={(blob, url) => {
+                        console.log('Video ready:', { blob, url });
+                      }}
+                      onUpload={handleRecordedVideoUpload}
+                    />
+
+                    {/* File Upload Option (shown in Upload tab of VideoRecorder) */}
+                    <div className="tutor-profile-upload-area mt-3">
                       {introVideo ? (
                         <div className="tutor-profile-file-preview">
                           <div className="tutor-profile-file-info">
@@ -1582,7 +1840,7 @@ function TutorProfile() {
                               Click to upload or drag and drop
                             </p>
                             <p className="text-muted small">
-                              MP4, AVI, MOV up to 100MB
+                              MP4, WebM, AVI up to 100MB
                             </p>
                           </label>
                         </div>

@@ -69,13 +69,6 @@ function AdminNavbar() {
               </h6>
               <p className="admin-navbar-user-role">Administrator</p>
             </div>
-            <div
-              className={`admin-navbar-options ${
-                !isNavbarExpanded ? "admin-navbar-hidden" : ""
-              }`}
-            >
-              <i className="fas fa-ellipsis-v"></i>
-            </div>
           </div>
 
           {/* Navigation Menu */}
@@ -141,9 +134,6 @@ function AdminNavbar() {
                   : "Admin User"}
               </h6>
               <p className="admin-navbar-user-role">Administrator</p>
-            </div>
-            <div className="admin-navbar-options">
-              <i className="fas fa-ellipsis-v"></i>
             </div>
           </div>
 

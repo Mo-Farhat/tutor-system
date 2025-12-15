@@ -19,6 +19,17 @@ exports.get = async (req, res) => {
   const userId = Number(req.params.userId);
   const profile = await tutorProfileModel.findByUserId(userId);
   if (!profile) return res.status(404).json({ error: "Profile not found" });
+  
+  // Generate signed URL for intro video if S3 key exists
+  if (profile.intro_video_path) {
+    try {
+      const { getSignedUrl } = require("../services/fileStorageService");
+      profile.intro_video_path = await getSignedUrl(profile.intro_video_path, 86400); // 24 hour validity
+    } catch (err) {
+      console.error("Error generating signed URL for intro video:", err);
+    }
+  }
+  
   res.json(profile);
 };
 

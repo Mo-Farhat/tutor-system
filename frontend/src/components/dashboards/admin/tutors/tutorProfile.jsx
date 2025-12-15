@@ -5,6 +5,8 @@ import {
   makeTutorOffline,
   getTutorProfile,
   getTutorDocuments,
+  approveIntroVideo,
+  rejectIntroVideo,
 } from "../../../../services/adminService";
 import ChangeRequestsTab from "./ChangeRequestsTab";
 import SessionsTab from "./SessionsTab";
@@ -324,6 +326,90 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
               <div className="tutor-info-item">
                 <strong>Hourly Rate:</strong> ${tutorData.hourly_rate || 0}
               </div>
+              
+              {/* Intro Video Section */}
+              {!tutor?.isApplication && (
+                <div className="mt-4">
+                  <h6 className="d-flex align-items-center justify-content-between">
+                    <span>Intro Video</span>
+                    {tutorData.intro_video_status && tutorData.intro_video_status !== 'none' && (
+                      <span className={`badge bg-${
+                        tutorData.intro_video_status === 'pending' ? 'warning' :
+                        tutorData.intro_video_status === 'approved' ? 'success' :
+                        tutorData.intro_video_status === 'rejected' ? 'danger' : 'secondary'
+                      }`}>
+                        {tutorData.intro_video_status === 'pending' ? 'Pending Review' :
+                         tutorData.intro_video_status === 'approved' ? 'Approved' :
+                         tutorData.intro_video_status === 'rejected' ? 'Rejected' : 'None'}
+                      </span>
+                    )}
+                  </h6>
+                  {tutorData.intro_video_path ? (
+                    <div className="video-preview-container">
+                      <video 
+                        controls 
+                        src={tutorData.intro_video_path}
+                        style={{ width: '100%', borderRadius: '8px', maxHeight: '200px' }}
+                      >
+                        Your browser does not support video playback.
+                      </video>
+                      {tutorData.intro_video_status === 'pending' && (
+                        <div className="mt-2 d-flex gap-2">
+                          <button
+                            className="btn btn-success btn-sm"
+                            onClick={async () => {
+                              try {
+                                setIsProcessing(true);
+                                const result = await approveIntroVideo(tutorData.userId || tutorData.id);
+                                if (result.success) {
+                                  setTutorData(prev => ({ ...prev, intro_video_status: 'approved' }));
+                                  alert('Video approved successfully!');
+                                } else {
+                                  alert('Failed to approve video: ' + (result.error || 'Unknown error'));
+                                }
+                              } catch (err) {
+                                console.error('Error approving video:', err);
+                                alert('Failed to approve video. Please try again.');
+                              } finally {
+                                setIsProcessing(false);
+                              }
+                            }}
+                            disabled={isProcessing}
+                          >
+                            <i className="fas fa-check me-1"></i> Approve
+                          </button>
+                          <button
+                            className="btn btn-danger btn-sm"
+                            onClick={async () => {
+                              const reason = window.prompt('Enter rejection reason (optional):');
+                              try {
+                                setIsProcessing(true);
+                                const result = await rejectIntroVideo(tutorData.userId || tutorData.id, reason);
+                                if (result.success) {
+                                  setTutorData(prev => ({ ...prev, intro_video_status: 'rejected' }));
+                                  alert('Video rejected.');
+                                } else {
+                                  alert('Failed to reject video: ' + (result.error || 'Unknown error'));
+                                }
+                              } catch (err) {
+                                console.error('Error rejecting video:', err);
+                                alert('Failed to reject video. Please try again.');
+                              } finally {
+                                setIsProcessing(false);
+                              }
+                            }}
+                            disabled={isProcessing}
+                          >
+                            <i className="fas fa-times me-1"></i> Reject
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-muted small">No intro video uploaded</p>
+                  )}
+                </div>
+              )}
             </div>
           </div>
           <div className="col-md-4">
@@ -643,7 +729,7 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
 
   const renderChangeRequestsTab = () => <ChangeRequestsTab tutorId={tutorData?.userId || tutor?.id} />;
 
-  const renderSessionsTab = () => <SessionsTab />;
+  const renderSessionsTab = () => <SessionsTab tutorId={tutorData?.userId || tutor?.id} />;
 
   const renderCalendarTab = () => <CalendarTab />;
 

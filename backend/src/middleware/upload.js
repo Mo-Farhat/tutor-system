@@ -77,6 +77,7 @@ const tutorDocsUpload = upload.fields([
   { name: "wwcc", maxCount: 1 },
 ]);
 const studentPhotoUpload = upload.single("photo");
+const tutorPhotoUpload = upload.single("photo");
 const lessonMaterialsUpload = upload.single("file");
 
 // ✅ Wrap each with uploadAndSyncToS3
@@ -84,6 +85,7 @@ const uploadTutorApplication = uploadAndSyncToS3("tutor/applications", tutorAppl
 const uploadTutorVideo = uploadAndSyncToS3("tutor/videos", tutorVideoUpload);
 const uploadTutorDocs = uploadAndSyncToS3("tutor/docs", tutorDocsUpload);
 const uploadStudentPhoto = uploadAndSyncToS3("students/photos", studentPhotoUpload);
+const uploadTutorPhoto = uploadAndSyncToS3("tutor/photos", tutorPhotoUpload);
 const uploadLessonMaterial = uploadAndSyncToS3("lessons/materials", lessonMaterialsUpload);
 
 // ✅ Error handler stays the same
@@ -107,6 +109,7 @@ module.exports = {
   uploadTutorVideo,
   uploadTutorDocs,
   uploadStudentPhoto,
+  uploadTutorPhoto,
   uploadLessonMaterial,
   handleUploadError,
 };

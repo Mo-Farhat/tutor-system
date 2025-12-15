@@ -288,8 +288,8 @@ function FindtTutors({ filters }) {
                         <div key={tutor.id} className="col-xl-3 col-lg-4 col-md-6 col-12">
                             <a href={`/find-a-tutor/request?tutorId=${tutor.id}`} className="findt-tutors-card">
                                 <div className="findt-tutors-stats">
-                                    <span className="findt-tutors-gold">Gold ({tutor.goldPoints || 0})</span>
-                                    <span className="findt-tutors-atr">ATAR ({tutor.atrPoints || 0})</span>
+                                    <span className="findt-tutors-gold">{tutor.tier ? tutor.tier.charAt(0).toUpperCase() + tutor.tier.slice(1) : 'Gold'} ({rate || 'N/A'})</span>
+                                    <span className="findt-tutors-atr">ATAR ({tutor.atar ? Number(tutor.atar).toFixed(1) : 'N/A'})</span>
                                 </div>
                                 <div className={`findt-tutors-avatar ${avatarClass}`}>
                                     <img 

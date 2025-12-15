@@ -254,6 +254,15 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+.tutor-profile-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
 .tutor-profile-avatar-placeholder {
     width: 100%;
     height: 100%;
@@ -902,5 +911,93 @@
     
     .navbar2-expanded ~ .tutor-profile-content .tutor-profile-container {
         margin-left: 280px;
+    }
+}
+
+/* Live Profile Notice Banner */
+.tutor-profile-live-notice {
+    margin-bottom: 25px;
+}
+
+.tutor-profile-live-notice .alert-info {
+    background: linear-gradient(135deg, #e8f4fd 0%, #dbeafe 100%);
+    border: 1px solid #93c5fd;
+    border-left: 4px solid #3b82f6;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+}
+
+.tutor-profile-live-notice .live-notice-icon {
+    color: #3b82f6;
+    flex-shrink: 0;
+    padding-top: 4px;
+}
+
+.tutor-profile-live-notice .live-notice-content {
+    flex: 1;
+}
+
+.tutor-profile-live-notice .alert-heading {
+    color: #1e40af;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.tutor-profile-live-notice .alert-heading i {
+    color: #22c55e;
+}
+
+.tutor-profile-live-notice p {
+    color: #1e3a8a;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 12px;
+}
+
+.tutor-profile-live-notice strong {
+    color: #1e40af;
+    background-color: rgba(59, 130, 246, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.tutor-profile-live-notice .live-notice-steps {
+    background-color: rgba(255, 255, 255, 0.6);
+    padding: 10px 15px;
+    border-radius: 8px;
+    display: inline-block;
+}
+
+.tutor-profile-live-notice .live-notice-steps small {
+    color: #64748b;
+    font-size: 13px;
+}
+
+.tutor-profile-live-notice .live-notice-steps i {
+    color: #3b82f6;
+}
+
+/* Responsive adjustments for live notice */
+@media (max-width: 767.98px) {
+    .tutor-profile-live-notice .alert-info {
+        flex-direction: column;
+        padding: 16px;
+    }
+    
+    .tutor-profile-live-notice .live-notice-icon {
+        margin-bottom: 10px;
+        margin-right: 0;
+    }
+    
+    .tutor-profile-live-notice .live-notice-steps {
+        display: block;
+        padding: 8px 12px;
+    }
+    
+    .tutor-profile-live-notice .live-notice-steps small {
+        font-size: 11px;
+        line-height: 1.8;
     }
 }

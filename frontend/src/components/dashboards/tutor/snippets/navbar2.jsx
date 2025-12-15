@@ -81,7 +81,19 @@ function TutorNavbar2() {
           {/* User Profile Header */}
           <div className="navbar2-user-profile">
             <div className="navbar2-avatar">
-              <img src="/Images/site-images/com/hero.png" alt="User Avatar" />
+              {profileData?.photo_url ? (
+                <img 
+                  src={profileData.photo_url} 
+                  alt="Profile" 
+                  onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                />
+              ) : null}
+              <div 
+                className="navbar2-avatar-placeholder" 
+                style={{ display: profileData?.photo_url ? 'none' : 'flex' }}
+              >
+                <i className="fas fa-user"></i>
+              </div>
             </div>
             <div
               className={`navbar2-user-info ${
@@ -108,13 +120,6 @@ function TutorNavbar2() {
                     (profileData.subjects.length > 2 ? "..." : "")
                   : "Tutor"}
               </p>
-            </div>
-            <div
-              className={`navbar2-options ${
-                !isNavbarExpanded ? "navbar2-hidden" : ""
-              }`}
-            >
-              <i className="fas fa-ellipsis-v"></i>
             </div>
           </div>
 
@@ -216,18 +221,7 @@ function TutorNavbar2() {
                 </span>
               </a>
             </li>
-            <li className="navbar2-menu-item">
-              <a
-                href="/dashboard/tutor/change-requests"
-                className="navbar2-menu-link"
-                title="Change Requests"
-              >
-                <i className="fas fa-edit navbar2-icon"></i>
-                <span className={!isNavbarExpanded ? "navbar2-hidden" : ""}>
-                  Change Requests
-                </span>
-              </a>
-            </li>
+
             <li className="navbar2-menu-item">
               <a
                 href="/dashboard/tutor/settings"
@@ -268,7 +262,19 @@ function TutorNavbar2() {
           {/* User Profile Header */}
           <div className="navbar2-user-profile">
             <div className="navbar2-avatar">
-              <img src="/Images/site-images/com/hero.png" alt="User Avatar" />
+              {profileData?.photo_url ? (
+                <img 
+                  src={profileData.photo_url} 
+                  alt="Profile" 
+                  onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                />
+              ) : null}
+              <div 
+                className="navbar2-avatar-placeholder" 
+                style={{ display: profileData?.photo_url ? 'none' : 'flex' }}
+              >
+                <i className="fas fa-user"></i>
+              </div>
             </div>
             <div className="navbar2-user-info">
               <h6 className="navbar2-username">
@@ -291,9 +297,6 @@ function TutorNavbar2() {
                     (profileData.bio.length > 20 ? "..." : "")
                   : "Tutor"}
               </p>
-            </div>
-            <div className="navbar2-options">
-              <i className="fas fa-ellipsis-v"></i>
             </div>
           </div>
 
@@ -347,12 +350,7 @@ function TutorNavbar2() {
                 <span>Notifications</span>
               </a>
             </li>
-            <li className="navbar2-menu-item">
-              <a href="/dashboard/tutor/change-requests" className="navbar2-menu-link">
-                <i className="fas fa-edit navbar2-icon"></i>
-                <span>Change Requests</span>
-              </a>
-            </li>
+
             <li className="navbar2-menu-item">
               <a href="/dashboard/tutor/settings" className="navbar2-menu-link">
                 <i className="fas fa-cog navbar2-icon"></i>
