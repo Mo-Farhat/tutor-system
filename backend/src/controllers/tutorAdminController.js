@@ -50,6 +50,18 @@ exports.completedLessons = async (req, res) => {
   }
 };
 
+// GET /api/admin/tutors/:userId/lessons
+exports.allLessons = async (req, res) => {
+  try {
+    const limit = Number(req.query.limit || 100);
+    const result = await tutorService.getAllLessons(req.params.userId, limit);
+    res.json(result);
+  } catch (e) {
+    console.error("admin.tutors.allLessons", e);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};
+
 // POST /api/admin/tutors/:userId/reviews
 exports.addReview = async (req, res) => {
   try {

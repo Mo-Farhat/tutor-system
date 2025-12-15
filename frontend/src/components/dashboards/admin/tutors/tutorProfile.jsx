@@ -729,7 +729,7 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
 
   const renderChangeRequestsTab = () => <ChangeRequestsTab tutorId={tutorData?.userId || tutor?.id} />;
 
-  const renderSessionsTab = () => <SessionsTab />;
+  const renderSessionsTab = () => <SessionsTab tutorId={tutorData?.userId || tutor?.id} />;
 
   const renderCalendarTab = () => <CalendarTab />;
 

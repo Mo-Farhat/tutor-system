@@ -221,6 +221,21 @@ class TutorService {
   }
 
   /**
+   * Admin: List all lessons for a tutor (scheduled, completed, cancelled)
+   */
+  async getAllLessons(userId, limit = 100) {
+    const rows = await prisma.lesson.findMany({
+      where: { tutorId: Number(userId) },
+      orderBy: { startAt: "desc" },
+      take: limit,
+      include: {
+        student: { select: { id: true, firstName: true, lastName: true, email: true } },
+      },
+    });
+    return { success: true, data: rows };
+  }
+
+  /**
    * Tutor: submit a change request
    */
   async submitChangeRequest(userId, { type, oldValue = "", newValue = "" }) {

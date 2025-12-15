@@ -11,6 +11,7 @@ router.get("/admin/tutors/:userId", authenticateToken, requireRole("admin"), ctr
 router.put("/admin/tutors/:userId/tier", authenticateToken, requireRole("admin"), ctrl.changeTier);
 
 router.get("/admin/tutors/:userId/lessons/completed", authenticateToken, requireRole("admin"), ctrl.completedLessons);
+router.get("/admin/tutors/:userId/lessons", authenticateToken, requireRole("admin"), ctrl.allLessons);
 
 // Reviews (admin adds/removes)
 router.post("/admin/tutors/:userId/reviews", authenticateToken, requireRole("admin"), ctrl.addReview);

@@ -145,6 +145,12 @@ class AdminService {
     return this.makeAdminRequest(endpoint);
   }
 
+  // Get all lessons for a tutor (scheduled, completed, cancelled)
+  async getTutorAllLessons(userId, limit = 100) {
+    const endpoint = `/admin/tutors/${userId}/lessons?limit=${limit}`;
+    return this.makeAdminRequest(endpoint);
+  }
+
   // Add review for tutor
   async addTutorReview(userId, review) {
     return this.makeAdminRequest(`/admin/tutors/${userId}/reviews`, {
@@ -632,6 +638,7 @@ export const getTutors = (filters) => adminService.getTutors(filters);
 export const getTutorById = (userId) => adminService.getTutorById(userId);
 export const changeTutorTier = (userId, tier) => adminService.changeTutorTier(userId, tier);
 export const getTutorCompletedLessons = (userId, limit) => adminService.getTutorCompletedLessons(userId, limit);
+export const getTutorAllLessons = (userId, limit) => adminService.getTutorAllLessons(userId, limit);
 export const addTutorReview = (userId, review) => adminService.addTutorReview(userId, review);
 export const removeTutorReview = (reviewId) => adminService.removeTutorReview(reviewId);
 export const approveTutorChangeRequest = (requestId) => adminService.approveTutorChangeRequest(requestId);
