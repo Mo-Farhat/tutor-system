@@ -95,13 +95,6 @@ function StudentNavbar() {
               </h6>
               <p className="student-navbar-user-role">{profile.email || ""}</p>
             </div>
-            <div
-              className={`student-navbar-options ${
-                !isNavbarExpanded ? "student-navbar-hidden" : ""
-              }`}
-            >
-              <i className="fas fa-ellipsis-v"></i>
-            </div>
           </div>
 
           {/* Navigation Menu */}
@@ -284,9 +277,6 @@ function StudentNavbar() {
                 {profile.fullName || "Student"}
               </h6>
               <p className="student-navbar-user-role">{profile.email || ""}</p>
-            </div>
-            <div className="student-navbar-options">
-              <i className="fas fa-ellipsis-v"></i>
             </div>
           </div>
 

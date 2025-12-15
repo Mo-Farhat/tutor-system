@@ -81,7 +81,19 @@ function TutorNavbar2() {
           {/* User Profile Header */}
           <div className="navbar2-user-profile">
             <div className="navbar2-avatar">
-              <img src="/Images/site-images/com/hero.png" alt="User Avatar" />
+              {profileData?.photo_url ? (
+                <img 
+                  src={profileData.photo_url} 
+                  alt="Profile" 
+                  onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                />
+              ) : null}
+              <div 
+                className="navbar2-avatar-placeholder" 
+                style={{ display: profileData?.photo_url ? 'none' : 'flex' }}
+              >
+                <i className="fas fa-user"></i>
+              </div>
             </div>
             <div
               className={`navbar2-user-info ${
@@ -108,13 +120,6 @@ function TutorNavbar2() {
                     (profileData.subjects.length > 2 ? "..." : "")
                   : "Tutor"}
               </p>
-            </div>
-            <div
-              className={`navbar2-options ${
-                !isNavbarExpanded ? "navbar2-hidden" : ""
-              }`}
-            >
-              <i className="fas fa-ellipsis-v"></i>
             </div>
           </div>
 
@@ -257,7 +262,19 @@ function TutorNavbar2() {
           {/* User Profile Header */}
           <div className="navbar2-user-profile">
             <div className="navbar2-avatar">
-              <img src="/Images/site-images/com/hero.png" alt="User Avatar" />
+              {profileData?.photo_url ? (
+                <img 
+                  src={profileData.photo_url} 
+                  alt="Profile" 
+                  onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                />
+              ) : null}
+              <div 
+                className="navbar2-avatar-placeholder" 
+                style={{ display: profileData?.photo_url ? 'none' : 'flex' }}
+              >
+                <i className="fas fa-user"></i>
+              </div>
             </div>
             <div className="navbar2-user-info">
               <h6 className="navbar2-username">
@@ -280,9 +297,6 @@ function TutorNavbar2() {
                     (profileData.bio.length > 20 ? "..." : "")
                   : "Tutor"}
               </p>
-            </div>
-            <div className="navbar2-options">
-              <i className="fas fa-ellipsis-v"></i>
             </div>
           </div>
 
