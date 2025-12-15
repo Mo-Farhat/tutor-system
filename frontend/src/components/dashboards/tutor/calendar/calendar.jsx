@@ -28,6 +28,7 @@ function getMonthMatrix(year, month) {
 
 function TutorCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [viewMode, setViewMode] = useState('month'); // 'month', 'week', or 'day'
   const [lessons, setLessons] = useState([]);
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -102,12 +103,65 @@ function TutorCalendar() {
   }, []); // Load once on mount - recurring instances are expanded client-side
 
   // Navigation functions
-  const goToPreviousMonth = () => {
-    setCurrentDate(new Date(year, month - 1, 1));
+  const goToPrevious = () => {
+    if (viewMode === 'month') {
+      setCurrentDate(new Date(year, month - 1, 1));
+    } else if (viewMode === 'week') {
+      const newDate = new Date(currentDate);
+      newDate.setDate(currentDate.getDate() - 7);
+      setCurrentDate(newDate);
+    } else {
+      const newDate = new Date(currentDate);
+      newDate.setDate(currentDate.getDate() - 1);
+      setCurrentDate(newDate);
+    }
   };
 
-  const goToNextMonth = () => {
-    setCurrentDate(new Date(year, month + 1, 1));
+  const goToNext = () => {
+    if (viewMode === 'month') {
+      setCurrentDate(new Date(year, month + 1, 1));
+    } else if (viewMode === 'week') {
+      const newDate = new Date(currentDate);
+      newDate.setDate(currentDate.getDate() + 7);
+      setCurrentDate(newDate);
+    } else {
+      const newDate = new Date(currentDate);
+      newDate.setDate(currentDate.getDate() + 1);
+      setCurrentDate(newDate);
+    }
+  };
+
+  // Get week dates for week view
+  const getWeekDates = () => {
+    const dates = [];
+    const startOfWeek = new Date(currentDate);
+    const day = startOfWeek.getDay();
+    startOfWeek.setDate(startOfWeek.getDate() - day);
+    
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(startOfWeek);
+      date.setDate(startOfWeek.getDate() + i);
+      dates.push(date);
+    }
+    return dates;
+  };
+
+  // Get header text based on view mode
+  const getHeaderText = () => {
+    if (viewMode === 'month') {
+      return `${monthNames[month]} ${year}`;
+    } else if (viewMode === 'week') {
+      const weekDates = getWeekDates();
+      const firstDay = weekDates[0];
+      const lastDay = weekDates[6];
+      if (firstDay.getMonth() === lastDay.getMonth()) {
+        return `${monthNames[firstDay.getMonth()]} ${firstDay.getDate()} - ${lastDay.getDate()}, ${firstDay.getFullYear()}`;
+      } else {
+        return `${monthNames[firstDay.getMonth()]} ${firstDay.getDate()} - ${monthNames[lastDay.getMonth()]} ${lastDay.getDate()}, ${lastDay.getFullYear()}`;
+      }
+    } else {
+      return currentDate.toLocaleDateString('en-AU', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    }
   };
 
   // Helper function to set default lesson times
@@ -397,18 +451,18 @@ function TutorCalendar() {
               <div className="d-flex align-items-center gap-2">
                 <button
                   className="btn btn-link tutor-calendar-nav-btn"
-                  onClick={goToPreviousMonth}
-                  aria-label="Previous Month"
+                  onClick={goToPrevious}
+                  aria-label="Previous"
                 >
                   <i className="fas fa-chevron-left"></i>
                 </button>
                 <h4 className="tutor-calendar-title mb-0">
-                  {monthNames[month]} {year}
+                  {getHeaderText()}
                 </h4>
                 <button
                   className="btn btn-link tutor-calendar-nav-btn"
-                  onClick={goToNextMonth}
-                  aria-label="Next Month"
+                  onClick={goToNext}
+                  aria-label="Next"
                 >
                   <i className="fas fa-chevron-right"></i>
                 </button>
@@ -425,13 +479,22 @@ function TutorCalendar() {
                   className="btn-group tutor-calendar-view-toggle"
                   role="group"
                 >
-                  <button className="btn btn-dark tutor-calendar-view-btn active">
+                  <button 
+                    className={`btn tutor-calendar-view-btn ${viewMode === 'month' ? 'btn-dark active' : 'btn-outline-dark'}`}
+                    onClick={() => setViewMode('month')}
+                  >
                     Month
                   </button>
-                  <button className="btn btn-outline-dark tutor-calendar-view-btn">
+                  <button 
+                    className={`btn tutor-calendar-view-btn ${viewMode === 'week' ? 'btn-dark active' : 'btn-outline-dark'}`}
+                    onClick={() => setViewMode('week')}
+                  >
                     Week
                   </button>
-                  <button className="btn btn-outline-dark tutor-calendar-view-btn">
+                  <button 
+                    className={`btn tutor-calendar-view-btn ${viewMode === 'day' ? 'btn-dark active' : 'btn-outline-dark'}`}
+                    onClick={() => setViewMode('day')}
+                  >
                     Day
                   </button>
                 </div>
@@ -452,109 +515,290 @@ function TutorCalendar() {
               </div>
             )}
 
-            {/* Calendar Table */}
-            <div className="tutor-calendar-section tutor-calendar-calendar-section mb-4">
-              <div className="alert alert-info mb-3" role="alert">
-                <i className="fas fa-info-circle me-2"></i>
-                <strong>Tip:</strong> Click on any date to quickly schedule a lesson for that day, or use the "Schedule Lesson" button for more control.
-              </div>
-              <div className="table-responsive">
-                <table className="table tutor-calendar-table mb-0">
-                  <thead>
-                    <tr>
-                      {daysShort.map((d) => (
-                        <th key={d} className="tutor-calendar-th text-center">
-                          {d}
-                        </th>
+            {/* Calendar Views */}
+            {viewMode === 'month' && (
+              <div className="tutor-calendar-section tutor-calendar-calendar-section mb-4">
+                <div className="alert alert-info mb-3" role="alert">
+                  <i className="fas fa-info-circle me-2"></i>
+                  <strong>Tip:</strong> Click on any date to quickly schedule a lesson for that day, or use the "Schedule Lesson" button for more control.
+                </div>
+                <div className="table-responsive">
+                  <table className="table tutor-calendar-table mb-0">
+                    <thead>
+                      <tr>
+                        {daysShort.map((d) => (
+                          <th key={d} className="tutor-calendar-th text-center">
+                            {d}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {monthMatrix.map((week, i) => (
+                        <tr key={i}>
+                        {week.map((date, j) => {
+                            const dateStr = date
+                              ? `${date.getFullYear()}-${String(
+                                  date.getMonth() + 1
+                                ).padStart(2, "0")}-${String(
+                                  date.getDate()
+                                ).padStart(2, "0")}`
+                              : "";
+                            const dayLessons = date
+                              ? getLessonsForDate(dateStr)
+                              : [];
+                            
+                            // Check if date is in the past
+                            const today = new Date();
+                            today.setHours(0, 0, 0, 0);
+                            const isPastDate = date && date < today;
+                            
+                            return (
+                              <td
+                                key={j}
+                                className={`tutor-calendar-td align-top ${
+                                  date ? "" : "tutor-calendar-empty"
+                                }${isPastDate ? " tutor-calendar-past-date" : ""}`}
+                                onClick={() => {
+                                  if (date && !isPastDate) {
+                                    setDefaultTimes(dateStr);
+                                    setShowCreateModal(true);
+                                  }
+                                }}
+                                style={{ cursor: date && !isPastDate ? 'pointer' : 'default' }}
+                                title={isPastDate ? 'Past dates cannot be scheduled' : ''}
+                              >
+                                {date && (
+                                  <div className={`tutor-calendar-date-cell${isPastDate ? ' tutor-calendar-past-cell' : ''}`}>
+                                    <div className={`tutor-calendar-date-num${isPastDate ? ' text-muted' : ''}`}>
+                                      {date.getDate()}
+                                    </div>
+                                    {dayLessons.map((lesson, idx) => (
+                                      <div
+                                        className="tutor-calendar-lesson-card mt-1"
+                                        key={idx}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          const lessonToEdit = lesson.isRecurringInstance 
+                                            ? lessons.find(l => l.id === lesson.originalLessonId) || lesson
+                                            : lesson;
+                                          setEditingLesson(lessonToEdit);
+                                          setUpdateRecurringSeries(false);
+                                          setShowEditModal(true);
+                                        }}
+                                        style={{ cursor: 'pointer' }}
+                                        title={`Click to edit lesson${lesson.isRecurringInstance ? ' (recurring)' : ''}`}
+                                      >
+                                        <span className="tutor-calendar-lesson-title">
+                                          {lesson.subject}
+                                        </span>
+                                        <span className="tutor-calendar-lesson-time ms-1">
+                                          {formatTime(lesson.startAt)}
+                                        </span>
+                                        {(lesson.seriesId || lesson.isRecurringInstance) && (
+                                          <i className="fas fa-sync-alt tutor-calendar-lesson-icon ms-1 text-info" title="Recurring lesson"></i>
+                                        )}
+                                        {lesson.zoomLink && (
+                                          <i className="fas fa-video tutor-calendar-lesson-icon ms-1"></i>
+                                        )}
+                                        <div className="text-muted small">
+                                          {lesson.student?.firstName}{" "}
+                                          {lesson.student?.lastName}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </td>
+                            );
+                          })}
+                        </tr>
                       ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {monthMatrix.map((week, i) => (
-                      <tr key={i}>
-                      {week.map((date, j) => {
-                          const dateStr = date
-                            ? `${date.getFullYear()}-${String(
-                                date.getMonth() + 1
-                              ).padStart(2, "0")}-${String(
-                                date.getDate()
-                              ).padStart(2, "0")}`
-                            : "";
-                          const dayLessons = date
-                            ? getLessonsForDate(dateStr)
-                            : [];
-                          
-                          // Check if date is in the past
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* Week View */}
+            {viewMode === 'week' && (
+              <div className="tutor-calendar-section tutor-calendar-calendar-section mb-4">
+                <div className="table-responsive">
+                  <table className="table tutor-calendar-table mb-0">
+                    <thead>
+                      <tr>
+                        {getWeekDates().map((date, i) => {
                           const today = new Date();
                           today.setHours(0, 0, 0, 0);
-                          const isPastDate = date && date < today;
+                          const isToday = date.toDateString() === today.toDateString();
+                          return (
+                            <th key={i} className={`tutor-calendar-th text-center ${isToday ? 'bg-primary text-white' : ''}`}>
+                              <div>{daysShort[date.getDay()]}</div>
+                              <div className="fw-bold">{date.getDate()}</div>
+                            </th>
+                          );
+                        })}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        {getWeekDates().map((date, i) => {
+                          const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+                          const dayLessons = getLessonsForDate(dateStr);
+                          const today = new Date();
+                          today.setHours(0, 0, 0, 0);
+                          const isPastDate = date < today;
                           
                           return (
-                            <td
-                              key={j}
-                              className={`tutor-calendar-td align-top ${
-                                date ? "" : "tutor-calendar-empty"
-                              }${isPastDate ? " tutor-calendar-past-date" : ""}`}
+                            <td 
+                              key={i} 
+                              className={`tutor-calendar-td align-top${isPastDate ? ' tutor-calendar-past-date' : ''}`}
+                              style={{ minHeight: '200px', cursor: isPastDate ? 'not-allowed' : 'pointer' }}
                               onClick={() => {
-                                if (date && !isPastDate) {
+                                if (!isPastDate) {
                                   setDefaultTimes(dateStr);
                                   setShowCreateModal(true);
                                 }
                               }}
-                              style={{ cursor: date && !isPastDate ? 'pointer' : 'default' }}
-                              title={isPastDate ? 'Past dates cannot be scheduled' : ''}
                             >
-                              {date && (
-                                <div className={`tutor-calendar-date-cell${isPastDate ? ' tutor-calendar-past-cell' : ''}`}>
-                                  <div className={`tutor-calendar-date-num${isPastDate ? ' text-muted' : ''}`}>
-                                    {date.getDate()}
-                                  </div>
-                                  {dayLessons.map((lesson, idx) => (
+                              <div className={`tutor-calendar-date-cell${isPastDate ? ' tutor-calendar-past-cell' : ''}`}>
+                                {dayLessons.length === 0 ? (
+                                  <div className="text-muted small text-center py-2">No lessons</div>
+                                ) : (
+                                  dayLessons.map((lesson, idx) => (
                                     <div
-                                      className="tutor-calendar-lesson-card mt-1"
+                                      className="tutor-calendar-lesson-card mb-2"
                                       key={idx}
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        // If it's a recurring instance, edit the original lesson
                                         const lessonToEdit = lesson.isRecurringInstance 
                                           ? lessons.find(l => l.id === lesson.originalLessonId) || lesson
                                           : lesson;
                                         setEditingLesson(lessonToEdit);
-                                        setUpdateRecurringSeries(false);
                                         setShowEditModal(true);
                                       }}
                                       style={{ cursor: 'pointer' }}
-                                      title={`Click to edit lesson${lesson.isRecurringInstance ? ' (recurring)' : ''}`}
                                     >
-                                      <span className="tutor-calendar-lesson-title">
-                                        {lesson.subject}
-                                      </span>
-                                      <span className="tutor-calendar-lesson-time ms-1">
-                                        {formatTime(lesson.startAt)}
-                                      </span>
-                                      {(lesson.seriesId || lesson.isRecurringInstance) && (
-                                        <i className="fas fa-sync-alt tutor-calendar-lesson-icon ms-1 text-info" title="Recurring lesson"></i>
-                                      )}
-                                      {lesson.zoomLink && (
-                                        <i className="fas fa-video tutor-calendar-lesson-icon ms-1"></i>
-                                      )}
-                                      <div className="text-muted small">
-                                        {lesson.student?.firstName}{" "}
-                                        {lesson.student?.lastName}
-                                      </div>
+                                      <div className="tutor-calendar-lesson-title">{lesson.subject}</div>
+                                      <div className="tutor-calendar-lesson-time small">{formatTime(lesson.startAt)}</div>
+                                      <div className="text-muted small">{lesson.student?.firstName} {lesson.student?.lastName}</div>
                                     </div>
-                                  ))}
-                                </div>
-                              )}
+                                  ))
+                                )}
+                              </div>
                             </td>
                           );
                         })}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Day View */}
+            {viewMode === 'day' && (() => {
+              const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}-${String(currentDate.getDate()).padStart(2, "0")}`;
+              const dayLessons = getLessonsForDate(dateStr);
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              const isPastDate = currentDate < today;
+              
+              return (
+                <div className="tutor-calendar-section tutor-calendar-calendar-section mb-4">
+                  <div className="tutor-calendar-card">
+                    <div className="tutor-calendar-card-body">
+                      <div className="d-flex justify-content-between align-items-center mb-3">
+                        <h5 className="mb-0">
+                          {currentDate.toLocaleDateString('en-AU', { weekday: 'long', month: 'long', day: 'numeric' })}
+                        </h5>
+                        {!isPastDate && (
+                          <button 
+                            className="btn btn-outline-primary btn-sm"
+                            onClick={() => {
+                              setDefaultTimes(dateStr);
+                              setShowCreateModal(true);
+                            }}
+                          >
+                            <i className="fas fa-plus me-1"></i>Add Lesson
+                          </button>
+                        )}
+                      </div>
+                      
+                      {isPastDate && (
+                        <div className="alert alert-secondary mb-3">
+                          <i className="fas fa-info-circle me-2"></i>
+                          This is a past date. You cannot schedule new lessons for past dates.
+                        </div>
+                      )}
+                      
+                      {dayLessons.length === 0 ? (
+                        <div className="text-muted text-center py-5">
+                          <i className="fas fa-calendar-day fa-3x mb-3 d-block"></i>
+                          No lessons scheduled for this day.
+                          {!isPastDate && (
+                            <button 
+                              className="btn btn-primary mt-3"
+                              onClick={() => {
+                                setDefaultTimes(dateStr);
+                                setShowCreateModal(true);
+                              }}
+                            >
+                              Schedule a Lesson
+                            </button>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="tutor-calendar-day-lessons">
+                          {dayLessons.sort((a, b) => new Date(a.startAt) - new Date(b.startAt)).map((lesson, idx) => (
+                            <div 
+                              key={idx} 
+                              className="tutor-calendar-day-lesson-item d-flex align-items-center justify-content-between p-3 mb-2 rounded border"
+                              style={{ cursor: 'pointer' }}
+                              onClick={() => {
+                                const lessonToEdit = lesson.isRecurringInstance 
+                                  ? lessons.find(l => l.id === lesson.originalLessonId) || lesson
+                                  : lesson;
+                                setEditingLesson(lessonToEdit);
+                                setShowEditModal(true);
+                              }}
+                            >
+                              <div className="d-flex align-items-center">
+                                <div className="tutor-calendar-upcoming-dot me-3" style={{ width: '8px', height: '8px' }}></div>
+                                <div>
+                                  <div className="fw-bold">{lesson.subject}</div>
+                                  <div className="text-muted small">
+                                    {formatTime(lesson.startAt)} - {formatTime(lesson.endAt)}
+                                  </div>
+                                  <div className="small">{lesson.student?.firstName} {lesson.student?.lastName}</div>
+                                </div>
+                              </div>
+                              <div className="d-flex align-items-center gap-2">
+                                {lesson.seriesId && <span className="badge bg-info">Recurring</span>}
+                                {lesson.zoomLink && (
+                                  <a 
+                                    href={lesson.zoomLink} 
+                                    className="btn btn-sm btn-dark"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <i className="fas fa-video me-1"></i>Join
+                                  </a>
+                                )}
+                                <button className="btn btn-sm btn-outline-secondary">
+                                  <i className="fas fa-edit"></i>
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Upcoming Lessons Section */}
             <div className="tutor-calendar-section tutor-calendar-upcoming-section">
