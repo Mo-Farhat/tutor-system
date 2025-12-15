@@ -51,6 +51,22 @@ class ProfileService {
       }
     }
 
+    // Generate signed URL for photo if S3 key exists
+    let photoUrl = null;
+    if (tutorProfile.photo_url) {
+      try {
+        // Check if it's an S3 key (not a full URL)
+        if (!tutorProfile.photo_url.startsWith('http')) {
+          photoUrl = await getSignedUrl(tutorProfile.photo_url, 86400); // 24 hour validity
+        } else {
+          photoUrl = tutorProfile.photo_url;
+        }
+      } catch (err) {
+        console.error("Error generating signed URL for photo:", err);
+        photoUrl = tutorProfile.photo_url;
+      }
+    }
+
     return {
       success: true,
       data: {
@@ -65,6 +81,7 @@ class ProfileService {
         },
         ...tutorProfile,
         intro_video_path: introVideoUrl,  // Override with signed URL
+        photo_url: photoUrl,  // Override with signed URL
         wwcc_status: wwcc, // ⬅️ convenient for the UI
         completion_status: completionStatus,
         application: application || null, // Include application data for pre-filling
@@ -118,6 +135,22 @@ class ProfileService {
       }
     }
 
+    // Generate signed URL for photo if S3 key exists
+    let photoUrl = null;
+    if (tutorProfile.photo_url) {
+      try {
+        // Check if it's an S3 key (not a full URL)
+        if (!tutorProfile.photo_url.startsWith('http')) {
+          photoUrl = await getSignedUrl(tutorProfile.photo_url, 86400); // 24 hour validity
+        } else {
+          photoUrl = tutorProfile.photo_url;
+        }
+      } catch (err) {
+        console.error("Error generating signed URL for photo:", err);
+        photoUrl = tutorProfile.photo_url;
+      }
+    }
+
     return {
       success: true,
       data: {
@@ -132,6 +165,7 @@ class ProfileService {
         },
         ...tutorProfile,
         intro_video_path: introVideoUrl,  // Override with signed URL
+        photo_url: photoUrl,  // Override with signed URL
         wwcc_status: wwcc,
         completion_status: completionStatus,
         application: application || null, // Include application data for pre-filling
@@ -721,29 +755,47 @@ class ProfileService {
       console.log('🔄 Fetching live tutors from database');
       const liveTutors = await tutorProfileModel.findLive();
 
-      // Transform the data to match frontend expectations
-      const transformedTutors = liveTutors.map((tutor) => ({
-        id: tutor.userId,
-        name: `${tutor.user.firstName} ${tutor.user.lastName}`,
-        username: tutor.user.username,
-        email: tutor.user.email,
-        bio: tutor.bio || "",
-        subjects: tutor.subjects || [],
-        preferred_locations: tutor.preferred_locations || [],
-        hourly_rate: tutor.hourly_rate ? parseFloat(tutor.hourly_rate) : null,
-        university: tutor.university || "",
-        current_studies: tutor.current_studies || [],
-        schools_attended: tutor.schools_attended || [],
-        tier: tutor.tier || "gold",
-        rating: tutor.rating ? parseFloat(tutor.rating) : 0,
-        atar: tutor.atar ? parseFloat(tutor.atar) : null,
-        approved_at: tutor.approved_at,
-        status: "approved", // Since we're only getting live tutors
-        goldPoints:
-          tutor.tier === "gold" ? 100 : tutor.tier === "premium" ? 200 : 300,
-        atrPoints: tutor.atar ? Math.round(tutor.atar) : 0,
-        image: tutor.photo_url || null,
-        photo_url: tutor.photo_url || null,
+      // Transform the data to match frontend expectations with presigned URLs
+      const transformedTutors = await Promise.all(liveTutors.map(async (tutor) => {
+        // Generate presigned URL for photo if it's an S3 key
+        let photoUrl = null;
+        if (tutor.photo_url) {
+          try {
+            // Check if it's an S3 key (not a full URL)
+            if (!tutor.photo_url.startsWith('http')) {
+              photoUrl = await getSignedUrl(tutor.photo_url, 86400); // 24 hour validity
+            } else {
+              photoUrl = tutor.photo_url;
+            }
+          } catch (err) {
+            console.error("Error generating signed URL for tutor photo:", err);
+            photoUrl = tutor.photo_url;
+          }
+        }
+
+        return {
+          id: tutor.userId,
+          name: `${tutor.user.firstName} ${tutor.user.lastName}`,
+          username: tutor.user.username,
+          email: tutor.user.email,
+          bio: tutor.bio || "",
+          subjects: tutor.subjects || [],
+          preferred_locations: tutor.preferred_locations || [],
+          hourly_rate: tutor.hourly_rate ? parseFloat(tutor.hourly_rate) : null,
+          university: tutor.university || "",
+          current_studies: tutor.current_studies || [],
+          schools_attended: tutor.schools_attended || [],
+          tier: tutor.tier || "gold",
+          rating: tutor.rating ? parseFloat(tutor.rating) : 0,
+          atar: tutor.atar ? parseFloat(tutor.atar) : null,
+          approved_at: tutor.approved_at,
+          status: "approved", // Since we're only getting live tutors
+          goldPoints:
+            tutor.tier === "gold" ? 100 : tutor.tier === "premium" ? 200 : 300,
+          atrPoints: tutor.atar ? Math.round(tutor.atar) : 0,
+          image: photoUrl,
+          photo_url: photoUrl,
+        };
       }));
 
       const result = {

@@ -398,6 +398,54 @@ exports.uploadStudentPhoto = async (req, res) => {
   }
 };
 
+// Upload tutor profile photo
+exports.uploadTutorPhoto = async (req, res) => {
+  try {
+    const { user } = req;
+    const file = req.file;
+
+    if (!file || !file.s3Key) {
+      return res.status(400).json({ success: false, error: "No photo uploaded" });
+    }
+
+    // Create media asset for tracking
+    const asset = await createMediaAsset({
+      kind: "tutor/photos",
+      key: file.s3Key,
+      url: file.cloudUrl,
+      mimeType: file.mimetype,
+      userId: user.id,
+    });
+
+    // Store S3 key in photo_url for presigned URL generation
+    const profile = await prisma.tutorProfile.upsert({
+      where: { userId: user.id },
+      update: { photo_url: file.s3Key },
+      create: { 
+        userId: user.id, 
+        photo_url: file.s3Key,
+        subjects_selected: []
+      },
+    });
+
+    // Generate presigned URL for immediate display
+    const { getSignedUrl } = require("../services/fileStorageService");
+    const signedPhotoUrl = await getSignedUrl(file.s3Key, 86400); // 24 hour validity
+
+    res.json({ 
+      success: true, 
+      photoUrl: signedPhotoUrl,
+      photoS3Key: file.s3Key,
+      assetId: asset.id, 
+      profile,
+      message: 'Profile photo uploaded successfully'
+    });
+  } catch (err) {
+    console.error("UploadTutorPhoto error:", err);
+    res.status(500).json({ success: false, error: "Failed to upload tutor photo" });
+  }
+};
+
 
 // Get tutor by ID (public endpoint)
 exports.getTutorById = async (req, res) => {

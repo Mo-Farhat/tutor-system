@@ -18,6 +18,7 @@ const {
   uploadTutorVideo,
   uploadTutorDocs,
   uploadStudentPhoto,
+  uploadTutorPhoto,
   handleUploadError,
 } = require("../middleware/upload");
 
@@ -102,6 +103,16 @@ router.post(
   uploadTutorVideo,      // ✅ updated name
   handleUploadError,
   profileController.uploadVideoIntro
+);
+
+// Tutor profile photo
+router.post(
+  "/tutor/upload/photo",
+  authenticateToken,
+  requireTutor,
+  uploadTutorPhoto,
+  handleUploadError,
+  profileController.uploadTutorPhoto
 );
 
 // Tutor required documents

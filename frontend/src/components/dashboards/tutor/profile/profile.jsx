@@ -52,6 +52,9 @@ function TutorProfile() {
   const [existingIntroVideoUrl, setExistingIntroVideoUrl] = useState(null);
   const [introVideoStatus, setIntroVideoStatus] = useState('none');
   const [videoUploadLoading, setVideoUploadLoading] = useState(false);
+  const [profilePhoto, setProfilePhoto] = useState(null);
+  const [existingPhotoUrl, setExistingPhotoUrl] = useState(null);
+  const [photoUploadLoading, setPhotoUploadLoading] = useState(false);
   const [tutorContractFile, setTutorContractFile] = useState(null);
   const [wwccFile, setWwccFile] = useState(null);
   const [wwccExpiry, setWwccExpiry] = useState("");
@@ -233,6 +236,11 @@ function TutorProfile() {
         // Set intro video status
         if (data.data.intro_video_status) {
           setIntroVideoStatus(data.data.intro_video_status);
+        }
+
+        // Set existing photo URL if available
+        if (data.data.photo_url) {
+          setExistingPhotoUrl(data.data.photo_url);
         }
 
         // Fetch completion status
@@ -510,6 +518,69 @@ function TutorProfile() {
       setIntroVideo(null);
     } finally {
       setVideoUploadLoading(false);
+    }
+  };
+
+  // Handle profile photo upload
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('Invalid file type. Please upload a JPG, PNG, or WebP image.');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File too large. Maximum size is 5MB.');
+      return;
+    }
+
+    try {
+      setPhotoUploadLoading(true);
+      setProfilePhoto(file);
+      
+      const token = authService.getAccessToken();
+      if (!token) {
+        alert('You must be logged in to upload a photo');
+        setProfilePhoto(null);
+        return;
+      }
+
+      // Create FormData with the photo file
+      const formDataUpload = new FormData();
+      formDataUpload.append('photo', file);
+
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000'}/api/auth/tutor/upload/photo`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+          body: formDataUpload,
+        }
+      );
+
+      const result = await response.json();
+
+      if (result.success) {
+        setExistingPhotoUrl(result.photoUrl);
+        setProfilePhoto(null);
+        alert('Profile photo uploaded successfully!');
+      } else {
+        alert(`Failed to upload photo: ${result.error || 'Unknown error'}`);
+        setProfilePhoto(null);
+      }
+    } catch (err) {
+      console.error('Error uploading photo:', err);
+      alert('Failed to upload photo. Please try again.');
+      setProfilePhoto(null);
+    } finally {
+      setPhotoUploadLoading(false);
     }
   };
 
@@ -870,19 +941,41 @@ function TutorProfile() {
                     <div className="d-flex justify-content-between align-items-start">
                       <div className="tutor-profile-summary">
                         <div className="tutor-profile-avatar">
-                          <div className="tutor-profile-avatar-placeholder">
+                          {existingPhotoUrl ? (
+                            <img 
+                              src={existingPhotoUrl} 
+                              alt="Profile" 
+                              className="tutor-profile-avatar-img"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'flex';
+                              }}
+                            />
+                          ) : null}
+                          <div 
+                            className="tutor-profile-avatar-placeholder" 
+                            style={{ display: existingPhotoUrl ? 'none' : 'flex' }}
+                          >
                             <i className="fas fa-user"></i>
                           </div>
                           <label
                             htmlFor="profile-upload"
                             className="tutor-profile-avatar-upload"
                           >
-                            <i className="fas fa-camera"></i>
+                            {photoUploadLoading ? (
+                              <div className="spinner-border spinner-border-sm" role="status">
+                                <span className="visually-hidden">Uploading...</span>
+                              </div>
+                            ) : (
+                              <i className="fas fa-camera"></i>
+                            )}
                             <input
                               type="file"
                               id="profile-upload"
                               className="d-none"
-                              accept="image/*"
+                              accept="image/jpeg,image/png,image/webp"
+                              onChange={handlePhotoUpload}
+                              disabled={photoUploadLoading}
                             />
                           </label>
                         </div>
