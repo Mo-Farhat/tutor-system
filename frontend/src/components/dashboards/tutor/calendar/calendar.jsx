@@ -472,7 +472,7 @@ function TutorCalendar() {
                   <tbody>
                     {monthMatrix.map((week, i) => (
                       <tr key={i}>
-                        {week.map((date, j) => {
+                      {week.map((date, j) => {
                           const dateStr = date
                             ? `${date.getFullYear()}-${String(
                                 date.getMonth() + 1
@@ -483,23 +483,30 @@ function TutorCalendar() {
                           const dayLessons = date
                             ? getLessonsForDate(dateStr)
                             : [];
+                          
+                          // Check if date is in the past
+                          const today = new Date();
+                          today.setHours(0, 0, 0, 0);
+                          const isPastDate = date && date < today;
+                          
                           return (
                             <td
                               key={j}
                               className={`tutor-calendar-td align-top ${
                                 date ? "" : "tutor-calendar-empty"
-                              }`}
+                              }${isPastDate ? " tutor-calendar-past-date" : ""}`}
                               onClick={() => {
-                                if (date) {
+                                if (date && !isPastDate) {
                                   setDefaultTimes(dateStr);
                                   setShowCreateModal(true);
                                 }
                               }}
-                              style={{ cursor: date ? 'pointer' : 'default' }}
+                              style={{ cursor: date && !isPastDate ? 'pointer' : 'default' }}
+                              title={isPastDate ? 'Past dates cannot be scheduled' : ''}
                             >
                               {date && (
-                                <div className="tutor-calendar-date-cell">
-                                  <div className="tutor-calendar-date-num">
+                                <div className={`tutor-calendar-date-cell${isPastDate ? ' tutor-calendar-past-cell' : ''}`}>
+                                  <div className={`tutor-calendar-date-num${isPastDate ? ' text-muted' : ''}`}>
                                     {date.getDate()}
                                   </div>
                                   {dayLessons.map((lesson, idx) => (
@@ -695,6 +702,7 @@ function TutorCalendar() {
                               type="date"
                               className="form-control"
                               value={newLesson.startAt ? newLesson.startAt.split('T')[0] : ''}
+                              min={new Date().toISOString().split('T')[0]}
                               onChange={(e) => {
                                 const selectedDate = e.target.value;
                                 const currentTime = newLesson.startAt ? newLesson.startAt.split('T')[1] : '09:00';
