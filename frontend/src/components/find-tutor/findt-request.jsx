@@ -303,10 +303,16 @@ const FindTutorRequest = () => {
                       </video>
                     </div>
                   ) : (
-                    <div className="ratio ratio-16x9 d-flex align-items-center justify-content-center bg-light">
-                      <div className="text-center text-muted">
+                    <div 
+                      className="ratio ratio-16x9 bg-light" 
+                      style={{ position: 'relative' }}
+                    >
+                      <div 
+                        className="d-flex flex-column align-items-center justify-content-center text-muted"
+                        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+                      >
                         <i className="fas fa-video fa-3x mb-3"></i>
-                        <p>{videoUrl && tutor.intro_video_status === 'pending' 
+                        <p className="mb-0">{videoUrl && tutor.intro_video_status === 'pending' 
                           ? 'Video coming soon' 
                           : 'No introduction video available'}</p>
                       </div>
