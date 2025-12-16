@@ -569,6 +569,54 @@ class AdminService {
       return { success: false, error: error.message };
     }
   }
+
+  // Subject Management
+  async getSubjects(filters = {}) {
+    const queryParams = new URLSearchParams();
+    if (filters.curriculum) queryParams.append("curriculum", filters.curriculum);
+    if (filters.yearLevel) queryParams.append("yearLevel", filters.yearLevel);
+    if (filters.isActive !== undefined) queryParams.append("isActive", filters.isActive);
+
+    const endpoint = `/subjects/admin${queryParams.toString() ? "?" + queryParams.toString() : ""}`;
+    return this.makeAdminRequest(endpoint);
+  }
+
+  async getSubjectById(subjectId) {
+    return this.makeAdminRequest(`/subjects/admin/${subjectId}`);
+  }
+
+  async createSubject(subjectData) {
+    return this.makeAdminRequest("/subjects/admin", {
+      method: "POST",
+      body: JSON.stringify(subjectData),
+    });
+  }
+
+  async updateSubject(subjectId, subjectData) {
+    return this.makeAdminRequest(`/subjects/admin/${subjectId}`, {
+      method: "PUT",
+      body: JSON.stringify(subjectData),
+    });
+  }
+
+  async deleteSubject(subjectId) {
+    return this.makeAdminRequest(`/subjects/admin/${subjectId}`, {
+      method: "DELETE",
+    });
+  }
+
+  async toggleSubjectStatus(subjectId) {
+    return this.makeAdminRequest(`/subjects/admin/${subjectId}/toggle`, {
+      method: "PATCH",
+    });
+  }
+
+  async bulkCreateSubjects(subjects) {
+    return this.makeAdminRequest("/subjects/admin/bulk", {
+      method: "POST",
+      body: JSON.stringify({ subjects }),
+    });
+  }
 }
 
 
@@ -669,3 +717,12 @@ export const deletePackage = (packageId) => adminService.deletePackage(packageId
 // Student Profile Management
 export const getStudentProfile = (userId) => adminService.getStudentProfile(userId);
 export const updateStudentProfile = (userId, data) => adminService.updateStudentProfile(userId, data);
+
+// Subject Management
+export const getSubjects = (filters) => adminService.getSubjects(filters);
+export const getSubjectById = (subjectId) => adminService.getSubjectById(subjectId);
+export const createSubject = (subjectData) => adminService.createSubject(subjectData);
+export const updateSubject = (subjectId, subjectData) => adminService.updateSubject(subjectId, subjectData);
+export const deleteSubject = (subjectId) => adminService.deleteSubject(subjectId);
+export const toggleSubjectStatus = (subjectId) => adminService.toggleSubjectStatus(subjectId);
+export const bulkCreateSubjects = (subjects) => adminService.bulkCreateSubjects(subjects);

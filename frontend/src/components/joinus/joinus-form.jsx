@@ -2,6 +2,7 @@ import React, { useState } from "react";
 
 import tutorService from "../../services/tutorService";
 import VideoRecorder from "../VideoRecorder";
+import SubjectSelector from "./SubjectSelector";
 
 import authService from "../../services/authService";
 
@@ -29,7 +30,7 @@ function JoinusForm({ isOpen, onClose }) {
     canTutorGroups: "yes",
 
     // Tutoring Subjects & Qualifications
-    subjectsToTutor: "",
+    subjectsToTutor: [], // Array of { key, name, curriculum, yearLevel, display }
     hasWorkingWithChildrenCheck: "no",
 
     // Motivation
@@ -223,9 +224,9 @@ function JoinusForm({ isOpen, onClose }) {
         break;
 
       case 4: // Tutoring Subjects & Qualifications
-        if (!formData.subjectsToTutor.trim()) {
+        if (!formData.subjectsToTutor || formData.subjectsToTutor.length === 0) {
           stepErrors.subjectsToTutor =
-            "Please tell us which subjects you would like to tutor";
+            "Please select at least one subject you would like to tutor";
           isValid = false;
         }
         break;
@@ -316,7 +317,7 @@ function JoinusForm({ isOpen, onClose }) {
         canCommit1Year: "yes",
         canTutorMostWeeks: "yes",
         canTutorGroups: "yes",
-        subjectsToTutor: "",
+        subjectsToTutor: [],
         hasWorkingWithChildrenCheck: "no",
         motivation: "",
         videoSubmission: null,
@@ -758,21 +759,21 @@ function JoinusForm({ isOpen, onClose }) {
               <h3 className="mb-4">Tutoring Subjects & Qualifications</h3>
 
               <div className="mb-3">
-                <label htmlFor="subjectsToTutor" className="form-label">
+                <label className="form-label">
                   What subjects would you like to tutor?
                 </label>
-                <textarea
-                  className={`form-control ${
-                    errors.subjectsToTutor ? "is-invalid" : ""
-                  }`}
-                  id="subjectsToTutor"
-                  name="subjectsToTutor"
-                  rows="4"
-                  value={formData.subjectsToTutor}
-                  onChange={handleChange}
-                ></textarea>
+                <SubjectSelector
+                  selectedSubjects={formData.subjectsToTutor}
+                  onChange={(subjects) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      subjectsToTutor: subjects,
+                    }))
+                  }
+                  error={errors.subjectsToTutor}
+                />
                 {errors.subjectsToTutor && (
-                  <div className="invalid-feedback">
+                  <div className="text-danger mt-1" style={{ fontSize: "0.85rem" }}>
                     {errors.subjectsToTutor}
                   </div>
                 )}

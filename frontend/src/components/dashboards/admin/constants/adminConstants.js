@@ -40,6 +40,11 @@ export const ADMIN_NAV_LINKS = [
     icon: "fas fa-box-open",
   },
   {
+    name: "Subjects",
+    path: "/dashboard/admin/subjects",
+    icon: "fas fa-book",
+  },
+  {
     name: "Referral Program",
     path: "/dashboard/admin/referral",
     icon: "fas fa-gift",

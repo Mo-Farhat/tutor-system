@@ -748,6 +748,22 @@ model LessonPipeline {
   @@index([status])
 }
 
+// ---------- Subjects (Admin-managed) ----------
+model Subject {
+  id         Int      @id @default(autoincrement())
+  name       String   // e.g., "Physics", "Chemistry", "Mathematics"
+  curriculum String   // e.g., "VCE", "HSC", "QCE", "IB", "VIC", "NSW" (for Year 1-10)
+  yearLevel  String   // e.g., "Year 11/12", "Year 1-10"
+  isActive   Boolean  @default(true)
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([name, curriculum, yearLevel])
+  @@index([curriculum, yearLevel])
+  @@index([isActive])
+}
+
 model MediaAsset {
   id          Int      @id @default(autoincrement())
   ownerUserId Int?

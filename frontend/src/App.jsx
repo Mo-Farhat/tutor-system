@@ -2,6 +2,7 @@ import React from "react";
 import {BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom";
 import { ContactFormProvider } from "./components/snippets/contact-form-overlay";
 import { AuthProvider } from "./contexts/AuthContext";
+import { SubjectsProvider } from "./contexts/SubjectsContext";
 import ScrollToTop from "./components/ScrollToTop";
 import ProtectedTutorRoute from "./components/ProtectedTutorRoute";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
@@ -67,12 +68,14 @@ import AdminNotificationsPage from "./pages/js/dashboard/admin/notifications";
 import AdminSupportPage from "./pages/js/dashboard/admin/support";
 import AdminSettingsPage from "./pages/js/dashboard/admin/settings";
 import AdminAssignmentsPage from "./pages/js/dashboard/admin/assignments";
+import AdminSubjectsPage from "./pages/js/dashboard/admin/subjects";
 
 
 
 const App = () => {
   return (
     <AuthProvider>
+      <SubjectsProvider>
       <Router>
         <ScrollToTop />
         <ContactFormProvider>
@@ -312,6 +315,14 @@ const App = () => {
               }
             />
             <Route
+              path="/dashboard/admin/subjects"
+              element={
+                <ProtectedAdminRoute>
+                  <AdminSubjectsPage />
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
               path="/dashboard/admin/blog"
               element={
                 <ProtectedAdminRoute>
@@ -354,6 +365,7 @@ const App = () => {
           </Routes>
         </ContactFormProvider>
       </Router>
+      </SubjectsProvider>
     </AuthProvider>
   );
 };
