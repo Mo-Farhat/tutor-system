@@ -754,7 +754,16 @@ class AuthService {
       toBool(applicationData.canTutorMostWeeks)
     );
     formData.append("canTutorGroups", toBool(applicationData.canTutorGroups));
-    formData.append("subjectsToTutor", applicationData.subjectsToTutor || "");
+    
+    // Handle subjectsToTutor - serialize array to JSON if it's an array
+    const subjects = applicationData.subjectsToTutor;
+    if (Array.isArray(subjects)) {
+      // Serialize as JSON string with display format for storage
+      formData.append("subjectsToTutor", JSON.stringify(subjects));
+    } else {
+      formData.append("subjectsToTutor", subjects || "");
+    }
+    
     formData.append(
       "hasWorkingWithChildrenCheck",
       toBool(applicationData.hasWorkingWithChildrenCheck)

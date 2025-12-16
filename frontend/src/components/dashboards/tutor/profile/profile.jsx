@@ -1,12 +1,14 @@
 import "../../../../css/dashboards/tutor/profile/profile.css";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../../../contexts/AuthContext";
+import { useSubjects } from "../../../../contexts/SubjectsContext";
 import profileService from "../../../../services/profileService";
 import authService from "../../../../services/authService";
 import VideoRecorder from "./VideoRecorder";
 
 function TutorProfile() {
   const { user } = useAuth();
+  const { getYearLevels, getCurriculaFor, getSubjectsFor, isLoading: subjectsLoading } = useSubjects();
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -421,7 +423,19 @@ function TutorProfile() {
 
   const updateSubjectEntry = (index, field, value) => {
     const updatedEntries = [...subjectEntries];
-    updatedEntries[index] = { ...updatedEntries[index], [field]: value };
+    const entry = { ...updatedEntries[index], [field]: value };
+    
+    // Cascade clearing: when yearLevel changes, clear curriculum and subject
+    if (field === "yearLevel") {
+      entry.curriculumOrState = "";
+      entry.subject = "";
+    }
+    // When curriculum changes, clear subject
+    if (field === "curriculumOrState") {
+      entry.subject = "";
+    }
+    
+    updatedEntries[index] = entry;
     setSubjectEntries(updatedEntries);
   };
 
@@ -1291,10 +1305,14 @@ function TutorProfile() {
                                 e.target.value
                               )
                             }
+                            disabled={subjectsLoading}
                           >
                             <option value="">Select Year Level</option>
-                            <option value="Year 1-10">Year 1-10</option>
-                            <option value="Year 11/12">Year 11/12</option>
+                            {getYearLevels().map((yearLevel) => (
+                              <option key={yearLevel} value={yearLevel}>
+                                {yearLevel}
+                              </option>
+                            ))}
                           </select>
                         </div>
                         <div className="col-md-4">
@@ -1309,23 +1327,20 @@ function TutorProfile() {
                                 e.target.value
                               )
                             }
+                            disabled={!entry.yearLevel || subjectsLoading}
                           >
                             <option value="">Select Curriculum</option>
-                            <option value="VCE">VCE</option>
-                            <option value="HSC">HSC</option>
-                            <option value="QLD">QLD</option>
-                            <option value="WA">WA</option>
-                            <option value="SA">SA</option>
-                            <option value="TAS">TAS</option>
-                            <option value="NT">NT</option>
-                            <option value="ACT">ACT</option>
+                            {entry.yearLevel && getCurriculaFor(entry.yearLevel).map((curriculum) => (
+                              <option key={curriculum} value={curriculum}>
+                                {curriculum}
+                              </option>
+                            ))}
                           </select>
                         </div>
                         <div className="col-md-3">
                           <label className="form-label">Subject</label>
-                          <input
-                            type="text"
-                            className="form-control"
+                          <select
+                            className="form-select"
                             value={entry.subject}
                             onChange={(e) =>
                               updateSubjectEntry(
@@ -1334,8 +1349,17 @@ function TutorProfile() {
                                 e.target.value
                               )
                             }
-                            placeholder="e.g., Mathematics"
-                          />
+                            disabled={!entry.curriculumOrState || subjectsLoading}
+                          >
+                            <option value="">Select Subject</option>
+                            {entry.yearLevel && entry.curriculumOrState && 
+                              getSubjectsFor(entry.curriculumOrState, entry.yearLevel).map((subject) => (
+                                <option key={subject} value={subject}>
+                                  {subject}
+                                </option>
+                              ))
+                            }
+                          </select>
                         </div>
                         <div className="col-md-1 d-flex align-items-end">
                           <button

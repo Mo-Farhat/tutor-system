@@ -1,0 +1,170 @@
+/* Admin Subjects Management Styles */
+
+.admin-subjects-container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.admin-subjects-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
+.admin-subjects-header .header-left h1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 0.25rem;
+}
+
+.admin-subjects-header .header-left p {
+  margin-bottom: 0;
+  font-size: 0.9rem;
+}
+
+.admin-subjects-filters {
+  background: #f8f9fa;
+  padding: 1.25rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-subjects-stats {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-subjects-stats .stat-card {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 0.5rem;
+  padding: 1rem 1.5rem;
+  min-width: 140px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.admin-subjects-stats .stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #0d6efd;
+}
+
+.admin-subjects-stats .stat-label {
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin-top: 0.25rem;
+}
+
+.admin-subjects-table-container {
+  background: white;
+  border-radius: 0.5rem;
+  border: 1px solid #e9ecef;
+  overflow: hidden;
+}
+
+.admin-subjects-table-container .table {
+  margin-bottom: 0;
+}
+
+.admin-subjects-table-container .table thead th {
+  background: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+  font-weight: 600;
+  color: #495057;
+  padding: 1rem;
+  white-space: nowrap;
+}
+
+.admin-subjects-table-container .table tbody td {
+  padding: 0.875rem 1rem;
+  vertical-align: middle;
+}
+
+.admin-subjects-table-container .table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.admin-subjects-table-container .table tbody tr.inactive-row {
+  background: #fef3f3;
+  opacity: 0.8;
+}
+
+.admin-subjects-table-container .table tbody tr.inactive-row:hover {
+  background: #fde8e8;
+}
+
+/* Badges */
+.admin-subjects-container .badge {
+  font-weight: 500;
+  padding: 0.4em 0.65em;
+}
+
+/* Button group in table */
+.admin-subjects-table-container .btn-group .btn {
+  padding: 0.35rem 0.6rem;
+}
+
+/* Modal improvements */
+.admin-subjects-container .modal-content {
+  border: none;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.admin-subjects-container .modal-header {
+  border-bottom: 1px solid #e9ecef;
+  padding: 1.25rem 1.5rem;
+}
+
+.admin-subjects-container .modal-body {
+  padding: 1.5rem;
+}
+
+.admin-subjects-container .modal-footer {
+  border-top: 1px solid #e9ecef;
+  padding: 1rem 1.5rem;
+}
+
+.admin-subjects-container .form-label {
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .admin-subjects-container {
+    padding: 1rem;
+  }
+
+  .admin-subjects-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .admin-subjects-header button {
+    width: 100%;
+  }
+
+  .admin-subjects-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .admin-subjects-stats .stat-card {
+    min-width: auto;
+  }
+
+  .admin-subjects-table-container {
+    overflow-x: auto;
+  }
+
+  .admin-subjects-table-container .table {
+    min-width: 700px;
+  }
+}
