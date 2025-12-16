@@ -73,13 +73,22 @@ const subjectModel = {
    * @returns {Promise<Object>}
    */
   async create(data) {
+    // Ensure required fields exist (defensive check)
+    if (!data.name || !data.curriculum || !data.yearLevel) {
+      throw new Error(`Missing required fields: ${JSON.stringify({ 
+        name: !!data.name, 
+        curriculum: !!data.curriculum, 
+        yearLevel: !!data.yearLevel 
+      })}`);
+    }
+    
     return prisma.subject.create({
       data: {
         name: data.name.trim(),
         curriculum: data.curriculum.trim(),
         yearLevel: data.yearLevel.trim(),
         isActive: data.isActive !== undefined ? data.isActive : true,
-        sortOrder: data.sortOrder || 0,
+        sortOrder: typeof data.sortOrder === 'number' ? data.sortOrder : (parseInt(data.sortOrder) || 0),
       },
     });
   },
@@ -135,6 +144,11 @@ const subjectModel = {
    * @returns {Promise<Object|null>}
    */
   async findDuplicate(name, curriculum, yearLevel, excludeId = null) {
+    // Safety check for null/undefined values
+    if (!name || !curriculum || !yearLevel) {
+      return null; // Can't be a duplicate if fields are missing
+    }
+    
     const where = {
       name: name.trim(),
       curriculum: curriculum.trim(),

@@ -101,6 +101,7 @@ exports.getOne = async (req, res) => {
  */
 exports.create = async (req, res) => {
   try {
+    console.log("subjectController.create - Request body:", JSON.stringify(req.body, null, 2));
     const { name, curriculum, yearLevel, isActive, sortOrder } = req.body;
     const result = await subjectService.createSubject({
       name,

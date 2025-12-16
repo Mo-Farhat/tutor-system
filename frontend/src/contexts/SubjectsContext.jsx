@@ -26,14 +26,18 @@ export function SubjectsProvider({ children }) {
 
       if (response.success) {
         setSubjects({
-          grouped: response.data,
+          grouped: response.data || {},
           flat: response.flat || [],
         });
       } else {
+        // Set empty data on error so the app doesn't break
+        setSubjects({ grouped: {}, flat: [] });
         setError(response.error || "Failed to load subjects");
       }
     } catch (err) {
       console.error("SubjectsProvider: Error fetching subjects:", err);
+      // Set empty data on error so the app doesn't break
+      setSubjects({ grouped: {}, flat: [] });
       setError(err.message);
     } finally {
       setIsLoading(false);

@@ -87,6 +87,8 @@ class SubjectService {
    */
   async createSubject(data) {
     try {
+      console.log("SubjectService.createSubject - Received data:", JSON.stringify(data, null, 2));
+      
       // Validate required fields
       if (!data.name?.trim()) {
         return { success: false, error: "Subject name is required" };
@@ -115,7 +117,19 @@ class SubjectService {
       return { success: true, data: subject };
     } catch (error) {
       console.error("SubjectService.createSubject error:", error);
-      return { success: false, error: "Failed to create subject" };
+      // Handle Prisma unique constraint violation
+      if (error.code === 'P2002') {
+        return { 
+          success: false, 
+          error: "A subject with this name, curriculum, and year level already exists" 
+        };
+      }
+      // Return more detailed error for debugging
+      return { 
+        success: false, 
+        error: error.message || "Failed to create subject",
+        details: process.env.NODE_ENV !== 'production' ? error.toString() : undefined
+      };
     }
   }
 
