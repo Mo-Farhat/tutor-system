@@ -3,75 +3,82 @@
   justify-content: center;
   align-items: center;
   padding: 6rem 0;
-  margin-bottom: 3rem;
-  /* Decorative background retained */
-  background-image: url('/public/Images/site-images/home/site-stats.svg');
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: 100% 100%;
+  background-color: #107AC0; /* Deep Blue */
+  background: linear-gradient(135deg, #107AC0 0%, #0E6BA8 100%);
+  position: relative;
+  overflow: hidden;
 }
+
+/* Add a subtle curve or wave if possible, but for now just solid/gradient */
 
 .site-stat-sec {
   justify-content: center;
-  max-width: 2000px !important;
+  max-width: 1400px !important;
+  margin: 0 auto;
 }
 
 .site-stat-title {
-  font-size: 2rem;
+  font-size: 2.5rem;
   justify-content: center;
   text-align: center;
-  color: #062A78;
-  margin-bottom: 0.5rem;
-}
-
-/* New grid and card layout */
-.site-stat-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1.25rem;
-  width: 100%;
+  color: white;
+  margin-bottom: 3rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .site-stat-card {
   background: #fff;
   border-radius: 1rem;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.06);
-  padding: 1.25rem 1rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  padding: 2rem 1.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  transition: transform 200ms ease, box-shadow 200ms ease;
+  gap: 1rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
 }
 
 .site-stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.15);
 }
 
 .site-stat-icon {
-  color: #3A75C4;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-icon-img {
+    height: 50px;
+    width: auto;
+    object-fit: contain;
 }
 
 .site-stat-number {
-  font-size: 2.25rem;
+  font-size: 2.5rem;
   font-weight: 800;
-  color: #062A78;
+  color: #0F2D53; /* Dark Navy for text */
   font-variant-numeric: tabular-nums;
-  line-height: 1.1;
+  line-height: 1;
 }
 
 .site-stat-suffix {
-  margin-left: 4px;
-  color: #ff3a3a;
+  margin-left: 2px;
+  color: #0F2D53;
   font-weight: 800;
 }
 
 .site-stat-label {
   font-size: 1rem;
-  color: #333;
+  color: #666;
   text-align: center;
+  font-weight: 500;
 }
 
 /* Accessibility: reduce motion */
@@ -81,21 +88,6 @@
   }
   .site-stat-card:hover {
     transform: none;
-  }
-}
-
-/* Responsive layout */
-@media (max-width: 1200px) {
-  .site-stat-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-@media (max-width: 576px) {
-  .site-stat-grid {
-    grid-template-columns: 1fr;
-  }
-  .site-stat-number {
-    font-size: 2rem;
   }
 }
 

@@ -177,30 +177,27 @@ const StudentRequests = () => {
 
   return (
     <div className="student-requests-container">
-      <div className="container-fluid">
-        <div className="row">
-          <div className="col-12">
-            <div className="d-flex justify-content-between align-items-center mb-4">
-              <h2 className="h3 mb-0">Student Requests</h2>
-              <button 
-                className="btn btn-outline-primary btn-sm"
-                onClick={fetchRequests}
-                disabled={loading}
-              >
-                <i className="fas fa-sync-alt me-1"></i>
-                Refresh
-              </button>
-            </div>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2 className="h3 mb-0">Student Requests</h2>
+        <button 
+          className="btn btn-outline-primary btn-sm"
+          onClick={fetchRequests}
+          disabled={loading}
+        >
+          <i className="fas fa-sync-alt me-1"></i>
+          Refresh
+        </button>
+      </div>
 
-            {requests.length === 0 ? (
-              <div className="text-center py-5">
-                <i className="fas fa-inbox fa-3x text-muted mb-3"></i>
-                <h4 className="text-muted">No Student Requests</h4>
-                <p className="text-muted">You haven't received any student requests yet.</p>
-              </div>
-            ) : (
-              <div className="row">
-                {requests.map((request) => (
+      {requests.length === 0 ? (
+        <div className="text-center py-5">
+          <i className="fas fa-inbox fa-3x text-muted mb-3"></i>
+          <h4 className="text-muted">No Student Requests</h4>
+          <p className="text-muted">You haven't received any student requests yet.</p>
+        </div>
+      ) : (
+        <div className="row">
+          {requests.map((request) => (
                   <div key={request.id} className="col-lg-6 col-xl-4 mb-4">
                     <div className="card h-100 shadow-sm">
                       <div className="card-header d-flex justify-content-between align-items-center">
@@ -328,17 +325,15 @@ const StudentRequests = () => {
                   </div>
                 ))}
               </div>
-            )}
-          </div>
-        </div>
-      </div>
+      )}
+
 
       {/* More Info Modal */}
       {selectedRequest && (
         <div 
           className="modal show d-block" 
           tabIndex="-1" 
-          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+          style={{ backgroundColor: 'transparent' }}
           onClick={() => setSelectedRequest(null)}
         >
           <div className="modal-dialog modal-dialog-centered modal-lg" onClick={(e) => e.stopPropagation()}>

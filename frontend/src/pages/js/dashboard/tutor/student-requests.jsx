@@ -11,18 +11,8 @@ const TutorStudentRequestsPage = () => {
           <Snippets.TutorNavbar2 />
         </div>
         <div className="tutor-student-requests-content">
-          <div className="tutor-student-requests-container">
-            <div className="container-fluid">
-              <div className="row">
-                <div className="col-12">
-                  <div className="tutor-student-requests-main-content">
-                    {/* student requests component */}
-                    <StudentRequests />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* student requests component */}
+          <StudentRequests />
         </div>
         
       </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import tutorService from "../../../../services/tutorService";
+import { useSubjects } from "../../../../contexts/SubjectsContext";
 import "../../../../css/dashboards/tutor/calendar/calendar.css";
 
 function getMonthMatrix(year, month) {
@@ -27,6 +28,8 @@ function getMonthMatrix(year, month) {
 }
 
 function TutorCalendar() {
+  const { getFlatSubjects } = useSubjects();
+  const subjects = getFlatSubjects();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState('month'); // 'month', 'week', or 'day'
   const [lessons, setLessons] = useState([]);
@@ -925,9 +928,8 @@ function TutorCalendar() {
                           </div>
                           <div className="col-md-6 mb-3">
                             <label className="form-label">Subject</label>
-                            <input
-                              type="text"
-                              className="form-control"
+                            <select
+                              className="form-select"
                               value={newLesson.subject}
                               onChange={(e) =>
                                 setNewLesson({
@@ -935,8 +937,14 @@ function TutorCalendar() {
                                   subject: e.target.value,
                                 })
                               }
-                              placeholder="e.g., Mathematics"
-                            />
+                            >
+                              <option value="">Select Subject</option>
+                              {subjects.map((subject) => (
+                                <option key={subject.id} value={subject.name}>
+                                  {subject.name}
+                                </option>
+                              ))}
+                            </select>
                           </div>
                         </div>
                         <div className="row">
@@ -1245,9 +1253,8 @@ function TutorCalendar() {
                         <div className="row">
                           <div className="col-md-6 mb-3">
                             <label className="form-label">Subject</label>
-                            <input
-                              type="text"
-                              className="form-control"
+                            <select
+                              className="form-select"
                               value={editingLesson.subject || ""}
                               onChange={(e) =>
                                 setEditingLesson({
@@ -1255,8 +1262,14 @@ function TutorCalendar() {
                                   subject: e.target.value,
                                 })
                               }
-                              placeholder="e.g., Mathematics"
-                            />
+                            >
+                              <option value="">Select Subject</option>
+                              {subjects.map((subject) => (
+                                <option key={subject.id} value={subject.name}>
+                                  {subject.name}
+                                </option>
+                              ))}
+                            </select>
                           </div>
                           <div className="col-md-6 mb-3">
                             <label className="form-label">Date</label>

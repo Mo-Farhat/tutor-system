@@ -1,78 +1,159 @@
 #home_hero {
-    height: auto;
-    padding: 6rem 0;
-    padding-bottom: 0 !important;
-    overflow: hidden;
+    min-height: 80vh;
+    padding-top: 10rem;
+    padding-bottom: 0 !important; /* Removed padding to touch next section */
+    overflow: visible;
     display: flex;
-    justify-content: center;
-  }
+    align-items: center;
+    background: white;
+}
 
-  .hero-sec {
-    height: 100%;
-    max-width: 2000px !important;
+.hero-content-wrapper {
+    max-width: 1200px !important;
+    margin: 0 auto;
+    position: relative;
+}
+
+.hero-sec {
+    position: relative;
+    width: 100%;
+    min-height: 450px;
+    padding: 5rem;
+    background: radial-gradient(circle at center, #90DAFA 0%, #49A4E5 100%);
+    border-radius: 3rem;
     display: flex;
-    justify-content: center;
-  }
-  
-  
-  .hero-t {
-    position: absolute;
-    transform: scale(60%);
-    top: -25%;
-    left: -25%;
+    align-items: center;
     z-index: 1;
-  }
-  .hero-b {
-    position: absolute;
-    transform: scale(60%);
-    bottom: -25%;
-    right: -25%;
-    z-index: 1;
-  }
-  
-  .hero-text-col {
+    margin-bottom: 4rem; /* Added margin to keep the card shape while image touches bottom */
+}
+
+.hero-text-col {
+    z-index: 2;
+    color: white;
+    display: flex;
     flex-direction: column;
-    justify-content: center;
-    color: white;
-    background-image: url("/public/Images/site-images/home/hero.jpg");
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
-    padding: 6rem;
-    border-radius: 2rem;
-  }
-  .hero-main-h {
-    font-size: 4rem;
-  }
-  
-  .hero-sub-h {
-    color: #C2C1C2;
-    font-size: 1.25rem;
-  }
-  
-  .hero-btns {
-    border-radius: 1rem !important;
-    padding: 1rem 1.5rem !important;
-    font-weight: 600 !important;
-    transition: transform 0.3s ease-in-out !important;
-  }
+    gap: 1.5rem;
+    max-width: 60%;
+}
 
-  .hero-btns:hover {
-    transform: scale(1.05);
-  }
-  
-  #hero-ft-btn {
-    background-color: #ff3a3a !important;
-    border: none !important;
-  }
-  
-  #hero-lau-btn {
+.hero-main-h {
+    font-size: 4rem;
     color: white;
-    background-color: #3A75C4;
-  }
-  
-  #hero-lau-btn:hover {
-    background-color: #3A75C4;
+    font-weight: 700;
+    line-height: 1.1;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.hero-sub-h {
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 1.25rem;
+    max-width: 90%;
+    line-height: 1.4;
+}
+
+.hero-btns-main {
+    margin-top: 1rem;
+}
+
+.hero-btns {
+    border-radius: 0.75rem !important;
+    padding: 0.8rem 2rem !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    text-transform: none;
+    font-size: 1rem;
+}
+
+.hero-btns:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+#hero-ft-btn {
+    background-color: #FF3A3A !important;
+    border: none !important;
     color: white !important;
-  }
-  
+}
+
+#hero-lau-btn {
+    background-color: white !important;
+    color: #49A4E5 !important;
+    border: none !important;
+}
+
+/* Image Positioning - Outside the blue container */
+.hero-img-container {
+    position: absolute;
+    right: -2%;
+    bottom: 0; /* Align to bottom of section */
+    height: 110%;
+    width: 45%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.hero-student-img {
+    height: 100%;
+    width: auto;
+    object-fit: contain;
+    pointer-events: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .hero-main-h {
+        font-size: 3.5rem;
+    }
+    .hero-img-container {
+        right: -2%;
+    }
+}
+
+@media (max-width: 992px) {
+    #home_hero {
+        padding-top: 4rem;
+    }
+    .hero-sec {
+        padding: 3rem 2rem;
+        flex-direction: column;
+        text-align: center;
+        min-height: auto;
+    }
+    
+    .hero-text-col {
+        max-width: 100%;
+        align-items: center;
+        margin-bottom: 250px; /* Space for image */
+    }
+    
+    .hero-img-container {
+        position: relative;
+        width: 100%;
+        height: 400px;
+        right: 0;
+        bottom: -3rem;
+        margin-top: -200px;
+        justify-content: center;
+    }
+
+    .hero-student-img {
+        height: 110%;
+    }
+    
+    .hero-sub-h {
+        max-width: 100%;
+        font-size: 1.25rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .hero-main-h {
+        font-size: 2.5rem;
+    }
+    .hero-sec {
+        padding: 2rem 1rem;
+    }
+}
