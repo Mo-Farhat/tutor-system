@@ -16,18 +16,14 @@
   margin-left: 250px;
   min-height: 100vh;
   padding: 30px;
+  padding-bottom: 150px; /* Ensure space for modals/content at bottom */
   background-color: #f8f9fa;
+  overflow: visible;
 }
 
 .student-requests-container {
   width: 100%;
   padding: 20px;
-  transition: all 0.3s ease;
-}
-
-.student-requests-container:hover {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-  transform: translateY(-2px);
 }
 
 /* Card Styles */
