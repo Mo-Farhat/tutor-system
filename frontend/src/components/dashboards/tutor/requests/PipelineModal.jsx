@@ -106,7 +106,7 @@ const PipelineModal = ({ show, onHide, studentId, studentName }) => {
     <div 
       className="modal show d-block" 
       tabIndex="-1" 
-      style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+      style={{ backgroundColor: 'transparent' }}
       onClick={onHide}
     >
       <div 
