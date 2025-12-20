@@ -50,16 +50,22 @@ function StatCard({ value, label, suffix = '', icon = null }) {
     () => typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
     []
   );
-  const numericTarget = Number(value);
-  const isNumeric = Number.isFinite(numericTarget);
+  
+  // Handle non-numeric values like "4/5"
+  const numericValue = parseFloat(value);
+  const isNumeric = !isNaN(numericValue) && value.toString().match(/^\d+(\.\d+)?$/);
   const showCounter = inView && !prefersReducedMotion && isNumeric;
 
-  const displayValue = useCountUp(isNumeric ? numericTarget : 0, 900, 0, showCounter);
+  const displayValue = useCountUp(isNumeric ? numericValue : 0, 900, 0, showCounter);
 
   return (
-    <div ref={ref} className="site-stat-card" role="group" aria-label={`${label}: ${value}${suffix ? ' ' + suffix : ''}`}>
-      {icon ? <div className="site-stat-icon" aria-hidden="true">{icon}</div> : null}
-      <div className="site-stat-number" aria-live="polite" aria-atomic="true">
+    <div ref={ref} className="site-stat-card d-flex flex-column align-items-center justify-content-center p-4" role="group" aria-label={`${label}: ${value}${suffix ? ' ' + suffix : ''}`}>
+      {icon ? (
+          <div className="site-stat-icon mb-3" aria-hidden="true">
+              <img src={icon} alt="" className="stat-icon-img" />
+          </div>
+      ) : null}
+      <div className="site-stat-number fw-bold" aria-live="polite" aria-atomic="true">
         {showCounter ? displayValue : value}
         {suffix ? (
           <>
@@ -68,7 +74,7 @@ function StatCard({ value, label, suffix = '', icon = null }) {
           </>
         ) : null}
       </div>
-      <div className="site-stat-label">{label}</div>
+      <div className="site-stat-label text-center text-muted">{label}</div>
     </div>
   );
 }
@@ -76,10 +82,10 @@ function StatCard({ value, label, suffix = '', icon = null }) {
 function Sitestat({
   title = 'We believe that to be the best, you have to learn from the best!',
   stats = [
-    { value: '4.9', label: 'Average Tutor Rating', suffix: '/5' },
-    { value: '6000', label: 'Hours of Experience', suffix: '+' },
-    { value: '4000', label: 'Completed Lessons', suffix: '+' },
-    { value: '350', label: 'Tutors', suffix: '+' },
+    { value: '4/5', label: 'Average Tutor Ration', suffix: '', icon: '/Images/Home/First Place Ribbon.png' },
+    { value: '6000', label: 'Hours of Experience', suffix: '+', icon: '/Images/Home/Clock.png' },
+    { value: '4000', label: 'Completed Lessons', suffix: '+', icon: '/Images/Home/Brochure.png' },
+    { value: '350', label: 'Tutors', suffix: '+', icon: '/Images/Home/User Menu Male.png' },
   ],
   variant = 'section'
 }) {
@@ -87,19 +93,21 @@ function Sitestat({
   return (
     <div ref={ref} className={`site-stat-section section-animate-target variant-${variant}`}>
       <section
-        className="row container-fluid section d-flex g-0 z-index-0"
+        className="container-fluid section d-flex flex-column align-items-center justify-content-center g-0 z-index-0"
         id="site-stat"
       >
-        <div className="row col-8 d-flex gap-5 site-stat-sec">
-          <h2 className="fw-bold d-flex site-stat-title">
+          <h2 className="fw-bold text-center site-stat-title mb-5">
             {title}
           </h2>
-          <div className="site-stat-grid">
-            {stats.map((s, idx) => (
-              <StatCard key={idx} value={s.value} label={s.label} suffix={s.suffix} icon={s.icon} />
-            ))}
+          <div className="container">
+            <div className="row justify-content-center gap-4">
+                {stats.map((s, idx) => (
+                <div key={idx} className="col-lg-2 col-md-5 col-sm-10">
+                    <StatCard value={s.value} label={s.label} suffix={s.suffix} icon={s.icon} />
+                </div>
+                ))}
+            </div>
           </div>
-        </div>
       </section>
     </div>
   );
