@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const ctrl = require("../controllers/adminTiersController");
-const { requireAuth, requireAdmin } = require("../middleware/authMiddleware");
+const { authenticateToken, requireRole } = require("../middleware/auth");
 
 // All routes require admin authentication
-router.use(requireAuth);
-router.use(requireAdmin);
+router.use(authenticateToken);
+router.use(requireRole("admin"));
 
 // GET /api/admin/tiers - Get all tiers
 router.get("/", ctrl.getAllTiers);
