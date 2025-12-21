@@ -21,6 +21,7 @@ const lessonMaterialModel = require("./lessonMaterialModel");
 const zoomLinkModel = require("./zoomLinkModel");
 const notificationModel = require("./notificationModel");
 const masterTierModel = require("./masterTierModel");
+const tutorPayoutModel = require("./tutorPayoutModel");
 
 module.exports = {
   userModel,
@@ -46,4 +47,6 @@ module.exports = {
   zoomLinkModel,
   notificationModel,
   masterTierModel,
+  tutorPayoutModel,
 };
+

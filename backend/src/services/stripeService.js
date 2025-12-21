@@ -247,6 +247,9 @@ class StripeService {
 
   async handleCheckoutComplete(session) {
     const userId = parseInt(session.metadata.userId);
+    const sessionType = session.metadata.type;
+    const assignmentId = session.metadata.assignmentId ? parseInt(session.metadata.assignmentId) : null;
+    const hours = session.metadata.hours ? parseFloat(session.metadata.hours) : null;
     
     // Update transaction status
     await prisma.paymentTransaction.updateMany({
@@ -254,7 +257,30 @@ class StripeService {
       data: { status: 'succeeded' }
     });
 
-    // Add any additional completion logic
+    // If this is a package purchase with an assignment, credit the hours
+    if (sessionType === 'package' && assignmentId && hours) {
+      const { studentTutorModel } = require('../models');
+      
+      try {
+        // Credit hours to the assignment bucket
+        await studentTutorModel.creditHours(assignmentId, hours);
+        console.log(`✅ Credited ${hours} hours to assignment ${assignmentId} for user ${userId}`);
+        
+        // Send notification to student
+        const notificationService = require('./notificationService');
+        await notificationService.createNotification(
+          userId,
+          'payment_confirmation',
+          'Hours credited to your account',
+          `${hours} hours have been added to your tutoring bucket.`,
+          'medium',
+          '/dashboard/student/packages',
+          { assignmentId, hours }
+        );
+      } catch (e) {
+        console.error('Error crediting hours to assignment:', e);
+      }
+    }
   }
 
   // Subscription Management (for recurring lessons)

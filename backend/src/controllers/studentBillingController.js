@@ -118,17 +118,23 @@ exports.purchasePackage = async (req, res) => {
 // Create checkout session for package purchase
 exports.createPackageCheckout = async (req, res) => {
   try {
-    const { packageId, subject } = req.body || {};
+    const { packageId, subject, assignmentId, hours } = req.body || {};
     
     let packageData;
     let packagePrice;
     let packageName;
+    let packageHours = hours || 10; // Default to 10 hours
     
     if (packageId) {
       // Get specific package from PackageType
       packageData = await packageTypeModel.findById(packageId);
       if (!packageData) {
         return res.status(404).json({ success: false, error: "Package not found" });
+      }
+      
+      // Use package hours if available
+      if (packageData.hours) {
+        packageHours = packageData.hours;
       }
       
       // Calculate final price with discount
@@ -151,12 +157,26 @@ exports.createPackageCheckout = async (req, res) => {
       return res.status(400).json({ success: false, error: "packageId or subject is required" });
     }
     
+    // Validate assignmentId if provided
+    if (assignmentId) {
+      const { studentTutorModel } = require('../models');
+      const assignment = await studentTutorModel.findByIdWithTutor(assignmentId);
+      
+      if (!assignment) {
+        return res.status(404).json({ success: false, error: "Assignment not found" });
+      }
+      
+      if (assignment.studentId !== req.user.id) {
+        return res.status(403).json({ success: false, error: "Assignment does not belong to you" });
+      }
+    }
+    
     const lineItems = [{
       price_data: {
         currency: 'aud',
         product_data: {
           name: packageName,
-          description: packageData ? packageData.description : '10 hours of one-on-one tutoring with expert tutors'
+          description: packageData ? packageData.description : `${packageHours} hours of one-on-one tutoring with expert tutors`
         },
         unit_amount: packagePrice
       },
@@ -166,12 +186,24 @@ exports.createPackageCheckout = async (req, res) => {
     const successUrl = `${process.env.FRONTEND_URL}/dashboard/student/payment-success?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${process.env.FRONTEND_URL}/dashboard/student/packages`;
     
+    // Include assignmentId and hours in metadata for webhook to credit
+    const metadata = { 
+      type: 'package', 
+      subject: subject || packageData?.subject, 
+      packageId: packageId?.toString(),
+      hours: packageHours.toString(),
+    };
+    
+    if (assignmentId) {
+      metadata.assignmentId = assignmentId.toString();
+    }
+    
     const session = await stripeService.createCheckoutSession(
       req.user.id,
       lineItems,
       successUrl,
       cancelUrl,
-      { type: 'package', subject: subject || packageData.subject, packageId }
+      metadata
     );
     
     res.json({ 
