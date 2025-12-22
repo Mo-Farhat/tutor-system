@@ -63,11 +63,17 @@ function TierManagement() {
     e.preventDefault();
     setError(null);
 
+    const tierName = formData.name.toLowerCase();
     const data = {
-      name: formData.name.toLowerCase(),
+      name: tierName,
       hourlyRate: parseFloat(formData.hourlyRate),
       striveCut: parseFloat(formData.striveCut),
     };
+
+    // Add id when creating a new tier (id is the tier name in lowercase)
+    if (!editingTier) {
+      data.id = tierName;
+    }
 
     try {
       let res;
