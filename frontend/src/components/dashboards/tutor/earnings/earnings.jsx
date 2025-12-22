@@ -73,12 +73,21 @@ function TutorEarnings() {
 
         {!stripeStatus?.onboardingComplete && (
           <div className="card mb-4 border-warning shadow-sm">
-            <div className="card-body d-flex justify-content-between align-items-center">
+            <div className="card-body d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
               <div>
-                <h5 className="card-title text-warning mb-1">Set Up Your Payouts</h5>
+                <h5 className="card-title text-warning mb-1">
+                  <i className="fas fa-university me-2"></i>
+                  Set Up Your Payouts
+                </h5>
                 <p className="card-text text-muted small mb-0">
                   Connect your bank account via Stripe to receive your earnings automatically.
                 </p>
+                {pendingAmount > 0 && (
+                  <p className="card-text fw-bold text-success mt-2 mb-0">
+                    <i className="fas fa-money-bill-wave me-1"></i>
+                    You have <span className="fs-5">${pendingAmount.toFixed(2)}</span> pending!
+                  </p>
+                )}
               </div>
               <button 
                 className="btn btn-warning fw-bold" 

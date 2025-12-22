@@ -52,6 +52,18 @@ class TutorService {
     }
   }
 
+  async markSessionComplete(id, deliveryMode = "online") {
+    try {
+      const response = await api.post(`/auth/tutor/lessons/${id}/complete`, {
+        deliveryMode,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error marking session complete:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
   async getUpcomingLessons() {
     try {
       const response = await api.get("/auth/tutor/lessons/upcoming");

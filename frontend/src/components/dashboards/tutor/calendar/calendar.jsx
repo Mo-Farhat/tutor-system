@@ -267,6 +267,29 @@ function TutorCalendar() {
     }
   };
 
+  // Mark session as complete
+  const handleMarkComplete = async (deliveryMode = 'online') => {
+    if (!editingLesson) return;
+    
+    try {
+      const res = await tutorService.markSessionComplete(editingLesson.id, deliveryMode);
+      if (res?.success) {
+        // Refresh lessons
+        const lessonsRes = await tutorService.getUpcomingLessons();
+        if (lessonsRes?.success && Array.isArray(lessonsRes.data)) {
+          setLessons(lessonsRes.data);
+        }
+        setShowEditModal(false);
+        setEditingLesson(null);
+        alert("Session marked as complete! The student will be notified to confirm.");
+      } else {
+        alert("Failed to mark session complete: " + (res?.error || "Unknown error"));
+      }
+    } catch (e) {
+      alert("Failed to mark session complete: " + e.message);
+    }
+  };
+
   // Helper function to get timezone abbreviation (AEST/AEDT)
   const getTimezoneAbbr = (dateStr) => {
     try {
@@ -1392,6 +1415,17 @@ function TutorCalendar() {
                       </form>
                     </div>
                     <div className="modal-footer">
+                      {/* Show Mark Complete button for past scheduled lessons */}
+                      {editingLesson && editingLesson.status === 'scheduled' && new Date(editingLesson.endAt) < new Date() && (
+                        <button
+                          type="button"
+                          className="btn btn-success me-auto"
+                          onClick={() => handleMarkComplete('online')}
+                        >
+                          <i className="fas fa-check-circle me-1"></i>
+                          Mark as Complete
+                        </button>
+                      )}
                       <button
                         type="button"
                         className="btn btn-secondary"
