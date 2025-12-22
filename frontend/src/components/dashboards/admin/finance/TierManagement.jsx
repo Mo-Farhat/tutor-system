@@ -143,7 +143,7 @@ function TierManagement() {
                 <input
                   type="text"
                   className="tier-form-control"
-                  placeholder="e.g. Gold, Silver, Bronze"
+                  placeholder="e.g. Gold, Premium, Elite"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required

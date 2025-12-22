@@ -17,6 +17,7 @@ function StudentPackages() {
     const [showPackageModal, setShowPackageModal] = useState(false);
     const [assignments, setAssignments] = useState([]);
     const [selectedAssignmentId, setSelectedAssignmentId] = useState("");
+    const [paymentHistory, setPaymentHistory] = useState([]);
 
     useEffect(() => {
         loadPackagesData();
@@ -27,11 +28,12 @@ function StudentPackages() {
             setLoading(true);
             setError(null);
 
-            // Load packages, payment methods, and assignments
-            const [packagesResult, paymentMethodsResult, assignmentsResult] = await Promise.all([
+            // Load packages, payment methods, assignments, and payment history
+            const [packagesResult, paymentMethodsResult, assignmentsResult, paymentsResult] = await Promise.all([
                 studentService.getPackages(),
                 authService.get('/student/payment-methods'),
-                studentService.getMyTutors()
+                studentService.getMyTutors(),
+                studentService.getPayments()
             ]);
 
             if (packagesResult.success) {
@@ -58,6 +60,24 @@ function StudentPackages() {
                 setAssignments(assignmentsResult.data || []);
             } else {
                 console.error('Failed to load assignments:', assignmentsResult.error);
+            }
+
+            // Load payment history
+            if (paymentsResult.success) {
+                const transformedPayments = paymentsResult.data.map(payment => ({
+                    id: payment.id,
+                    date: new Date(payment.createdAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    }),
+                    description: payment.description || `${payment.type} transaction`,
+                    amount: (payment.amountCents / 100).toFixed(2),
+                    type: payment.type
+                }));
+                setPaymentHistory(transformedPayments);
+            } else {
+                console.error('Failed to load payments:', paymentsResult.error);
             }
 
         } catch (err) {
@@ -134,6 +154,21 @@ function StudentPackages() {
         return icons[subject] || '📖';
     };
 
+    const handleDownloadInvoice = async (paymentId) => {
+        try {
+            const result = await studentService.getInvoice(paymentId);
+            if (result.success) {
+                const invoice = result.invoice;
+                alert(`Invoice #${invoice.id}\nDate: ${new Date(invoice.date).toLocaleDateString()}\nAmount: $${(invoice.totalCents / 100).toFixed(2)}\n\nNote: PDF download not implemented in MVP`);
+            } else {
+                alert('Failed to get invoice details.');
+            }
+        } catch (error) {
+            console.error('Error downloading invoice:', error);
+            alert('Failed to download invoice. Please try again.');
+        }
+    };
+
     if (loading) {
         return (
             <div className="student-packages-container">
@@ -193,6 +228,12 @@ function StudentPackages() {
                                                             </div>
                                                             <div className="package-info">
                                                                 <h5 className="package-title">{pkg.subject} Package</h5>
+                                                                {pkg.tutorName && (
+                                                                    <div className="package-tutor small text-muted mb-1">
+                                                                        <i className="fas fa-user-tie me-1"></i>
+                                                                        Tutor: {pkg.tutorName}
+                                                                    </div>
+                                                                )}
                                                                 <span className="badge bg-success">Active</span>
                                                             </div>
                                                         </div>
@@ -296,7 +337,7 @@ function StudentPackages() {
                                                             <button
                                                                 className="btn btn-primary btn-sm"
                                                                 onClick={() => handlePurchasePackage(pkg)}
-                                                                disabled={isPurchasing}
+                                                                disabled={isPurchasing || !selectedAssignmentId}
                                                             >
                                                                 {isPurchasing ? (
                                                                     <>
@@ -310,6 +351,12 @@ function StudentPackages() {
                                                                     </>
                                                                 )}
                                                             </button>
+                                                            {!selectedAssignmentId && (
+                                                                <div className="text-danger small mt-1">
+                                                                    <i className="fas fa-exclamation-circle me-1"></i>
+                                                                    Please select a tutor below
+                                                                </div>
+                                                            )}
                                                         </div>
 
                                                         {pkg.refundable && (
@@ -322,14 +369,15 @@ function StudentPackages() {
                                                         )}
 
                                                         <div className="mt-3">
-                                                            <label className="form-label small fw-bold text-muted mb-1">Credit to Assignment (Optional)</label>
+                                                            <label className="form-label small fw-bold text-muted mb-1">Credit to Assignment (Mandatory)</label>
                                                             <select 
-                                                                className="form-select form-select-sm"
+                                                                className={`form-select form-select-sm ${!selectedAssignmentId ? 'is-invalid' : 'is-valid'}`}
                                                                 value={selectedAssignmentId}
                                                                 onChange={(e) => setSelectedAssignmentId(e.target.value)}
                                                                 style={{ borderRadius: '8px', fontSize: '0.8rem' }}
+                                                                required
                                                             >
-                                                                <option value="">Select an assignment...</option>
+                                                                <option value="">Select a tutor...</option>
                                                                 {assignments.map(a => (
                                                                     <option key={a.id} value={a.id}>
                                                                         {a.tutor?.firstName} - {a.subject} ({a.remainingHours} hrs left)
@@ -343,6 +391,67 @@ function StudentPackages() {
                                         })}
                                     </div>
                                 )}
+                            </div>
+
+                            {/* Payment History Section */}
+                            <div className="student-packages-section mt-5">
+                                <div className="card border-0 shadow-sm" style={{ borderRadius: '16px' }}>
+                                    <div className="card-body p-4">
+                                        <div className="d-flex justify-content-between align-items-center mb-4">
+                                            <h4 className="section-title mb-0">Payment History</h4>
+                                            <button className="btn btn-outline-primary btn-sm" onClick={loadPackagesData}>
+                                                <i className="fas fa-sync-alt me-1"></i> Refresh
+                                            </button>
+                                        </div>
+                                        
+                                        {paymentHistory.length > 0 ? (
+                                            <div className="table-responsive">
+                                                <table className="table table-hover align-middle mb-0">
+                                                    <thead className="table-light">
+                                                        <tr>
+                                                            <th className="border-0">Date</th>
+                                                            <th className="border-0">Description</th>
+                                                            <th className="border-0">Type</th>
+                                                            <th className="border-0">Amount</th>
+                                                            <th className="border-0 text-end">Invoice</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {paymentHistory.map((payment) => (
+                                                            <tr key={payment.id}>
+                                                                <td>{payment.date}</td>
+                                                                <td>{payment.description}</td>
+                                                                <td>
+                                                                    <span className={`badge rounded-pill ${
+                                                                        payment.type === 'package' ? 'bg-primary-subtle text-primary' :
+                                                                        payment.type === 'session' ? 'bg-success-subtle text-success' :
+                                                                        'bg-secondary-subtle text-secondary'
+                                                                    }`} style={{ padding: '6px 12px' }}>
+                                                                        {payment.type}
+                                                                    </span>
+                                                                </td>
+                                                                <td className="fw-bold">${payment.amount}</td>
+                                                                <td className="text-end">
+                                                                    <button
+                                                                        className="btn btn-link text-decoration-none p-0"
+                                                                        onClick={() => handleDownloadInvoice(payment.id)}
+                                                                    >
+                                                                        <i className="fas fa-download me-1"></i> Download
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        ) : (
+                                            <div className="text-center py-5">
+                                                <i className="fas fa-receipt fa-3x text-muted mb-3"></i>
+                                                <p className="text-muted">No payment history found.</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -259,14 +259,41 @@ class StripeService {
 
     // If this is a package purchase with an assignment, credit the hours
     if (sessionType === 'package' && assignmentId && hours) {
-      const { studentTutorModel } = require('../models');
+      const { studentTutorModel, packageModel } = require('../models');
       
       try {
-        // Credit hours to the assignment bucket
+        // 1. Create PackagePurchase record
+        const pkg = await prisma.packagePurchase.create({
+          data: {
+            studentId: userId,
+            assignmentId: assignmentId,
+            subject: session.metadata.subject || 'Tutoring',
+            hoursTotal: Math.round(hours),
+            hoursUsed: 0,
+            status: 'active',
+            purchasedAt: new Date()
+          }
+        });
+
+        // 2. Create PaymentTransaction record
+        await prisma.paymentTransaction.create({
+          data: {
+            studentId: userId,
+            packageId: pkg.id,
+            type: 'package',
+            amountCents: session.amount_total,
+            description: `Purchase of ${hours} hours package`,
+            status: 'succeeded',
+            stripeSessionId: session.id,
+            stripePaymentId: session.payment_intent
+          }
+        });
+
+        // 3. Credit hours to the assignment bucket
         await studentTutorModel.creditHours(assignmentId, hours);
         console.log(`✅ Credited ${hours} hours to assignment ${assignmentId} for user ${userId}`);
         
-        // Send notification to student
+        // 4. Send notification to student
         const notificationService = require('./notificationService');
         await notificationService.createNotification(
           userId,

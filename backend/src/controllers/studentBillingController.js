@@ -13,8 +13,23 @@ exports.getPackages = async (req, res) => {
       orderBy: { createdAt: "desc" }
     });
 
-    // Get student's purchased packages
-    const purchasedPackages = await packageModel.listByStudent(req.user.id);
+    // Get student's purchased packages with assignment and tutor info
+    const purchasedPackages = await prisma.packagePurchase.findMany({
+      where: { studentId: Number(req.user.id) },
+      include: {
+        assignment: {
+          include: {
+            tutor: {
+              select: {
+                firstName: true,
+                lastName: true
+              }
+            }
+          }
+        }
+      },
+      orderBy: { purchasedAt: "desc" },
+    });
 
     // Transform available packages to match frontend expectations
     const transformedAvailable = availablePackages.map(pkg => ({
@@ -41,7 +56,8 @@ exports.getPackages = async (req, res) => {
       hoursUsed: pkg.hoursUsed,
       status: pkg.status,
       purchasedAt: pkg.purchasedAt,
-      type: 'purchased'
+      type: 'purchased',
+      tutorName: pkg.assignment?.tutor ? `${pkg.assignment.tutor.firstName} ${pkg.assignment.tutor.lastName}` : null
     }));
 
     res.json({ 

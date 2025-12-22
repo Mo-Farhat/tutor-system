@@ -416,6 +416,8 @@ model StudentTutor {
   // relations to User — names MUST match the back-relations on User
   student User @relation("StudentPairs", fields: [studentId], references: [id], onDelete: Cascade)
   tutor   User @relation("TutorPairs", fields: [tutorId], references: [id], onDelete: Cascade)
+
+  PackagePurchase PackagePurchase[]
   // Optional but helpful to prevent duplicates:
   // @@unique([studentId, tutorId, subject])
 
@@ -518,6 +520,8 @@ model PackagePurchase {
   PaymentTransaction PaymentTransaction[]
   PackageType        PackageType?         @relation(fields: [packageTypeId], references: [id])
   packageTypeId      Int?
+  assignmentId       Int?
+  assignment         StudentTutor?        @relation(fields: [assignmentId], references: [id])
 
   @@index([studentId, subject])
 }
