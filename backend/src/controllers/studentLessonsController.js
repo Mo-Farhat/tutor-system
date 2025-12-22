@@ -18,7 +18,7 @@ exports.completed = async (req, res) => {
     
     // Calculate feedback statistics
     const totalCompleted = data.length;
-    const pendingFeedback = data.filter(lesson => !lesson.feedback).length;
+    const pendingFeedback = data.filter(lesson => !lesson.studentFeedback).length;
     const withFeedback = totalCompleted - pendingFeedback;
     
     // Add metadata about feedback status
@@ -72,7 +72,7 @@ exports.giveFeedback = async (req, res) => {
 exports.pendingFeedback = async (req, res) => {
   try {
     const allCompleted = await lessonModel.listCompletedByStudent(req.user.id, Number(req.query.limit || 50));
-    const pending = allCompleted.filter(lesson => !lesson.feedback);
+    const pending = allCompleted.filter(lesson => !lesson.studentFeedback);
     res.json({ success: true, data: pending, count: pending.length });
   } catch (e) {
     console.error("lessons.pendingFeedback", e);

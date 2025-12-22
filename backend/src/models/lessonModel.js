@@ -27,7 +27,7 @@ class LessonModel {
         tutor: {
           select: { id: true, firstName: true, lastName: true, email: true },
         },
-        feedback: true,
+        studentFeedback: true,
       },
     });
   }
@@ -39,7 +39,7 @@ class LessonModel {
         tutor: {
           select: { id: true, firstName: true, lastName: true, email: true },
         },
-        feedback: true,
+        studentFeedback: true,
       },
     });
   }
@@ -219,7 +219,7 @@ class LessonModel {
         student: {
           select: { id: true, firstName: true, lastName: true, email: true },
         },
-        feedback: true,
+        studentFeedback: true,
       },
     });
   }
@@ -231,7 +231,7 @@ class LessonModel {
         student: {
           select: { id: true, firstName: true, lastName: true, email: true },
         },
-        feedback: true,
+        studentFeedback: true,
       },
     });
   }
