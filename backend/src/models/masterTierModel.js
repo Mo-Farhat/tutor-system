@@ -85,7 +85,7 @@ class MasterTierModel {
     if (!tutorProfile) return null;
 
     // Map enum tier to master tier id
-    const tierId = tutorProfile.tier.toLowerCase(); // "gold", "silver", "bronze"
+    const tierId = tutorProfile.tier.toLowerCase(); // "gold", "premium", "elite"
     return this.findById(tierId);
   }
 }

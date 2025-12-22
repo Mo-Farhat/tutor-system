@@ -39,8 +39,8 @@
 }
 
 .tier-card.gold { border-top: 4px solid #ecc94b; }
-.tier-card.silver { border-top: 4px solid #a0aec0; }
-.tier-card.bronze { border-top: 4px solid #ed8936; }
+.tier-card.premium { border-top: 4px solid #805ad5; }
+.tier-card.elite { border-top: 4px solid #1a202c; }
 
 .tier-name {
   font-size: 1.25rem;

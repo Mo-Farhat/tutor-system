@@ -73,13 +73,13 @@ enum Role {
 
 enum Tier {
   gold
-  silver
-  bronze
+  premium
+  elite
 }
 
 // Master tier configuration for payment rates
 model MasterTier {
-  id          String   @id  // e.g., "gold", "silver", "bronze"
+  id          String   @id  // e.g., "gold", "premium", "elite"
   name        String
   hourlyRate  Decimal  @db.Decimal(10, 2)  // Amount charged to student
   striveCut   Decimal  @db.Decimal(10, 2)  // Platform fee

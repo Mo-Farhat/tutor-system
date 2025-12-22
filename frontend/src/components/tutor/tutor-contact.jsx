@@ -289,7 +289,7 @@ function TutorContact() {
                                                 {tutor.tier && (
                                                     <div className="tutor-contact-tier">
                                                         <span className="tutor-contact-badge">
-                                                            {tutor.tier === 'gold' ? 'Gold' : tutor.tier === 'silver' ? 'Silver' : tutor.tier === 'bronze' ? 'Bronze' : 'Tutor'} Tutor
+                                                            {tutor.tier === 'gold' ? 'Gold' : tutor.tier === 'premium' ? 'Premium' : tutor.tier === 'elite' ? 'Elite' : 'Tutor'} Tutor
                                                         </span>
                                                         <span className="tutor-contact-price">${tutor.hourly_rate || tutor.hourlyRate || 'N/A'}/h</span>
                                                     </div>

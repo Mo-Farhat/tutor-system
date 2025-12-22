@@ -57,7 +57,7 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
                 : [],
               is_live: false,
               documents_uploaded: false,
-              tier: "bronze",
+              tier: "elite",
               rating: null,
               hourly_rate: 0,
             });
@@ -326,8 +326,8 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
                   disabled={isProcessing || tutor?.isApplication}
                 >
                   <option value="gold">Gold</option>
-                  <option value="silver">Silver</option>
-                  <option value="bronze">Bronze</option>
+                  <option value="premium">Premium</option>
+                  <option value="elite">Elite</option>
                 </select>
               </div>
               <div className="tutor-info-item">

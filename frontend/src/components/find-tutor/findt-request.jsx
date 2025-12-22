@@ -181,8 +181,8 @@ const FindTutorRequest = () => {
   // Format tier badge
   const tierNames = {
     gold: 'Gold',
-    silver: 'Silver',
-    bronze: 'Bronze'
+    premium: 'Premium',
+    elite: 'Elite'
   };
   const tierName = tierNames[tier.toLowerCase()] || tier.charAt(0).toUpperCase() + tier.slice(1).toLowerCase();
   const tierBadgeText = `${tierName} ($${Number(hourlyRate).toFixed(0)}/h)`;
