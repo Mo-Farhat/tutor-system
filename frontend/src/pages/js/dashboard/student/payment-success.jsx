@@ -13,7 +13,7 @@ const PaymentSuccessPage = () => {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          navigate('/dashboard/student/payment-history');
+          navigate('/dashboard/student/packages');
           return 0;
         }
         return prev - 1;
@@ -24,7 +24,7 @@ const PaymentSuccessPage = () => {
   }, [navigate]);
 
   const handleGoToDashboard = () => {
-    navigate('/dashboard/student/payment-history');
+    navigate('/dashboard/student/packages');
   };
 
   const handleGoToPaymentMethods = () => {
@@ -81,7 +81,7 @@ const PaymentSuccessPage = () => {
                       onClick={handleGoToDashboard}
                     >
                       <i className="fas fa-chart-line me-2"></i>
-                      View Payment History
+                      View Packages
                     </button>
                     <button 
                       className="btn btn-outline-secondary"
