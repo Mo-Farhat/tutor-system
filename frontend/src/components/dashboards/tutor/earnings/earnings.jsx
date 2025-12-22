@@ -173,37 +173,34 @@ function TutorEarnings() {
                 >
                   6M
                 </button>
-                <button
-                  type="button"
-                  className="btn btn-sm btn-outline-secondary"
-                >
-                  1Y
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-sm btn-outline-secondary"
-                >
-                  All
-                </button>
               </div>
             </div>
             <div className="tutor-earnings-chart-bargraph">
               <div className="tutor-earnings-bargraph d-flex align-items-end">
-                {["Jan", "Feb", "Mar", "Apr", "May", "Jun"].map(
-                  (month, idx) => (
+                {(earnings?.chartData || []).map((monthData, idx, arr) => {
+                  // Calculate max earnings for proportional height
+                  const maxEarnings = Math.max(...arr.map(d => d.earnings), 1);
+                  const barHeight = Math.max(20, (monthData.earnings / maxEarnings) * 150);
+                  const isCurrentMonth = idx === arr.length - 1;
+                  
+                  return (
                     <div
-                      key={month}
-                      className={`tutor-earnings-bar-col ${
-                        idx === 5 ? "active" : ""
-                      }`}
+                      key={monthData.month}
+                      className={`tutor-earnings-bar-col ${isCurrentMonth ? "active" : ""}`}
+                      title={`$${monthData.earnings.toFixed(2)} (${monthData.sessions} sessions)`}
                     >
                       <div
                         className="tutor-earnings-bar"
-                        style={{ height: `${40 + idx * 20}px` }}
+                        style={{ height: `${barHeight}px` }}
                       ></div>
-                      <div className="tutor-earnings-bar-label">{month}</div>
+                      <div className="tutor-earnings-bar-label">{monthData.month}</div>
                     </div>
-                  )
+                  );
+                })}
+                {(!earnings?.chartData || earnings.chartData.length === 0) && (
+                  <div className="text-muted text-center w-100 py-3">
+                    No earnings data yet
+                  </div>
                 )}
               </div>
             </div>
@@ -275,7 +272,7 @@ function TutorEarnings() {
               </table>
             </div>
             <div className="tutor-earnings-view-all text-end mt-2">
-              <a href="#" className="tutor-earnings-view-link">
+              <a href="/dashboard/tutor/calendar" className="tutor-earnings-view-link">
                 View all sessions
               </a>
             </div>

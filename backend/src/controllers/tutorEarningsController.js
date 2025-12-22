@@ -14,6 +14,9 @@ exports.getEarnings = async (req, res) => {
     // Get recent sessions with earnings
     const recentSessions = await tutorPayoutModel.getRecentSessions(tutorId, 10);
 
+    // Get monthly earnings for chart
+    const monthlyEarnings = await tutorPayoutModel.getMonthlyEarnings(tutorId, 6);
+
     res.json({
       success: true,
       data: {
@@ -27,6 +30,9 @@ exports.getEarnings = async (req, res) => {
         
         // For chart or comparison
         lastMonthEarnings: summary.lastMonth,
+        
+        // Monthly chart data
+        chartData: monthlyEarnings,
         
         // Recent sessions table
         recentSessions: recentSessions,

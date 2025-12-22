@@ -101,6 +101,40 @@ class TutorPayoutModel {
   }
 
   /**
+   * Get monthly earnings for last N months (for chart display)
+   */
+  async getMonthlyEarnings(tutorId, months = 6) {
+    const now = new Date();
+    const monthlyData = [];
+
+    for (let i = months - 1; i >= 0; i--) {
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const endOfMonth = new Date(now.getFullYear(), now.getMonth() - i + 1, 0, 23, 59, 59);
+      
+      const result = await prisma.tutorPayout.aggregate({
+        where: {
+          tutorId: Number(tutorId),
+          status: { in: ['confirmed', 'paid'] },
+          createdAt: { gte: startOfMonth, lte: endOfMonth },
+        },
+        _sum: { netPayout: true },
+        _count: true,
+      });
+
+      const monthName = startOfMonth.toLocaleString('default', { month: 'short' });
+      
+      monthlyData.push({
+        month: monthName,
+        year: startOfMonth.getFullYear(),
+        earnings: parseFloat(result._sum.netPayout || 0),
+        sessions: result._count,
+      });
+    }
+
+    return monthlyData;
+  }
+
+  /**
    * Get recent sessions with earnings for display
    */
   async getRecentSessions(tutorId, limit = 10) {
