@@ -7,6 +7,7 @@ import {
   getTutorDocuments,
   approveIntroVideo,
   rejectIntroVideo,
+  changeTutorTier,
 } from "../../../../services/adminService";
 import ChangeRequestsTab from "./ChangeRequestsTab";
 import SessionsTab from "./SessionsTab";
@@ -105,8 +106,30 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
     onUpdate(tutorData);
   };
 
-  const handleTierChange = (newTier) => {
-    setTutorData((prev) => ({ ...prev, tier: newTier }));
+  const handleTierChange = async (newTier) => {
+    const userIdToUse = tutorData.userId || tutorData.id || tutor.id;
+    if (!userIdToUse) {
+      alert("Unable to identify tutor. Please refresh and try again.");
+      return;
+    }
+
+    try {
+      setIsProcessing(true);
+      const result = await changeTutorTier(userIdToUse, newTier);
+      if (result.success) {
+        setTutorData((prev) => ({ ...prev, tier: newTier }));
+        if (typeof onUpdate === "function") {
+          onUpdate({ ...tutorData, tier: newTier });
+        }
+      } else {
+        alert("Failed to change tier: " + (result.error || "Unknown error"));
+      }
+    } catch (err) {
+      console.error("Error changing tier:", err);
+      alert("An error occurred while changing tier.");
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   // Make tutor live/offline handlers
@@ -300,13 +323,11 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
                   className="form-select form-select-sm ms-2"
                   value={tutorData.tier}
                   onChange={(e) => handleTierChange(e.target.value)}
-                  disabled={!isEditing}
+                  disabled={isProcessing || tutor?.isApplication}
                 >
-                  {Object.entries(TUTOR_TIER_LABELS).map(([value, label]) => (
-                    <option key={value} value={value}>
-                      {label}
-                    </option>
-                  ))}
+                  <option value="gold">Gold</option>
+                  <option value="silver">Silver</option>
+                  <option value="bronze">Bronze</option>
                 </select>
               </div>
               <div className="tutor-info-item">

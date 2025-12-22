@@ -186,6 +186,27 @@ class TutorService {
       return { success: false, error: error.message };
     }
   }
+
+  // Stripe Connect
+  async setupStripeConnect() {
+    try {
+      const response = await api.post("/auth/tutor/payouts/setup");
+      return response.data;
+    } catch (error) {
+      console.error("Error setting up Stripe Connect:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getStripeStatus() {
+    try {
+      const response = await api.get("/auth/tutor/payouts/stripe-status");
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching Stripe status:", error);
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 export default new TutorService();

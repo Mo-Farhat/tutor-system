@@ -9,4 +9,8 @@ router.get("/auth/tutor/earnings", authenticateToken, requireTutor, ctrl.getEarn
 // GET /auth/tutor/payouts - Get all payouts
 router.get("/auth/tutor/payouts", authenticateToken, requireTutor, ctrl.getPayouts);
 
+// Stripe Connect Onboarding
+router.post("/auth/tutor/payouts/setup", authenticateToken, requireTutor, ctrl.setupStripeConnect);
+router.get("/auth/tutor/payouts/stripe-status", authenticateToken, requireTutor, ctrl.checkStripeStatus);
+
 module.exports = router;

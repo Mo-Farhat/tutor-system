@@ -80,3 +80,107 @@ exports.getPayouts = async (req, res) => {
     });
   }
 };
+
+/**
+ * Setup Stripe Connect account and get onboarding link
+ * POST /auth/tutor/payouts/setup
+ */
+exports.setupStripeConnect = async (req, res) => {
+  try {
+    const tutorId = req.user.id;
+    const { PrismaClient } = require("@prisma/client");
+    const prisma = new PrismaClient();
+    const stripeService = require("../services/stripeService");
+
+    // Get tutor profile
+    const profile = await prisma.tutorProfile.findUnique({
+      where: { userId: tutorId },
+      include: { user: true }
+    });
+
+    if (!profile) {
+      return res.status(404).json({ success: false, error: "Tutor profile not found" });
+    }
+
+    let accountId = profile.stripeConnectAccountId;
+
+    // Create account if not exists
+    if (!accountId) {
+      const account = await stripeService.createConnectAccount(tutorId, profile.user.email);
+      accountId = account.id;
+    }
+
+    // Create onboarding link
+    const baseUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+    const accountLink = await stripeService.createAccountLink(
+      accountId,
+      `${baseUrl}/dashboard/tutor/earnings?stripe_return=true`,
+      `${baseUrl}/dashboard/tutor/earnings?stripe_refresh=true`
+    );
+
+    res.json({
+      success: true,
+      data: {
+        url: accountLink.url,
+        accountId: accountId
+      }
+    });
+  } catch (e) {
+    console.error("tutorEarnings.setupStripeConnect", e);
+    res.status(500).json({ success: false, error: "Failed to setup Stripe Connect" });
+  }
+};
+
+/**
+ * Check Stripe Connect onboarding status
+ * GET /auth/tutor/payouts/stripe-status
+ */
+exports.checkStripeStatus = async (req, res) => {
+  try {
+    const tutorId = req.user.id;
+    const { PrismaClient } = require("@prisma/client");
+    const prisma = new PrismaClient();
+    const stripeService = require("../services/stripeService");
+
+    const profile = await prisma.tutorProfile.findUnique({
+      where: { userId: tutorId }
+    });
+
+    if (!profile || !profile.stripeConnectAccountId) {
+      return res.json({
+        success: true,
+        data: {
+          onboardingComplete: false,
+          hasAccount: false
+        }
+      });
+    }
+
+    // Retrieve account from Stripe
+    const account = await stripeService.getAccount(profile.stripeConnectAccountId);
+    const isComplete = account.details_submitted && account.charges_enabled;
+
+    // Update database if changed
+    if (isComplete !== profile.stripeOnboardingComplete) {
+      await prisma.tutorProfile.update({
+        where: { userId: tutorId },
+        data: { stripeOnboardingComplete: isComplete }
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        onboardingComplete: isComplete,
+        hasAccount: true,
+        accountId: profile.stripeConnectAccountId,
+        detailsSubmitted: account.details_submitted,
+        chargesEnabled: account.charges_enabled
+      }
+    });
+  } catch (e) {
+    console.error("tutorEarnings.checkStripeStatus", e);
+    res.status(500).json({ success: false, error: "Failed to check Stripe status" });
+  }
+};
+

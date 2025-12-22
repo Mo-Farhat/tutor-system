@@ -1,0 +1,174 @@
+.tier-management-container {
+  padding: 24px;
+}
+
+.tier-management-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.tier-management-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0;
+}
+
+.tier-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.tier-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+}
+
+.tier-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.tier-card.gold { border-top: 4px solid #ecc94b; }
+.tier-card.silver { border-top: 4px solid #a0aec0; }
+.tier-card.bronze { border-top: 4px solid #ed8936; }
+
+.tier-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  margin-bottom: 16px;
+  color: #2d3748;
+}
+
+.tier-rate-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #edf2f7;
+}
+
+.tier-rate-item:last-child {
+  border-bottom: none;
+}
+
+.tier-rate-label {
+  color: #718096;
+  font-size: 0.875rem;
+}
+
+.tier-rate-value {
+  color: #2d3748;
+  font-weight: 600;
+}
+
+.tier-rate-value.payout {
+  color: #38a169;
+  font-size: 1.125rem;
+}
+
+.tier-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.btn-edit-tier {
+  flex: 1;
+  background: #ebf8ff;
+  color: #3182ce;
+  border: none;
+  border-radius: 8px;
+  padding: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-edit-tier:hover {
+  background: #bee3f8;
+}
+
+/* Modal Styles */
+.tier-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1200;
+  backdrop-filter: blur(4px);
+}
+
+.tier-modal {
+  background: white;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 450px;
+  padding: 24px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.tier-form-group {
+  margin-bottom: 16px;
+}
+
+.tier-form-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 6px;
+}
+
+.tier-form-control {
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 1rem;
+}
+
+.tier-form-control:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+.tier-calc-preview {
+  background: #f0fff4;
+  border: 1px solid #c6f6d5;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 16px;
+  margin-bottom: 20px;
+}
+
+.calc-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+}
+
+.calc-row.total {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #9ae6b4;
+  font-weight: 700;
+  color: #2f855a;
+  font-size: 1rem;
+}

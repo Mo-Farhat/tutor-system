@@ -15,6 +15,8 @@ function StudentPackages() {
     const [showNoPaymentMethodAlert, setShowNoPaymentMethodAlert] = useState(false);
     const [selectedPackage, setSelectedPackage] = useState(null);
     const [showPackageModal, setShowPackageModal] = useState(false);
+    const [assignments, setAssignments] = useState([]);
+    const [selectedAssignmentId, setSelectedAssignmentId] = useState("");
 
     useEffect(() => {
         loadPackagesData();
@@ -25,10 +27,11 @@ function StudentPackages() {
             setLoading(true);
             setError(null);
 
-            // Load packages and payment methods
-            const [packagesResult, paymentMethodsResult] = await Promise.all([
+            // Load packages, payment methods, and assignments
+            const [packagesResult, paymentMethodsResult, assignmentsResult] = await Promise.all([
                 studentService.getPackages(),
-                authService.get('/student/payment-methods')
+                authService.get('/student/payment-methods'),
+                studentService.getMyTutors()
             ]);
 
             if (packagesResult.success) {
@@ -48,6 +51,13 @@ function StudentPackages() {
                 setPaymentMethods(paymentMethodsResult.data || []);
             } else {
                 console.error('Failed to load payment methods:', paymentMethodsResult.error);
+            }
+
+            // Load assignments
+            if (assignmentsResult.success) {
+                setAssignments(assignmentsResult.data || []);
+            } else {
+                console.error('Failed to load assignments:', assignmentsResult.error);
             }
 
         } catch (err) {
@@ -71,7 +81,8 @@ function StudentPackages() {
             // Create checkout session for package purchase
             const response = await studentService.createPackageCheckout({
                 packageId: packageData.id,
-                subject: packageData.subject
+                subject: packageData.subject,
+                assignmentId: selectedAssignmentId || null
             });
 
             if (response.success && response.data.checkout_url) {
@@ -309,6 +320,23 @@ function StudentPackages() {
                                                                 </small>
                                                             </div>
                                                         )}
+
+                                                        <div className="mt-3">
+                                                            <label className="form-label small fw-bold text-muted mb-1">Credit to Assignment (Optional)</label>
+                                                            <select 
+                                                                className="form-select form-select-sm"
+                                                                value={selectedAssignmentId}
+                                                                onChange={(e) => setSelectedAssignmentId(e.target.value)}
+                                                                style={{ borderRadius: '8px', fontSize: '0.8rem' }}
+                                                            >
+                                                                <option value="">Select an assignment...</option>
+                                                                {assignments.map(a => (
+                                                                    <option key={a.id} value={a.id}>
+                                                                        {a.tutor?.firstName} - {a.subject} ({a.remainingHours} hrs left)
+                                                                    </option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             );

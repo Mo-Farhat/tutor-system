@@ -345,6 +345,73 @@ class StripeService {
     }
   }
 
+  // Stripe Connect (Tutor Payouts)
+  async createConnectAccount(userId, email) {
+    try {
+      const account = await stripe.accounts.create({
+        type: 'express',
+        email: email,
+        capabilities: {
+          transfers: { requested: true },
+        },
+        metadata: { userId: userId.toString() }
+      });
+
+      // Update tutor profile with account ID
+      await prisma.tutorProfile.update({
+        where: { userId },
+        data: { stripeConnectAccountId: account.id }
+      });
+
+      return account;
+    } catch (error) {
+      console.error('Error creating Stripe Connect account:', error);
+      throw error;
+    }
+  }
+
+  async createAccountLink(stripeAccountId, returnUrl, refreshUrl) {
+    try {
+      const accountLink = await stripe.accountLinks.create({
+        account: stripeAccountId,
+        refresh_url: refreshUrl,
+        return_url: returnUrl,
+        type: 'account_onboarding',
+      });
+
+      return accountLink;
+    } catch (error) {
+      console.error('Error creating Stripe account link:', error);
+      throw error;
+    }
+  }
+
+  async getAccount(stripeAccountId) {
+    try {
+      return await stripe.accounts.retrieve(stripeAccountId);
+    } catch (error) {
+      console.error('Error retrieving Stripe account:', error);
+      throw error;
+    }
+  }
+
+  async createTransfer(stripeAccountId, amountCents, description, metadata = {}) {
+    try {
+      const transfer = await stripe.transfers.create({
+        amount: amountCents,
+        currency: 'aud',
+        destination: stripeAccountId,
+        description,
+        metadata
+      });
+
+      return transfer;
+    } catch (error) {
+      console.error('Error creating Stripe transfer:', error);
+      throw error;
+    }
+  }
+
   // Utility Methods
   constructWebhookEvent(body, signature) {
     return stripe.webhooks.constructEvent(

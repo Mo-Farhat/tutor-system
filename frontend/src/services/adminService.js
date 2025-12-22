@@ -617,6 +617,31 @@ class AdminService {
       body: JSON.stringify({ subjects }),
     });
   }
+
+  // Tier Management
+  async getTiers() {
+    return this.makeAdminRequest("/admin/tiers");
+  }
+
+  async createTier(tierData) {
+    return this.makeAdminRequest("/admin/tiers", {
+      method: "POST",
+      body: JSON.stringify(tierData),
+    });
+  }
+
+  async updateTier(tierId, tierData) {
+    return this.makeAdminRequest(`/admin/tiers/${tierId}`, {
+      method: "PUT",
+      body: JSON.stringify(tierData),
+    });
+  }
+
+  async deleteTier(tierId) {
+    return this.makeAdminRequest(`/admin/tiers/${tierId}`, {
+      method: "DELETE",
+    });
+  }
 }
 
 
@@ -726,3 +751,9 @@ export const updateSubject = (subjectId, subjectData) => adminService.updateSubj
 export const deleteSubject = (subjectId) => adminService.deleteSubject(subjectId);
 export const toggleSubjectStatus = (subjectId) => adminService.toggleSubjectStatus(subjectId);
 export const bulkCreateSubjects = (subjects) => adminService.bulkCreateSubjects(subjects);
+
+// Tier Management
+export const getTiers = () => adminService.getTiers();
+export const createTier = (tierData) => adminService.createTier(tierData);
+export const updateTier = (tierId, tierData) => adminService.updateTier(tierId, tierData);
+export const deleteTier = (tierId) => adminService.deleteTier(tierId);

@@ -35,6 +35,11 @@ export const ADMIN_NAV_LINKS = [
     icon: "fas fa-dollar-sign",
   },
   {
+    name: "Tier Management",
+    path: "/dashboard/admin/tiers",
+    icon: "fas fa-layer-group",
+  },
+  {
     name: "Packages",
     path: "/dashboard/admin/packages",
     icon: "fas fa-box-open",
