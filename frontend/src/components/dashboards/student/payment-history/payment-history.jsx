@@ -189,41 +189,8 @@ function StudentPaymentHistory() {
                     <h4 className="student-payment-history-section-title">Payment History & Package Management</h4>
                 </div>
 
-                {/* Purchase 10-Hour Package Section */}
                 <div className="student-payment-history-section">
-                    <h5 className="student-payment-history-subsection-title">Purchase 10-Hour Package</h5>
-                    <div className="row g-3 mb-4">
-                        {availablePackages.map((pkg) => (
-                            <div key={pkg.subject} className="col-12 col-md-4">
-                                <div className="card student-payment-history-package-card h-100">
-                                    <div className="card-body">
-                                        <div className="student-payment-history-package-icon">
-                                            <span className={pkg.iconClass}>{pkg.icon}</span>
-                                        </div>
-                                        <h6 className="student-payment-history-package-title">{pkg.subject}</h6>
-                                        <p className="student-payment-history-package-description">
-                                            {pkg.hours} hours of {pkg.subject} tutoring
-                                        </p>
-                                        <div className="student-payment-history-package-price">${pkg.price}</div>
-                                        <button
-                                            className={`btn ${pkg.btnClass} w-100`}
-                                            onClick={() => handlePurchasePackage(pkg.subject)}
-                                            disabled={purchaseLoading[pkg.subject]}
-                                        >
-                                            {purchaseLoading[pkg.subject] ? (
-                                                <>
-                                                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                                    Purchasing...
-                                                </>
-                                            ) : (
-                                                'Purchase Package'
-                                            )}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                    <h4 className="student-payment-history-section-title">Payment History & Package Management</h4>
                 </div>
 
                 {/* Active Packages Section */}

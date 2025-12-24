@@ -1,0 +1,181 @@
+.session-confirmation-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1100;
+  backdrop-filter: blur(4px);
+}
+
+.session-confirmation-modal {
+  background: white;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 500px;
+  padding: 24px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  animation: modalAppear 0.3s ease-out;
+}
+
+@keyframes modalAppear {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.session-confirmation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.session-confirmation-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0;
+}
+
+.session-confirmation-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #a0aec0;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.session-confirmation-details {
+  background: #f7fafc;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.session-detail-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.session-detail-item:last-child {
+  margin-bottom: 0;
+}
+
+.session-detail-label {
+  color: #718096;
+  font-size: 0.875rem;
+}
+
+.session-detail-value {
+  color: #2d3748;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.session-confirmation-charges {
+  border-top: 1px solid #e2e8f0;
+  margin-top: 12px;
+  padding-top: 12px;
+}
+
+.charge-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.charge-label {
+  color: #4a5568;
+  font-size: 0.875rem;
+}
+
+.charge-value {
+  color: #e53e3e;
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.session-confirmation-dispute-section {
+  margin-bottom: 20px;
+}
+
+.dispute-toggle {
+  color: #4a5568;
+  font-size: 0.875rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.dispute-notes {
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 0.875rem;
+  resize: none;
+  min-height: 80px;
+  transition: border-color 0.2s;
+}
+
+.dispute-notes:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+.session-confirmation-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-confirm {
+  flex: 1;
+  background: #48bb78;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-confirm:hover {
+  background: #38a169;
+}
+
+.btn-confirm:disabled {
+  background: #a0aec0;
+  cursor: not-allowed;
+}
+
+.btn-dispute {
+  flex: 1;
+  background: #f56565;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-dispute:hover {
+  background: #e53e3e;
+}
+
+.btn-dispute:disabled {
+  background: #a0aec0;
+  cursor: not-allowed;
+}

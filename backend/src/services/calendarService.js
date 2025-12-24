@@ -135,7 +135,7 @@ class CalendarService {
     });
 
     // If no feedback exists, send reminder email
-    if (!lesson.feedback) {
+    if (!lesson.studentFeedback) {
       try {
         await emailService.sendFeedbackReminderEmail(
           lesson.student.email,

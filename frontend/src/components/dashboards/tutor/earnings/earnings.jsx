@@ -4,28 +4,106 @@ import "../../../../css/dashboards/tutor/earnings/earnings.css";
 
 function TutorEarnings() {
   const [earnings, setEarnings] = useState(null);
+  const [stripeStatus, setStripeStatus] = useState(null);
+  const [loadingStripe, setLoadingStripe] = useState(false);
 
   useEffect(() => {
-    async function fetchEarnings() {
-      const res = await tutorService.getEarnings();
-      setEarnings(res);
+    async function fetchData() {
+      const [earningsRes, stripeRes] = await Promise.all([
+        tutorService.getEarnings(),
+        tutorService.getStripeStatus()
+      ]);
+
+      if (earningsRes.success) {
+        setEarnings(earningsRes.data);
+      }
+      if (stripeRes.success) {
+        setStripeStatus(stripeRes.data);
+      }
     }
-    fetchEarnings();
+    fetchData();
+
+    // Check if we just returned from Stripe
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("stripe_return") || params.get("stripe_refresh")) {
+      // Clear params and re-check status
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
   }, []);
+
+  const handleSetupStripe = async () => {
+    try {
+      setLoadingStripe(true);
+      const res = await tutorService.setupStripeConnect();
+      if (res.success && res.data.url) {
+        window.location.href = res.data.url;
+      } else {
+        alert("Failed to start Stripe onboarding: " + (res.error || "Unknown error"));
+      }
+    } catch (err) {
+      alert("An error occurred during Stripe setup");
+    } finally {
+      setLoadingStripe(false);
+    }
+  };
 
   // Use optional chaining with defaults
   const totalEarnings = earnings?.totalEarnings ?? 0;
-  const thisMonthEarnings = earnings?.thisMonth ?? 0;
+  const monthlyEarnings = earnings?.monthlyEarnings ?? 0;
   const sessionsThisMonth = earnings?.sessionsThisMonth ?? 0;
   const hourlyRate = earnings?.hourlyRate ?? 0;
+  const pendingAmount = earnings?.pendingAmount ?? 0;
   const recentSessions = earnings?.recentSessions ?? [];
 
   return (
     <div className="tutor-earnings-dashboard">
       <div className="tutor-earnings-content">
-        <div className="tutor-earnings-section">
+        <div className="tutor-earnings-section d-flex justify-content-between align-items-center">
           <h4 className="tutor-earnings-section-title">Earnings</h4>
+          {stripeStatus?.onboardingComplete ? (
+            <span className="badge bg-success py-2 px-3">
+              <i className="fas fa-check-circle me-1"></i> Payouts Enabled
+            </span>
+          ) : (
+            <span className="badge bg-warning text-dark py-2 px-3">
+              <i className="fas fa-exclamation-triangle me-1"></i> Payouts Not Set Up
+            </span>
+          )}
         </div>
+
+        {!stripeStatus?.onboardingComplete && (
+          <div className="card mb-4 border-warning shadow-sm">
+            <div className="card-body d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+              <div>
+                <h5 className="card-title text-warning mb-1">
+                  <i className="fas fa-university me-2"></i>
+                  Set Up Your Payouts
+                </h5>
+                <p className="card-text text-muted small mb-0">
+                  Connect your bank account via Stripe to receive your earnings automatically.
+                </p>
+                {pendingAmount > 0 && (
+                  <p className="card-text fw-bold text-success mt-2 mb-0">
+                    <i className="fas fa-money-bill-wave me-1"></i>
+                    You have <span className="fs-5">${pendingAmount.toFixed(2)}</span> pending!
+                  </p>
+                )}
+              </div>
+              <button 
+                className="btn btn-warning fw-bold" 
+                onClick={handleSetupStripe}
+                disabled={loadingStripe}
+              >
+                {loadingStripe ? (
+                  <span className="spinner-border spinner-border-sm me-2"></span>
+                ) : (
+                  <i className="fas fa-university me-2"></i>
+                )}
+                Set Up Now
+              </button>
+            </div>
+          </div>
+        )}
         <div className="row g-3 mb-4">
           <div className="col-6 col-md-3">
             <div className="card tutor-earnings-summary h-100">
@@ -34,7 +112,7 @@ function TutorEarnings() {
                   Total Earnings
                 </div>
                 <div className="tutor-earnings-summary-value">
-                  {totalEarnings}
+                  ${totalEarnings.toFixed(2)}
                 </div>
               </div>
             </div>
@@ -46,7 +124,7 @@ function TutorEarnings() {
                   This Month <span className="tutor-earnings-info-icon">?</span>
                 </div>
                 <div className="tutor-earnings-summary-value">
-                  {thisMonthEarnings}
+                  ${monthlyEarnings.toFixed(2)}
                 </div>
               </div>
             </div>
@@ -55,11 +133,11 @@ function TutorEarnings() {
             <div className="card tutor-earnings-summary h-100">
               <div className="card-body">
                 <div className="tutor-earnings-summary-title">
-                  Sessions This Month{" "}
-                  <span className="tutor-earnings-info-icon">💬</span>
+                  Pending Payouts{" "}
+                  <span className="tutor-earnings-info-icon">⏳</span>
                 </div>
                 <div className="tutor-earnings-summary-value">
-                  {sessionsThisMonth}
+                  ${pendingAmount.toFixed(2)}
                 </div>
               </div>
             </div>
@@ -71,7 +149,9 @@ function TutorEarnings() {
                   Hourly Rate{" "}
                   <span className="tutor-earnings-info-icon">⏺</span>
                 </div>
-                <div className="tutor-earnings-summary-value">{hourlyRate}</div>
+                <div className="tutor-earnings-summary-value">
+                  ${hourlyRate.toFixed(2)}
+                </div>
               </div>
             </div>
           </div>
@@ -93,37 +173,34 @@ function TutorEarnings() {
                 >
                   6M
                 </button>
-                <button
-                  type="button"
-                  className="btn btn-sm btn-outline-secondary"
-                >
-                  1Y
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-sm btn-outline-secondary"
-                >
-                  All
-                </button>
               </div>
             </div>
             <div className="tutor-earnings-chart-bargraph">
               <div className="tutor-earnings-bargraph d-flex align-items-end">
-                {["Jan", "Feb", "Mar", "Apr", "May", "Jun"].map(
-                  (month, idx) => (
+                {(earnings?.chartData || []).map((monthData, idx, arr) => {
+                  // Calculate max earnings for proportional height
+                  const maxEarnings = Math.max(...arr.map(d => d.earnings), 1);
+                  const barHeight = Math.max(20, (monthData.earnings / maxEarnings) * 150);
+                  const isCurrentMonth = idx === arr.length - 1;
+                  
+                  return (
                     <div
-                      key={month}
-                      className={`tutor-earnings-bar-col ${
-                        idx === 5 ? "active" : ""
-                      }`}
+                      key={monthData.month}
+                      className={`tutor-earnings-bar-col ${isCurrentMonth ? "active" : ""}`}
+                      title={`$${monthData.earnings.toFixed(2)} (${monthData.sessions} sessions)`}
                     >
                       <div
                         className="tutor-earnings-bar"
-                        style={{ height: `${40 + idx * 20}px` }}
+                        style={{ height: `${barHeight}px` }}
                       ></div>
-                      <div className="tutor-earnings-bar-label">{month}</div>
+                      <div className="tutor-earnings-bar-label">{monthData.month}</div>
                     </div>
-                  )
+                  );
+                })}
+                {(!earnings?.chartData || earnings.chartData.length === 0) && (
+                  <div className="text-muted text-center w-100 py-3">
+                    No earnings data yet
+                  </div>
                 )}
               </div>
             </div>
@@ -195,7 +272,7 @@ function TutorEarnings() {
               </table>
             </div>
             <div className="tutor-earnings-view-all text-end mt-2">
-              <a href="#" className="tutor-earnings-view-link">
+              <a href="/dashboard/tutor/calendar" className="tutor-earnings-view-link">
                 View all sessions
               </a>
             </div>

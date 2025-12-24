@@ -47,11 +47,15 @@ exports.getAnalytics = async (req, res) => {
       })(),
     ]);
 
+    // Get total payouts from TutorPayout model
+    const payoutsAgg = await prisma.tutorPayout.aggregate({
+      _sum: { netPayout: true },
+      where: { status: { in: ['confirmed', 'paid'] } },
+    });
+
     const totalRevenue = toCurrency(revenueAgg._sum.amountCents || 0);
     const totalRefunds = Math.abs(toCurrency(refundsAgg._sum.amountCents || 0));
-
-    // For now payouts are not modeled; set to 0
-    const totalPayouts = 0;
+    const totalPayouts = parseFloat(payoutsAgg._sum.netPayout || 0);
     const netIncome = totalRevenue - totalPayouts - totalRefunds;
 
     // Average invoice value among paid invoices
@@ -206,9 +210,65 @@ exports.getRefunds = async (req, res) => {
   }
 };
 
-// Placeholders for future expansions
-exports.getPayouts = async (_req, res) => {
-  res.json({ success: true, data: [] });
+// Get real tutor payouts data
+exports.getPayouts = async (req, res) => {
+  try {
+    const { status, start, end } = req.query;
+    
+    const where = {};
+    if (status) where.status = status;
+    if (start || end) {
+      where.createdAt = {};
+      if (start) where.createdAt.gte = new Date(start);
+      if (end) where.createdAt.lte = new Date(end);
+    }
+
+    const payouts = await prisma.tutorPayout.findMany({
+      where,
+      include: {
+        tutor: { select: { firstName: true, lastName: true, email: true } },
+        lesson: { 
+          select: { 
+            subject: true, 
+            startAt: true, 
+            endAt: true,
+            student: { select: { firstName: true, lastName: true } }
+          } 
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    // Calculate duration in hours
+    const calculateDuration = (start, end) => {
+      if (!start || !end) return 0;
+      return (new Date(end) - new Date(start)) / (1000 * 60 * 60);
+    };
+
+    const data = payouts.map(p => ({
+      id: p.id,
+      tutorName: `${p.tutor?.firstName || ''} ${p.tutor?.lastName || ''}`.trim(),
+      tutorEmail: p.tutor?.email || '',
+      studentName: p.lesson?.student 
+        ? `${p.lesson.student.firstName} ${p.lesson.student.lastName}` 
+        : 'N/A',
+      subject: p.lesson?.subject || 'N/A',
+      lessonDate: p.lesson?.startAt?.toISOString() || null,
+      duration: calculateDuration(p.lesson?.startAt, p.lesson?.endAt),
+      grossAmount: parseFloat(p.grossAmount),
+      striveCut: parseFloat(p.striveCut),
+      netPayout: parseFloat(p.netPayout),
+      travelFee: p.travelFee ? parseFloat(p.travelFee) : 0,
+      status: p.status,
+      createdAt: p.createdAt.toISOString(),
+      paidAt: p.paidAt?.toISOString() || null,
+    }));
+
+    res.json({ success: true, data });
+  } catch (e) {
+    console.error("adminFinance.getPayouts", e);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
 };
 
 exports.getReferrals = async (_req, res) => {

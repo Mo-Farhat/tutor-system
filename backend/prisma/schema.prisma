@@ -73,8 +73,20 @@ enum Role {
 
 enum Tier {
   gold
-  silver
-  bronze
+  premium
+  elite
+}
+
+// Master tier configuration for payment rates
+model MasterTier {
+  id          String   @id  // e.g., "gold", "premium", "elite"
+  name        String
+  hourlyRate  Decimal  @db.Decimal(10, 2)  // Amount charged to student
+  striveCut   Decimal  @db.Decimal(10, 2)  // Platform fee
+  payoutRate  Decimal  @db.Decimal(10, 2)  // Tutor receives (hourlyRate - striveCut)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 enum AppStatus {
@@ -138,6 +150,12 @@ enum NotificationType {
   new_application
   payment_issue
   compliance_alert
+  session_confirm_request  // Student needs to confirm session hours
+  session_confirmed        // Session hours confirmed by student
+  session_disputed         // Student disputed session hours
+  bucket_low_warning       // Assignment hours running low
+  overage_charged          // Overage charge applied
+  payout_processed         // Tutor payout completed
 }
 
 enum NotificationPriority {
@@ -229,6 +247,9 @@ model User {
   // Notifications
   notifications Notification[] @relation("UserNotifications")
 
+  // Payment payouts
+  tutorPayouts TutorPayout[] @relation("TutorPayouts")
+
   @@index([role, createdAt])
 }
 
@@ -303,6 +324,10 @@ model TutorProfile {
   approved_at         DateTime?
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
+
+  // Stripe Connect fields
+  stripeConnectAccountId   String?
+  stripeOnboardingComplete Boolean @default(false)
 
   user           User                 @relation(fields: [userId], references: [id])
   documents      TutorDocument[]
@@ -379,6 +404,11 @@ model StudentTutor {
   createdAt DateTime   @default(now())
   endedAt   DateTime?
 
+  // Payment bucket fields
+  remainingHours Decimal  @default(0) @db.Decimal(10, 2)  // Pre-paid hours in bucket
+  isPhysical     Boolean  @default(false)                 // Default delivery mode
+  autoRenew      Boolean  @default(false)                 // Auto-renew package when low
+
   // optional link to an application (keep ONE fk + ONE relation field)
   tutorApplicationId Int?
   tutorApplication   TutorApplication? @relation(fields: [tutorApplicationId], references: [id], onDelete: SetNull)
@@ -386,6 +416,8 @@ model StudentTutor {
   // relations to User — names MUST match the back-relations on User
   student User @relation("StudentPairs", fields: [studentId], references: [id], onDelete: Cascade)
   tutor   User @relation("TutorPairs", fields: [tutorId], references: [id], onDelete: Cascade)
+
+  PackagePurchase PackagePurchase[]
   // Optional but helpful to prevent duplicates:
   // @@unique([studentId, tutorId, subject])
 
@@ -434,6 +466,12 @@ model Lesson {
   seriesId       String?
   recurrenceRule String?
 
+  // Payment tracking fields
+  deliveryMode      String    @default("online")  // "online" or "physical"
+  studentConfirmed  Boolean   @default(false)     // Student confirmed the session
+  confirmationNotes String?                       // Notes from student (esp. if disputed)
+  completedAt       DateTime?                     // When session was marked complete
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -445,6 +483,10 @@ model Lesson {
   studentFeedback StudentFeedback?     @relation("LessonFeedback")
   materials       LessonMaterial[]
   transactions    PaymentTransaction[] @relation("LessonTransactions")
+  
+  // Payment relations
+  payout       TutorPayout?   @relation("LessonPayout")
+  sessionAudit SessionAudit?  @relation("LessonAudit")
 
   @@index([startAt])
   @@index([tutorId])
@@ -478,6 +520,8 @@ model PackagePurchase {
   PaymentTransaction PaymentTransaction[]
   PackageType        PackageType?         @relation(fields: [packageTypeId], references: [id])
   packageTypeId      Int?
+  assignmentId       Int?
+  assignment         StudentTutor?        @relation(fields: [assignmentId], references: [id])
 
   @@index([studentId, subject])
 }
@@ -781,4 +825,42 @@ model MediaAsset {
   profilePhotos StudentProfile[] @relation("StudentProfilePhoto")
 
   @@index([ownerUserId])
+}
+
+// ---------- Payment System ----------
+model TutorPayout {
+  id          Int       @id @default(autoincrement())
+  tutorId     Int
+  lessonId    Int       @unique
+  grossAmount Decimal   @db.Decimal(10, 2)  // hours * hourlyRate
+  striveCut   Decimal   @db.Decimal(10, 2)  // Platform fee
+  netPayout   Decimal   @db.Decimal(10, 2)  // grossAmount - striveCut
+  travelFee   Decimal?  @db.Decimal(10, 2)  // $15 if physical
+  status      String    @default("pending") // pending, paid, cancelled
+  paidAt      DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  tutor  User   @relation("TutorPayouts", fields: [tutorId], references: [id])
+  lesson Lesson @relation("LessonPayout", fields: [lessonId], references: [id])
+
+  @@index([tutorId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model SessionAudit {
+  id            Int      @id @default(autoincrement())
+  lessonId      Int      @unique
+  durationHours Decimal  @db.Decimal(10, 2)  // Calculated from startAt/endAt
+  baseCharge    Decimal  @db.Decimal(10, 2)  // duration * hourlyRate
+  travelFee     Decimal? @db.Decimal(10, 2)  // $15 if physical
+  overageAmount Decimal? @db.Decimal(10, 2)  // Amount charged for overage
+  striveCut     Decimal  @db.Decimal(10, 2)  // Platform fee
+  tutorPayout   Decimal  @db.Decimal(10, 2)  // Net to tutor
+  createdAt     DateTime @default(now())
+
+  lesson Lesson @relation("LessonAudit", fields: [lessonId], references: [id])
+
+  @@index([createdAt])
 }

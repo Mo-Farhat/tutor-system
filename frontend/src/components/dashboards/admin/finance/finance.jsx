@@ -379,15 +379,24 @@ function AdminFinance() {
                 {/* Payouts Tab */}
                 {activeTab === "payouts" && (
                   <div className="admin-finance-section">
+                    {financeData.payouts.length === 0 ? (
+                      <div className="text-center py-5 text-muted">
+                        <i className="fas fa-money-check fa-3x mb-3 d-block"></i>
+                        <p>No payouts found.</p>
+                      </div>
+                    ) : (
                     <div className="table-responsive">
                       <table className="table admin-finance-table">
                         <thead>
                           <tr>
-                            <th>Payout ID</th>
+                            <th>ID</th>
                             <th>Tutor</th>
-                            <th>Period</th>
-                            <th>Sessions</th>
-                            <th>Amount</th>
+                            <th>Student</th>
+                            <th>Subject</th>
+                            <th>Duration</th>
+                            <th>Gross</th>
+                            <th>Strive Cut</th>
+                            <th>Net Payout</th>
                             <th>Status</th>
                             <th>Actions</th>
                           </tr>
@@ -396,19 +405,22 @@ function AdminFinance() {
                           {financeData.payouts.map((payout) => (
                             <tr key={payout.id}>
                               <td>
-                                <strong>{payout.id}</strong>
+                                <strong>#{payout.id}</strong>
                               </td>
                               <td>{payout.tutorName}</td>
-                              <td>{payout.period}</td>
-                              <td>{payout.sessionsCount}</td>
-                              <td>{formatCurrency(payout.amount)}</td>
+                              <td>{payout.studentName}</td>
+                              <td>{payout.subject}</td>
+                              <td>{payout.duration?.toFixed(1)}h</td>
+                              <td>{formatCurrency(payout.grossAmount)}</td>
+                              <td className="text-warning">{formatCurrency(payout.striveCut)}</td>
+                              <td className="fw-bold text-success">{formatCurrency(payout.netPayout)}</td>
                               <td>{getStatusBadge(payout.status)}</td>
                               <td>
                                 <button
                                   className="btn btn-sm btn-outline-primary me-2"
                                   onClick={() => handleViewPayout(payout)}
                                 >
-                                  View Details
+                                  View
                                 </button>
                                 {payout.status === "pending" && (
                                   <button className="btn btn-sm btn-success">
@@ -421,6 +433,7 @@ function AdminFinance() {
                         </tbody>
                       </table>
                     </div>
+                    )}
                   </div>
                 )}
 
@@ -616,42 +629,62 @@ function AdminFinance() {
                 <div className="row g-3">
                   <div className="col-md-6">
                     <label className="form-label fw-bold">Payout ID</label>
-                    <p>{selectedItem.id}</p>
+                    <p>#{selectedItem.id}</p>
                   </div>
                   <div className="col-md-6">
-                    <label className="form-label fw-bold">Tutor Name</label>
-                    <p>{selectedItem.tutorName}</p>
+                    <label className="form-label fw-bold">Tutor</label>
+                    <p>{selectedItem.tutorName}<br/><small className="text-muted">{selectedItem.tutorEmail}</small></p>
                   </div>
                   <div className="col-md-6">
-                    <label className="form-label fw-bold">Period</label>
-                    <p>{selectedItem.period}</p>
+                    <label className="form-label fw-bold">Student</label>
+                    <p>{selectedItem.studentName}</p>
                   </div>
                   <div className="col-md-6">
-                    <label className="form-label fw-bold">Sessions Count</label>
-                    <p>{selectedItem.sessionsCount}</p>
+                    <label className="form-label fw-bold">Subject</label>
+                    <p>{selectedItem.subject}</p>
                   </div>
                   <div className="col-md-6">
-                    <label className="form-label fw-bold">Hourly Rate</label>
-                    <p>{formatCurrency(selectedItem.hourlyRate)}</p>
+                    <label className="form-label fw-bold">Lesson Date</label>
+                    <p>{formatDate(selectedItem.lessonDate)}</p>
                   </div>
                   <div className="col-md-6">
-                    <label className="form-label fw-bold">Total Amount</label>
-                    <p className="fw-bold text-success">
-                      {formatCurrency(selectedItem.amount)}
+                    <label className="form-label fw-bold">Duration</label>
+                    <p>{selectedItem.duration?.toFixed(1)} hours</p>
+                  </div>
+                  <div className="col-md-4">
+                    <label className="form-label fw-bold">Gross Amount</label>
+                    <p>{formatCurrency(selectedItem.grossAmount)}</p>
+                  </div>
+                  <div className="col-md-4">
+                    <label className="form-label fw-bold">Platform Cut</label>
+                    <p className="text-warning">{formatCurrency(selectedItem.striveCut)}</p>
+                  </div>
+                  <div className="col-md-4">
+                    <label className="form-label fw-bold">Net Payout</label>
+                    <p className="fw-bold text-success fs-5">
+                      {formatCurrency(selectedItem.netPayout)}
                     </p>
                   </div>
+                  {selectedItem.travelFee > 0 && (
+                    <div className="col-md-6">
+                      <label className="form-label fw-bold">Travel Fee</label>
+                      <p>{formatCurrency(selectedItem.travelFee)}</p>
+                    </div>
+                  )}
                   <div className="col-md-6">
-                    <label className="form-label fw-bold">Bank Account</label>
-                    <p>{selectedItem.bankAccount}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <label className="form-label fw-bold">Processed Date</label>
-                    <p>{formatDate(selectedItem.processedDate)}</p>
+                    <label className="form-label fw-bold">Created</label>
+                    <p>{formatDate(selectedItem.createdAt)}</p>
                   </div>
                   <div className="col-md-6">
                     <label className="form-label fw-bold">Status</label>
                     <p>{getStatusBadge(selectedItem.status)}</p>
                   </div>
+                  {selectedItem.paidAt && (
+                    <div className="col-md-6">
+                      <label className="form-label fw-bold">Paid Date</label>
+                      <p>{formatDate(selectedItem.paidAt)}</p>
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="modal-footer">

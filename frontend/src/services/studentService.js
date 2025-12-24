@@ -178,6 +178,31 @@ class StudentService {
     }
   }
 
+  // Get pending session confirmations
+  async getPendingConfirmations() {
+    try {
+      const response = await api.get("/auth/student/lessons/pending-confirmation");
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching pending confirmations:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Confirm or dispute a session
+  async confirmSession(lessonId, confirmationData) {
+    try {
+      const response = await api.post(
+        `/auth/student/lessons/${lessonId}/confirm`,
+        confirmationData
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error confirming session:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
   // Get available packages
   async getPackages() {
     try {

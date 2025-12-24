@@ -69,6 +69,7 @@ import AdminSupportPage from "./pages/js/dashboard/admin/support";
 import AdminSettingsPage from "./pages/js/dashboard/admin/settings";
 import AdminAssignmentsPage from "./pages/js/dashboard/admin/assignments";
 import AdminSubjectsPage from "./pages/js/dashboard/admin/subjects";
+import AdminTiersPage from "./pages/js/dashboard/admin/tiers";
 
 
 
@@ -359,6 +360,14 @@ const App = () => {
               element={
                 <ProtectedAdminRoute>
                   <AdminSettingsPage />
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/tiers"
+              element={
+                <ProtectedAdminRoute>
+                  <AdminTiersPage />
                 </ProtectedAdminRoute>
               }
             />

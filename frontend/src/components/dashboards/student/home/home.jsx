@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import studentService from "../../../../services/studentService";
+import SessionConfirmationModal from "../lessons/SessionConfirmationModal";
 import "../../../../css/dashboards/student/home/home.css";
 
 function StudentHome() {
   const [assignedTutors, setAssignedTutors] = useState([]);
+  const [pendingConfirmations, setPendingConfirmations] = useState([]);
+  const [selectedSession, setSelectedSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     loadMyTutors();
@@ -31,11 +35,24 @@ function StudentHome() {
       setLoading(true);
       setError(null);
 
-      // Fetch both tutors and upcoming lessons
-      const [tutorsResult, lessonsResult] = await Promise.all([
+      // Fetch tutors, upcoming lessons, and pending confirmations
+      const [tutorsResult, lessonsResult, confirmationsResult] = await Promise.all([
         studentService.getMyTutors(),
         studentService.getUpcomingLessons(),
+        studentService.getPendingConfirmations(),
       ]);
+
+      if (confirmationsResult.success) {
+        setPendingConfirmations(confirmationsResult.data || []);
+        
+        // Check if we should auto-open a specific session from URL
+        const params = new URLSearchParams(location.search);
+        const confirmId = params.get("confirmId");
+        if (confirmId) {
+          const sessionToConfirm = confirmationsResult.data.find(s => s.id === parseInt(confirmId));
+          if (sessionToConfirm) setSelectedSession(sessionToConfirm);
+        }
+      }
 
       if (tutorsResult.success) {
         // Ensure data is an array before calling map
@@ -209,9 +226,39 @@ function StudentHome() {
 
   return (
     <div className="student-home-container container-fluid">
+      {selectedSession && (
+        <SessionConfirmationModal 
+          session={selectedSession} 
+          onClose={() => setSelectedSession(null)}
+          onConfirmed={(id) => {
+            setPendingConfirmations(prev => prev.filter(s => s.id !== id));
+            setSelectedSession(null);
+          }}
+        />
+      )}
       <div className="row justify-content-center">
         <div className="col-12 col-lg-11">
           <div className="student-home-content">
+            {pendingConfirmations.length > 0 && (
+              <div className="alert alert-warning d-flex align-items-center justify-content-between mb-4 shadow-sm border-0" style={{ borderRadius: '12px', background: '#fffaf0', borderLeft: '4px solid #ed8936' }}>
+                <div className="d-flex align-items-center">
+                  <div className="me-3 bg-warning text-white rounded-circle d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
+                    <i className="fas fa-exclamation-triangle"></i>
+                  </div>
+                  <div>
+                    <h6 className="mb-0 fw-bold text-dark">Pending Session Confirmations</h6>
+                    <p className="mb-0 small text-muted">You have {pendingConfirmations.length} session{pendingConfirmations.length > 1 ? 's' : ''} waiting for your confirmation.</p>
+                  </div>
+                </div>
+                <button 
+                  className="btn btn-warning btn-sm fw-bold px-3" 
+                  style={{ borderRadius: '8px' }}
+                  onClick={() => setSelectedSession(pendingConfirmations[0])}
+                >
+                  Review Now
+                </button>
+              </div>
+            )}
             <div className="d-flex justify-content-between align-items-center mb-4">
               <h3 className="student-home-section-title mb-0">
                 Your Assigned Tutors

@@ -35,6 +35,11 @@ export const ADMIN_NAV_LINKS = [
     icon: "fas fa-dollar-sign",
   },
   {
+    name: "Tier Management",
+    path: "/dashboard/admin/tiers",
+    icon: "fas fa-layer-group",
+  },
+  {
     name: "Packages",
     path: "/dashboard/admin/packages",
     icon: "fas fa-box-open",
@@ -86,8 +91,10 @@ export const TUTOR_STATUS_COLORS = {
 };
 
 // Tutor Tier Options
+// Note: Values match database StudentTier enum (basic, premium, elite)
+// Labels use user-friendly names (Gold, Premium, Elite)
 export const TUTOR_TIERS = {
-  GOLD: "gold",
+  GOLD: "basic",  // Maps to 'basic' in database but displayed as "Gold"
   PREMIUM: "premium",
   ELITE: "elite",
 };

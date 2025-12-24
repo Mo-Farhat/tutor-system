@@ -52,6 +52,18 @@ class TutorService {
     }
   }
 
+  async markSessionComplete(id, deliveryMode = "online") {
+    try {
+      const response = await api.post(`/auth/tutor/lessons/${id}/complete`, {
+        deliveryMode,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error marking session complete:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
   async getUpcomingLessons() {
     try {
       const response = await api.get("/auth/tutor/lessons/upcoming");
@@ -183,6 +195,27 @@ class TutorService {
       return response.data;
     } catch (error) {
       console.error("Error fetching change requests:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Stripe Connect
+  async setupStripeConnect() {
+    try {
+      const response = await api.post("/auth/tutor/payouts/setup");
+      return response.data;
+    } catch (error) {
+      console.error("Error setting up Stripe Connect:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getStripeStatus() {
+    try {
+      const response = await api.get("/auth/tutor/payouts/stripe-status");
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching Stripe status:", error);
       return { success: false, error: error.message };
     }
   }

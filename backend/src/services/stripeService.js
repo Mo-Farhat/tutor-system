@@ -247,6 +247,9 @@ class StripeService {
 
   async handleCheckoutComplete(session) {
     const userId = parseInt(session.metadata.userId);
+    const sessionType = session.metadata.type;
+    const assignmentId = session.metadata.assignmentId ? parseInt(session.metadata.assignmentId) : null;
+    const hours = session.metadata.hours ? parseFloat(session.metadata.hours) : null;
     
     // Update transaction status
     await prisma.paymentTransaction.updateMany({
@@ -254,7 +257,63 @@ class StripeService {
       data: { status: 'succeeded' }
     });
 
-    // Add any additional completion logic
+    // If this is a package purchase, create records and credit hours
+    if (sessionType === 'package') {
+      const { studentTutorModel } = require('../models');
+      
+      try {
+        const hours = session.metadata.hours ? parseFloat(session.metadata.hours) : 10; // Default to 10 hours
+        
+        // 1. Create PackagePurchase record
+        const pkg = await prisma.packagePurchase.create({
+          data: {
+            studentId: userId,
+            assignmentId: assignmentId || null,
+            subject: session.metadata.subject || 'Tutoring',
+            hoursTotal: Math.round(hours),
+            hoursUsed: 0,
+            status: 'active',
+            purchasedAt: new Date()
+          }
+        });
+        console.log(`✅ Created PackagePurchase record: ${pkg.id}`);
+
+        // 2. Create PaymentTransaction record
+        await prisma.paymentTransaction.create({
+          data: {
+            studentId: userId,
+            packageId: pkg.id,
+            type: 'package',
+            amountCents: session.amount_total || 0,
+            description: `Purchase of ${hours} hours package`,
+            status: 'succeeded',
+            stripeSessionId: session.id,
+            stripePaymentId: session.payment_intent
+          }
+        });
+        console.log(`✅ Created PaymentTransaction record for package ${pkg.id}`);
+
+        // 3. Credit hours to the assignment bucket (only if assignmentId provided)
+        if (assignmentId) {
+          await studentTutorModel.creditHours(assignmentId, hours);
+          console.log(`✅ Credited ${hours} hours to assignment ${assignmentId} for user ${userId}`);
+        }
+        
+        // 4. Send notification to student
+        const notificationService = require('./notificationService');
+        await notificationService.createNotification(
+          userId,
+          'payment_confirmation',
+          'Package Purchased Successfully',
+          `Your ${hours}-hour tutoring package has been activated.`,
+          'medium',
+          '/dashboard/student/packages',
+          { assignmentId, hours, packageId: pkg.id }
+        );
+      } catch (e) {
+        console.error('Error processing package purchase:', e);
+      }
+    }
   }
 
   // Subscription Management (for recurring lessons)
@@ -315,6 +374,73 @@ class StripeService {
       return refund;
     } catch (error) {
       console.error('Error creating refund:', error);
+      throw error;
+    }
+  }
+
+  // Stripe Connect (Tutor Payouts)
+  async createConnectAccount(userId, email) {
+    try {
+      const account = await stripe.accounts.create({
+        type: 'express',
+        email: email,
+        capabilities: {
+          transfers: { requested: true },
+        },
+        metadata: { userId: userId.toString() }
+      });
+
+      // Update tutor profile with account ID
+      await prisma.tutorProfile.update({
+        where: { userId },
+        data: { stripeConnectAccountId: account.id }
+      });
+
+      return account;
+    } catch (error) {
+      console.error('Error creating Stripe Connect account:', error);
+      throw error;
+    }
+  }
+
+  async createAccountLink(stripeAccountId, returnUrl, refreshUrl) {
+    try {
+      const accountLink = await stripe.accountLinks.create({
+        account: stripeAccountId,
+        refresh_url: refreshUrl,
+        return_url: returnUrl,
+        type: 'account_onboarding',
+      });
+
+      return accountLink;
+    } catch (error) {
+      console.error('Error creating Stripe account link:', error);
+      throw error;
+    }
+  }
+
+  async getAccount(stripeAccountId) {
+    try {
+      return await stripe.accounts.retrieve(stripeAccountId);
+    } catch (error) {
+      console.error('Error retrieving Stripe account:', error);
+      throw error;
+    }
+  }
+
+  async createTransfer(stripeAccountId, amountCents, description, metadata = {}) {
+    try {
+      const transfer = await stripe.transfers.create({
+        amount: amountCents,
+        currency: 'aud',
+        destination: stripeAccountId,
+        description,
+        metadata
+      });
+
+      return transfer;
+    } catch (error) {
+      console.error('Error creating Stripe transfer:', error);
       throw error;
     }
   }

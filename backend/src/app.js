@@ -112,6 +112,8 @@ const adminCalendarRoutes = require("./routes/adminCalendar");
 const lessonPipelineRoutes = require("./routes/lessonPipeline");
 const notificationRoutes = require("./routes/notifications");
 const subjectRoutes = require("./routes/subjects");
+const adminTiersRoutes = require("./routes/adminTiers");
+const tutorEarningsRoutes = require("./routes/tutorEarnings");
 // Health check with CORS info
 app.get("/health", (req, res) => {
   res.json({ 
@@ -165,6 +167,10 @@ app.use("/api", lessonPipelineRoutes);
 app.use("/api", notificationRoutes);
 
 app.use("/api/subjects", subjectRoutes);
+
+app.use("/api/admin/tiers", adminTiersRoutes);
+
+app.use("/api", tutorEarningsRoutes);
 
 
 /* ---------------------------------------------------------------- */

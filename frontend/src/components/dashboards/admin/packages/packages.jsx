@@ -4,14 +4,21 @@ import {
   PACKAGE_TYPES,
   TUTOR_TIERS,
   TUTOR_TIER_LABELS,
-  COMMON_SUBJECTS,
   DEFAULT_PACKAGE_DISCOUNT,
   PAYMENT_STATUS,
   PAYMENT_STATUS_LABELS,
 } from "../constants/adminConstants";
+import { useSubjects } from "../../../../contexts/SubjectsContext";
 import "../../../../css/dashboards/admin/packages/packages.css";
 
 function AdminPackages() {
+  // Get subjects from context
+  const { getFlatSubjects, isLoading: subjectsLoading } = useSubjects();
+  const subjectsList = getFlatSubjects();
+  
+  // Get unique subject names for dropdowns
+  const uniqueSubjects = [...new Set(subjectsList.map(s => s.name))].sort();
+  
   const [packages, setPackages] = useState([]);
   const [students, setStudents] = useState([]);
   const [studentPackages, setStudentPackages] = useState([]);
@@ -568,7 +575,7 @@ function AdminPackages() {
                       onChange={(e) => setFilterSubject(e.target.value)}
                     >
                       <option value="">All Subjects</option>
-                      {COMMON_SUBJECTS.VCE.map((subject) => (
+                      {uniqueSubjects.map((subject) => (
                         <option key={subject} value={subject}>
                           {subject}
                         </option>
@@ -852,7 +859,7 @@ function AdminPackages() {
                       }
                     >
                       <option value="">Select Subject</option>
-                      {COMMON_SUBJECTS.VCE.map((subject) => (
+                      {uniqueSubjects.map((subject) => (
                         <option key={subject} value={subject}>
                           {subject}
                         </option>

@@ -176,7 +176,7 @@ class TutorService {
    * Admin: Change tier (promote/demote)
    */
   async changeTier(userId, newTier) {
-    const allowed = ["gold", "silver", "bronze"];
+    const allowed = ["gold", "premium", "elite"];
     if (!allowed.includes(String(newTier))) {
       return { success: false, error: `Invalid tier. Allowed: ${allowed.join(", ")}` };
     }
