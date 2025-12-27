@@ -133,7 +133,19 @@ exports.setupStripeConnect = async (req, res) => {
     });
   } catch (e) {
     console.error("tutorEarnings.setupStripeConnect", e);
-    res.status(500).json({ success: false, error: "Failed to setup Stripe Connect" });
+    // Return detailed error for debugging
+    const errorDetails = {
+      message: e.message || "Unknown error",
+      type: e.type || e.name || "UnknownError",
+      code: e.code || null,
+      stripeError: e.raw?.message || null
+    };
+    console.error("Stripe Connect Error Details:", errorDetails);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to setup Stripe Connect",
+      details: process.env.NODE_ENV !== 'production' ? errorDetails : errorDetails.message
+    });
   }
 };
 

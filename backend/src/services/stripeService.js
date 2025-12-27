@@ -381,6 +381,8 @@ class StripeService {
   // Stripe Connect (Tutor Payouts)
   async createConnectAccount(userId, email) {
     try {
+      console.log(`Creating Stripe Connect account for user ${userId} with email ${email}`);
+      
       const account = await stripe.accounts.create({
         type: 'express',
         email: email,
@@ -389,6 +391,8 @@ class StripeService {
         },
         metadata: { userId: userId.toString() }
       });
+
+      console.log(`Successfully created Stripe Connect account: ${account.id}`);
 
       // Update tutor profile with account ID
       await prisma.tutorProfile.update({
@@ -399,6 +403,12 @@ class StripeService {
       return account;
     } catch (error) {
       console.error('Error creating Stripe Connect account:', error);
+      console.error('Stripe Error Details:', {
+        type: error.type,
+        code: error.code,
+        message: error.message,
+        raw: error.raw
+      });
       throw error;
     }
   }
