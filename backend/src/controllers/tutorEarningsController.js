@@ -129,7 +129,9 @@ exports.setupStripeConnect = async (req, res) => {
     }
 
     // Create onboarding link
-    const baseUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+    // TEMPORARY HARDCODED - Stripe live mode requires HTTPS
+    const baseUrl = "https://striveacademics.com.au";
+    // const baseUrl = process.env.FRONTEND_URL || "http://localhost:3000";
     console.log(`[Stripe Connect] Creating account link with baseUrl: ${baseUrl}`);
     
     const accountLink = await stripeService.createAccountLink(
