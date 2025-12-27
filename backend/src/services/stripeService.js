@@ -3,16 +3,16 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
-// Diagnostic logging for Stripe key
-const stripeKey = process.env.STRIPE_SECRET_KEY;
-if (!stripeKey) {
-  console.error('⚠️ CRITICAL: STRIPE_SECRET_KEY is not set!');
-} else {
-  const keyType = stripeKey.startsWith('sk_live_') ? 'LIVE' : stripeKey.startsWith('sk_test_') ? 'TEST' : 'UNKNOWN';
-  console.log(`✅ Stripe initialized with ${keyType} key (${stripeKey.substring(0, 12)}...)`);
-}
+// TEMPORARY HARDCODED KEYS FOR DEBUGGING - REMOVE AFTER FIXING!
+const HARDCODED_STRIPE_SECRET_KEY = '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';
 
-const stripe = new Stripe(stripeKey || 'sk_missing_key');
+// FORCE HARDCODED KEY - ignoring env var for debugging
+// const stripeKey = process.env.STRIPE_SECRET_KEY || HARDCODED_STRIPE_SECRET_KEY;
+const stripeKey = HARDCODED_STRIPE_SECRET_KEY;
+
+console.log(`✅ Stripe initialized with HARDCODED LIVE key (${stripeKey.substring(0, 12)}...)`);
+
+const stripe = new Stripe(stripeKey);
 
 class StripeService {
   
@@ -467,10 +467,15 @@ class StripeService {
 
   // Utility Methods
   constructWebhookEvent(body, signature) {
+    // TEMPORARY HARDCODED WEBHOOK SECRET - REMOVE AFTER FIXING!
+    const HARDCODED_WEBHOOK_SECRET = 'whsec_G0IG6MWU0C2DKRPdniy1aeYgNJg7MWEc';
+    // const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    const webhookSecret = HARDCODED_WEBHOOK_SECRET;
+    
     return stripe.webhooks.constructEvent(
       body,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET
+      webhookSecret
     );
   }
 }
