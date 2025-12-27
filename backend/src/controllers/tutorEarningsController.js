@@ -94,9 +94,15 @@ exports.getPayouts = async (req, res) => {
 exports.setupStripeConnect = async (req, res) => {
   try {
     const tutorId = req.user.id;
+    console.log(`[Stripe Connect] Starting setup for tutor ID: ${tutorId}`);
+    
     const { PrismaClient } = require("@prisma/client");
     const prisma = new PrismaClient();
     const stripeService = require("../services/stripeService");
+
+    // Log environment check
+    console.log(`[Stripe Connect] STRIPE_SECRET_KEY present: ${!!process.env.STRIPE_SECRET_KEY}`);
+    console.log(`[Stripe Connect] FRONTEND_URL: ${process.env.FRONTEND_URL || 'NOT SET (using localhost)'}`);
 
     // Get tutor profile
     const profile = await prisma.tutorProfile.findUnique({
@@ -104,25 +110,35 @@ exports.setupStripeConnect = async (req, res) => {
       include: { user: true }
     });
 
+    console.log(`[Stripe Connect] Profile found: ${!!profile}, Email: ${profile?.user?.email || 'N/A'}`);
+
     if (!profile) {
+      console.log(`[Stripe Connect] ERROR: Tutor profile not found for ID ${tutorId}`);
       return res.status(404).json({ success: false, error: "Tutor profile not found" });
     }
 
     let accountId = profile.stripeConnectAccountId;
+    console.log(`[Stripe Connect] Existing Connect Account ID: ${accountId || 'NONE'}`);
 
     // Create account if not exists
     if (!accountId) {
+      console.log(`[Stripe Connect] Creating new Connect account...`);
       const account = await stripeService.createConnectAccount(tutorId, profile.user.email);
       accountId = account.id;
+      console.log(`[Stripe Connect] New account created: ${accountId}`);
     }
 
     // Create onboarding link
     const baseUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+    console.log(`[Stripe Connect] Creating account link with baseUrl: ${baseUrl}`);
+    
     const accountLink = await stripeService.createAccountLink(
       accountId,
       `${baseUrl}/dashboard/tutor/earnings?stripe_return=true`,
       `${baseUrl}/dashboard/tutor/earnings?stripe_refresh=true`
     );
+    
+    console.log(`[Stripe Connect] Account link created successfully`);
 
     res.json({
       success: true,

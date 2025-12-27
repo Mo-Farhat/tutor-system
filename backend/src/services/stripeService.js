@@ -2,7 +2,17 @@ const Stripe = require('stripe');
 const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+// Diagnostic logging for Stripe key
+const stripeKey = process.env.STRIPE_SECRET_KEY;
+if (!stripeKey) {
+  console.error('⚠️ CRITICAL: STRIPE_SECRET_KEY is not set!');
+} else {
+  const keyType = stripeKey.startsWith('sk_live_') ? 'LIVE' : stripeKey.startsWith('sk_test_') ? 'TEST' : 'UNKNOWN';
+  console.log(`✅ Stripe initialized with ${keyType} key (${stripeKey.substring(0, 12)}...)`);
+}
+
+const stripe = new Stripe(stripeKey || 'sk_missing_key');
 
 class StripeService {
   
