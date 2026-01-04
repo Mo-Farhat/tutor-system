@@ -164,12 +164,23 @@ function FindtTutors({ filters }) {
     }, [applyFilters]);
 
     const getDefaultImage = (name) => {
-        // Generate a consistent avatar based on the tutor's name
-        const safeName = typeof name === 'string' && name.length > 0 ? name : 'Tutor';
-        const seed = safeName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-        const avatarId = (seed % 99) + 1;
-        const gender = seed % 2 === 0 ? 'women' : 'men';
-        return `https://randomuser.me/api/portraits/${gender}/${avatarId}.jpg`;
+        // Return null to trigger the default icon fallback
+        return null;
+    };
+
+    // Fixed tier prices based on pricing table
+    const getTierPrice = (tier) => {
+        const tierLower = (tier || 'gold').toLowerCase();
+        switch (tierLower) {
+            case 'elite':
+                return '$120/hr';
+            case 'premium':
+            case 'platinum':
+                return '$80/hr';
+            case 'gold':
+            default:
+                return '$60/hr';
+        }
     };
 
     const renderStars = (rating) => {
@@ -276,8 +287,9 @@ function FindtTutors({ filters }) {
                         const rate = tutor.hourly_rate ? `$${Number(tutor.hourly_rate).toFixed(0)}/hr` : '';
                         const topSubjects = Array.isArray(tutor.subjects) ? tutor.subjects.slice(0, 2).map(s => (s || '').split(' - ')[0]).join(', ') : '';
                         const topLocations = Array.isArray(tutor.preferred_locations) ? tutor.preferred_locations.slice(0, 2).join(', ') : '';
-                        // Enhanced photo fallback: photo_url → image → getDefaultImage
-                        const tutorImage = tutor.photo_url || tutor.image || getDefaultImage(name);
+                        const tutorImage = tutor.photo_url || tutor.image || null;
+                        // Get fixed tier price
+                        const tierPrice = getTierPrice(tutor.tier);
                         // Education info
                         const university = tutor.university || '';
                         const currentStudies = Array.isArray(tutor.current_studies) ? tutor.current_studies : [];
@@ -288,18 +300,27 @@ function FindtTutors({ filters }) {
                         <div key={tutor.id} className="col-xl-3 col-lg-4 col-md-6 col-12">
                             <a href={`/find-a-tutor/request?tutorId=${tutor.id}`} className="findt-tutors-card">
                                 <div className="findt-tutors-stats">
-                                    <span className="findt-tutors-gold">{tutor.tier ? tutor.tier.charAt(0).toUpperCase() + tutor.tier.slice(1) : 'Gold'} ({rate || 'N/A'})</span>
-                                    <span className="findt-tutors-atr">ATAR ({tutor.atar ? Number(tutor.atar).toFixed(1) : 'N/A'})</span>
+                                    <span className="findt-tutors-gold">{tutor.tier ? tutor.tier.charAt(0).toUpperCase() + tutor.tier.slice(1) : 'Gold'} ({tierPrice})</span>
+                                    <span className="findt-tutors-atr ms-2">ATAR ({tutor.atar ? Number(tutor.atar).toFixed(1) : 'N/A'})</span>
+                                </div>
+                                {/* Availability Pill */}
+                                <div className={`findt-tutors-availability-pill ${tutor.is_fully_booked ? 'fully-booked' : 'available'}`}>
+                                    {tutor.is_fully_booked ? '🔴 Fully Booked' : '🟢 Available Now'}
                                 </div>
                                 <div className={`findt-tutors-avatar ${avatarClass}`}>
-                                    <img 
-                                        src={tutorImage}
-                                        alt={name}
-                                        onError={(e) => {
-                                            e.target.src = getDefaultImage(name);
-                                        }}
-                                    />
-                                    <span className="findt-tutors-status">{tutor.status || 'available'}</span>
+                                    {tutorImage ? (
+                                        <img 
+                                            src={tutorImage}
+                                            alt={name}
+                                            onError={(e) => {
+                                                e.target.style.display = 'none';
+                                                e.target.nextSibling.style.display = 'flex';
+                                            }}
+                                        />
+                                    ) : null}
+                                    <div className="findt-tutors-default-avatar" style={{ display: tutorImage ? 'none' : 'flex', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', backgroundColor: '#e0e0e0', borderRadius: '50%' }}>
+                                        <i className="fas fa-user" style={{ fontSize: '3rem', color: '#666' }}></i>
+                                    </div>
                                 </div>
                                 <h3 className="findt-tutors-name">{name}</h3>
                                 {/* Rating Display */}

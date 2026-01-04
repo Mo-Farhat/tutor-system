@@ -43,7 +43,7 @@ function Pricegrid() {
               <div className="card homeprice-grid-card homeprice-grid-platinum h-100">
                 <div className="card-body d-flex flex-column p-4">
                   <div className="d-flex align-items-center justify-content-between mb-3">
-                    <h3 className="card-title mb-0">🧑‍🏫 Platinum Tier</h3>
+                    <h3 className="card-title mb-0">🧑‍🏫 Premium Tier</h3>
                     <div className="homeprice-grid-price">
                       <span className="h3">$80</span>/hr
                     </div>
@@ -92,7 +92,7 @@ function Pricegrid() {
               <a href="/pricing" className="home-pricing-nav-btn me-3">View Detailed Pricing Table</a>
             </div>
             <div className="col-auto">
-              <a href="/pricing?category=1" className="home-pricing-nav-btn secondary">Bring a Friend & Save</a>
+              <a href="/bring-a-friend-and-save" className="home-pricing-nav-btn secondary">Bring a Friend & Save</a>
             </div>
           </div>
         </div>

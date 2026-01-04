@@ -166,6 +166,7 @@ const FindTutorRequest = () => {
 
   // Extract data for top section
   const isLive = tutor.is_live !== false;
+  const isFullyBooked = tutor.is_fully_booked === true;
   
   // Build full name - handle both user object and direct properties, and both snake_case and camelCase
   const firstName = tutor.user?.first_name || tutor.user?.firstName || tutor.first_name || tutor.firstName || "";
@@ -176,7 +177,7 @@ const FindTutorRequest = () => {
   const hourlyRate = tutor.hourly_rate || tutor.rate || 0;
   const tier = tutor.tier || 'gold';
   const atar = tutor.atar || 'N/A';
-  const status = isLive ? "Available" : "Not Available";
+  const status = isFullyBooked ? "Fully Booked" : (isLive ? "Available" : "Not Available");
   
   // Format tier badge
   const tierNames = {
@@ -244,11 +245,12 @@ const FindTutorRequest = () => {
                     <span className="tutor-top-badge">{tierBadgeText}</span>
                   </div>
                   <button
-                    className="tutor-top-contact"
+                    className={`tutor-top-contact ${isFullyBooked ? 'fully-booked' : ''}`}
                     onClick={() => navigate(`/tutor/contact?id=${tutorId}`)}
-                    disabled={!isLive}
+                    disabled={!isLive || isFullyBooked}
+                    style={isFullyBooked ? { backgroundColor: '#dc3545', borderColor: '#dc3545', cursor: 'not-allowed' } : {}}
                   >
-                    Contact Me
+                    {isFullyBooked ? 'Fully Booked' : 'Contact Me'}
                   </button>
                 </div>
               </div>
@@ -432,7 +434,8 @@ const FindTutorRequest = () => {
                   </div>
                 </div>
 
-                {/* Consultation Button */}
+                {/* Consultation Button - Hidden when fully booked */}
+                {!isFullyBooked && (
                 <div className="row mt-4">
                   <div className="col-12">
                     <div className="d-flex flex-column align-items-center">
@@ -449,6 +452,7 @@ const FindTutorRequest = () => {
                     </div>
                   </div>
                 </div>
+                )}
               </div>
             </div>
           </div>

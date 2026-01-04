@@ -63,6 +63,10 @@ function TutorProfile() {
   const [passwordErrors, setPasswordErrors] = useState({});
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [uploadedDocuments, setUploadedDocuments] = useState([]);
+  
+  // Availability toggle states
+  const [isFullyBooked, setIsFullyBooked] = useState(false);
+  const [availabilityLoading, setAvailabilityLoading] = useState(false);
 
   // Fetch profile data, pending changes, and uploaded documents on component mount or when user changes
   useEffect(() => {
@@ -146,6 +150,9 @@ function TutorProfile() {
         };
 
         setProfileData(mergedProfileData);
+        
+        // Set availability status from API
+        setIsFullyBooked(data.data.is_fully_booked || false);
 
         // Update form data with real user data, using application data as fallback
         const userData = data.data.user;
@@ -268,6 +275,41 @@ function TutorProfile() {
       setError(`Failed to load profile data: ${err.message}`);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Handle availability toggle
+  const handleAvailabilityToggle = async () => {
+    try {
+      setAvailabilityLoading(true);
+      const newStatus = !isFullyBooked;
+      
+      const token = authService.getAccessToken();
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000'}/api/auth/tutor/availability`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ is_fully_booked: newStatus }),
+        }
+      );
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setIsFullyBooked(newStatus);
+      } else {
+        console.error('Failed to update availability:', data.message);
+        alert('Failed to update availability. Please try again.');
+      }
+    } catch (err) {
+      console.error('Error toggling availability:', err);
+      alert('Error updating availability. Please try again.');
+    } finally {
+      setAvailabilityLoading(false);
     }
   };
 
@@ -982,6 +1024,54 @@ function TutorProfile() {
                   </div>
                 </div>
               )}
+
+              {/* Availability Status Toggle */}
+              <div className="tutor-profile-section">
+                <div className="tutor-profile-card">
+                  <div className="tutor-profile-card-body">
+                    <div className="d-flex justify-content-between align-items-center">
+                      <div>
+                        <h3 className="mb-2">
+                          <i className="fas fa-calendar-check me-2"></i>
+                          Availability Status
+                        </h3>
+                        <p className="text-muted mb-0">
+                          Toggle this to let students know if you're accepting new bookings.
+                        </p>
+                      </div>
+                      <div className="d-flex align-items-center gap-3">
+                        <span className={`badge ${isFullyBooked ? 'bg-danger' : 'bg-success'} fs-6`}>
+                          {isFullyBooked ? '🔴 Fully Booked' : '🟢 Available Now'}
+                        </span>
+                        <div className="form-check form-switch">
+                          <input
+                            className="form-check-input"
+                            type="checkbox"
+                            role="switch"
+                            id="availability-toggle"
+                            checked={isFullyBooked}
+                            onChange={handleAvailabilityToggle}
+                            disabled={availabilityLoading}
+                            style={{ width: '3rem', height: '1.5rem', cursor: 'pointer' }}
+                          />
+                          <label className="form-check-label visually-hidden" htmlFor="availability-toggle">
+                            Toggle availability
+                          </label>
+                        </div>
+                        {availabilityLoading && (
+                          <div className="spinner-border spinner-border-sm text-primary" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <small className="text-muted d-block mt-2">
+                      <i className="fas fa-info-circle me-1"></i>
+                      When "Fully Booked" is enabled, students will see that you are not accepting new requests.
+                    </small>
+                  </div>
+                </div>
+              </div>
 
               {/* Profile Summary Section */}
               <div className="tutor-profile-section">

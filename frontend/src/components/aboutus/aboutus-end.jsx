@@ -37,7 +37,7 @@ function Aboutend() {
               👩🏻‍🏫 Private Tutoring
             </a>
             <a
-              href="/pricing?category=1"
+              href="/bring-a-friend-and-save"
               type="button"
               className="col-4 btn btn-outline-primary border-3 fw-semibold aboutus-end-btn"
               id="aboutus-end-btn-2"

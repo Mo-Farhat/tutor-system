@@ -1,6 +1,7 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { useLocation } from 'react-router-dom';
 import '../../css/snippets/contact-form-overlay.css';
+import { useSubjects } from '../../contexts/SubjectsContext';
 
 // Create a context to expose the overlay functionality globally
 const ContactFormContext = createContext({
@@ -20,7 +21,7 @@ export const ContactFormProvider = ({ children }) => {
     if (location.pathname === '/') {
       const timer = setTimeout(() => {
         setShowOverlay(true);
-      }, 5000);
+      }, 10000);
       return () => clearTimeout(timer);
     }
   }, [location.pathname]);
@@ -42,6 +43,17 @@ export const ContactFormProvider = ({ children }) => {
 };
 
 const ContactFormOverlay = ({ onClose }) => {
+  const { getYear1112Subjects, getYear110Subjects } = useSubjects();
+  const [selectedCurriculum, setSelectedCurriculum] = useState('');
+  
+  // Get all unique curricula from subjects
+  const getCurriculumOptions = () => {
+    const year1112 = getYear1112Subjects() || {};
+    const year110 = getYear110Subjects() || {};
+    const allCurricula = new Set([...Object.keys(year1112), ...Object.keys(year110)]);
+    return Array.from(allCurricula).sort();
+  };
+  
   const handleSubmit = (e) => {
     e.preventDefault();
     // Handle form submission logic here
@@ -110,18 +122,23 @@ const ContactFormOverlay = ({ onClose }) => {
                     type="text" 
                     className="form-control snippet-contact-us-time-input" 
                     id="contactTime" 
-                    placeholder="+61 123456789" 
+                    placeholder="Eg: Morning, Afternoon or Evening" 
                   />
                 </div>
                 
                 <div className="mb-3">
                   <label htmlFor="curriculum" className="form-label">What curriculum are you looking for?</label>
-                  <input 
-                    type="text" 
+                  <select 
                     className="form-control" 
-                    id="curriculum" 
-                    placeholder="VIC" 
-                  />
+                    id="curriculum"
+                    value={selectedCurriculum}
+                    onChange={(e) => setSelectedCurriculum(e.target.value)}
+                  >
+                    <option value="">Select a curriculum...</option>
+                    {getCurriculumOptions().map((curr) => (
+                      <option key={curr} value={curr}>{curr}</option>
+                    ))}
+                  </select>
                 </div>
                 
                 <div className="d-grid">
@@ -144,7 +161,7 @@ const ContactFormOverlayStandalone = () => {
     if (location.pathname === '/') {
       const timer = setTimeout(() => {
         setShowOverlay(true);
-      }, 5000);
+      }, 10000);
       return () => clearTimeout(timer);
     }
   }, [location.pathname]);

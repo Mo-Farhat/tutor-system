@@ -474,3 +474,37 @@ exports.getTutorById = async (req, res) => {
     });
   }
 };
+
+// Update tutor availability status (fully booked toggle)
+exports.updateAvailability = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { is_fully_booked } = req.body;
+
+    if (typeof is_fully_booked !== 'boolean') {
+      return res.status(400).json({
+        success: false,
+        error: "is_fully_booked must be a boolean value"
+      });
+    }
+
+    const updatedProfile = await prisma.tutorProfile.update({
+      where: { userId },
+      data: { is_fully_booked }
+    });
+
+    res.json({
+      success: true,
+      data: {
+        is_fully_booked: updatedProfile.is_fully_booked
+      },
+      message: is_fully_booked ? 'You are now marked as Fully Booked' : 'You are now Available for bookings'
+    });
+  } catch (error) {
+    console.error("Update availability error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to update availability status"
+    });
+  }
+};

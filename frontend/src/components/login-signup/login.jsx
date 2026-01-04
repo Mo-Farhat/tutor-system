@@ -185,14 +185,13 @@ function Login() {
                         errors.email_or_phone ? "is-invalid" : ""
                       }`}
                       id="email_or_phoneInput"
-                      placeholder="Email or Phone Number"
+                      placeholder="Email"
                       value={formData.email_or_phone}
                       onChange={handleInputChange}
                       disabled={isSubmitting || isLoading}
                     />
                     <label htmlFor="email_or_phoneInput">
                       <i className="bi bi-envelope login-input-icon"></i> Email
-                      or Phone Number
                     </label>
                     {errors.email_or_phone && (
                       <div className="invalid-feedback">

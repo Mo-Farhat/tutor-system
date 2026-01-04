@@ -64,6 +64,14 @@ router.put(
   profileController.changePassword
 );
 
+// Update availability status (fully booked toggle)
+router.put(
+  "/tutor/availability",
+  authenticateToken,
+  requireTutor,
+  profileController.updateAvailability
+);
+
 // -----------------------------------------------------------
 // Student profile routes
 // -----------------------------------------------------------

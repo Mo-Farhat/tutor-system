@@ -54,6 +54,28 @@
     font-weight: 500;
 }
 
+/* Availability Pill Styles */
+.findt-tutors-availability-pill {
+    padding: 0.35rem 0.9rem;
+    border-radius: 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin: 0.75rem 0;
+    text-align: center;
+}
+
+.findt-tutors-availability-pill.available {
+    background: #D4EDDA;
+    color: #155724;
+    border: 1px solid #28a745;
+}
+
+.findt-tutors-availability-pill.fully-booked {
+    background: #F8D7DA;
+    color: #721C24;
+    border: 1px solid #dc3545;
+}
+
 .findt-tutors-avatar {
     position: relative;
     width: 120px;

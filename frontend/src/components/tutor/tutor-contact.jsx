@@ -69,6 +69,21 @@ function TutorContact() {
             setLoading(false);
         }
     };
+
+    // Fixed tier prices based on pricing table
+    const getTierPrice = (tier) => {
+        const tierLower = (tier || 'gold').toLowerCase();
+        switch (tierLower) {
+            case 'elite':
+                return '$120';
+            case 'premium':
+            case 'platinum':
+                return '$80';
+            case 'gold':
+            default:
+                return '$60';
+        }
+    };
     
     const formatAvailabilityGrid = () => {
         const availabilityParts = [];
@@ -291,7 +306,7 @@ function TutorContact() {
                                                         <span className="tutor-contact-badge">
                                                             {tutor.tier === 'gold' ? 'Gold' : tutor.tier === 'premium' ? 'Premium' : tutor.tier === 'elite' ? 'Elite' : 'Tutor'} Tutor
                                                         </span>
-                                                        <span className="tutor-contact-price">${tutor.hourly_rate || tutor.hourlyRate || 'N/A'}/h</span>
+                                                        <span className="tutor-contact-price">{getTierPrice(tutor.tier)}/h</span>
                                                     </div>
                                                 )}
                                             </div>
