@@ -515,6 +515,36 @@ function TutorProfile() {
         }
       );
 
+      // Check if response is OK before parsing JSON
+      if (!response.ok) {
+        // Try to get error message from response
+        let errorMessage = `Server error: ${response.status} ${response.statusText}`;
+        try {
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const errorData = await response.json();
+            errorMessage = errorData.error || errorData.message || errorMessage;
+          } else {
+            // Non-JSON response (likely HTML error page)
+            const textError = await response.text();
+            console.error('Server returned non-JSON response:', textError.substring(0, 500));
+            
+            // Check for common issues
+            if (response.status === 413) {
+              errorMessage = 'Video file is too large. Please upload a smaller file (max 50MB recommended).';
+            } else if (response.status === 504 || response.status === 408) {
+              errorMessage = 'Upload timed out. Please try a smaller file or check your connection.';
+            }
+          }
+        } catch (parseError) {
+          console.error('Error parsing error response:', parseError);
+        }
+        
+        alert(`Failed to upload video: ${errorMessage}`);
+        setIntroVideo(null);
+        return;
+      }
+
       const result = await response.json();
 
       if (result.success) {
@@ -528,7 +558,12 @@ function TutorProfile() {
       }
     } catch (err) {
       console.error('Error uploading video file:', err);
-      alert('Failed to upload video. Please try again.');
+      // Check for network errors
+      if (err.name === 'TypeError' && err.message.includes('Failed to fetch')) {
+        alert('Network error. Please check your internet connection and try again.');
+      } else {
+        alert('Failed to upload video. Please try again.');
+      }
       setIntroVideo(null);
     } finally {
       setVideoUploadLoading(false);

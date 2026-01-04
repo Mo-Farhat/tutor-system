@@ -1,16 +1,70 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import "../../css/home/home-reviews.css"
 import useAnimateOnScroll from '../../utils/useAnimateOnScroll';
 
-function Reviews() {
+// Fallback reviews in case API fails
+const fallbackReviews = [
+  {
+    name: "Amara",
+    date: "2 months ago",
+    text: "My tutoring at Strive Academics has been excellent. My tutor, Clayton, explains concepts clearly, and I've already noticed significant improvement. I highly recommend him and Strive for UCAT preparation."
+  },
+  {
+    name: "Mehriza Khokhar",
+    date: "a month ago", 
+    text: "My experience with Strive Academics has been fantastic. I highly recommend both the company and my tutor, Clayton. He provides tailored sessions that focus on my goals and areas of weakness."
+  },
+  {
+    name: "Lihini Vandercone",
+    date: "a month ago",
+    text: "I found Yong's class to be effective, encouraging and improving. Thanks to his guidance and aid, I have seen noticeable changes and improvements within my Ucat performance."
+  },
+  {
+    name: "Skye Madeleine",
+    date: "3 months ago",
+    text: "The interview tutoring at Strive Academics was exceptional!! My tutors, Brendan and Seran, provided clear explanations and encouraged everyone to actively participate in answering questions."
+  },
+  {
+    name: "Janette Nguyen", 
+    date: "3 months ago",
+    text: "My son has been tutoring with Sienna for UCAT, she is amazing with him. Very knowledgeable and has given many tips on how to better achieve and understand the UCAT."
+  }
+];
 
+function Reviews() {
   const reviewsMainRef = useRef(null);
   const ref = useAnimateOnScroll();
+  const [reviews, setReviews] = useState(fallbackReviews);
+  const [reviewSource, setReviewSource] = useState('fallback');
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch Google reviews from backend
+  useEffect(() => {
+    const fetchGoogleReviews = async () => {
+      try {
+        const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
+        const response = await fetch(`${backendUrl}/api/reviews/google?limit=5`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data?.reviews?.length > 0) {
+            setReviews(data.data.reviews);
+            setReviewSource('google');
+          }
+        }
+      } catch (error) {
+        console.warn('Using fallback reviews:', error.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchGoogleReviews();
+  }, []);
 
   useEffect(() => {
     const reviewsMain = reviewsMainRef.current;
     let scrollSpeed = 1; // Scroll speed: Adjust this to make it faster/slower
-    let isScrolling = false;
 
     // Function to scroll reviewsMain horizontally
     const scrollReviews = () => {
@@ -32,39 +86,31 @@ function Reviews() {
     return () => clearInterval(interval);
   }, []);
 
-  // Latest 6 reviews data
-  const latestReviews = [
-    {
-      name: "Amara",
-      date: "2 months ago",
-      text: "My tutoring at Strive Academics has been excellent. My tutor, Clayton, explains concepts clearly, and I've already noticed significant improvement. I highly recommend him and Strive for UCAT preparation."
-    },
-    {
-      name: "Mehriza Khokhar",
-      date: "a month ago", 
-      text: "My experience with Strive Academics has been fantastic. I highly recommend both the company and my tutor, Clayton. He provides tailored sessions that focus on my goals and areas of weakness."
-    },
-    {
-      name: "Lihini Vandercone",
-      date: "a month ago",
-      text: "I found Yong's class to be effective, encouraging and improving. Thanks to his guidance and aid, I have seen noticeable changes and improvements within my Ucat performance."
-    },
-    {
-      name: "Skye Madeleine",
-      date: "3 months ago",
-      text: "The interview tutoring at Strive Academics was exceptional!! My tutors, Brendan and Seran, provided clear explanations and encouraged everyone to actively participate in answering questions."
-    },
-    {
-      name: "Janette Nguyen", 
-      date: "3 months ago",
-      text: "My son has been tutoring with Sienna for UCAT, she is amazing with him. Very knowledgeable and has given many tips on how to better achieve and understand the UCAT."
-    },
-    {
-      name: "Alice Niu",
-      date: "3 weeks ago",
-      text: "Sienna was my tutor and she was very helpful in assisting me with UCAT preparation. Pasindu was also very supportive and easy to reach out to."
+  // Render stars based on rating (default 5 if not provided)
+  const renderStars = (rating = 5) => {
+    const stars = [];
+    for (let i = 0; i < 5; i++) {
+      stars.push(
+        <svg
+          key={i}
+          xmlns="http://www.w3.org/2000/svg"
+          width={24}
+          height={24}
+          viewBox="0 0 24 24"
+          fill={i < rating ? "#FFD700" : "none"}
+          stroke="#FFD700"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="icon icon-tabler icons-tabler-outline icon-tabler-star"
+        >
+          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+          <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" />
+        </svg>
+      );
     }
-  ];
+    return stars;
+  };
 
   return (
     <div ref={ref} className="home-reviews-section section-animate-target">
@@ -78,30 +124,38 @@ function Reviews() {
         See why students love learning with us.
         </p>
 
-        <div class="row container d-flex g-0 gap-3 reviews-main" ref={reviewsMainRef} >
-          {latestReviews.map((review, index) => (
+        <div className="row container d-flex g-0 gap-3 reviews-main" ref={reviewsMainRef} >
+          {reviews.map((review, index) => (
             <div key={index} className="col-3 d-flex review-main">
               <div className="row h-100 w-100 g-0 gap-3 d-flex p-3 review-sec">
                 <div className="row g-0 container d-flex review-t">
                   <div className="d-flex p-2 review-u-img-main">
                     <div className="d-flex review-u-img-sec">
-                      {/* <img src="" alt="" srcset="" /> */}
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width={24}
-                        height={24}
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="icon icon-tabler icons-tabler-outline icon-tabler-user temp-user"
-                      >
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
-                        <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-                      </svg>
+                      {review.profilePhoto ? (
+                        <img 
+                          src={review.profilePhoto} 
+                          alt={`${review.name}'s profile`} 
+                          className="review-profile-img"
+                          style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }}
+                        />
+                      ) : (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width={24}
+                          height={24}
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="icon icon-tabler icons-tabler-outline icon-tabler-user temp-user"
+                        >
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                          <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+                        </svg>
+                      )}
                     </div>
                   </div>
                   <div className="row d-flex review-details-main">
@@ -110,81 +164,7 @@ function Reviews() {
                   </div>
                 </div>
                 <div className="gap-3 review-icns-main">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width={24}
-                    height={24}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="icon icon-tabler icons-tabler-outline icon-tabler-star"
-                  >
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                    <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" />
-                  </svg>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width={24}
-                    height={24}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="icon icon-tabler icons-tabler-outline icon-tabler-star"
-                  >
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                    <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" />
-                  </svg>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width={24}
-                    height={24}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="icon icon-tabler icons-tabler-outline icon-tabler-star"
-                  >
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                    <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" />
-                  </svg>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width={24}
-                    height={24}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="icon icon-tabler icons-tabler-outline icon-tabler-star"
-                  >
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                    <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" />
-                  </svg>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width={24}
-                    height={24}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="icon icon-tabler icons-tabler-outline icon-tabler-star"
-                  >
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                    <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" />
-                  </svg>
+                  {renderStars(review.rating)}
                 </div>
                 <div className="row review-con-main">
                   <span className="w-100 h-100 review-con">
@@ -192,7 +172,16 @@ function Reviews() {
                   </span>
                 </div>
                 <div className="d-flex review-site-img-main">
-                  <img src="/Images/review sites/trustpilot.png" className="review-site-img" alt="" />
+                  {reviewSource === 'google' ? (
+                    <img 
+                      src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" 
+                      className="review-site-img" 
+                      alt="Google Reviews" 
+                      style={{ height: '20px', width: 'auto' }}
+                    />
+                  ) : (
+                    <img src="/Images/review sites/trustpilot.png" className="review-site-img" alt="Trustpilot" />
+                  )}
                 </div>
 
               </div>

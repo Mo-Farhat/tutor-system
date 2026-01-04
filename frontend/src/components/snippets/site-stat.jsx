@@ -43,7 +43,7 @@ function useCountUp(target, duration = 900, start = 0, enabled = true) {
   return value;
 }
 
-function StatCard({ value, label, suffix = '', icon = null }) {
+function StatCard({ value, label, suffix = '', icon = null, iconClass = null }) {
   const ref = useRef(null);
   const inView = useInView(ref);
   const prefersReducedMotion = useMemo(
@@ -60,7 +60,17 @@ function StatCard({ value, label, suffix = '', icon = null }) {
 
   return (
     <div ref={ref} className="site-stat-card d-flex flex-column align-items-center justify-content-center p-4" role="group" aria-label={`${label}: ${value}${suffix ? ' ' + suffix : ''}`}>
-      {icon ? (
+      {iconClass ? (
+        <div className="site-stat-icon mb-3" aria-hidden="true">
+          <i className={iconClass} style={{ 
+            fontSize: '3rem', 
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text'
+          }}></i>
+        </div>
+      ) : icon ? (
           <div className="site-stat-icon mb-3" aria-hidden="true">
               <img src={icon} alt="" className="stat-icon-img" />
           </div>
@@ -82,10 +92,10 @@ function StatCard({ value, label, suffix = '', icon = null }) {
 function Sitestat({
   title = 'We believe that to be the best, you have to learn from the best!',
   stats = [
-    { value: '4/5', label: 'Average Tutor Ration', suffix: '', icon: '/Images/Home/First Place Ribbon.png' },
-    { value: '6000', label: 'Hours of Experience', suffix: '+', icon: '/Images/Home/Clock.png' },
-    { value: '4000', label: 'Completed Lessons', suffix: '+', icon: '/Images/Home/Brochure.png' },
-    { value: '350', label: 'Tutors', suffix: '+', icon: '/Images/Home/User Menu Male.png' },
+    { value: '5/5', label: 'Average Tutor Rating', suffix: '', iconClass: 'fas fa-award' },
+    { value: '6000', label: 'Hours of Experience', suffix: '+', iconClass: 'fas fa-clock' },
+    { value: '4000', label: 'Completed Lessons', suffix: '+', iconClass: 'fas fa-book-open' },
+    { value: '350', label: 'Tutors', suffix: '+', iconClass: 'fas fa-chalkboard-teacher' },
   ],
   variant = 'section'
 }) {
@@ -103,7 +113,7 @@ function Sitestat({
             <div className="row justify-content-center gap-4">
                 {stats.map((s, idx) => (
                 <div key={idx} className="col-lg-2 col-md-5 col-sm-10">
-                    <StatCard value={s.value} label={s.label} suffix={s.suffix} icon={s.icon} />
+                    <StatCard value={s.value} label={s.label} suffix={s.suffix} icon={s.icon} iconClass={s.iconClass} />
                 </div>
                 ))}
             </div>
