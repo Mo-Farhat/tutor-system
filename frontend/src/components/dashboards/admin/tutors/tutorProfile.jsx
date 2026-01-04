@@ -366,18 +366,20 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
                     )}
                   </h6>
                   {tutorData.intro_video_path ? (
-                    <div className="video-preview-container">
-                      <video 
-                        controls 
-                        src={tutorData.intro_video_path}
-                        style={{ width: '100%', borderRadius: '8px', maxHeight: '200px' }}
-                      >
-                        Your browser does not support video playback.
-                      </video>
+                    <>
+                      <div className="video-preview-container mb-3">
+                        <video 
+                          controls 
+                          src={tutorData.intro_video_path}
+                          style={{ width: '100%', borderRadius: '8px', maxHeight: '300px', objectFit: 'contain', backgroundColor: '#000' }}
+                        >
+                          Your browser does not support video playback.
+                        </video>
+                      </div>
                       {tutorData.intro_video_status === 'pending' && (
-                        <div className="mt-2 d-flex gap-2">
+                        <div className="d-flex gap-2 flex-wrap" style={{ marginTop: '0.5rem' }}>
                           <button
-                            className="btn btn-success btn-sm"
+                            className="btn btn-success flex-grow-1"
                             onClick={async () => {
                               try {
                                 setIsProcessing(true);
@@ -397,10 +399,10 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
                             }}
                             disabled={isProcessing}
                           >
-                            <i className="fas fa-check me-1"></i> Approve
+                            <i className="fas fa-check me-2"></i> Accept Video
                           </button>
                           <button
-                            className="btn btn-danger btn-sm"
+                            className="btn btn-danger flex-grow-1"
                             onClick={async () => {
                               const reason = window.prompt('Enter rejection reason (optional):');
                               try {
@@ -421,11 +423,11 @@ function TutorProfileModal({ tutor, onClose, onUpdate }) {
                             }}
                             disabled={isProcessing}
                           >
-                            <i className="fas fa-times me-1"></i> Reject
+                            <i className="fas fa-times me-2"></i> Decline Video
                           </button>
                         </div>
                       )}
-                    </div>
+                    </>
                   ) : (
                     <p className="text-muted small">No intro video uploaded</p>
                   )}

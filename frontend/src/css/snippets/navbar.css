@@ -129,7 +129,7 @@
   overflow: visible;
 }
 
-  .nav-item-drop-down-item {
+.nav-item-drop-down-item {
   display: flex !important;
   justify-content: center;
   color: #333333 !important;
@@ -141,6 +141,7 @@
 .nav-item-drop-down-item:hover {
   background-color: rgb(255, 58, 58) !important;
   color: white !important;
+  border-radius: 0.5rem;
 }
 
 .nav-f-t-btn {

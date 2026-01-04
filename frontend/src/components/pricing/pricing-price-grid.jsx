@@ -282,10 +282,10 @@ function PricingPricegrid() {
             </span>
           </div>
 
-          {/* Parent consultations */}
+          {/* Medicine/Dentistry Interview */}
           <div className="col p-3 d-flex">
             <h4 className="pricing-price-grid-feature-title ps-3 pricing-price-grid-feature-title-b">
-              Parent consultations
+              Medicine/Dentistry Interview Preparation Workshops
             </h4>
           </div>
           <div
@@ -298,7 +298,9 @@ function PricingPricegrid() {
             className="col text-center pricing-price-grid-feature-content"
             id="pricing-price-grid-platinum"
           >
-            <span className="pricing-price-grid-check pricing-price-grid-platinum-check"></span>
+            <span className="pricing-price-grid-check pricing-price-grid-platinum-check">
+              ✓
+            </span>
           </div>
           <div
             className="col text-center pricing-price-grid-feature-content"
@@ -338,10 +340,10 @@ function PricingPricegrid() {
             </span>
           </div>
 
-          {/* Medicine/Dentistry Interview */}
+          {/* Parent consultations */}
           <div className="col p-3 d-flex">
             <h4 className="pricing-price-grid-feature-title ps-3 pricing-price-grid-feature-title-b">
-              Medicine/Dentistry Interview Preparation Workshops
+              Parent consultations
             </h4>
           </div>
           <div
@@ -354,9 +356,7 @@ function PricingPricegrid() {
             className="col text-center pricing-price-grid-feature-content"
             id="pricing-price-grid-platinum"
           >
-            <span className="pricing-price-grid-check pricing-price-grid-platinum-check">
-              ✓
-            </span>
+            <span className="pricing-price-grid-check pricing-price-grid-platinum-check"></span>
           </div>
           <div
             className="col text-center pricing-price-grid-feature-content"
@@ -366,6 +366,7 @@ function PricingPricegrid() {
               ✓
             </span>
           </div>
+
 
           {/* Scholarship Application */}
           <div className="col p-3 d-flex">
@@ -675,8 +676,12 @@ function PricingPricegrid() {
                   </span>
                 </div>
                 <div className="d-flex justify-content-between align-items-center mb-2">
-                  <span>Parent consultations</span>
-                  <span className="pricing-price-grid-check pricing-price-grid-platinum-check"></span>
+                  <span>
+                    Medicine/Dentistry Interview Preparation Workshops
+                  </span>
+                  <span className="pricing-price-grid-check pricing-price-grid-platinum-check">
+                    ✓
+                  </span>
                 </div>
                 <div className="d-flex justify-content-between align-items-center mb-2">
                   <span>Progress Reports</span>
@@ -685,12 +690,8 @@ function PricingPricegrid() {
                   </span>
                 </div>
                 <div className="d-flex justify-content-between align-items-center mb-2">
-                  <span>
-                    Medicine/Dentistry Interview Preparation Workshops
-                  </span>
-                  <span className="pricing-price-grid-check pricing-price-grid-platinum-check">
-                    ✓
-                  </span>
+                  <span>Parent consultations</span>
+                  <span className="pricing-price-grid-check pricing-price-grid-platinum-check"></span>
                 </div>
                 <div className="d-flex justify-content-between align-items-center mb-2">
                   <span>Scholarship Application Support</span>

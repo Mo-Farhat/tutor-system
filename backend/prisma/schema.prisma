@@ -317,6 +317,7 @@ model TutorProfile {
   is_profile_complete Boolean   @default(false)
   documents_uploaded  Boolean   @default(false)
   is_live             Boolean   @default(false)
+  is_fully_booked     Boolean   @default(false)
   photo_url           String?
   tier                Tier      @default(gold)
   rating              Decimal   @default(0.0) @db.Decimal(3, 2)

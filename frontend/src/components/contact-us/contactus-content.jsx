@@ -27,6 +27,15 @@ function ContactusContent() {
                                     Email Us
                                 </a>
                                 <Link 
+                                    to="/faq" 
+                                    className="btn contactus-content-faq-btn"
+                                >
+                                    <span>
+                                    ❓
+                                    </span>
+                                    View Full FAQ
+                                </Link>
+                                <Link 
                                     to="/join-us" 
                                     className="btn contactus-content-tutor-btn"
                                 >

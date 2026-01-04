@@ -140,6 +140,12 @@
   
   .grid-row-price {
     font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .grid-row-p-des {
+    white-space: nowrap;
+    font-size: 0.9rem;
   }
   
   #grid-gold-price {
