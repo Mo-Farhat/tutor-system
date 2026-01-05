@@ -199,8 +199,8 @@ exports.createPackageCheckout = async (req, res) => {
       quantity: 1
     }];
     
-    const successUrl = `${process.env.FRONTEND_URL}/dashboard/student/payment-success?session_id={CHECKOUT_SESSION_ID}`;
-    const cancelUrl = `${process.env.FRONTEND_URL}/dashboard/student/packages`;
+    const successUrl = `https://striveacademics.com.au/dashboard/student/payment-success?session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = `https://striveacademics.com.au/dashboard/student/packages`;
     
     // Include assignmentId and hours in metadata for webhook to credit
     const metadata = { 
