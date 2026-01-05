@@ -70,6 +70,14 @@ function TutorContact() {
         }
     };
 
+    const getTutorName = (t) => {
+        if (!t) return 'Tutor';
+        const firstName = t.user?.first_name || t.user?.firstName || t.first_name || t.firstName || "";
+        const lastName = t.user?.last_name || t.user?.lastName || t.last_name || t.lastName || "";
+        const fullName = t.name || `${firstName} ${lastName}`.trim();
+        return fullName || 'Tutor';
+    };
+
     // Fixed tier prices based on pricing table
     const getTierPrice = (tier) => {
         const tierLower = (tier || 'gold').toLowerCase();
@@ -276,7 +284,7 @@ function TutorContact() {
                             <div className="tutor-contact-card-body p-4 p-md-5">
                                 <div className="text-center mb-4">
                                     <h1 className="tutor-contact-title">
-                                        {loading ? 'Contact Tutor' : tutor ? `Contact ${tutor.name || `${tutor.user?.first_name || ''} ${tutor.user?.last_name || ''}`.trim() || 'Tutor'}` : 'Contact Tutor'}
+                                        {loading ? 'Contact Tutor' : `Contact ${getTutorName(tutor)}`}
                                     </h1>
                                     {loading ? (
                                         <div className="text-center py-4">
@@ -289,12 +297,12 @@ function TutorContact() {
                                             <div className={`tutor-contact-profile-image ${tutor.is_fully_booked ? 'booked' : ''}`}>
                                                 <img 
                                                     src={tutor.photo_url || tutor.image || "https://cdn.pixabay.com/photo/2016/08/20/05/38/avatar-1606916_960_720.png"} 
-                                                    alt={tutor.name || 'Tutor'} 
+                                                    alt={getTutorName(tutor)} 
                                                     className="tutor-contact-avatar"
                                                 />
                                             </div>
                                             <h2 className="tutor-contact-name">
-                                                {tutor.name || `${tutor.user?.first_name || ''} ${tutor.user?.last_name || ''}`.trim() || 'Tutor'}
+                                                {getTutorName(tutor)}
                                             </h2>
                                             <div className="tutor-contact-stats">
                                                 {tutor.atar && (
@@ -318,12 +326,12 @@ function TutorContact() {
                                             <div className="tutor-contact-profile-image">
                                                 <img 
                                                     src="https://cdn.pixabay.com/photo/2016/08/20/05/38/avatar-1606916_960_720.png" 
-                                                    alt="Tutor" 
+                                                    alt={getTutorName(tutor)} 
                                                     className="tutor-contact-avatar"
                                                 />
                                             </div>
                                             <h2 className="tutor-contact-name">
-                                                {tutor ? (tutor.name || `${tutor.user?.first_name || ''} ${tutor.user?.last_name || ''}`.trim() || 'Tutor') : 'Tutor'}
+                                                {getTutorName(tutor)}
                                             </h2>
                                         </div>
                                     )}
@@ -459,7 +467,7 @@ function TutorContact() {
                                                 value={formData.message}
                                                 onChange={handleChange}
                                                     required
-                                                    placeholder="Please include any specific questions or requirements you have for the tutor"
+                                                    placeholder={`Please include any specific questions or requirements you have for ${getTutorName(tutor)}`}
                                             ></textarea>
                                             </div>
                                         </div>
