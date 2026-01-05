@@ -66,11 +66,8 @@ const Tutorpage = () => {
         };
     };
 
-    const getDefaultImage = (name) => {
-        const seed = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-        const avatarId = (seed % 99) + 1;
-        const gender = seed % 2 === 0 ? 'women' : 'men';
-        return `https://randomuser.me/api/portraits/${gender}/${avatarId}.jpg`;
+    const getDefaultImage = () => {
+        return "https://cdn.pixabay.com/photo/2016/08/20/05/38/avatar-1606916_960_720.png";
     };
 
     if (loading) {

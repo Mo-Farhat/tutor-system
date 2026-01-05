@@ -48,12 +48,8 @@ const FindTutorRequest = () => {
   };
 
 
-  const getDefaultImage = (name) => {
-    const safeName = typeof name === 'string' && name.length > 0 ? name : 'Tutor';
-    const seed = safeName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const avatarId = (seed % 99) + 1;
-    const gender = seed % 2 === 0 ? 'women' : 'men';
-    return `https://randomuser.me/api/portraits/${gender}/${avatarId}.jpg`;
+  const getDefaultImage = () => {
+    return "https://cdn.pixabay.com/photo/2016/08/20/05/38/avatar-1606916_960_720.png";
   };
 
   const getVideoUrl = (tutorData) => {
@@ -173,7 +169,7 @@ const FindTutorRequest = () => {
   const lastName = tutor.user?.last_name || tutor.user?.lastName || tutor.last_name || tutor.lastName || "";
   const tutorName = `${firstName} ${lastName}`.trim() || 'Tutor';
   
-  const profileImage = tutor.photo_url || tutor.image || tutor.user?.profile_picture || getDefaultImage(tutorName);
+  const profileImage = tutor.photo_url || tutor.image || tutor.user?.profile_picture || getDefaultImage();
   const hourlyRate = tutor.hourly_rate || tutor.rate || 0;
   const tier = tutor.tier || 'gold';
   const atar = tutor.atar || 'N/A';
@@ -233,7 +229,7 @@ const FindTutorRequest = () => {
                     alt="Tutor avatar" 
                     className={`tutor-top-avatar ${isFullyBooked ? 'booked' : ''}`}
                     onError={(e) => {
-                      e.target.src = getDefaultImage(tutorName);
+                      e.target.src = getDefaultImage();
                     }}
                   />
                   <div className={`tutor-top-status ${isFullyBooked ? 'booked' : ''}`}>{status}</div>
