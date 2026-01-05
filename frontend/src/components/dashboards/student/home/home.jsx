@@ -202,9 +202,16 @@ function StudentHome() {
                     You don't have any tutors assigned yet. Contact support to
                     get matched with a tutor.
                   </p>
-                  <button className="btn btn-primary" onClick={loadMyTutors}>
-                    Refresh
-                  </button>
+                  <div className="d-flex gap-2 justify-content-center">
+                    <button className="btn btn-primary" onClick={() => navigate("/find-a-tutor")}>
+                      <i className="fas fa-search me-1"></i>
+                      Find Tutors
+                    </button>
+                    <button className="btn btn-outline-primary" onClick={loadMyTutors}>
+                      <i className="fas fa-sync-alt me-1"></i>
+                      Refresh
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -253,13 +260,22 @@ function StudentHome() {
               <h3 className="student-home-section-title mb-0">
                 Your Assigned Tutors
               </h3>
-              <button
-                className="btn btn-outline-primary btn-sm"
-                onClick={loadMyTutors}
-              >
-                <i className="fas fa-sync-alt me-1"></i>
-                Refresh
-              </button>
+              <div className="d-flex gap-2">
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={() => navigate("/find-a-tutor")}
+                >
+                  <i className="fas fa-search me-1"></i>
+                  Find Tutors
+                </button>
+                <button
+                  className="btn btn-outline-primary btn-sm"
+                  onClick={loadMyTutors}
+                >
+                  <i className="fas fa-sync-alt me-1"></i>
+                  Refresh
+                </button>
+              </div>
             </div>
             <div className="row g-4">
               {assignedTutors.map((tutor, idx) => (
