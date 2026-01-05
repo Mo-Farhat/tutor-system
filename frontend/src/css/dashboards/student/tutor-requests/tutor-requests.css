@@ -32,17 +32,8 @@
 }
 
 .tutor-requests-container {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e9ecef;
-  padding: 2rem;
-  transition: all 0.3s ease;
-}
-
-.tutor-requests-container:hover {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-  transform: translateY(-2px);
+  width: 100%;
+  padding: 20px;
 }
 
 /* Card Styles */

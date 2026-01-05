@@ -78,160 +78,151 @@ const TutorRequests = () => {
 
   return (
     <div className="tutor-requests-container">
-      <div className="container-fluid">
-        <div className="row">
-          <div className="col-12">
-            <div className="d-flex justify-content-between align-items-center mb-4">
-              <h2 className="h3 mb-0">Tutor Requests</h2>
-              <div className="d-flex gap-2">
-                <button 
-                  className="btn btn-outline-primary btn-sm"
-                  onClick={fetchRequests}
-                  disabled={loading}
-                >
-                  <i className="fas fa-sync-alt me-1"></i>
-                  Refresh
-                </button>
-                <button 
-                  className="btn btn-primary btn-sm"
-                  onClick={() => navigate('/find-a-tutor')}
-                >
-                  <i className="fas fa-search me-1"></i>
-                  Find a Tutor
-                </button>
-              </div>
-            </div>
-
-            {error && (
-              <div className="alert alert-danger" role="alert">
-                {error}
-                <button 
-                  className="btn btn-sm btn-outline-danger ms-2" 
-                  onClick={() => setError(null)}
-                >
-                  Dismiss
-                </button>
-              </div>
-            )}
-
-
-            {/* Requests List */}
-            {requests.length === 0 ? (
-              <div className="text-center py-5">
-                <i className="fas fa-paper-plane fa-3x text-muted mb-3"></i>
-                <h4 className="text-muted">No Tutor Requests</h4>
-                <p className="text-muted">You haven't sent any tutor requests yet.</p>
-                <button 
-                  className="btn btn-primary"
-                  onClick={() => navigate('/find-a-tutor')}
-                >
-                  <i className="fas fa-search me-1"></i>
-                  Find a Tutor
-                </button>
-              </div>
-            ) : (
-              <div className="row">
-                {requests.map((request) => (
-                  <div key={request.id} className="col-lg-6 col-xl-4 mb-4">
-                    <div className="card h-100 shadow-sm">
-                      <div className="card-header d-flex justify-content-between align-items-center">
-                        <h6 className="mb-0">
-                          {request.tutor.firstName} {request.tutor.lastName}
-                        </h6>
-                        {getStatusBadge(request.status)}
-                      </div>
-                      <div className="card-body">
-                        <div className="mb-3">
-                          <small className="text-muted">
-                            <i className="fas fa-envelope me-1"></i>
-                            {request.tutor.email}
-                          </small>
-                        </div>
-                        
-                        {request.tutor.username && (
-                          <div className="mb-3">
-                            <small className="text-muted">
-                              <i className="fas fa-user me-1"></i>
-                              @{request.tutor.username}
-                            </small>
-                          </div>
-                        )}
-
-                        {(() => {
-                          const parsed = parseTutorRequestMessage(request.message);
-                          return (
-                            <>
-                              {parsed.subject && (
-                                <div className="mb-2">
-                                  <small className="text-muted d-block mb-1">Subject</small>
-                                  <span className="badge bg-info">{parsed.subject}</span>
-                                </div>
-                              )}
-                              {parsed.message && parsed.message.length > 100 ? (
-                                <div className="mb-3">
-                                  <h6 className="text-muted mb-2">Your Message:</h6>
-                                  <p className="card-text small">{parsed.message.substring(0, 100)}...</p>
-                                </div>
-                              ) : parsed.message ? (
-                                <div className="mb-3">
-                                  <h6 className="text-muted mb-2">Your Message:</h6>
-                                  <p className="card-text small">{parsed.message}</p>
-                                </div>
-                              ) : request.message && (
-                                <div className="mb-3">
-                                  <h6 className="text-muted mb-2">Your Message:</h6>
-                                  <p className="card-text small">{request.message.length > 100 ? request.message.substring(0, 100) + '...' : request.message}</p>
-                                </div>
-                              )}
-                            </>
-                          );
-                        })()}
-
-                        <div className="mb-3">
-                          <small className="text-muted">
-                            <i className="fas fa-clock me-1"></i>
-                            Sent {formatDate(request.createdAt)}
-                          </small>
-                        </div>
-
-                        {request.status === 'accepted' && (
-                          <div className="alert alert-success alert-sm mb-3">
-                            <i className="fas fa-check-circle me-1"></i>
-                            <strong>Request Accepted!</strong> You can now schedule lessons with this tutor.
-                          </div>
-                        )}
-
-                        {request.status === 'rejected' && (
-                          <div className="alert alert-danger alert-sm mb-3">
-                            <i className="fas fa-times-circle me-1"></i>
-                            <strong>Request Declined</strong> This tutor is not available at the moment.
-                          </div>
-                        )}
-                      </div>
-                      <div className="card-footer bg-transparent">
-                        <button
-                          className="btn btn-outline-primary btn-sm w-100"
-                          onClick={() => setSelectedRequest(request)}
-                        >
-                          <i className="fas fa-info-circle me-1"></i>
-                          More Info
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2 className="h3 mb-0">Tutor Requests</h2>
+        <div className="d-flex gap-2">
+          <button 
+            className="btn btn-outline-primary btn-sm"
+            onClick={fetchRequests}
+            disabled={loading}
+          >
+            <i className="fas fa-sync-alt me-1"></i>
+            Refresh
+          </button>
+          <button 
+            className="btn btn-primary btn-sm"
+            onClick={() => navigate('/find-a-tutor')}
+          >
+            <i className="fas fa-search me-1"></i>
+            Find a Tutor
+          </button>
         </div>
       </div>
+
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          {error}
+          <button 
+            className="btn btn-sm btn-outline-danger ms-2" 
+            onClick={() => setError(null)}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {requests.length === 0 ? (
+        <div className="text-center py-5">
+          <i className="fas fa-inbox fa-3x text-muted mb-3"></i>
+          <h4 className="text-muted">No Tutor Requests</h4>
+          <p className="text-muted">You haven't sent any tutor requests yet.</p>
+          <button 
+            className="btn btn-primary mt-3"
+            onClick={() => navigate('/find-a-tutor')}
+          >
+            <i className="fas fa-search me-1"></i>
+            Find a Tutor
+          </button>
+        </div>
+      ) : (
+        <div className="row">
+          {requests.map((request) => (
+            <div key={request.id} className="col-lg-6 col-xl-4 mb-4">
+              <div className="card h-100 shadow-sm">
+                <div className="card-header d-flex justify-content-between align-items-center">
+                  <h6 className="mb-0">
+                    {request.tutor.firstName} {request.tutor.lastName}
+                  </h6>
+                  {getStatusBadge(request.status)}
+                </div>
+                <div className="card-body">
+                  <div className="mb-3">
+                    <small className="text-muted">
+                      <i className="fas fa-envelope me-1"></i>
+                      {request.tutor.email}
+                    </small>
+                  </div>
+                  
+                  {request.tutor.username && (
+                    <div className="mb-3">
+                      <small className="text-muted">
+                        <i className="fas fa-user me-1"></i>
+                        @{request.tutor.username}
+                      </small>
+                    </div>
+                  )}
+
+                  {(() => {
+                    const parsed = parseTutorRequestMessage(request.message);
+                    return (
+                      <>
+                        {parsed.subject && (
+                          <div className="mb-3">
+                            <h6 className="text-muted mb-2">Subject:</h6>
+                            <span className="badge bg-info">{parsed.subject}</span>
+                          </div>
+                        )}
+                        {parsed.message ? (
+                          <div className="mb-3">
+                            <h6 className="text-muted mb-2">Message:</h6>
+                            <p className="card-text small">
+                              {parsed.message.length > 100 ? parsed.message.substring(0, 100) + '...' : parsed.message}
+                            </p>
+                          </div>
+                        ) : request.message && (
+                          <div className="mb-3">
+                            <h6 className="text-muted mb-2">Message:</h6>
+                            <p className="card-text small">
+                              {request.message.length > 100 ? request.message.substring(0, 100) + '...' : request.message}
+                            </p>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
+
+                  <div className="mb-3">
+                    <small className="text-muted">
+                      <i className="fas fa-clock me-1"></i>
+                      Sent {formatDate(request.createdAt)}
+                    </small>
+                  </div>
+
+                  {request.status === 'accepted' && (
+                    <div className="alert alert-success alert-sm mb-0 mt-3">
+                      <i className="fas fa-check-circle me-1"></i>
+                      <strong>Accepted!</strong> You can now schedule lessons.
+                    </div>
+                  )}
+
+                  {request.status === 'rejected' && (
+                    <div className="alert alert-danger alert-sm mb-0 mt-3">
+                      <i className="fas fa-times-circle me-1"></i>
+                      <strong>Declined</strong> Tutor is currently unavailable.
+                    </div>
+                  )}
+                </div>
+                <div className="card-footer bg-transparent">
+                  <button
+                    className="btn btn-outline-primary btn-sm w-100"
+                    onClick={() => setSelectedRequest(request)}
+                  >
+                    <i className="fas fa-info-circle me-1"></i>
+                    More Info
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* More Info Modal */}
       {selectedRequest && (
         <div 
           className="modal show d-block" 
           tabIndex="-1" 
-          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+          style={{ backgroundColor: 'transparent' }}
           onClick={() => setSelectedRequest(null)}
         >
           <div className="modal-dialog modal-dialog-centered modal-lg" onClick={(e) => e.stopPropagation()}>
@@ -261,7 +252,7 @@ const TutorRequests = () => {
                         <div className="row g-3">
                           <div className="col-md-6">
                             <div>
-                              <small className="text-muted d-block mb-1">Name</small>
+                              <small className="text-muted d-block">Name</small>
                               <div className="fw-semibold">
                                 {selectedRequest.tutor.firstName} {selectedRequest.tutor.lastName}
                               </div>
@@ -269,7 +260,7 @@ const TutorRequests = () => {
                           </div>
                           <div className="col-md-6">
                             <div>
-                              <small className="text-muted d-block mb-1">Email</small>
+                              <small className="text-muted d-block">Email</small>
                               <div className="fw-semibold">
                                 <i className="fas fa-envelope me-1 text-muted"></i>
                                 {selectedRequest.tutor.email}
@@ -279,7 +270,7 @@ const TutorRequests = () => {
                           {selectedRequest.tutor.username && (
                             <div className="col-md-6">
                               <div>
-                                <small className="text-muted d-block mb-1">Username</small>
+                                <small className="text-muted d-block">Username</small>
                                 <div className="fw-semibold">
                                   <i className="fas fa-at me-1 text-muted"></i>
                                   @{selectedRequest.tutor.username}
@@ -287,21 +278,6 @@ const TutorRequests = () => {
                               </div>
                             </div>
                           )}
-                          <div className="col-md-6">
-                            <div>
-                              <small className="text-muted d-block mb-1">Request Date</small>
-                              <div className="fw-semibold">
-                                <i className="fas fa-clock me-1 text-muted"></i>
-                                {formatDate(selectedRequest.createdAt)}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="col-12">
-                            <div>
-                              <small className="text-muted d-block mb-2">Status</small>
-                              {getStatusBadge(selectedRequest.status)}
-                            </div>
-                          </div>
                         </div>
                       </div>
 
@@ -347,6 +323,21 @@ const TutorRequests = () => {
                               </div>
                             </div>
                           )}
+                          <div className="col-md-6">
+                            <div>
+                              <small className="text-muted d-block mb-1">Request Date</small>
+                              <div className="fw-semibold">
+                                <i className="fas fa-clock me-1 text-muted"></i>
+                                {formatDate(selectedRequest.createdAt)}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-12">
+                            <div>
+                              <small className="text-muted d-block mb-2">Status</small>
+                              {getStatusBadge(selectedRequest.status)}
+                            </div>
+                          </div>
                         </div>
                       </div>
 
