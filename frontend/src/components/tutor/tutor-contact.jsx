@@ -275,7 +275,9 @@ function TutorContact() {
                         <div className="tutor-contact-card">
                             <div className="tutor-contact-card-body p-4 p-md-5">
                                 <div className="text-center mb-4">
-                                    <h1 className="tutor-contact-title">Contact Tutor</h1>
+                                    <h1 className="tutor-contact-title">
+                                        {loading ? 'Contact Tutor' : tutor ? `Contact ${tutor.name || `${tutor.user?.first_name || ''} ${tutor.user?.last_name || ''}`.trim() || 'Tutor'}` : 'Contact Tutor'}
+                                    </h1>
                                     {loading ? (
                                         <div className="text-center py-4">
                                             <div className="spinner-border text-primary" role="status">
@@ -320,7 +322,9 @@ function TutorContact() {
                                                     className="tutor-contact-avatar"
                                                 />
                                             </div>
-                                            <h2 className="tutor-contact-name">Tutor</h2>
+                                            <h2 className="tutor-contact-name">
+                                                {tutor ? (tutor.name || `${tutor.user?.first_name || ''} ${tutor.user?.last_name || ''}`.trim() || 'Tutor') : 'Tutor'}
+                                            </h2>
                                         </div>
                                     )}
                                 </div>
