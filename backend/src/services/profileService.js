@@ -816,6 +816,7 @@ class ProfileService {
           atrPoints: tutor.atar ? Math.round(tutor.atar) : 0,
           image: photoUrl,
           photo_url: photoUrl,
+          is_fully_booked: tutor.is_fully_booked || false,
         };
       }));
 

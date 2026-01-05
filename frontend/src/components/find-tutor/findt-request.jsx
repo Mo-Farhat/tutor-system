@@ -231,12 +231,12 @@ const FindTutorRequest = () => {
                   <img 
                     src={profileImage} 
                     alt="Tutor avatar" 
-                    className="tutor-top-avatar"
+                    className={`tutor-top-avatar ${isFullyBooked ? 'booked' : ''}`}
                     onError={(e) => {
                       e.target.src = getDefaultImage(tutorName);
                     }}
                   />
-                  <div className="tutor-top-status">{status}</div>
+                  <div className={`tutor-top-status ${isFullyBooked ? 'booked' : ''}`}>{status}</div>
                 </div>
                 
                 <div className="tutor-top-info">

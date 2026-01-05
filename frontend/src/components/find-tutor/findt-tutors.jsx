@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { getLiveTutors } from "../../services/authService";
+import { useAuth } from "../../contexts/AuthContext";
+import authService from "../../services/authService";
 import "../../css/find-tutor/findt-tutors.css"
 
 function FindtTutors({ filters }) {
@@ -163,6 +165,49 @@ function FindtTutors({ filters }) {
         applyFilters();
     }, [applyFilters]);
 
+    const { user } = useAuth();
+    const [togglingId, setTogglingId] = useState(null);
+
+    const handleToggleAvailability = async (e, tutorId, currentStatus) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        try {
+            setTogglingId(tutorId);
+            const newStatus = !currentStatus;
+            
+            const token = authService.getAccessToken();
+            const response = await fetch(
+                `${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000'}/api/auth/tutor/availability`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ is_fully_booked: newStatus }),
+                }
+            );
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Update local state
+                const updateTutor = (t) => t.id === tutorId ? { ...t, is_fully_booked: newStatus } : t;
+                setAllTutors(prev => prev.map(updateTutor));
+                setFilteredTutors(prev => prev.map(updateTutor));
+            } else {
+                console.error('Failed to update availability:', data.message);
+                alert('Failed to update availability. Please try again.');
+            }
+        } catch (err) {
+            console.error('Error toggling availability:', err);
+            alert('Error updating availability. Please try again.');
+        } finally {
+            setTogglingId(null);
+        }
+    };
+
     const getDefaultImage = (name) => {
         // Return null to trigger the default icon fallback
         return null;
@@ -283,7 +328,8 @@ function FindtTutors({ filters }) {
                 <div className="row g-4 w-100">
                     {filteredTutors.map((tutor) => {
                         const name = tutor.name || 'Tutor';
-                        const avatarClass = (tutor.status && tutor.status.toLowerCase() === 'approved') ? 'available' : 'booked';
+                        const isFullyBooked = tutor.is_fully_booked;
+                        const avatarClass = isFullyBooked ? 'booked' : ((tutor.status && tutor.status.toLowerCase() === 'approved') ? 'available' : 'booked');
                         const rate = tutor.hourly_rate ? `$${Number(tutor.hourly_rate).toFixed(0)}/hr` : '';
                         const topSubjects = Array.isArray(tutor.subjects) ? tutor.subjects.slice(0, 2).map(s => (s || '').split(' - ')[0]).join(', ') : '';
                         const topLocations = Array.isArray(tutor.preferred_locations) ? tutor.preferred_locations.slice(0, 2).join(', ') : '';
@@ -321,6 +367,23 @@ function FindtTutors({ filters }) {
                                     <div className="findt-tutors-default-avatar" style={{ display: tutorImage ? 'none' : 'flex', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', backgroundColor: '#e0e0e0', borderRadius: '50%' }}>
                                         <i className="fas fa-user" style={{ fontSize: '3rem', color: '#666' }}></i>
                                     </div>
+                                    
+                                    {/* Tutor's own toggle */}
+                                    {user?.id === tutor.id && (
+                                        <div className="findt-tutors-self-toggle" onClick={(e) => e.preventDefault()}>
+                                            <div className="form-check form-switch">
+                                                <input
+                                                    className="form-check-input"
+                                                    type="checkbox"
+                                                    role="switch"
+                                                    id={`toggle-${tutor.id}`}
+                                                    checked={isFullyBooked}
+                                                    onChange={(e) => handleToggleAvailability(e, tutor.id, isFullyBooked)}
+                                                    disabled={togglingId === tutor.id}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                                 <h3 className="findt-tutors-name">{name}</h3>
                                 {/* Rating Display */}

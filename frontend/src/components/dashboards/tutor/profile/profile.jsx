@@ -1079,7 +1079,7 @@ function TutorProfile() {
                   <div className="tutor-profile-card-body">
                     <div className="d-flex justify-content-between align-items-start">
                       <div className="tutor-profile-summary">
-                        <div className="tutor-profile-avatar">
+                        <div className={`tutor-profile-avatar ${isFullyBooked ? 'booked' : ''}`}>
                           {existingPhotoUrl ? (
                             <img 
                               src={existingPhotoUrl} 
