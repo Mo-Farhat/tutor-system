@@ -284,7 +284,7 @@ function TutorContact() {
                                         </div>
                                     ) : tutor ? (
                                         <div className="tutor-contact-profile">
-                                            <div className="tutor-contact-profile-image">
+                                            <div className={`tutor-contact-profile-image ${tutor.is_fully_booked ? 'booked' : ''}`}>
                                                 <img 
                                                     src={tutor.photo_url || tutor.image || "https://cdn.pixabay.com/photo/2016/08/20/05/38/avatar-1606916_960_720.png"} 
                                                     alt={tutor.name || 'Tutor'} 

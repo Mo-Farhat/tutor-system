@@ -57,25 +57,42 @@
 }
 
 /* Cards */
+/* Cards */
+.student-profile-card,
 .student-profile-header-card,
 .student-profile-goals-card,
 .student-profile-goals-tile,
 .student-profile-preferences-card,
 .student-profile-subjects-card {
     background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e9ecef;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease;
+    margin-bottom: 24px;
+    overflow: hidden;
 }
 
+.student-profile-card:hover,
 .student-profile-header-card:hover,
 .student-profile-goals-card:hover,
 .student-profile-goals-tile:hover,
 .student-profile-preferences-card:hover,
 .student-profile-subjects-card:hover {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.student-profile-card-body {
+    padding: 24px;
+}
+
+.student-profile-card-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 /* Profile Header */
@@ -94,6 +111,40 @@
     object-fit: cover;
 }
 
+.student-profile-avatar-container {
+    width: 80px;
+    height: 80px;
+    margin-right: 20px;
+}
+
+.student-profile-avatar-edit-btn {
+    position: absolute;
+    bottom: 0;
+    right: 15px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.student-profile-avatar-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
 .student-profile-name {
     font-size: 24px;
     font-weight: 700;
@@ -110,17 +161,61 @@
 .student-profile-badges {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
     flex-wrap: wrap;
 }
 
 .student-profile-status-badge {
-    background-color: #d4edda;
-    color: #155724;
-    font-size: 12px;
-    padding: 6px 12px;
+    background-color: #d1e7dd;
+    color: #0f5132;
+    font-size: 13px;
+    padding: 6px 16px;
     border-radius: 20px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    display: inline-flex;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.student-profile-badge-grade {
+    background-color: #e8f0fe;
+    color: #1967d2;
+    font-size: 13px;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+/* Edit Form Styling */
+.student-profile-edit-form {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+    margin-top: 10px;
+}
+
+.student-profile-edit-form .form-label {
     font-weight: 500;
+    color: #495057;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.student-profile-edit-form .form-control,
+.student-profile-edit-form .form-select {
+    border-radius: 8px;
+    border-color: #dee2e6;
+    padding: 10px 12px;
+    font-size: 14px;
+}
+
+.student-profile-edit-form .form-control:focus,
+.student-profile-edit-form .form-select:focus {
+    border-color: #4285f4;
+    box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.15);
 }
 
 .student-profile-joined {

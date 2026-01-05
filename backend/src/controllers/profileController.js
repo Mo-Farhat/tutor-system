@@ -373,10 +373,11 @@ exports.uploadStudentPhoto = async (req, res) => {
     const { user } = req;
     const file = req.file;
 
-    if (!file || !file.cloudUrl) {
+    if (!file || !file.s3Key) {
       return res.status(400).json({ success: false, error: "No photo uploaded" });
     }
 
+    // Create media asset for tracking
     const asset = await createMediaAsset({
       kind: "students/photos",
       key: file.s3Key,
@@ -385,13 +386,31 @@ exports.uploadStudentPhoto = async (req, res) => {
       userId: user.id,
     });
 
+    // Store S3 key in photo_url for presigned URL generation (consistent with tutor)
     const updated = await prisma.studentProfile.upsert({
       where: { userId: user.id },
-      update: { photoAssetId: asset.id },
-      create: { userId: user.id, photoAssetId: asset.id },
+      update: { 
+        photo_url: file.s3Key,
+        photoAssetId: asset.id 
+      },
+      create: { 
+        userId: user.id, 
+        photo_url: file.s3Key,
+        photoAssetId: asset.id 
+      },
     });
 
-    res.json({ success: true, photoUrl: asset.url, assetId: asset.id, profile: updated });
+    // Generate presigned URL for immediate display
+    const { getSignedUrl } = require("../services/fileStorageService");
+    const signedPhotoUrl = await getSignedUrl(file.s3Key, 86400); // 24 hour validity
+
+    res.json({ 
+      success: true, 
+      photoUrl: signedPhotoUrl, 
+      photoS3Key: file.s3Key,
+      assetId: asset.id, 
+      profile: updated 
+    });
   } catch (err) {
     console.error("UploadStudentPhoto error:", err);
     res.status(500).json({ success: false, error: "Failed to upload student photo" });

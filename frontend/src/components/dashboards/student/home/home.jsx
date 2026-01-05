@@ -17,17 +17,11 @@ function StudentHome() {
     loadMyTutors();
   }, []);
 
-  const handleViewLesson = (lesson) => {
-    if (lesson) {
-      // Navigate to lesson details or open modal
-      console.log("View lesson:", lesson);
-      // You can implement navigation here or open a modal
-    }
-  };
-
   const handleContactTutor = (tutor) => {
-    // Open email client or show contact options
-    console.log("Contact tutor:", tutor);
+    // Open email client
+    if (tutor.email) {
+      window.location.href = `mailto:${tutor.email}`;
+    }
   };
 
   const loadMyTutors = async () => {
@@ -111,13 +105,9 @@ function StudentHome() {
           return {
             id: tutorAssignment.id,
             name: `${tutor.firstName} ${tutor.lastName}`,
-            degree: tutorAssignment.subject || "Subject Not Specified",
             avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(
               tutor.firstName + " " + tutor.lastName
             )}&background=random`,
-            tags: [
-              { label: tutorAssignment.subject || "General", color: "primary" },
-            ],
             email: tutor.email,
             phone: tutor.phone || "Phone not available",
             nextSession: nextSessionText,
@@ -212,9 +202,16 @@ function StudentHome() {
                     You don't have any tutors assigned yet. Contact support to
                     get matched with a tutor.
                   </p>
-                  <button className="btn btn-primary" onClick={loadMyTutors}>
-                    Refresh
-                  </button>
+                  <div className="d-flex gap-2 justify-content-center">
+                    <button className="btn btn-primary" onClick={() => navigate("/find-a-tutor")}>
+                      <i className="fas fa-search me-1"></i>
+                      Find Tutors
+                    </button>
+                    <button className="btn btn-outline-primary" onClick={loadMyTutors}>
+                      <i className="fas fa-sync-alt me-1"></i>
+                      Refresh
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -263,13 +260,22 @@ function StudentHome() {
               <h3 className="student-home-section-title mb-0">
                 Your Assigned Tutors
               </h3>
-              <button
-                className="btn btn-outline-primary btn-sm"
-                onClick={loadMyTutors}
-              >
-                <i className="fas fa-sync-alt me-1"></i>
-                Refresh
-              </button>
+              <div className="d-flex gap-2">
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={() => navigate("/find-a-tutor")}
+                >
+                  <i className="fas fa-search me-1"></i>
+                  Find Tutors
+                </button>
+                <button
+                  className="btn btn-outline-primary btn-sm"
+                  onClick={loadMyTutors}
+                >
+                  <i className="fas fa-sync-alt me-1"></i>
+                  Refresh
+                </button>
+              </div>
             </div>
             <div className="row g-4">
               {assignedTutors.map((tutor, idx) => (
@@ -296,19 +302,6 @@ function StudentHome() {
                         >
                           {tutor.status}
                         </span>
-                      </div>
-                      <div className="student-home-card-degree mb-2">
-                        {tutor.degree}
-                      </div>
-                      <div className="mb-2">
-                        {tutor.tags.map((tag, i) => (
-                          <span
-                            key={i}
-                            className={`student-home-tag student-home-tag-${tag.color} me-2 mb-1`}
-                          >
-                            {tag.label}
-                          </span>
-                        ))}
                       </div>
                       <div className="student-home-next-session mb-2">
                         <i className="fas fa-clock me-1"></i>
@@ -347,15 +340,6 @@ function StudentHome() {
                           )}
                       </div>
                       <div className="student-home-card-actions d-flex gap-2">
-                        {tutor.nextLesson && (
-                          <button
-                            className="btn btn-primary btn-sm"
-                            onClick={() => handleViewLesson(tutor.nextLesson)}
-                          >
-                            <i className="fas fa-calendar-check me-1"></i>
-                            View Lesson
-                          </button>
-                        )}
                         {tutor.username && (
                           <button
                             className="btn btn-outline-secondary btn-sm"
@@ -373,7 +357,7 @@ function StudentHome() {
                           className="btn btn-outline-primary btn-sm"
                           onClick={() => handleContactTutor(tutor)}
                         >
-                          <i className="fas fa-comments me-1"></i>
+                          <i className="fas fa-envelope me-1"></i>
                           Contact
                         </button>
                       </div>

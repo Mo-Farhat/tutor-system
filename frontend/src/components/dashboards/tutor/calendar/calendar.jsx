@@ -30,7 +30,10 @@ function getMonthMatrix(year, month) {
 function TutorCalendar() {
   const { getFlatSubjects } = useSubjects();
   const subjects = getFlatSubjects();
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(() => {
+    const now = new Date();
+    return new Date(now.toLocaleString("en-US", { timeZone: "Australia/Sydney" }));
+  });
   const [viewMode, setViewMode] = useState('month'); // 'month', 'week', or 'day'
   const [lessons, setLessons] = useState([]);
   const [students, setStudents] = useState([]);
@@ -163,7 +166,13 @@ function TutorCalendar() {
         return `${monthNames[firstDay.getMonth()]} ${firstDay.getDate()} - ${monthNames[lastDay.getMonth()]} ${lastDay.getDate()}, ${lastDay.getFullYear()}`;
       }
     } else {
-      return currentDate.toLocaleDateString('en-AU', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+      return currentDate.toLocaleDateString('en-AU', { 
+        timeZone: 'Australia/Sydney',
+        weekday: 'long', 
+        month: 'long', 
+        day: 'numeric', 
+        year: 'numeric' 
+      });
     }
   };
 
@@ -185,10 +194,14 @@ function TutorCalendar() {
       const endTime = new Date(startTime);
       endTime.setHours(endTime.getHours() + 1);
       
+      const dateStr = formatForDateInput(startTime);
+      const startTimeStr = formatForTimeInput(startTime);
+      const endTimeStr = formatForTimeInput(endTime);
+
       setNewLesson(prev => ({
         ...prev,
-        startAt: startTime.toISOString().slice(0, 16),
-        endAt: endTime.toISOString().slice(0, 16),
+        startAt: toSydneyISO(dateStr, startTimeStr),
+        endAt: toSydneyISO(dateStr, endTimeStr),
         duration: 60
       }));
     }
@@ -303,6 +316,151 @@ function TutorCalendar() {
       return tzPart ? tzPart.value : "AEST";
     } catch (e) {
       return "AEST";
+    }
+  };
+
+  // Generate time slots for dropdown (12-hour format, 15-minute intervals)
+  const generateTimeSlots = () => {
+    const slots = [];
+    // Start from 12:00, 12:15, 12:30, 12:45, then 1:00...
+    const hours = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+    for (const hour of hours) {
+      for (let min = 0; min < 60; min += 15) {
+        const m = String(min).padStart(2, "0");
+        const displayTime = `${hour}:${m}`;
+        slots.push(displayTime);
+      }
+    }
+    return slots;
+  };
+
+  const timeSlots = generateTimeSlots();
+
+  // Helper to split 24h time into 12h time and period
+  const parseTimeParts = (time24) => {
+    if (!time24) return { time: "9:00", period: "AM" };
+    const [h24, m] = time24.split(":").map(Number);
+    const period = h24 >= 12 ? "PM" : "AM";
+    const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+    return { time: `${h12}:${String(m).padStart(2, "0")}`, period };
+  };
+
+  // Helper to combine 12h time and period into 24h time
+  const combineTimeParts = (time12, period) => {
+    const [h12, m] = time12.split(":").map(Number);
+    let h24 = h12;
+    if (period === "PM" && h12 < 12) h24 += 12;
+    if (period === "AM" && h12 === 12) h24 = 0;
+    return `${String(h24).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+  };
+
+  // Helper to combine Sydney date and time into a UTC ISO string
+  const toSydneyISO = (dateStr, timeStr) => {
+    if (!dateStr || !timeStr) return "";
+    try {
+      const [y, m, d] = dateStr.split('-').map(Number);
+      const [hh, mm] = timeStr.split(':').map(Number);
+      
+      // Create a date in UTC as a starting point
+      let date = new Date(Date.UTC(y, m - 1, d, hh, mm));
+      
+      // Find what time it would be in Sydney if it were this UTC time
+      const formatter = new Intl.DateTimeFormat('en-AU', {
+        timeZone: 'Australia/Sydney',
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        hour12: false
+      });
+      
+      const parts = formatter.formatToParts(date);
+      const sY = parseInt(parts.find(p => p.type === 'year').value);
+      const sM = parseInt(parts.find(p => p.type === 'month').value);
+      const sD = parseInt(parts.find(p => p.type === 'day').value);
+      const sH = parseInt(parts.find(p => p.type === 'hour').value);
+      const sMin = parseInt(parts.find(p => p.type === 'minute').value);
+      
+      // Handle the case where hour might be 24
+      const normalizedH = sH === 24 ? 0 : sH;
+      
+      const sydneyDate = Date.UTC(sY, sM - 1, sD, normalizedH, sMin);
+      const diff = sydneyDate - date.getTime();
+      
+      return new Date(date.getTime() - diff).toISOString();
+    } catch (e) {
+      console.error("Error converting to Sydney ISO:", e);
+      return `${dateStr}T${timeStr}:00Z`; // Fallback
+    }
+  };
+
+  // Custom TimePicker component with split dropdowns
+  const TimePicker = ({ value, onChange }) => {
+    const { time, period } = parseTimeParts(value);
+
+    return (
+      <div className="d-flex gap-2">
+        <select 
+          className="form-select tutor-calendar-time-select"
+          value={time}
+          onChange={(e) => onChange(combineTimeParts(e.target.value, period))}
+        >
+          {timeSlots.map((slot) => (
+            <option key={slot} value={slot}>
+              {slot}
+            </option>
+          ))}
+        </select>
+        <select 
+          className="form-select tutor-calendar-period-select"
+          style={{ width: '80px' }}
+          value={period}
+          onChange={(e) => onChange(combineTimeParts(time, e.target.value))}
+        >
+          <option value="AM">AM</option>
+          <option value="PM">PM</option>
+        </select>
+      </div>
+    );
+  };
+
+  // Helper to format date for input (YYYY-MM-DD) in Australia/Sydney
+  const formatForDateInput = (dateStr) => {
+    if (!dateStr) return "";
+    try {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return "";
+      
+      // Use Intl to get parts in Sydney time
+      const formatter = new Intl.DateTimeFormat("en-AU", {
+        timeZone: "Australia/Sydney",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      });
+      const parts = formatter.formatToParts(date);
+      const year = parts.find(p => p.type === "year").value;
+      const month = parts.find(p => p.type === "month").value;
+      const day = parts.find(p => p.type === "day").value;
+      return `${year}-${month}-${day}`;
+    } catch (e) {
+      return "";
+    }
+  };
+
+  // Helper to format time for input (HH:mm) in Australia/Sydney
+  const formatForTimeInput = (dateStr) => {
+    if (!dateStr) return "";
+    try {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return "";
+      
+      return date.toLocaleTimeString("en-AU", {
+        timeZone: "Australia/Sydney",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
+    } catch (e) {
+      return "";
     }
   };
 
@@ -575,7 +733,8 @@ function TutorCalendar() {
                               : [];
                             
                             // Check if date is in the past
-                            const today = new Date();
+                            const now = new Date();
+                            const today = new Date(now.toLocaleString("en-US", { timeZone: "Australia/Sydney" }));
                             today.setHours(0, 0, 0, 0);
                             const isPastDate = date && date < today;
                             
@@ -654,7 +813,8 @@ function TutorCalendar() {
                     <thead>
                       <tr>
                         {getWeekDates().map((date, i) => {
-                          const today = new Date();
+                          const now = new Date();
+                          const today = new Date(now.toLocaleString("en-US", { timeZone: "Australia/Sydney" }));
                           today.setHours(0, 0, 0, 0);
                           const isToday = date.toDateString() === today.toDateString();
                           return (
@@ -671,7 +831,8 @@ function TutorCalendar() {
                         {getWeekDates().map((date, i) => {
                           const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
                           const dayLessons = getLessonsForDate(dateStr);
-                          const today = new Date();
+                          const now = new Date();
+                          const today = new Date(now.toLocaleString("en-US", { timeZone: "Australia/Sydney" }));
                           today.setHours(0, 0, 0, 0);
                           const isPastDate = date < today;
                           
@@ -726,7 +887,8 @@ function TutorCalendar() {
             {viewMode === 'day' && (() => {
               const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}-${String(currentDate.getDate()).padStart(2, "0")}`;
               const dayLessons = getLessonsForDate(dateStr);
-              const today = new Date();
+              const now = new Date();
+              const today = new Date(now.toLocaleString("en-US", { timeZone: "Australia/Sydney" }));
               today.setHours(0, 0, 0, 0);
               const isPastDate = currentDate < today;
               
@@ -1029,14 +1191,11 @@ function TutorCalendar() {
                         <div className="row">
                           <div className="col-md-6 mb-3">
                             <label className="form-label">Start Time</label>
-                            <input
-                              type="time"
-                              className="form-control"
-                              value={newLesson.startAt ? newLesson.startAt.split('T')[1] : ''}
-                              onChange={(e) => {
-                                const selectedTime = e.target.value;
-                                const currentDate = newLesson.startAt ? newLesson.startAt.split('T')[0] : new Date().toISOString().split('T')[0];
-                                const newStartAt = `${currentDate}T${selectedTime}`;
+                            <TimePicker
+                              value={formatForTimeInput(newLesson.startAt)}
+                              onChange={(selectedTime) => {
+                                const currentDate = formatForDateInput(newLesson.startAt) || new Date().toISOString().split('T')[0];
+                                const newStartAt = toSydneyISO(currentDate, selectedTime);
                                 const startDate = new Date(newStartAt);
                                 const endDate = new Date(startDate);
                                 endDate.setMinutes(endDate.getMinutes() + (parseInt(newLesson.duration) || 60));
@@ -1044,21 +1203,18 @@ function TutorCalendar() {
                                 setNewLesson({
                                   ...newLesson,
                                   startAt: newStartAt,
-                                  endAt: endDate.toISOString().slice(0, 16)
+                                  endAt: endDate.toISOString()
                                 });
                               }}
                             />
                           </div>
                           <div className="col-md-6 mb-3">
                             <label className="form-label">End Time</label>
-                            <input
-                              type="time"
-                              className="form-control"
-                              value={newLesson.endAt ? newLesson.endAt.split('T')[1] : ''}
-                              onChange={(e) => {
-                                const selectedTime = e.target.value;
-                                const currentDate = newLesson.endAt ? newLesson.endAt.split('T')[0] : new Date().toISOString().split('T')[0];
-                                const newEndAt = `${currentDate}T${selectedTime}`;
+                            <TimePicker
+                              value={formatForTimeInput(newLesson.endAt)}
+                              onChange={(selectedTime) => {
+                                const currentDate = formatForDateInput(newLesson.endAt) || new Date().toISOString().split('T')[0];
+                                const newEndAt = toSydneyISO(currentDate, selectedTime);
                                 
                                 setNewLesson({
                                   ...newLesson,
@@ -1299,11 +1455,11 @@ function TutorCalendar() {
                             <input
                               type="date"
                               className="form-control"
-                              value={editingLesson.startAt ? editingLesson.startAt.split('T')[0] : ''}
+                              value={formatForDateInput(editingLesson.startAt)}
                               onChange={(e) => {
                                 const selectedDate = e.target.value;
-                                const currentTime = editingLesson.startAt ? editingLesson.startAt.split('T')[1] : '09:00';
-                                const newStartAt = `${selectedDate}T${currentTime}`;
+                                const currentTime = formatForTimeInput(editingLesson.startAt) || '09:00';
+                                const newStartAt = toSydneyISO(selectedDate, currentTime);
                                 const startDate = new Date(newStartAt);
                                 const endDate = new Date(editingLesson.endAt || newStartAt);
                                 const duration = (endDate - startDate) / (1000 * 60);
@@ -1312,7 +1468,7 @@ function TutorCalendar() {
                                 setEditingLesson({
                                   ...editingLesson,
                                   startAt: newStartAt,
-                                  endAt: endDate.toISOString().slice(0, 16),
+                                  endAt: endDate.toISOString(),
                                 });
                               }}
                             />
@@ -1321,14 +1477,11 @@ function TutorCalendar() {
                         <div className="row">
                           <div className="col-md-6 mb-3">
                             <label className="form-label">Start Time</label>
-                            <input
-                              type="time"
-                              className="form-control"
-                              value={editingLesson.startAt ? editingLesson.startAt.split('T')[1] : ''}
-                              onChange={(e) => {
-                                const selectedTime = e.target.value;
-                                const currentDate = editingLesson.startAt ? editingLesson.startAt.split('T')[0] : new Date().toISOString().split('T')[0];
-                                const newStartAt = `${currentDate}T${selectedTime}`;
+                            <TimePicker
+                              value={formatForTimeInput(editingLesson.startAt)}
+                              onChange={(selectedTime) => {
+                                const currentDate = formatForDateInput(editingLesson.startAt) || new Date().toISOString().split('T')[0];
+                                const newStartAt = toSydneyISO(currentDate, selectedTime);
                                 const startDate = new Date(newStartAt);
                                 const endDate = new Date(editingLesson.endAt || newStartAt);
                                 const duration = (endDate - startDate) / (1000 * 60);
@@ -1337,21 +1490,18 @@ function TutorCalendar() {
                                 setEditingLesson({
                                   ...editingLesson,
                                   startAt: newStartAt,
-                                  endAt: endDate.toISOString().slice(0, 16),
+                                  endAt: endDate.toISOString(),
                                 });
                               }}
                             />
                           </div>
                           <div className="col-md-6 mb-3">
                             <label className="form-label">End Time</label>
-                            <input
-                              type="time"
-                              className="form-control"
-                              value={editingLesson.endAt ? editingLesson.endAt.split('T')[1] : ''}
-                              onChange={(e) => {
-                                const selectedTime = e.target.value;
-                                const currentDate = editingLesson.endAt ? editingLesson.endAt.split('T')[0] : new Date().toISOString().split('T')[0];
-                                const newEndAt = `${currentDate}T${selectedTime}`;
+                            <TimePicker
+                              value={formatForTimeInput(editingLesson.endAt)}
+                              onChange={(selectedTime) => {
+                                const currentDate = formatForDateInput(editingLesson.endAt) || new Date().toISOString().split('T')[0];
+                                const newEndAt = toSydneyISO(currentDate, selectedTime);
                                 
                                 setEditingLesson({
                                   ...editingLesson,

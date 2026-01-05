@@ -19,7 +19,8 @@ function StudentNavbar() {
 
   useEffect(() => {
     let isMounted = true;
-    (async () => {
+
+    const fetchProfile = async () => {
       try {
         const res = await studentService.getMyProfile();
         if (!isMounted) return;
@@ -40,9 +41,19 @@ function StudentNavbar() {
       } catch (e) {
         // ignore; keep defaults
       }
-    })();
+    };
+
+    fetchProfile();
+
+    const handleProfileUpdate = () => {
+      fetchProfile();
+    };
+
+    window.addEventListener('student-profile-updated', handleProfileUpdate);
+
     return () => {
       isMounted = false;
+      window.removeEventListener('student-profile-updated', handleProfileUpdate);
     };
   }, []);
 

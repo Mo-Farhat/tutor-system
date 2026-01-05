@@ -1,11 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import studentService from "../../../../services/studentService";
 import authService from "../../../../services/authService";
+import { useSubjects } from "../../../../contexts/SubjectsContext";
 import "../../../../css/dashboards/student/profile/profile.css";
 import DetailsPanel from "./DetailsPanel";
 import PreferencesPanel from "./PreferencesPanel";
 
 function StudentProfileManagement() {
+  const { subjects: availableSubjects } = useSubjects();
+  const fileInputRef = useRef(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   // Student profile data
   const [studentData, setStudentData] = useState({
     fullName: "",
@@ -14,7 +18,7 @@ function StudentProfileManagement() {
     stream: "",
     joinedDate: "",
     status: "",
-    avatar: "/public/Images/logo/logo1.png",
+    avatar: "",
   });
 
   // Enriched details data compatible with DetailsPanel
@@ -117,32 +121,39 @@ function StudentProfileManagement() {
             stream: p.stream || p.studyStream || "",
             status: p.status || "Active",
             joinedDate: p.user?.created_at || p.joinedDate || "",
-            avatar: p.avatarUrl || prev.avatar,
+            avatar: p.photo_url
+
           }));
           setDetailsData({
             fullName: concatenatedName || p.fullName || p.name || "Student",
             email: p.user?.email || p.email || "",
-            phoneNumber: p.phone || p.phoneNumber || "",
+            phoneNumber: p.phone_number || p.phone || p.phoneNumber || "",
             subjects: p.subjects || [],
             studentId: p.studentId || p.id || "",
-            grade: p.grade || "",
+            grade: p.grade || p.year_level || "",
             stream: p.stream || p.studyStream || "",
             dateOfBirth: p.dateOfBirth || "",
             address: p.address || "",
             totalLessons: p.totalLessons || 0,
             attendance: p.attendanceRate || "",
+            bio: p.bio || "",
+            currentSchool: p.current_school || "",
+            yearLevel: p.year_level || p.grade || "",
+            subjectsInterested: p.subjects_interested || [],
+            preferredLocations: p.preferred_locations || [],
+            learningGoals: p.learning_goals || "",
           });
 
           // Load preferences from profile if present
           setLearningPreferences({
-            learningStyle: Array.isArray(p.learningStyle)
-              ? p.learningStyle
+            learningStyle: Array.isArray(p.learning_style)
+              ? p.learning_style
               : p.learningPreferences?.learningStyle || [],
-            bestTime: p.bestTime || p.learningPreferences?.bestTime || "",
+            bestTime: p.best_time || p.learningPreferences?.bestTime || "",
             sessionLength:
-              p.sessionLength || p.learningPreferences?.sessionLength || "",
+              p.session_length || p.learningPreferences?.sessionLength || "",
             additionalNotes:
-              p.additionalNotes || p.learningPreferences?.additionalNotes || "",
+              p.additional_notes || p.learningPreferences?.additionalNotes || "",
           });
         }
 
@@ -285,10 +296,10 @@ function StudentProfileManagement() {
   const savePreferences = async () => {
     try {
       const payload = {
-        learningStyle: editingPreferences.learningStyle,
-        bestTime: editingPreferences.bestTime,
-        sessionLength: editingPreferences.sessionLength,
-        additionalNotes: editingPreferences.additionalNotes,
+        learning_style: editingPreferences.learningStyle,
+        best_time: editingPreferences.bestTime,
+        session_length: editingPreferences.sessionLength,
+        additional_notes: editingPreferences.additionalNotes,
       };
       const res = await studentService.updateMyProfile(payload);
       if (res?.success) {
@@ -384,6 +395,49 @@ function StudentProfileManagement() {
     setPasswordErrors({});
   };
 
+  // Handle photo upload
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      alert("Please upload an image file.");
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert("File size should be less than 5MB.");
+      return;
+    }
+
+    try {
+      setUploadingPhoto(true);
+      const formData = new FormData();
+      formData.append("photo", file);
+
+      const result = await studentService.uploadStudentPhoto(formData);
+
+      if (result.success) {
+        setStudentData((prev) => ({
+          ...prev,
+          avatar: result.photoUrl,
+        }));
+        // Notify other components (like navbar) that profile has changed
+        window.dispatchEvent(new Event('student-profile-updated'));
+        alert("Profile photo updated successfully!");
+      } else {
+        alert(result.error || "Failed to upload photo");
+      }
+    } catch (error) {
+      console.error("Error uploading photo:", error);
+      alert("An error occurred while uploading photo");
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
   // Start editing a section
   const startEditingSection = (section) => {
     setSectionError("");
@@ -453,6 +507,8 @@ function StudentProfileManagement() {
 
         setEditingSection(null);
         setEditData({});
+        // Notify other components (like navbar) that profile has changed
+        window.dispatchEvent(new Event('student-profile-updated'));
         alert("Profile updated successfully!");
       } else {
         setSectionError(result.error || "Failed to update profile");
@@ -465,6 +521,24 @@ function StudentProfileManagement() {
     }
   };
 
+  // Delete a goal
+  const handleDeleteGoal = async (goalId) => {
+    if (window.confirm("Are you sure you want to delete this goal?")) {
+      try {
+        const response = await studentService.deleteGoal(goalId);
+        if (response.success) {
+          setGoals((prevGoals) => prevGoals.filter((g) => g.id !== goalId));
+        } else {
+          console.error("Failed to delete goal:", response.error);
+          alert("Failed to delete goal. Please try again.");
+        }
+      } catch (error) {
+        console.error("Error deleting goal:", error);
+        alert("An error occurred while deleting the goal.");
+      }
+    }
+  };
+
   return (
     <div className="student-profile-dashboard">
       <div className="student-profile-content">
@@ -474,8 +548,29 @@ function StudentProfileManagement() {
             <div className="card-body">
               <div className="row align-items-center">
                 <div className="col-auto">
-                  <div className="student-profile-avatar">
-                    <img src={studentData.avatar} alt={studentData.fullName} />
+                  <div className="student-profile-avatar-container position-relative">
+                    <div className="student-profile-avatar">
+                      <img src={studentData.avatar} alt={studentData.fullName} />
+                      {uploadingPhoto && (
+                        <div className="student-profile-avatar-overlay">
+                          <div className="spinner-border spinner-border-sm text-light"></div>
+                        </div>
+                      )}
+                    </div>
+                    <button 
+                      className="btn btn-sm btn-primary student-profile-avatar-edit-btn"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploadingPhoto}
+                    >
+                      <i className="fas fa-camera"></i>
+                    </button>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      className="d-none"
+                      accept="image/*"
+                      onChange={handlePhotoUpload}
+                    />
                   </div>
                 </div>
                 <div className="col">
@@ -483,19 +578,27 @@ function StudentProfileManagement() {
                     {/* Debug: Log what we're actually displaying */}
                     {console.log('Rendering fullName:', studentData.fullName)}
                     <h4 className="student-profile-name">
-                      {studentData.fullName || 'Loading...'}
+                      {studentData.fullName || 'Student'}
                     </h4>
                     <p className="student-profile-details">
-                      {studentData.grade} • {studentData.stream}
+                      {studentData.grade && studentData.stream ? (
+                        `${studentData.grade} • ${studentData.stream}`
+                      ) : (
+                        studentData.grade || studentData.stream || ''
+                      )}
                     </p>
                     <div className="student-profile-badges">
-                      <span className="badge student-profile-status-badge">
-                        {studentData.status}
-                      </span>
-                      <span className="student-profile-joined">
-                        <i className="fas fa-clock me-1"></i>
-                        Joined {studentData.joinedDate ? new Date(studentData.joinedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) : ''}
-                      </span>
+                      {studentData.status && (
+                        <span className="badge student-profile-status-badge">
+                          {studentData.status}
+                        </span>
+                      )}
+                      {studentData.joinedDate && (
+                        <span className="student-profile-joined">
+                          <i className="fas fa-clock me-1"></i>
+                          Joined {new Date(studentData.joinedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -514,225 +617,33 @@ function StudentProfileManagement() {
         </div>
 
         {/* Quick Stats Row */}
-        <div className="row student-profile-quick-stats">
-          {/* SMART Goals Tile */}
-          <div className="col-lg-4 col-md-6 mb-4">
-            <div className="student-profile-section h-100">
-              <div className="card student-profile-goals-tile h-100">
-                <div className="card-body">
-                  <div className="d-flex justify-content-between align-items-center mb-3">
-                    <h5 className="student-profile-section-title mb-0">
-                      <i className="fas fa-bullseye me-2"></i>
-                      SMART Goals
-                    </h5>
-                    <button
-                      className="btn student-profile-add-btn btn-sm"
-                      onClick={() => handleEditGoal("")}
+        <div className="row">
+          {/* Left Column: Personal & Academic Info */}
+          <div className="col-lg-8">
+            {/* Personal Information */}
+            <div className="student-profile-section">
+              <div className="student-profile-card">
+                <div className="student-profile-card-body">
+                  <div className="d-flex justify-content-between align-items-center mb-4">
+                    <h3 className="student-profile-card-title mb-0">
+                      <i className="fas fa-user me-2"></i>Personal Information
+                    </h3>
+                    <button 
+                      className="btn btn-sm btn-link text-primary"
+                      onClick={() => {
+                        setEditingSection('personal');
+                        setEditData({
+                          phone_number: detailsData.phoneNumber,
+                          bio: detailsData.bio
+                        });
+                      }}
                     >
-                      <i className="fas fa-plus"></i>
+                      <i className="fas fa-edit me-1"></i>Edit
                     </button>
                   </div>
 
-                  {goalsLoading && (
-                    <div className="text-muted small">Loading goals...</div>
-                  )}
-                  {goalsError && <div className="text-danger small">{goalsError}</div>}
-                  
-                  {goals.length > 0 ? (
-                    <div className="student-profile-goals-tile-list">
-                      {goals.slice(0, 3).map((g) => (
-                        <div key={g.id} className="student-profile-goal-tile-item">
-                          <div className="d-flex justify-content-between align-items-start">
-                            <div className="flex-grow-1">
-                              <div className="fw-semibold small">{g.title}</div>
-                              {g.subject && (
-                                <div className="text-muted small">{g.subject}</div>
-                              )}
-                              {g.targetDate && (
-                                <div className="text-muted small">Target: {formatDate(g.targetDate)}</div>
-                              )}
-                            </div>
-                            <div className="d-flex gap-1">
-                              <button
-                                className="btn btn-outline-primary btn-sm"
-                                onClick={() => handleEditGoal(g.subject, g.id)}
-                                title="Edit goal"
-                              >
-                                <i className="fas fa-edit"></i>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                      {goals.length > 3 && (
-                        <div className="text-center mt-2">
-                          <small className="text-muted">+{goals.length - 3} more goals</small>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="text-muted text-center py-3">
-                      <i className="fas fa-bullseye fa-2x mb-2"></i>
-                      <div className="small">No goals yet</div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Learning Preferences Tile */}
-          <div className="col-lg-4 col-md-6 mb-4">
-            <div className="student-profile-section h-100">
-              <PreferencesPanel
-                learningPreferences={learningPreferences}
-                onEdit={() => {
-                  setEditingPreferences({ ...learningPreferences });
-                  setShowPreferencesModal(true);
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Current Subjects Tile */}
-          <div className="col-lg-4 col-md-12 mb-4">
-            <div className="student-profile-section h-100">
-              <div className="card student-profile-subjects-card h-100">
-                <div className="card-body">
-                  <h6 className="student-profile-card-title mb-3">
-                    <i className="fas fa-book me-2"></i>
-                    Current Subjects
-                  </h6>
-                  <div className="student-profile-subjects-list">
-                    {currentSubjects.map((subject, index) => (
-                      <div key={index} className="student-profile-subject-item">
-                        <div className="student-profile-subject-icon">
-                          {subject.icon}
-                        </div>
-                        <div className="student-profile-subject-name">
-                          {subject.name}
-                        </div>
-                        <span
-                          className={`badge student-profile-subject-status ${subject.status.toLowerCase()}`}
-                        >
-                          {subject.status}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Content Area */}
-        <div className="row student-profile-main-content">
-          <div className="col-lg-8 col-md-12">
-            {/* Goals Section */}
-            <div className="student-profile-section">
-              <div className="student-profile-section-header">
-                <h5 className="student-profile-section-title">
-                  <i className="fas fa-bullseye me-2"></i>
-                  All Goals by Subject
-                </h5>
-              </div>
-
-              {goalsLoading && (
-                <div className="text-muted">Loading goals...</div>
-              )}
-              {goalsError && <div className="text-danger">{goalsError}</div>}
-              {Object.entries(goalsBySubject).map(([subject, list]) => (
-                <div
-                  key={subject}
-                  className="card student-profile-goals-card mb-3"
-                >
-                  <div className="card-body">
-                    <div className="d-flex justify-content-between align-items-center mb-3">
-                      <h6 className="student-profile-subject-title">
-                        {subject}
-                      </h6>
-                      <button
-                        className="btn student-profile-edit-subject-btn"
-                        onClick={() => handleEditGoal(subject)}
-                      >
-                        <i className="fas fa-edit"></i>
-                      </button>
-                    </div>
-                    <div className="student-profile-goals-list">
-                      {list.map((g) => (
-                        <div key={g.id} className="student-profile-goal-item">
-                          <div className="student-profile-goal-content">
-                            <span className="student-profile-goal-text">
-                              {g.title}
-                            </span>
-                            {g.details && (
-                              <div className="text-muted small">
-                                {g.details}
-                              </div>
-                            )}
-                            {g.targetDate && (
-                              <div className="text-muted small">
-                                Target: {formatDate(g.targetDate)}
-                              </div>
-                            )}
-                          </div>
-                          <div className="d-flex gap-2">
-                            <button
-                              className="btn student-profile-goal-edit-btn"
-                              onClick={() => handleEditGoal(g.subject, g.id)}
-                            >
-                              <i className="fas fa-edit"></i>
-                            </button>
-                            <button
-                              className="btn btn-outline-danger btn-sm"
-                              onClick={() => deleteGoal(g.id)}
-                            >
-                              <i className="fas fa-trash"></i>
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ))}
-              {!goalsLoading && goals.length === 0 && (
-                <div className="text-muted">
-                  No goals yet. Click "Add Goal" to create one.
-                </div>
-              )}
-            </div>
-
-            {/* Personal Information Section */}
-            <div className="student-profile-section">
-              <div className="student-profile-section-header">
-                <h5 className="student-profile-section-title">
-                  <i className="fas fa-user me-2"></i>
-                  Personal Information
-                </h5>
-                {editingSection !== 'personal' && (
-                  <button
-                    className="btn btn-sm btn-outline-primary"
-                    onClick={() => startEditingSection('personal')}
-                  >
-                    <i className="fas fa-edit me-1"></i>
-                    Edit
-                  </button>
-                )}
-              </div>
-              <div className="card">
-                <div className="card-body">
-
-                  {sectionError && editingSection === 'personal' && (
-                    <div className="alert alert-danger alert-sm">
-                      <i className="fas fa-exclamation-triangle me-2"></i>
-                      {sectionError}
-                    </div>
-                  )}
-
                   {editingSection === 'personal' ? (
-                    <div>
+                    <div className="student-profile-edit-form">
                       <div className="mb-3">
                         <label className="form-label">Phone Number</label>
                         <input
@@ -754,11 +665,8 @@ function StudentProfileManagement() {
                           onChange={(e) =>
                             setEditData({ ...editData, bio: e.target.value })
                           }
-                          placeholder="Tell us about yourself... (minimum 10 characters or leave empty)"
+                          placeholder="Tell us about yourself..."
                         ></textarea>
-                        <div className="form-text">
-                          {editData.bio ? `${editData.bio.length} characters` : '0 characters'} (minimum 10 required if provided)
-                        </div>
                       </div>
                       <div className="d-flex gap-2">
                         <button
@@ -766,17 +674,7 @@ function StudentProfileManagement() {
                           onClick={() => saveSectionChanges('personal')}
                           disabled={savingSection === 'personal'}
                         >
-                          {savingSection === 'personal' ? (
-                            <>
-                              <span className="spinner-border spinner-border-sm me-1"></span>
-                              Saving...
-                            </>
-                          ) : (
-                            <>
-                              <i className="fas fa-save me-1"></i>
-                              Save
-                            </>
-                          )}
+                          {savingSection === 'personal' ? 'Saving...' : 'Save'}
                         </button>
                         <button
                           className="btn btn-secondary btn-sm"
@@ -786,20 +684,17 @@ function StudentProfileManagement() {
                           Cancel
                         </button>
                       </div>
+                      {sectionError && <div className="text-danger mt-2 small">{sectionError}</div>}
                     </div>
                   ) : (
-                    <div className="row">
+                    <div className="row g-4">
                       <div className="col-md-6">
-                        <div className="mb-3">
-                          <label className="form-label text-muted small">Phone Number</label>
-                          <div>{detailsData.phoneNumber || 'Not provided'}</div>
-                        </div>
+                        <label className="text-muted small text-uppercase fw-bold mb-1 d-block">Phone Number</label>
+                        <p className="mb-0">{detailsData.phoneNumber || 'Not provided'}</p>
                       </div>
                       <div className="col-12">
-                        <div className="mb-0">
-                          <label className="form-label text-muted small">Bio</label>
-                          <div>{detailsData.bio || 'Not provided'}</div>
-                        </div>
+                        <label className="text-muted small text-uppercase fw-bold mb-1 d-block">Bio</label>
+                        <p className="mb-0">{detailsData.bio || 'Tell us a bit about yourself...'}</p>
                       </div>
                     </div>
                   )}
@@ -807,34 +702,31 @@ function StudentProfileManagement() {
               </div>
             </div>
 
-            {/* Academic Information Section */}
+            {/* Academic Information */}
             <div className="student-profile-section">
-              <div className="student-profile-section-header">
-                <h5 className="student-profile-section-title">
-                  <i className="fas fa-graduation-cap me-2"></i>
-                  Academic Information
-                </h5>
-                {editingSection !== 'academic' && (
-                  <button
-                    className="btn btn-sm btn-outline-primary"
-                    onClick={() => startEditingSection('academic')}
-                  >
-                    <i className="fas fa-edit me-1"></i>
-                    Edit
-                  </button>
-                )}
-              </div>
-              <div className="card">
-                <div className="card-body">
-                  {sectionError && editingSection === 'academic' && (
-                    <div className="alert alert-danger alert-sm">
-                      <i className="fas fa-exclamation-triangle me-2"></i>
-                      {sectionError}
-                    </div>
-                  )}
+              <div className="student-profile-card">
+                <div className="student-profile-card-body">
+                  <div className="d-flex justify-content-between align-items-center mb-4">
+                    <h3 className="student-profile-card-title mb-0">
+                      <i className="fas fa-graduation-cap me-2"></i>Academic Information
+                    </h3>
+                    <button 
+                      className="btn btn-sm btn-link text-primary"
+                      onClick={() => {
+                        setEditingSection('academic');
+                        setEditData({
+                          current_school: detailsData.currentSchool,
+                          year_level: detailsData.yearLevel,
+                          subjects_interested: detailsData.subjectsInterested
+                        });
+                      }}
+                    >
+                      <i className="fas fa-edit me-1"></i>Edit
+                    </button>
+                  </div>
 
                   {editingSection === 'academic' ? (
-                    <div>
+                    <div className="student-profile-edit-form">
                       <div className="row">
                         <div className="col-md-6 mb-3">
                           <label className="form-label">Current School</label>
@@ -845,7 +737,6 @@ function StudentProfileManagement() {
                             onChange={(e) =>
                               setEditData({ ...editData, current_school: e.target.value })
                             }
-                            placeholder="Enter your school name"
                           />
                         </div>
                         <div className="col-md-6 mb-3">
@@ -857,69 +748,37 @@ function StudentProfileManagement() {
                               setEditData({ ...editData, year_level: e.target.value })
                             }
                           >
-                            <option value="">Select year level</option>
-                            <option value="Year 7">Year 7</option>
-                            <option value="Year 8">Year 8</option>
-                            <option value="Year 9">Year 9</option>
-                            <option value="Year 10">Year 10</option>
-                            <option value="Year 11">Year 11</option>
-                            <option value="Year 12">Year 12</option>
+                            <option value="">Select Year</option>
+                            {[7, 8, 9, 10, 11, 12].map(y => (
+                              <option key={y} value={`Year ${y}`}>Year {y}</option>
+                            ))}
                           </select>
                         </div>
                       </div>
                       <div className="mb-3">
                         <label className="form-label">Subjects Interested</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={Array.isArray(editData.subjects_interested) 
-                            ? editData.subjects_interested.join(", ") 
-                            : ""}
-                          onChange={(e) =>
-                            setEditData({
-                              ...editData,
-                              subjects_interested: e.target.value
-                                .split(",")
-                                .map(s => s.trim())
-                                .filter(s => s),
-                            })
-                          }
-                          placeholder="Enter subjects separated by commas (e.g., Math, Science, English)"
-                        />
-                        <div className="form-text">Separate multiple subjects with commas</div>
-                      </div>
-                      <div className="mb-3">
-                        <label className="form-label">Preferred Locations</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={Array.isArray(editData.preferred_locations)
-                            ? editData.preferred_locations.join(", ")
-                            : ""}
-                          onChange={(e) =>
-                            setEditData({
-                              ...editData,
-                              preferred_locations: e.target.value
-                                .split(",")
-                                .map(s => s.trim())
-                                .filter(s => s),
-                            })
-                          }
-                          placeholder="Enter locations separated by commas (e.g., Online, Sydney CBD)"
-                        />
-                        <div className="form-text">Separate multiple locations with commas</div>
-                      </div>
-                      <div className="mb-3">
-                        <label className="form-label">Learning Goals</label>
-                        <textarea
-                          className="form-control"
-                          rows="3"
-                          value={editData.learning_goals || ""}
-                          onChange={(e) =>
-                            setEditData({ ...editData, learning_goals: e.target.value })
-                          }
-                          placeholder="What do you want to achieve through tutoring?"
-                        ></textarea>
+                        <div className="d-flex flex-wrap gap-2">
+                          {(availableSubjects?.flat || []).map((subject) => (
+                            <div key={subject.id} className="form-check">
+                              <input
+                                className="form-check-input"
+                                type="checkbox"
+                                id={`subject-${subject.id}`}
+                                checked={editData.subjects_interested?.includes(subject.name)}
+                                onChange={(e) => {
+                                  const current = editData.subjects_interested || [];
+                                  const updated = e.target.checked
+                                    ? [...current, subject.name]
+                                    : current.filter(s => s !== subject.name);
+                                  setEditData({ ...editData, subjects_interested: updated });
+                                }}
+                              />
+                              <label className="form-check-label small" htmlFor={`subject-${subject.id}`}>
+                                {subject.name}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                       <div className="d-flex gap-2">
                         <button
@@ -927,17 +786,7 @@ function StudentProfileManagement() {
                           onClick={() => saveSectionChanges('academic')}
                           disabled={savingSection === 'academic'}
                         >
-                          {savingSection === 'academic' ? (
-                            <>
-                              <span className="spinner-border spinner-border-sm me-1"></span>
-                              Saving...
-                            </>
-                          ) : (
-                            <>
-                              <i className="fas fa-save me-1"></i>
-                              Save
-                            </>
-                          )}
+                          {savingSection === 'academic' ? 'Saving...' : 'Save'}
                         </button>
                         <button
                           className="btn btn-secondary btn-sm"
@@ -947,49 +796,28 @@ function StudentProfileManagement() {
                           Cancel
                         </button>
                       </div>
+                      {sectionError && <div className="text-danger mt-2 small">{sectionError}</div>}
                     </div>
                   ) : (
-                    <div className="row">
+                    <div className="row g-4">
                       <div className="col-md-6">
-                        <div className="mb-3">
-                          <label className="form-label text-muted small">Current School</label>
-                          <div>{detailsData.currentSchool || 'Not provided'}</div>
-                        </div>
+                        <label className="text-muted small text-uppercase fw-bold mb-1 d-block">Current School</label>
+                        <p className="mb-0">{detailsData.currentSchool || 'Not provided'}</p>
                       </div>
                       <div className="col-md-6">
-                        <div className="mb-3">
-                          <label className="form-label text-muted small">Year Level</label>
-                          <div>{detailsData.yearLevel || 'Not provided'}</div>
-                        </div>
-                      </div>
-                      <div className="col-md-6">
-                        <div className="mb-3">
-                          <label className="form-label text-muted small">Subjects Interested</label>
-                          <div>
-                            {Array.isArray(detailsData.subjectsInterested) && detailsData.subjectsInterested.length > 0
-                              ? detailsData.subjectsInterested.map(subject => (
-                                  <span key={subject} className="badge bg-primary me-1 mb-1">{subject}</span>
-                                ))
-                              : 'Not provided'}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-md-6">
-                        <div className="mb-3">
-                          <label className="form-label text-muted small">Preferred Locations</label>
-                          <div>
-                            {Array.isArray(detailsData.preferredLocations) && detailsData.preferredLocations.length > 0
-                              ? detailsData.preferredLocations.map(location => (
-                                  <span key={location} className="badge bg-info me-1 mb-1">{location}</span>
-                                ))
-                              : 'Not provided'}
-                          </div>
-                        </div>
+                        <label className="text-muted small text-uppercase fw-bold mb-1 d-block">Year Level</label>
+                        <p className="mb-0">{detailsData.yearLevel || 'Not provided'}</p>
                       </div>
                       <div className="col-12">
-                        <div className="mb-0">
-                          <label className="form-label text-muted small">Learning Goals</label>
-                          <div>{detailsData.learningGoals || 'Not provided'}</div>
+                        <label className="text-muted small text-uppercase fw-bold mb-1 d-block">Subjects Interested</label>
+                        <div className="d-flex flex-wrap gap-2 mt-2">
+                          {detailsData.subjectsInterested?.length > 0 ? (
+                            detailsData.subjectsInterested.map((s, idx) => (
+                              <span key={idx} className="badge bg-light text-dark border">{s}</span>
+                            ))
+                          ) : (
+                            <span className="text-muted">No subjects selected</span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -998,12 +826,131 @@ function StudentProfileManagement() {
               </div>
             </div>
 
-            {/* Progress Details */}
-            <DetailsPanel
-              studentData={detailsData}
-              studentBadges={studentBadges}
-              previousReports={previousReports}
-            />
+            {/* Learning Preferences */}
+            <div className="student-profile-section">
+              <div className="student-profile-card">
+                <div className="student-profile-card-body">
+                  <div className="d-flex justify-content-between align-items-center mb-4">
+                    <h3 className="student-profile-card-title mb-0">
+                      <i className="fas fa-brain me-2"></i>Learning Preferences
+                    </h3>
+                    <button 
+                      className="btn btn-sm btn-link text-primary"
+                      onClick={() => {
+                        setEditingPreferences({ ...learningPreferences });
+                        setShowPreferencesModal(true);
+                      }}
+                    >
+                      <i className="fas fa-edit me-1"></i>Edit
+                    </button>
+                  </div>
+
+                  <div className="row g-4">
+                    <div className="col-12">
+                      <label className="text-muted small text-uppercase fw-bold mb-1 d-block">Learning Styles</label>
+                      <div className="d-flex flex-wrap gap-2 mt-2">
+                        {learningPreferences.learningStyle?.length > 0 ? (
+                          learningPreferences.learningStyle.map((s, idx) => (
+                            <span key={idx} className="badge bg-primary-subtle text-primary border-primary-subtle">{s}</span>
+                          ))
+                        ) : (
+                          <span className="text-muted">No styles selected</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <label className="text-muted small text-uppercase fw-bold mb-1 d-block">Best Time for Sessions</label>
+                      <p className="mb-0">{learningPreferences.bestTime || 'Not provided'}</p>
+                    </div>
+                    <div className="col-md-6">
+                      <label className="text-muted small text-uppercase fw-bold mb-1 d-block">Preferred Session Length</label>
+                      <p className="mb-0">{learningPreferences.sessionLength || 'Not provided'}</p>
+                    </div>
+                    <div className="col-12">
+                      <label className="text-muted small text-uppercase fw-bold mb-1 d-block">Additional Notes</label>
+                      <p className="mb-0">{learningPreferences.additionalNotes || 'No additional notes'}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: SMART Goals */}
+          <div className="col-lg-4">
+            <div className="student-profile-section">
+              <div className="student-profile-card">
+                <div className="student-profile-card-body">
+                  <div className="d-flex justify-content-between align-items-center mb-4">
+                    <h3 className="student-profile-card-title mb-0">
+                      <i className="fas fa-bullseye me-2"></i>SMART Goals
+                    </h3>
+                    <button 
+                      className="btn btn-sm btn-primary"
+                      onClick={() => {
+                        setEditingGoal({ id: null, subject: "", title: "", details: "", targetDate: "" });
+                        setShowGoalModal(true);
+                      }}
+                    >
+                      <i className="fas fa-plus me-1"></i>Add
+                    </button>
+                  </div>
+
+                  <div className="student-profile-goals-list">
+                    {goalsLoading ? (
+                      <div className="text-center py-4">
+                        <div className="spinner-border spinner-border-sm text-primary"></div>
+                      </div>
+                    ) : goals.length > 0 ? (
+                      goals.map((goal) => (
+                        <div key={goal.id} className="student-profile-goal-item p-3 mb-3 border rounded">
+                          <div className="d-flex justify-content-between align-items-start mb-2">
+                            <span className="badge bg-info-subtle text-info small">{goal.subject}</span>
+                            <div className="dropdown">
+                              <button className="btn btn-sm btn-link text-muted p-0" data-bs-toggle="dropdown">
+                                <i className="fas fa-ellipsis-v"></i>
+                              </button>
+                              <ul className="dropdown-menu dropdown-menu-end">
+                                <li>
+                                  <button 
+                                    className="dropdown-item" 
+                                    onClick={() => {
+                                      setEditingGoal(goal);
+                                      setShowGoalModal(true);
+                                    }}
+                                  >
+                                    Edit
+                                  </button>
+                                </li>
+                                <li>
+                                  <button 
+                                    className="dropdown-item text-danger" 
+                                    onClick={() => handleDeleteGoal(goal.id)}
+                                  >
+                                    Delete
+                                  </button>
+                                </li>
+                              </ul>
+                            </div>
+                          </div>
+                          <h5 className="h6 mb-1">{goal.title}</h5>
+                          <p className="small text-muted mb-2">{goal.details}</p>
+                          <div className="d-flex align-items-center text-muted small">
+                            <i className="fas fa-calendar-check me-1"></i>
+                            Target: {goal.targetDate ? new Date(goal.targetDate).toLocaleDateString() : 'N/A'}
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-4 text-muted">
+                        <i className="fas fa-tasks d-block mb-2 fs-4"></i>
+                        <p className="small mb-0">No goals set yet. Start by adding one!</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

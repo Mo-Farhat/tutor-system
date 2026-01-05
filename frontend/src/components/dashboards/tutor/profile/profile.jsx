@@ -1079,7 +1079,7 @@ function TutorProfile() {
                   <div className="tutor-profile-card-body">
                     <div className="d-flex justify-content-between align-items-start">
                       <div className="tutor-profile-summary">
-                        <div className="tutor-profile-avatar">
+                        <div className={`tutor-profile-avatar ${isFullyBooked ? 'booked' : ''}`}>
                           {existingPhotoUrl ? (
                             <img 
                               src={existingPhotoUrl} 
@@ -1126,7 +1126,7 @@ function TutorProfile() {
                           </h2>
                           <div className="tutor-profile-badges">
                             <span className="tutor-profile-badge-gold">
-                              Gold ({profileData?.rating || "0.00"}/5)
+                              {(profileData?.tier || "Gold").charAt(0).toUpperCase() + (profileData?.tier || "gold").slice(1)} ({profileData?.rating || "0.00"}/5)
                             </span>
                             <span className="tutor-profile-badge-atr">
                               ATR ({profileData?.atar || "96.45"})

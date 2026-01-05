@@ -100,6 +100,31 @@
     background: #dc3545;
 }
 
+.findt-tutors-self-toggle {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    background: white;
+    border-radius: 20px;
+    padding: 2px 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.findt-tutors-self-toggle .form-check {
+    margin-bottom: 0;
+    padding-left: 2.5em;
+}
+
+.findt-tutors-self-toggle .form-check-input {
+    cursor: pointer;
+    width: 2.5em;
+    height: 1.25em;
+}
+
 .findt-tutors-status {
     position: absolute;
     bottom: -10px;
@@ -137,6 +162,7 @@
     /* line clamp for consistent card height */
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     min-height: 3.0em; /* ~2 lines */

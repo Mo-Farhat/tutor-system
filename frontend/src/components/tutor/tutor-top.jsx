@@ -12,7 +12,8 @@ function TutorTop({ tutorData, getDefaultImage }) {
     const hourlyRate = tutorData.hourly_rate || '60';
     const rating = tutorData.rating || '0.00';
     const atar = tutorData.atar || 'N/A';
-    const status = "Available"; // You can make this dynamic based on tutor availability
+    const isFullyBooked = tutorData.is_fully_booked === true;
+    const status = isFullyBooked ? "Fully Booked" : "Available";
 
     return (
         <section className="row container-fluid section d-flex justify-content-center g-0 tutor-top-main" id="tutor-top">
@@ -30,12 +31,12 @@ function TutorTop({ tutorData, getDefaultImage }) {
                                 <img 
                                     src={profileImage} 
                                     alt="Tutor avatar" 
-                                    className="tutor-top-avatar"
+                                    className={`tutor-top-avatar ${isFullyBooked ? 'booked' : ''}`}
                                     onError={(e) => {
                                         e.target.src = getDefaultImage?.(tutorName) || 'https://cdn.pixabay.com/photo/2016/08/20/05/38/avatar-1606916_960_720.png';
                                     }}
                                 />
-                                <div className="tutor-top-status">{status}</div>
+                                <div className={`tutor-top-status ${isFullyBooked ? 'booked' : ''}`}>{status}</div>
                             </div>
                             
                             <div className="tutor-top-info">
@@ -43,7 +44,13 @@ function TutorTop({ tutorData, getDefaultImage }) {
                                     <h1 className="tutor-top-name m-0">{tutorName}</h1>
                                     <span className="tutor-top-badge">Gold (${hourlyRate}/h)</span>
                                 </div>
-                                <Link to="/tutor/contact" className="tutor-top-contact">Contact Me</Link>
+                                <Link 
+                                    to={isFullyBooked ? "#" : "/tutor/contact"} 
+                                    className={`tutor-top-contact ${isFullyBooked ? 'fully-booked' : ''}`}
+                                    style={isFullyBooked ? { backgroundColor: '#dc3545', borderColor: '#dc3545', cursor: 'not-allowed', pointerEvents: 'none' } : {}}
+                                >
+                                    {isFullyBooked ? 'Fully Booked' : 'Contact Me'}
+                                </Link>
                             </div>
                         </div>
                         

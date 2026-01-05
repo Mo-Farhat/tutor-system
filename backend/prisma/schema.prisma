@@ -1,12 +1,646 @@
 generator client {
   provider      = "prisma-client-js"
-  engineType    = "library"
   binaryTargets = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x"]
+  engineType    = "library"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model MasterTier {
+  id         String   @id
+  name       String
+  hourlyRate Decimal  @db.Decimal(10, 2)
+  striveCut  Decimal  @db.Decimal(10, 2)
+  payoutRate Decimal  @db.Decimal(10, 2)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Notification {
+  id        Int                  @id @default(autoincrement())
+  userId    Int
+  type      NotificationType
+  title     String
+  message   String
+  priority  NotificationPriority @default(medium)
+  read      Boolean              @default(false)
+  actionUrl String?
+  metadata  Json?
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+  user      User                 @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, read])
+  @@index([createdAt])
+  @@index([type])
+}
+
+model User {
+  id                        Int                    @id @default(autoincrement())
+  firstName                 String
+  lastName                  String
+  email                     String                 @unique
+  username                  String                 @unique
+  password                  String
+  role                      Role                   @default(student)
+  status                    String?
+  createdAt                 DateTime               @default(now())
+  updatedAt                 DateTime               @updatedAt
+  stripeCustomerId          String?                @unique
+  lessonsAsStudent          Lesson[]               @relation("StudentLessons")
+  lessonsAsTutor            Lesson[]               @relation("TutorLessons")
+  studentPipelinesAsStudent LessonPipeline[]       @relation("StudentPipelines")
+  tutorPipelinesAsTutor     LessonPipeline[]       @relation("TutorPipelines")
+  mediaAssets               MediaAsset[]           @relation("UserMediaAssets")
+  notifications             Notification[]         @relation("UserNotifications")
+  PackagePurchase           PackagePurchase[]
+  ParentContact             ParentContact[]
+  PaymentTransaction        PaymentTransaction[]
+  reportsAsStudent          Report[]               @relation("StudentReports")
+  reportsAsTutor            Report[]               @relation("TutorReports")
+  badgesEarned              StudentBadge[]         @relation("BadgesEarned")
+  badgesGiven               StudentBadge[]         @relation("BadgesGiven")
+  StudentGoal               StudentGoal[]
+  StudentPaymentMethod      StudentPaymentMethod[]
+  studentProfile            StudentProfile?
+  studentPairs              StudentTutor[]         @relation("StudentPairs")
+  tutorPairs                StudentTutor[]         @relation("TutorPairs")
+  SupportTicket             SupportTicket[]
+  applications              TutorApplication[]
+  reviewedChangeRequests    TutorChangeRequest[]   @relation("TCR_Reviewer")
+  tutorChangeRequests       TutorChangeRequest[]   @relation("TCR_Tutor")
+  TutorDocument             TutorDocument[]
+  TutorPaymentInfo          TutorPaymentInfo?
+  tutorPayouts              TutorPayout[]          @relation("TutorPayouts")
+  profile                   TutorProfile?
+  tutorRequestsSent         TutorRequest[]         @relation("TutorRequestsSent")
+  tutorRequestsReceived     TutorRequest[]         @relation("TutorRequestsReceived")
+  addedReviews              TutorReview[]          @relation("TR_Admin")
+  tutorReviews              TutorReview[]          @relation("TR_Tutor")
+  zoomLinks                 ZoomLinkRegistry[]
+
+  @@index([role, createdAt])
+}
+
+model TutorApplication {
+  id                          Int            @id @default(autoincrement())
+  applicationId               String         @unique
+  fullName                    String
+  phone                       String
+  email                       String
+  currentStudy                String?
+  year12State                 String?
+  year12CompletionYear        Int?
+  currentState                String?
+  atar                        Decimal?       @db.Decimal(4, 2)
+  canCommit3Hours             Boolean?       @default(false)
+  canCommit1Year              Boolean?       @default(false)
+  canTutorMostWeeks           Boolean?       @default(false)
+  canTutorGroups              Boolean?       @default(false)
+  subjectsToTutor             String?
+  hasWorkingWithChildrenCheck Boolean?       @default(false)
+  motivation                  String
+  status                      AppStatus      @default(pending)
+  approvedAt                  DateTime?
+  setupToken                  String?
+  setupTokenExpiry            DateTime?
+  files                       Json?
+  userId                      Int?
+  createdAt                   DateTime       @default(now())
+  updatedAt                   DateTime       @updatedAt
+  setupTokenRel               SetupToken?
+  StudentTutor                StudentTutor[]
+  user                        User?          @relation(fields: [userId], references: [id])
+
+  @@index([email])
+  @@index([status, createdAt])
+}
+
+model SetupToken {
+  token         String           @id
+  applicationId Int              @unique
+  email         String
+  expiresAt     DateTime
+  createdAt     DateTime         @default(now())
+  application   TutorApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId])
+}
+
+model TutorProfile {
+  userId                   Int                  @id
+  phone_number             String?
+  bio                      String?
+  hourly_rate              Decimal?             @db.Decimal(10, 2)
+  university               String?
+  current_studies          String[]
+  subjects                 String[]
+  subjects_selected        Json
+  locations                String[]
+  preferred_locations      String[]
+  schools_attended         String[]
+  is_profile_complete      Boolean              @default(false)
+  documents_uploaded       Boolean              @default(false)
+  is_live                  Boolean              @default(false)
+  tier                     Tier                 @default(gold)
+  rating                   Decimal              @default(0.0) @db.Decimal(3, 2)
+  atar                     Decimal?             @db.Decimal(4, 2)
+  approved_at              DateTime?
+  createdAt                DateTime             @default(now())
+  updatedAt                DateTime             @updatedAt
+  intro_video_path         String?
+  photo_url                String?
+  intro_video_status       IntroVideoStatus     @default(none)
+  stripeConnectAccountId   String?
+  stripeOnboardingComplete Boolean              @default(false)
+  is_fully_booked          Boolean              @default(false)
+  changeRequests           TutorChangeRequest[]
+  documents                TutorDocument[]
+  user                     User                 @relation(fields: [userId], references: [id])
+  reviews                  TutorReview[]
+
+  @@index([tier, is_live])
+  @@index([rating])
+}
+
+model StudentProfile {
+  userId              Int         @id
+  phone_number        String?
+  bio                 String?
+  current_school      String?
+  year_level          String?
+  subjects_interested String[]
+  preferred_locations String[]
+  learning_goals      String?
+  learning_style      String[]
+  best_time           String?
+  session_length      String?
+  additional_notes    String?
+  is_profile_complete Boolean     @default(false)
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  photo_url           String?
+  tier                StudentTier @default(basic)
+  photoAssetId        Int?
+  photoAsset          MediaAsset? @relation("StudentProfilePhoto", fields: [photoAssetId], references: [id])
+  user                User        @relation(fields: [userId], references: [id])
+}
+
+model TutorPaymentInfo {
+  userId        Int            @id
+  abnNumber     String?
+  paymentMethod PaymentMethod?
+  accountName   String?
+  bsb           String?
+  accountNumber String?
+  paypalEmail   String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model TutorDocument {
+  id                 Int           @id @default(autoincrement())
+  userId             Int
+  type               DocumentType
+  uploadedAt         DateTime      @default(now())
+  expiresAt          DateTime?
+  number             String?
+  reviewedBy         Int?
+  status             String        @default("pending")
+  tutorProfileUserId Int?
+  assetId            Int?
+  bucket             String?
+  key                String?
+  url                String?
+  asset              MediaAsset?   @relation("TutorDocumentAsset", fields: [assetId], references: [id])
+  TutorProfile       TutorProfile? @relation(fields: [tutorProfileUserId], references: [userId])
+  user               User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type], map: "doc_user_type")
+  @@index([status, expiresAt])
+}
+
+model StudentTutor {
+  id                 Int               @id @default(autoincrement())
+  studentId          Int
+  tutorId            Int
+  subject            String?
+  status             PairStatus        @default(active)
+  createdAt          DateTime          @default(now())
+  endedAt            DateTime?
+  tutorApplicationId Int?
+  autoRenew          Boolean           @default(false)
+  isPhysical         Boolean           @default(false)
+  remainingHours     Decimal           @default(0) @db.Decimal(10, 2)
+  PackagePurchase    PackagePurchase[]
+  student            User              @relation("StudentPairs", fields: [studentId], references: [id], onDelete: Cascade)
+  tutorApplication   TutorApplication? @relation(fields: [tutorApplicationId], references: [id])
+  tutor              User              @relation("TutorPairs", fields: [tutorId], references: [id], onDelete: Cascade)
+
+  @@index([studentId, tutorId])
+}
+
+model ParentContact {
+  id                Int                @id @default(autoincrement())
+  studentId         Int
+  firstName         String
+  lastName          String
+  email             String?
+  phone             String?
+  relation          GuardianRelation   @default(guardian)
+  isPrimary         Boolean            @default(false)
+  contactPreference ContactPreference?
+  addressLine1      String?
+  addressLine2      String?
+  city              String?
+  state             String?
+  postcode          String?
+  country           String?
+  notes             String?
+  consentToContact  Boolean            @default(true)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  student           User               @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+}
+
+model Lesson {
+  id                Int                  @id @default(autoincrement())
+  studentId         Int
+  tutorId           Int
+  subject           String
+  startAt           DateTime
+  endAt             DateTime
+  zoomLink          String?
+  status            LessonStatus         @default(scheduled)
+  prepNotes         String?
+  homework          String?
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  recurrenceRule    String?
+  seriesId          String?
+  completedAt       DateTime?
+  confirmationNotes String?
+  deliveryMode      String               @default("online")
+  studentConfirmed  Boolean              @default(false)
+  student           User                 @relation("StudentLessons", fields: [studentId], references: [id])
+  tutor             User                 @relation("TutorLessons", fields: [tutorId], references: [id])
+  materials         LessonMaterial[]
+  transactions      PaymentTransaction[] @relation("LessonTransactions")
+  sessionAudit      SessionAudit?        @relation("LessonAudit")
+  studentFeedback   StudentFeedback?     @relation("LessonFeedback")
+  payout            TutorPayout?         @relation("LessonPayout")
+
+  @@index([startAt])
+  @@index([tutorId])
+  @@index([studentId])
+  @@index([status])
+  @@index([seriesId])
+}
+
+model StudentFeedback {
+  id        Int      @id @default(autoincrement())
+  lessonId  Int      @unique
+  rating    Int?
+  comment   String?
+  createdAt DateTime @default(now())
+  lesson    Lesson   @relation("LessonFeedback", fields: [lessonId], references: [id], onDelete: Cascade)
+}
+
+model PackagePurchase {
+  id                 Int                  @id @default(autoincrement())
+  studentId          Int
+  subject            String
+  hoursTotal         Int                  @default(10)
+  hoursUsed          Int                  @default(0)
+  discountCents      Int                  @default(5000)
+  status             PackageStatus        @default(active)
+  purchasedAt        DateTime             @default(now())
+  packageTypeId      Int?
+  assignmentId       Int?
+  assignment         StudentTutor?        @relation(fields: [assignmentId], references: [id])
+  PackageType        PackageType?         @relation(fields: [packageTypeId], references: [id])
+  student            User                 @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  PaymentTransaction PaymentTransaction[]
+
+  @@index([studentId, subject])
+}
+
+model PaymentTransaction {
+  id              Int              @id @default(autoincrement())
+  studentId       Int
+  lessonId        Int?
+  packageId       Int?
+  type            TransactionType
+  amountCents     Int
+  description     String?
+  createdAt       DateTime         @default(now())
+  status          String           @default("pending")
+  stripePaymentId String?          @unique
+  stripeSessionId String?          @unique
+  updatedAt       DateTime         @updatedAt
+  lesson          Lesson?          @relation("LessonTransactions", fields: [lessonId], references: [id])
+  package         PackagePurchase? @relation(fields: [packageId], references: [id])
+  student         User             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId, createdAt])
+  @@index([stripePaymentId])
+}
+
+model Report {
+  id                 Int        @id @default(autoincrement())
+  studentId          Int
+  tutorId            Int
+  type               ReportType
+  date               DateTime   @default(now())
+  subject            String?
+  engagement         String?
+  areasToImprove     String[]
+  nextGoal           String?
+  homeworkCompletion String?
+  progressSummary    String?
+  overallProgress    String?
+  term               String?
+  overview           String?
+  keyAchievements    String[]
+  skillsCovered      String[]
+  nextTermGoals      String[]
+  attendanceNote     String?
+  starRating         Int?
+  isLocked           Boolean    @default(false)
+  createdAt          DateTime   @default(now())
+  student            User       @relation("StudentReports", fields: [studentId], references: [id], onDelete: Cascade)
+  tutor              User       @relation("TutorReports", fields: [tutorId], references: [id], onDelete: Cascade)
+
+  @@index([studentId, date])
+}
+
+model Badge {
+  id           Int            @id @default(autoincrement())
+  code         String         @unique
+  name         String
+  iconUrl      String?
+  description  String?
+  StudentBadge StudentBadge[]
+}
+
+model StudentBadge {
+  id        Int      @id @default(autoincrement())
+  studentId Int
+  badgeId   Int
+  tutorId   Int?
+  note      String?
+  count     Int      @default(1)
+  awardedAt DateTime @default(now())
+  badge     Badge    @relation(fields: [badgeId], references: [id])
+  student   User     @relation("BadgesEarned", fields: [studentId], references: [id], onDelete: Cascade)
+  tutor     User?    @relation("BadgesGiven", fields: [tutorId], references: [id])
+
+  @@unique([studentId, badgeId])
+}
+
+model StudentGoal {
+  id         Int       @id @default(autoincrement())
+  studentId  Int
+  subject    String
+  title      String
+  details    String?
+  targetDate DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  student    User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId, subject])
+}
+
+model StudentPaymentMethod {
+  id                    Int                @id @default(autoincrement())
+  studentId             Int
+  type                  StudentPaymentType
+  brand                 String?
+  last4                 String?
+  billingName           String?
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+  isDefault             Boolean            @default(false)
+  stripePaymentMethodId String?            @unique
+  student               User               @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([stripePaymentMethodId])
+}
+
+model SupportTicket {
+  id        Int      @id @default(autoincrement())
+  studentId Int
+  subject   String
+  message   String
+  status    String   @default("open")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  student   User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId, status])
+}
+
+model PackageType {
+  id                   Int               @id @default(autoincrement())
+  name                 String
+  subject              String
+  hours                Int
+  priceCents           Int
+  discountType         DiscountType?
+  discountValueCents   Int?
+  discountPercent      Int?
+  description          String?
+  validityMonths       Int?
+  eligibleTiers        StudentTier[]
+  refundable           Boolean           @default(false)
+  autoRenew            Boolean           @default(false)
+  isActive             Boolean           @default(true)
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  discountValueDollars Decimal?          @db.Decimal(10, 2)
+  priceDollars         Decimal           @db.Decimal(10, 2)
+  PackagePurchase      PackagePurchase[]
+}
+
+model TutorRequest {
+  id        Int      @id @default(autoincrement())
+  tutorId   Int
+  studentId Int
+  status    String   @default("pending")
+  message   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  student   User     @relation("TutorRequestsSent", fields: [studentId], references: [id], onDelete: Cascade)
+  tutor     User     @relation("TutorRequestsReceived", fields: [tutorId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, tutorId])
+  @@index([tutorId, studentId, status])
+}
+
+model TutorChangeRequest {
+  id                 Int           @id @default(autoincrement())
+  tutorId            Int
+  type               String
+  oldValue           String?
+  newValue           String?
+  status             String        @default("pending")
+  comments           String?
+  createdAt          DateTime      @default(now())
+  reviewedAt         DateTime?
+  reviewedBy         Int?
+  tutorProfileUserId Int?
+  updatedAt          DateTime      @updatedAt
+  changeDescription  String?
+  reviewer           User?         @relation("TCR_Reviewer", fields: [reviewedBy], references: [id])
+  tutor              User          @relation("TCR_Tutor", fields: [tutorId], references: [id])
+  TutorProfile       TutorProfile? @relation(fields: [tutorProfileUserId], references: [userId])
+
+  @@index([tutorId])
+  @@index([status])
+  @@index([reviewedBy])
+}
+
+model TutorReview {
+  id                 Int           @id @default(autoincrement())
+  source             String        @default("google")
+  content            String
+  createdAt          DateTime      @default(now())
+  addedBy            Int
+  tutorProfileUserId Int?
+  tutorUserId        Int
+  admin              User          @relation("TR_Admin", fields: [addedBy], references: [id])
+  TutorProfile       TutorProfile? @relation(fields: [tutorProfileUserId], references: [userId])
+  tutor              User          @relation("TR_Tutor", fields: [tutorUserId], references: [id])
+
+  @@index([tutorUserId])
+  @@index([addedBy])
+}
+
+model LessonMaterial {
+  id        Int         @id @default(autoincrement())
+  lessonId  Int
+  title     String?
+  type      String?
+  url       String?
+  addedBy   Int
+  createdAt DateTime    @default(now())
+  assetId   Int?
+  bucket    String?
+  key       String?
+  asset     MediaAsset? @relation("LessonMaterialAsset", fields: [assetId], references: [id])
+  lesson    Lesson      @relation(fields: [lessonId], references: [id])
+
+  @@index([lessonId])
+  @@index([addedBy])
+}
+
+model ZoomLinkRegistry {
+  id        Int      @id @default(autoincrement())
+  tutorId   Int
+  label     String
+  url       String
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tutor     User     @relation(fields: [tutorId], references: [id])
+
+  @@index([tutorId])
+  @@index([isDefault])
+}
+
+model LessonPipeline {
+  id        Int            @id @default(autoincrement())
+  studentId Int
+  tutorId   Int
+  stage     PipelineStage
+  status    PipelineStatus @default(pending)
+  date      DateTime?
+  notes     String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  student   User           @relation("StudentPipelines", fields: [studentId], references: [id], onDelete: Cascade)
+  tutor     User           @relation("TutorPipelines", fields: [tutorId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, tutorId, stage])
+  @@index([studentId, tutorId])
+  @@index([status])
+}
+
+model Subject {
+  id         Int      @id @default(autoincrement())
+  name       String
+  curriculum String
+  yearLevel  String
+  isActive   Boolean  @default(true)
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([name, curriculum, yearLevel])
+  @@index([curriculum, yearLevel])
+  @@index([isActive])
+}
+
+model MediaAsset {
+  id            Int              @id @default(autoincrement())
+  ownerUserId   Int?
+  key           String
+  bucket        String
+  contentType   String?
+  size          Int?
+  url           String?
+  createdAt     DateTime         @default(now())
+  lessonFiles   LessonMaterial[] @relation("LessonMaterialAsset")
+  owner         User?            @relation("UserMediaAssets", fields: [ownerUserId], references: [id])
+  profilePhotos StudentProfile[] @relation("StudentProfilePhoto")
+  tutorDocs     TutorDocument[]  @relation("TutorDocumentAsset")
+
+  @@index([ownerUserId])
+}
+
+model TutorPayout {
+  id          Int       @id @default(autoincrement())
+  tutorId     Int
+  lessonId    Int       @unique
+  grossAmount Decimal   @db.Decimal(10, 2)
+  striveCut   Decimal   @db.Decimal(10, 2)
+  netPayout   Decimal   @db.Decimal(10, 2)
+  travelFee   Decimal?  @db.Decimal(10, 2)
+  status      String    @default("pending")
+  paidAt      DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  lesson      Lesson    @relation("LessonPayout", fields: [lessonId], references: [id])
+  tutor       User      @relation("TutorPayouts", fields: [tutorId], references: [id])
+
+  @@index([tutorId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model SessionAudit {
+  id            Int      @id @default(autoincrement())
+  lessonId      Int      @unique
+  durationHours Decimal  @db.Decimal(10, 2)
+  baseCharge    Decimal  @db.Decimal(10, 2)
+  travelFee     Decimal? @db.Decimal(10, 2)
+  overageAmount Decimal? @db.Decimal(10, 2)
+  striveCut     Decimal  @db.Decimal(10, 2)
+  tutorPayout   Decimal  @db.Decimal(10, 2)
+  createdAt     DateTime @default(now())
+  lesson        Lesson   @relation("LessonAudit", fields: [lessonId], references: [id])
+
+  @@index([createdAt])
 }
 
 enum PaymentMethod {
@@ -45,7 +679,6 @@ enum PipelineStatus {
   completed
 }
 
-
 enum StudentTier {
   basic
   premium
@@ -75,18 +708,6 @@ enum Tier {
   gold
   premium
   elite
-}
-
-// Master tier configuration for payment rates
-model MasterTier {
-  id          String   @id  // e.g., "gold", "premium", "elite"
-  name        String
-  hourlyRate  Decimal  @db.Decimal(10, 2)  // Amount charged to student
-  striveCut   Decimal  @db.Decimal(10, 2)  // Platform fee
-  payoutRate  Decimal  @db.Decimal(10, 2)  // Tutor receives (hourlyRate - striveCut)
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 }
 
 enum AppStatus {
@@ -150,718 +771,16 @@ enum NotificationType {
   new_application
   payment_issue
   compliance_alert
-  session_confirm_request  // Student needs to confirm session hours
-  session_confirmed        // Session hours confirmed by student
-  session_disputed         // Student disputed session hours
-  bucket_low_warning       // Assignment hours running low
-  overage_charged          // Overage charge applied
-  payout_processed         // Tutor payout completed
+  session_confirm_request
+  session_confirmed
+  session_disputed
+  bucket_low_warning
+  overage_charged
+  payout_processed
 }
 
 enum NotificationPriority {
   low
   medium
   high
-}
-
-model Notification {
-  id         Int                  @id @default(autoincrement())
-  userId     Int
-  type       NotificationType
-  title      String
-  message    String               @db.Text
-  priority   NotificationPriority @default(medium)
-  read       Boolean              @default(false)
-  actionUrl  String?
-  metadata   Json?
-  createdAt  DateTime             @default(now())
-  updatedAt  DateTime             @updatedAt
-
-  user User @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([userId, read])
-  @@index([createdAt])
-  @@index([type])
-}
-
-model User {
-  id               Int      @id @default(autoincrement())
-  firstName        String
-  lastName         String
-  email            String   @unique
-  username         String   @unique
-  password         String
-  role             Role     @default(student)
-  status           String?
-  stripeCustomerId String?  @unique
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-
-  applications     TutorApplication[]
-  profile          TutorProfile?
-  studentProfile   StudentProfile?
-  TutorPaymentInfo TutorPaymentInfo[]
-  TutorDocument    TutorDocument[]
-
-  // existing pairs are fine
-  studentPairs StudentTutor[] @relation("StudentPairs")
-  tutorPairs   StudentTutor[] @relation("TutorPairs")
-
-  ParentContact ParentContact[]
-
-  // back-relations with distinct names
-  lessonsAsStudent Lesson[] @relation("StudentLessons")
-  lessonsAsTutor   Lesson[] @relation("TutorLessons")
-
-  reportsAsStudent Report[] @relation("StudentReports")
-  reportsAsTutor   Report[] @relation("TutorReports")
-
-  badgesEarned StudentBadge[] @relation("BadgesEarned")
-  badgesGiven  StudentBadge[] @relation("BadgesGiven")
-
-  // other one-way relations
-  PackagePurchase      PackagePurchase[]
-  PaymentTransaction   PaymentTransaction[]
-  StudentGoal          StudentGoal[]
-  StudentPaymentMethod StudentPaymentMethod[]
-  SupportTicket        SupportTicket[]
-  zoomLinks            ZoomLinkRegistry[]
-
-  // 👇 FIX: split change-requests into two named back-relations
-  tutorChangeRequests    TutorChangeRequest[] @relation("TCR_Tutor") // I am the tutor being changed
-  reviewedChangeRequests TutorChangeRequest[] @relation("TCR_Reviewer") // I am the reviewer/admin
-
-  // 👇 FIX: split reviews into two named back-relations
-  tutorReviews TutorReview[] @relation("TR_Tutor") // reviews about me (as tutor)
-  addedReviews TutorReview[] @relation("TR_Admin") // reviews I added (as admin)
-
-  tutorRequestsReceived TutorRequest[] @relation("TutorRequestsReceived")
-  tutorRequestsSent     TutorRequest[] @relation("TutorRequestsSent")
-
-  // Pipelines
-  mediaAssets MediaAsset[] @relation("UserMediaAssets")
-  studentPipelinesAsStudent LessonPipeline[] @relation("StudentPipelines")
-  tutorPipelinesAsTutor     LessonPipeline[] @relation("TutorPipelines")
-
-  // Notifications
-  notifications Notification[] @relation("UserNotifications")
-
-  // Payment payouts
-  tutorPayouts TutorPayout[] @relation("TutorPayouts")
-
-  @@index([role, createdAt])
-}
-
-model TutorApplication {
-  id                          Int       @id @default(autoincrement())
-  applicationId               String    @unique
-  fullName                    String
-  phone                       String
-  email                       String
-  currentStudy                String?
-  year12State                 String?
-  year12CompletionYear        Int?
-  currentState                String?
-  atar                        Decimal?  @db.Decimal(4, 2)
-  canCommit3Hours             Boolean?  @default(false)
-  canCommit1Year              Boolean?  @default(false)
-  canTutorMostWeeks           Boolean?  @default(false)
-  canTutorGroups              Boolean?  @default(false)
-  subjectsToTutor             String?
-  hasWorkingWithChildrenCheck Boolean?  @default(false)
-  motivation                  String
-  status                      AppStatus @default(pending)
-  approvedAt                  DateTime?
-  setupToken                  String?
-  setupTokenExpiry            DateTime?
-  files                       Json?
-  userId                      Int?
-  createdAt                   DateTime  @default(now())
-  updatedAt                   DateTime  @updatedAt
-  user                        User?     @relation(fields: [userId], references: [id])
-
-  setupTokenRel SetupToken?
-  StudentTutor  StudentTutor[]
-
-  @@index([email])
-  @@index([status, createdAt])
-}
-
-model SetupToken {
-  token         String   @id
-  applicationId Int      @unique // enforce 1–1
-  email         String
-  expiresAt     DateTime
-  createdAt     DateTime @default(now())
-
-  application TutorApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-
-  @@index([applicationId])
-}
-
-model TutorProfile {
-  userId              Int       @id
-  phone_number        String?
-  bio                 String?
-  hourly_rate         Decimal?  @db.Decimal(10, 2)
-  university          String?
-  current_studies     String[]
-  subjects            String[]
-  subjects_selected   Json
-  locations           String[]
-  preferred_locations String[]
-  schools_attended    String[]
-  intro_video_path    String?
-  intro_video_status  IntroVideoStatus @default(none)
-  is_profile_complete Boolean   @default(false)
-  documents_uploaded  Boolean   @default(false)
-  is_live             Boolean   @default(false)
-  is_fully_booked     Boolean   @default(false)
-  photo_url           String?
-  tier                Tier      @default(gold)
-  rating              Decimal   @default(0.0) @db.Decimal(3, 2)
-  atar                Decimal?  @db.Decimal(4, 2)
-  approved_at         DateTime?
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
-
-  // Stripe Connect fields
-  stripeConnectAccountId   String?
-  stripeOnboardingComplete Boolean @default(false)
-
-  user           User                 @relation(fields: [userId], references: [id])
-  documents      TutorDocument[]
-  changeRequests TutorChangeRequest[]
-  reviews        TutorReview[]
-
-  @@index([tier, is_live])
-  @@index([rating])
-}
-
-model StudentProfile {
-  userId              Int         @id
-  phone_number        String?
-  bio                 String?
-  current_school      String?
-  year_level          String?
-  subjects_interested String[]
-  preferred_locations String[]
-  photo_url           String?
-  photoAssetId        Int?
-  photoAsset          MediaAsset? @relation("StudentProfilePhoto", fields: [photoAssetId], references: [id])
-  tier                StudentTier @default(basic)
-  learning_goals      String?
-  is_profile_complete Boolean     @default(false)
-  createdAt           DateTime    @default(now())
-  updatedAt           DateTime    @updatedAt
-  user                User        @relation(fields: [userId], references: [id])
-}
-
-model TutorPaymentInfo {
-  userId        Int            @id
-  abnNumber     String?
-  paymentMethod PaymentMethod?
-  accountName   String?
-  bsb           String? // e.g., 000-000
-  accountNumber String?
-  paypalEmail   String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model TutorDocument {
-  id         Int          @id @default(autoincrement())
-  userId     Int
-  type       DocumentType
-  key        String?
-  bucket     String?
-  url        String?
-  number     String?
-  status     String       @default("pending")
-  expiresAt  DateTime?
-  reviewedBy Int?
-  uploadedAt DateTime     @default(now())
-  assetId    Int?
-  asset      MediaAsset?  @relation("TutorDocumentAsset", fields: [assetId], references: [id])
-
-  user               User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  TutorProfile       TutorProfile? @relation(fields: [tutorProfileUserId], references: [userId])
-  tutorProfileUserId Int?
-
-  @@index([userId, type], name: "doc_user_type")
-  @@index([status, expiresAt])
-}
-
-model StudentTutor {
-  id        Int        @id @default(autoincrement())
-  studentId Int
-  tutorId   Int
-  subject   String?
-  status    PairStatus @default(active)
-  createdAt DateTime   @default(now())
-  endedAt   DateTime?
-
-  // Payment bucket fields
-  remainingHours Decimal  @default(0) @db.Decimal(10, 2)  // Pre-paid hours in bucket
-  isPhysical     Boolean  @default(false)                 // Default delivery mode
-  autoRenew      Boolean  @default(false)                 // Auto-renew package when low
-
-  // optional link to an application (keep ONE fk + ONE relation field)
-  tutorApplicationId Int?
-  tutorApplication   TutorApplication? @relation(fields: [tutorApplicationId], references: [id], onDelete: SetNull)
-
-  // relations to User — names MUST match the back-relations on User
-  student User @relation("StudentPairs", fields: [studentId], references: [id], onDelete: Cascade)
-  tutor   User @relation("TutorPairs", fields: [tutorId], references: [id], onDelete: Cascade)
-
-  PackagePurchase PackagePurchase[]
-  // Optional but helpful to prevent duplicates:
-  // @@unique([studentId, tutorId, subject])
-
-  @@index([studentId, tutorId])
-}
-
-model ParentContact {
-  id                Int                @id @default(autoincrement())
-  studentId         Int
-  firstName         String
-  lastName          String
-  email             String?
-  phone             String?
-  relation          GuardianRelation   @default(guardian)
-  isPrimary         Boolean            @default(false)
-  contactPreference ContactPreference?
-  addressLine1      String?
-  addressLine2      String?
-  city              String?
-  state             String?
-  postcode          String?
-  country           String?
-  notes             String?
-  consentToContact  Boolean            @default(true)
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-
-  student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
-
-  @@index([studentId])
-}
-
-// ---------- Lessons & Feedback ----------
-model Lesson {
-  id        Int          @id @default(autoincrement())
-  tutorId   Int
-  studentId Int
-  subject   String
-  startAt   DateTime
-  endAt     DateTime
-  zoomLink  String?
-  prepNotes String?
-  homework  String?
-  status    LessonStatus @default(scheduled)
-
-  seriesId       String?
-  recurrenceRule String?
-
-  // Payment tracking fields
-  deliveryMode      String    @default("online")  // "online" or "physical"
-  studentConfirmed  Boolean   @default(false)     // Student confirmed the session
-  confirmationNotes String?                       // Notes from student (esp. if disputed)
-  completedAt       DateTime?                     // When session was marked complete
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // existing
-  tutor   User @relation("TutorLessons", fields: [tutorId], references: [id])
-  student User @relation("StudentLessons", fields: [studentId], references: [id])
-
-  // ✅ back-relations just added:
-  studentFeedback StudentFeedback?     @relation("LessonFeedback")
-  materials       LessonMaterial[]
-  transactions    PaymentTransaction[] @relation("LessonTransactions")
-  
-  // Payment relations
-  payout       TutorPayout?   @relation("LessonPayout")
-  sessionAudit SessionAudit?  @relation("LessonAudit")
-
-  @@index([startAt])
-  @@index([tutorId])
-  @@index([studentId])
-  @@index([status])
-  @@index([seriesId])
-}
-
-model StudentFeedback {
-  id        Int      @id @default(autoincrement())
-  lessonId  Int      @unique
-  rating    Int?
-  comment   String?
-  createdAt DateTime @default(now())
-
-  lesson Lesson @relation("LessonFeedback", fields: [lessonId], references: [id], onDelete: Cascade)
-}
-
-// ---------- Packages & Transactions (MVP) ----------
-model PackagePurchase {
-  id            Int           @id @default(autoincrement())
-  studentId     Int
-  subject       String
-  hoursTotal    Int           @default(10)
-  hoursUsed     Int           @default(0)
-  discountCents Int           @default(5000) // $50
-  status        PackageStatus @default(active)
-  purchasedAt   DateTime      @default(now())
-
-  student            User                 @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  PaymentTransaction PaymentTransaction[]
-  PackageType        PackageType?         @relation(fields: [packageTypeId], references: [id])
-  packageTypeId      Int?
-  assignmentId       Int?
-  assignment         StudentTutor?        @relation(fields: [assignmentId], references: [id])
-
-  @@index([studentId, subject])
-}
-
-model PaymentTransaction {
-  id              Int             @id @default(autoincrement())
-  studentId       Int
-  lessonId        Int?
-  packageId       Int?
-  type            TransactionType
-  amountCents     Int
-  description     String?
-  status          String          @default("pending") // pending, succeeded, failed
-  stripePaymentId String?         @unique
-  stripeSessionId String?         @unique
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-
-  student User             @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  lesson  Lesson?          @relation("LessonTransactions", fields: [lessonId], references: [id])
-  package PackagePurchase? @relation(fields: [packageId], references: [id])
-
-  @@index([studentId, createdAt])
-  @@index([stripePaymentId])
-}
-
-// ---------- Reports (read-only for students) ----------
-model Report {
-  id                 Int        @id @default(autoincrement())
-  studentId          Int
-  tutorId            Int
-  type               ReportType
-  date               DateTime   @default(now())
-  subject            String?
-  engagement         String?
-  areasToImprove     String[]
-  nextGoal           String?
-  homeworkCompletion String?
-  progressSummary    String?
-  overallProgress    String?
-  term               String?
-  overview           String?
-  keyAchievements    String[]
-  skillsCovered      String[]
-  nextTermGoals      String[]
-  attendanceNote     String?
-  starRating         Int?
-  isLocked           Boolean    @default(false)
-  createdAt          DateTime   @default(now())
-
-  // ✅ match names used on User
-  student User @relation("StudentReports", fields: [studentId], references: [id], onDelete: Cascade)
-  tutor   User @relation("TutorReports", fields: [tutorId], references: [id], onDelete: Cascade)
-
-  @@index([studentId, date])
-}
-
-// ---------- Achievements ----------
-model Badge {
-  id           Int            @id @default(autoincrement())
-  code         String         @unique
-  name         String
-  iconUrl      String?
-  description  String?
-  StudentBadge StudentBadge[]
-}
-
-model StudentBadge {
-  id        Int      @id @default(autoincrement())
-  studentId Int
-  badgeId   Int
-  tutorId   Int?
-  note      String?
-  count     Int      @default(1)
-  awardedAt DateTime @default(now())
-
-  // ✅ match names used on User
-  student User  @relation("BadgesEarned", fields: [studentId], references: [id], onDelete: Cascade)
-  tutor   User? @relation("BadgesGiven", fields: [tutorId], references: [id])
-  badge   Badge @relation(fields: [badgeId], references: [id])
-
-  @@unique([studentId, badgeId])
-}
-
-// ---------- Goals ----------
-model StudentGoal {
-  id         Int       @id @default(autoincrement())
-  studentId  Int
-  subject    String
-  title      String
-  details    String?
-  targetDate DateTime?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-
-  student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
-
-  @@index([studentId, subject])
-}
-
-// ---------- Payment Methods (MVP) ----------
-model StudentPaymentMethod {
-  id                    Int                @id @default(autoincrement())
-  studentId             Int
-  type                  StudentPaymentType
-  brand                 String?
-  last4                 String?
-  billingName           String?
-  stripePaymentMethodId String?            @unique
-  isDefault             Boolean            @default(false)
-  createdAt             DateTime           @default(now())
-  updatedAt             DateTime           @updatedAt
-
-  student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
-
-  @@index([studentId])
-  @@index([stripePaymentMethodId])
-}
-
-// ---------- Support Tickets ----------
-model SupportTicket {
-  id        Int      @id @default(autoincrement())
-  studentId Int
-  subject   String
-  message   String
-  status    String   @default("open")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
-
-  @@index([studentId, status])
-}
-
-model PackageType {
-  id                   Int           @id @default(autoincrement())
-  name                 String
-  subject              String
-  hours                Int
-  priceDollars         Decimal       @db.Decimal(10, 2)
-  priceCents           Int // base price in cents (AUD)
-  discountType         DiscountType?
-  discountValueDollars Decimal?      @db.Decimal(10, 2)
-  discountValueCents   Int? // used when discountType = fixed
-  discountPercent      Int? // used when discountType = percentage (0–100)
-  description          String?
-  validityMonths       Int? // e.g., 6
-  eligibleTiers        StudentTier[] // which student tiers can buy; empty = all
-  refundable           Boolean       @default(false)
-  autoRenew            Boolean       @default(false)
-  isActive             Boolean       @default(true)
-  createdAt            DateTime      @default(now())
-  updatedAt            DateTime      @updatedAt
-
-  // (Optional) Link to purchases if/when you wire it up:
-  // purchases PackagePurchase[]
-  PackagePurchase PackagePurchase[]
-}
-
-model TutorRequest {
-  id        Int      @id @default(autoincrement())
-  tutorId   Int
-  studentId Int
-  status    String   @default("pending") // pending | accepted | rejected
-  message   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  tutor   User @relation("TutorRequestsReceived", fields: [tutorId], references: [id], onDelete: Cascade)
-  student User @relation("TutorRequestsSent", fields: [studentId], references: [id], onDelete: Cascade)
-
-  // Prevent duplicate requests from same student to same tutor
-  @@unique([studentId, tutorId])
-  @@index([tutorId, studentId, status])
-}
-
-model TutorChangeRequest {
-  id                 Int       @id @default(autoincrement())
-  tutorId            Int
-  type               String
-  oldValue           String?
-  newValue           String?
-  changeDescription  String?   // Tutor's description of what changed
-  status             String    @default("pending") // pending | approved | rejected
-  comments           String?
-  reviewedBy         Int?
-  reviewedAt         DateTime?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
-
-  tutor              User          @relation("TCR_Tutor", fields: [tutorId], references: [id])
-  reviewer           User?         @relation("TCR_Reviewer", fields: [reviewedBy], references: [id])
-  TutorProfile       TutorProfile? @relation(fields: [tutorProfileUserId], references: [userId])
-  tutorProfileUserId Int?
-
-  @@index([tutorId])
-  @@index([status])
-  @@index([reviewedBy])
-}
-
-model TutorReview {
-  id          Int      @id @default(autoincrement())
-  tutorUserId Int
-  source      String   @default("google")
-  content     String
-  addedBy     Int
-  createdAt   DateTime @default(now())
-
-  tutor              User          @relation("TR_Tutor", fields: [tutorUserId], references: [id])
-  admin              User          @relation("TR_Admin", fields: [addedBy], references: [id])
-  TutorProfile       TutorProfile? @relation(fields: [tutorProfileUserId], references: [userId])
-  tutorProfileUserId Int?
-
-  @@index([tutorUserId])
-  @@index([addedBy])
-}
-
-model LessonMaterial {
-  id        Int         @id @default(autoincrement())
-  lessonId  Int
-  title     String?
-  type      String?
-  key       String?
-  bucket    String?
-  url       String?
-  addedBy   Int
-  assetId   Int?
-  asset     MediaAsset? @relation("LessonMaterialAsset", fields: [assetId], references: [id])
-  createdAt DateTime    @default(now())
-
-  lesson Lesson @relation(fields: [lessonId], references: [id])
-
-  @@index([lessonId])
-  @@index([addedBy])
-}
-
-model ZoomLinkRegistry {
-  id        Int      @id @default(autoincrement())
-  tutorId   Int
-  label     String
-  url       String
-  isDefault Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  tutor User @relation(fields: [tutorId], references: [id])
-
-  @@index([tutorId])
-  @@index([isDefault])
-}
-
-model LessonPipeline {
-  id        Int            @id @default(autoincrement())
-  studentId Int
-  tutorId   Int
-  stage     PipelineStage
-  status    PipelineStatus @default(pending)
-  date      DateTime?
-  notes     String?
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-
-  student User @relation("StudentPipelines", fields: [studentId], references: [id], onDelete: Cascade)
-  tutor   User @relation("TutorPipelines",  fields: [tutorId],   references: [id], onDelete: Cascade)
-
-  @@unique([studentId, tutorId, stage])
-  @@index([studentId, tutorId])
-  @@index([status])
-}
-
-// ---------- Subjects (Admin-managed) ----------
-model Subject {
-  id         Int      @id @default(autoincrement())
-  name       String   // e.g., "Physics", "Chemistry", "Mathematics"
-  curriculum String   // e.g., "VCE", "HSC", "QCE", "IB", "VIC", "NSW" (for Year 1-10)
-  yearLevel  String   // e.g., "Year 11/12", "Year 1-10"
-  isActive   Boolean  @default(true)
-  sortOrder  Int      @default(0)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@unique([name, curriculum, yearLevel])
-  @@index([curriculum, yearLevel])
-  @@index([isActive])
-}
-
-model MediaAsset {
-  id          Int      @id @default(autoincrement())
-  ownerUserId Int?
-  key         String
-  bucket      String
-  contentType String?
-  size        Int?
-  url         String?
-  createdAt   DateTime @default(now())
-
-  // 🔁 Back-relations
-  owner         User?            @relation("UserMediaAssets", fields: [ownerUserId], references: [id])
-  tutorDocs     TutorDocument[]  @relation("TutorDocumentAsset")
-  lessonFiles   LessonMaterial[] @relation("LessonMaterialAsset")
-  profilePhotos StudentProfile[] @relation("StudentProfilePhoto")
-
-  @@index([ownerUserId])
-}
-
-// ---------- Payment System ----------
-model TutorPayout {
-  id          Int       @id @default(autoincrement())
-  tutorId     Int
-  lessonId    Int       @unique
-  grossAmount Decimal   @db.Decimal(10, 2)  // hours * hourlyRate
-  striveCut   Decimal   @db.Decimal(10, 2)  // Platform fee
-  netPayout   Decimal   @db.Decimal(10, 2)  // grossAmount - striveCut
-  travelFee   Decimal?  @db.Decimal(10, 2)  // $15 if physical
-  status      String    @default("pending") // pending, paid, cancelled
-  paidAt      DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  tutor  User   @relation("TutorPayouts", fields: [tutorId], references: [id])
-  lesson Lesson @relation("LessonPayout", fields: [lessonId], references: [id])
-
-  @@index([tutorId])
-  @@index([status])
-  @@index([createdAt])
-}
-
-model SessionAudit {
-  id            Int      @id @default(autoincrement())
-  lessonId      Int      @unique
-  durationHours Decimal  @db.Decimal(10, 2)  // Calculated from startAt/endAt
-  baseCharge    Decimal  @db.Decimal(10, 2)  // duration * hourlyRate
-  travelFee     Decimal? @db.Decimal(10, 2)  // $15 if physical
-  overageAmount Decimal? @db.Decimal(10, 2)  // Amount charged for overage
-  striveCut     Decimal  @db.Decimal(10, 2)  // Platform fee
-  tutorPayout   Decimal  @db.Decimal(10, 2)  // Net to tutor
-  createdAt     DateTime @default(now())
-
-  lesson Lesson @relation("LessonAudit", fields: [lessonId], references: [id])
-
-  @@index([createdAt])
 }

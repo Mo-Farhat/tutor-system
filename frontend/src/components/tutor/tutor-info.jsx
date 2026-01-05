@@ -227,6 +227,7 @@ function TutorInfo({ tutorData }) {
                 </div>
 
                 {/* Consultation Button */}
+                {!tutorData.is_fully_booked && (
                 <div className="row mt-4">
                   <div className="col-12">
                     <div className="d-flex flex-column align-items-center">
@@ -242,6 +243,7 @@ function TutorInfo({ tutorData }) {
                     </div>
                   </div>
                 </div>
+                )}
               </div>
             </div>
           </div>
