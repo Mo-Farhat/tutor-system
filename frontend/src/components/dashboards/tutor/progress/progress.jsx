@@ -1,9 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../../../../css/dashboards/tutor/progress/progress.css';
+import profileService from '../../../../services/profileService';
+
+// Helper to capitalize first letter (backend uses lowercase tiers)
+const capitalizeFirst = (str) => {
+    if (!str) return 'Gold';
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+};
 
 function TutorProgress() {
     // Tutor progress state
-    const [tutorData] = useState({
+    const [tutorData, setTutorData] = useState({
         currentTier: 'Gold',
         yearsOfExperience: 1.5,
         initialExperience: 0.5, // When they started
@@ -16,7 +23,29 @@ function TutorProgress() {
         isEligibleForReview: false
     });
 
+    const [isLoading, setIsLoading] = useState(true);
     const [showEligibilityModal, setShowEligibilityModal] = useState(false);
+
+    // Fetch tutor profile to get real tier data
+    useEffect(() => {
+        const fetchTutorProfile = async () => {
+            try {
+                const result = await profileService.getMyTutorProfile();
+                if (result?.success && result?.data?.profile?.tier) {
+                    setTutorData(prev => ({
+                        ...prev,
+                        currentTier: capitalizeFirst(result.data.profile.tier)
+                    }));
+                }
+            } catch (error) {
+                console.error('Error fetching tutor profile for tier:', error);
+                // Keep default tier on error
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchTutorProfile();
+    }, []);
 
     // Tier requirements
     const tierRequirements = {
