@@ -23,58 +23,9 @@ function DetailsPanel({
 
 
 
-      {/* Personal Information */}
-      <div className="student-profile-details-section">
-        <h4 className="student-profile-details-section-title">
-          Personal Information
-        </h4>
-        <div className="row">
-          <div className="col-12 mb-4">
-            <div className="student-profile-details-card">
-              <div className="student-profile-details-card-body">
-                <h6 className="student-profile-details-card-title">
-                  Contact Details
-                </h6>
-                <p className="student-profile-details-card-description">
-                  Your contact information
-                </p>
-                <div className="row">
-                  <div className="col-lg-6 col-md-12">
-                    <div className="student-profile-details-info-list">
-                      <div className="student-profile-details-info-item">
-                        <i className="fas fa-envelope me-2"></i>
-                        {studentData.email}
-                      </div>
-                      {studentData.phoneNumber && (
-                        <div className="student-profile-details-info-item">
-                          <i className="fas fa-phone me-2"></i>
-                          {studentData.phoneNumber}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="col-lg-6 col-md-12">
-                    <div className="student-profile-details-info-list">
-                      {studentData.dateOfBirth && (
-                        <div className="student-profile-details-info-item">
-                          <i className="fas fa-calendar me-2"></i>
-                          Date of Birth: {studentData.dateOfBirth}
-                        </div>
-                      )}
-                      {studentData.address && (
-                        <div className="student-profile-details-info-item">
-                          <i className="fas fa-map-marker-alt me-2"></i>
-                          {studentData.address}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* Personal Information removed to avoid duplication */}
 
+      <div className="student-profile-details-section">
         <div className="row">
           {typeof studentData.totalLessons !== "undefined" && (
             <div className="col-lg-4 col-md-12 mb-4">
