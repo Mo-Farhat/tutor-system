@@ -177,6 +177,10 @@ model StudentProfile {
   subjects_interested String[]
   preferred_locations String[]
   learning_goals      String?
+  learning_style      String[]
+  best_time           String?
+  session_length      String?
+  additional_notes    String?
   is_profile_complete Boolean     @default(false)
   createdAt           DateTime    @default(now())
   updatedAt           DateTime    @updatedAt

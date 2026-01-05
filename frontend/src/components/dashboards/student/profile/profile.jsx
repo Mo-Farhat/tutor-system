@@ -1,11 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import studentService from "../../../../services/studentService";
 import authService from "../../../../services/authService";
+import { useSubjects } from "../../../../contexts/SubjectsContext";
 import "../../../../css/dashboards/student/profile/profile.css";
 import DetailsPanel from "./DetailsPanel";
 import PreferencesPanel from "./PreferencesPanel";
 
 function StudentProfileManagement() {
+  const { subjects: availableSubjects } = useSubjects();
+  const fileInputRef = useRef(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   // Student profile data
   const [studentData, setStudentData] = useState({
     fullName: "",
@@ -122,27 +126,33 @@ function StudentProfileManagement() {
           setDetailsData({
             fullName: concatenatedName || p.fullName || p.name || "Student",
             email: p.user?.email || p.email || "",
-            phoneNumber: p.phone || p.phoneNumber || "",
+            phoneNumber: p.phone_number || p.phone || p.phoneNumber || "",
             subjects: p.subjects || [],
             studentId: p.studentId || p.id || "",
-            grade: p.grade || "",
+            grade: p.grade || p.year_level || "",
             stream: p.stream || p.studyStream || "",
             dateOfBirth: p.dateOfBirth || "",
             address: p.address || "",
             totalLessons: p.totalLessons || 0,
             attendance: p.attendanceRate || "",
+            bio: p.bio || "",
+            currentSchool: p.current_school || "",
+            yearLevel: p.year_level || p.grade || "",
+            subjectsInterested: p.subjects_interested || [],
+            preferredLocations: p.preferred_locations || [],
+            learningGoals: p.learning_goals || "",
           });
 
           // Load preferences from profile if present
           setLearningPreferences({
-            learningStyle: Array.isArray(p.learningStyle)
-              ? p.learningStyle
+            learningStyle: Array.isArray(p.learning_style)
+              ? p.learning_style
               : p.learningPreferences?.learningStyle || [],
-            bestTime: p.bestTime || p.learningPreferences?.bestTime || "",
+            bestTime: p.best_time || p.learningPreferences?.bestTime || "",
             sessionLength:
-              p.sessionLength || p.learningPreferences?.sessionLength || "",
+              p.session_length || p.learningPreferences?.sessionLength || "",
             additionalNotes:
-              p.additionalNotes || p.learningPreferences?.additionalNotes || "",
+              p.additional_notes || p.learningPreferences?.additionalNotes || "",
           });
         }
 
@@ -285,10 +295,10 @@ function StudentProfileManagement() {
   const savePreferences = async () => {
     try {
       const payload = {
-        learningStyle: editingPreferences.learningStyle,
-        bestTime: editingPreferences.bestTime,
-        sessionLength: editingPreferences.sessionLength,
-        additionalNotes: editingPreferences.additionalNotes,
+        learning_style: editingPreferences.learningStyle,
+        best_time: editingPreferences.bestTime,
+        session_length: editingPreferences.sessionLength,
+        additional_notes: editingPreferences.additionalNotes,
       };
       const res = await studentService.updateMyProfile(payload);
       if (res?.success) {
@@ -384,6 +394,47 @@ function StudentProfileManagement() {
     setPasswordErrors({});
   };
 
+  // Handle photo upload
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      alert("Please upload an image file.");
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert("File size should be less than 5MB.");
+      return;
+    }
+
+    try {
+      setUploadingPhoto(true);
+      const formData = new FormData();
+      formData.append("photo", file);
+
+      const result = await studentService.uploadStudentPhoto(formData);
+
+      if (result.success) {
+        setStudentData((prev) => ({
+          ...prev,
+          avatar: result.photoUrl,
+        }));
+        alert("Profile photo updated successfully!");
+      } else {
+        alert(result.error || "Failed to upload photo");
+      }
+    } catch (error) {
+      console.error("Error uploading photo:", error);
+      alert("An error occurred while uploading photo");
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
   // Start editing a section
   const startEditingSection = (section) => {
     setSectionError("");
@@ -474,8 +525,29 @@ function StudentProfileManagement() {
             <div className="card-body">
               <div className="row align-items-center">
                 <div className="col-auto">
-                  <div className="student-profile-avatar">
-                    <img src={studentData.avatar} alt={studentData.fullName} />
+                  <div className="student-profile-avatar-container position-relative">
+                    <div className="student-profile-avatar">
+                      <img src={studentData.avatar} alt={studentData.fullName} />
+                      {uploadingPhoto && (
+                        <div className="student-profile-avatar-overlay">
+                          <div className="spinner-border spinner-border-sm text-light"></div>
+                        </div>
+                      )}
+                    </div>
+                    <button 
+                      className="btn btn-sm btn-primary student-profile-avatar-edit-btn"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploadingPhoto}
+                    >
+                      <i className="fas fa-camera"></i>
+                    </button>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      className="d-none"
+                      accept="image/*"
+                      onChange={handlePhotoUpload}
+                    />
                   </div>
                 </div>
                 <div className="col">
@@ -869,24 +941,29 @@ function StudentProfileManagement() {
                       </div>
                       <div className="mb-3">
                         <label className="form-label">Subjects Interested</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={Array.isArray(editData.subjects_interested) 
-                            ? editData.subjects_interested.join(", ") 
-                            : ""}
-                          onChange={(e) =>
-                            setEditData({
-                              ...editData,
-                              subjects_interested: e.target.value
-                                .split(",")
-                                .map(s => s.trim())
-                                .filter(s => s),
-                            })
-                          }
-                          placeholder="Enter subjects separated by commas (e.g., Math, Science, English)"
-                        />
-                        <div className="form-text">Separate multiple subjects with commas</div>
+                        <div className="d-flex flex-wrap gap-2 mb-2">
+                          {(availableSubjects?.flat || []).map((subject) => (
+                            <div key={subject.id} className="form-check">
+                              <input
+                                className="form-check-input"
+                                type="checkbox"
+                                id={`subject-${subject.id}`}
+                                checked={editData.subjects_interested?.includes(subject.name)}
+                                onChange={(e) => {
+                                  const current = editData.subjects_interested || [];
+                                  const updated = e.target.checked
+                                    ? [...current, subject.name]
+                                    : current.filter(s => s !== subject.name);
+                                  setEditData({ ...editData, subjects_interested: updated });
+                                }}
+                              />
+                              <label className="form-check-label small" htmlFor={`subject-${subject.id}`}>
+                                {subject.name}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="form-text">Select the subjects you are interested in</div>
                       </div>
                       <div className="mb-3">
                         <label className="form-label">Preferred Locations</label>

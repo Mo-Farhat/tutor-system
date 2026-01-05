@@ -403,6 +403,20 @@ class StudentService {
       return { success: false, error: error.message };
     }
   }
+  // Upload student profile photo
+  async uploadStudentPhoto(formData) {
+    try {
+      const response = await api.post("/auth/student/profile/photo", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error uploading student photo:", error);
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 // Create and export a singleton instance

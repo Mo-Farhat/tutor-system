@@ -566,6 +566,22 @@ class ProfileService {
     // Get student profile if it exists
     const studentProfile = await studentProfileModel.findByUserId(userId);
 
+    // Generate signed URL for photo if S3 key exists
+    let photoUrl = null;
+    if (studentProfile?.photo_url) {
+      try {
+        // Check if it's an S3 key (not a full URL)
+        if (!studentProfile.photo_url.startsWith('http')) {
+          photoUrl = await getSignedUrl(studentProfile.photo_url, 86400); // 24 hour validity
+        } else {
+          photoUrl = studentProfile.photo_url;
+        }
+      } catch (err) {
+        console.error("Error generating signed URL for student photo:", err);
+        photoUrl = studentProfile.photo_url;
+      }
+    }
+
     return {
       success: true,
       data: {
@@ -579,6 +595,7 @@ class ProfileService {
           created_at: user.createdAt,
         },
         ...(studentProfile || {}),
+        photo_url: photoUrl, // Override with signed URL
       },
     };
   }
@@ -600,6 +617,10 @@ class ProfileService {
       "subjects_interested",
       "preferred_locations",
       "learning_goals",
+      "learning_style",
+      "best_time",
+      "session_length",
+      "additional_notes",
     ];
 
     const userUpdateData = {};
