@@ -1565,8 +1565,9 @@ function TutorCalendar() {
                       </form>
                     </div>
                     <div className="modal-footer">
-                      {/* Show Mark Complete button for past scheduled lessons */}
-                      {editingLesson && editingLesson.status === 'scheduled' && new Date(editingLesson.endAt) < new Date() && (
+                      {/* Show Mark Complete button for scheduled lessons */}
+                      {/* TEMP: Removed time check for testing - revert by adding: && new Date(editingLesson.endAt) < new Date() */}
+                      {editingLesson && editingLesson.status === 'scheduled' && (
                         <button
                           type="button"
                           className="btn btn-success me-auto"
