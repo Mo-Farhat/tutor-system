@@ -75,15 +75,26 @@ class SessionCompletionService {
     // 2. Calculate duration
     const durationHours = this.calculateDuration(lesson.startAt, lesson.endAt);
 
-    // 3. Find the assignment bucket
-    const assignment = await studentTutorModel.findForLesson(
+    // 3. Find the assignment bucket (or create one for legacy lessons)
+    let assignment = await studentTutorModel.findForLesson(
       lesson.studentId,
       lesson.tutorId,
       lesson.subject
     );
 
+    // If no assignment exists (legacy lesson), create one with 0 hours
     if (!assignment) {
-      throw new Error('No active assignment found for this lesson');
+      console.log(`📝 Creating assignment for legacy lesson ${lessonId}: student ${lesson.studentId} <-> tutor ${lesson.tutorId}, subject: ${lesson.subject}`);
+      assignment = await studentTutorModel.assign(
+        lesson.studentId,
+        lesson.tutorId,
+        {
+          subject: lesson.subject,
+          status: 'active',
+          remainingHours: 0
+        }
+      );
+      console.log(`✅ Assignment created with ID: ${assignment.id}`);
     }
 
     // 4. Get tier rates

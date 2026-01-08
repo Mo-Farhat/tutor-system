@@ -108,7 +108,11 @@ exports.getCompletionStatus = async (req, res) => {
         req.user.id
       );
       if (!result.success) {
-        return res.status(404).json(result);
+        console.error('❌ Completion status error for userId:', req.user.id, result.error);
+        return res.status(404).json({
+          ...result,
+          message: result.error || result.message || "Failed to get completion status"
+        });
       }
       return res.json(result);
     }
@@ -118,13 +122,18 @@ exports.getCompletionStatus = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "Username is required",
+        message: "Username parameter is missing"
       });
     }
 
     const result = await profileService.getCompletionStatus(username);
 
     if (!result.success) {
-      return res.status(404).json(result);
+      console.error('❌ Completion status error for username:', username, result.error);
+      return res.status(404).json({
+        ...result,
+        message: result.error || result.message || "Failed to get completion status"
+      });
     }
 
     res.json(result);
@@ -133,6 +142,7 @@ exports.getCompletionStatus = async (req, res) => {
     res.status(500).json({
       success: false,
       error: "Internal server error",
+      message: error.message || "Failed to get completion status"
     });
   }
 };
