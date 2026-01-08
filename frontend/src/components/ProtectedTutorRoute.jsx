@@ -37,24 +37,52 @@ const ProtectedTutorRoute = ({ children, allowedRoutes = [] }) => {
       // Otherwise, fetch fresh data
       try {
         setLoading(true);
-        const username = user?.username || "notmanu23";
+        
+        // If no user or no username, skip the fetch - auth guard should handle redirect
+        if (!user?.username) {
+          console.warn("No authenticated user found, skipping completion status check");
+          setLoading(false);
+          return;
+        }
+        
         const response = await fetch(
           `${
             process.env.REACT_APP_BACKEND_URL || "http://localhost:8000"
-          }/api/auth/tutor/completion-status/?username=${username}`
+          }/api/auth/tutor/completion-status/?username=${user.username}`
         );
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
         const data = await response.json();
 
-        if (data.success) {
+        if (data.success && data.data) {
           setCompletionStatus(data.data);
           // Update cache
           completionStatusCache.current = data.data;
           lastFetchTime.current = now;
         } else {
-          console.error("Failed to get completion status:", data.message);
+          console.error("Failed to get completion status:", data.error || data.message || 'Unknown error');
+          // Set safe default to prevent undefined errors
+          const safeStatus = {
+            fully_complete: false,
+            missing_items: [],
+            completion_percentage: 0
+          };
+          setCompletionStatus(safeStatus);
+          completionStatusCache.current = safeStatus;
         }
       } catch (error) {
         console.error("Error checking completion status:", error);
+        // Set safe default to prevent undefined errors
+        const safeStatus = {
+          fully_complete: false,
+          missing_items: [],
+          completion_percentage: 0
+        };
+        setCompletionStatus(safeStatus);
+        completionStatusCache.current = safeStatus;
       } finally {
         setLoading(false);
       }

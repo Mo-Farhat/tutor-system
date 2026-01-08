@@ -69,6 +69,34 @@ class CalendarService {
 
   // Create / reschedule / update
   async createLesson({ tutorId, studentId, subject, startAt, endAt, zoomLink, prepNotes, homework, seriesId = null, recurrenceRule = null }) {
+    // 1. Ensure a StudentTutor assignment exists for this student-tutor-subject combination
+    // This is required for session completion to work (deducting hours from the bucket)
+    const { studentTutorModel } = require('../models');
+    let assignment = await studentTutorModel.findForLesson(
+      Number(studentId),
+      Number(tutorId),
+      subject
+    );
+    
+    // 2. If no assignment exists, create one with 0 hours initially
+    // Hours will be credited when the student purchases packages
+    if (!assignment) {
+      console.log(`📝 Creating new assignment for student ${studentId} <-> tutor ${tutorId}, subject: ${subject}`);
+      assignment = await studentTutorModel.assign(
+        Number(studentId),
+        Number(tutorId),
+        {
+          subject: subject,
+          status: 'active',
+          remainingHours: 0  // Will be topped up via package purchase
+        }
+      );
+      console.log(`✅ Assignment created with ID: ${assignment.id}`);
+    } else {
+      console.log(`✅ Using existing assignment ID: ${assignment.id}`);
+    }
+    
+    // 3. Create the lesson
     const row = await prisma.lesson.create({
       data: {
         tutorId: Number(tutorId),
@@ -83,7 +111,8 @@ class CalendarService {
         recurrenceRule,
       },
     });
-    return { success: true, data: row };
+    
+    return { success: true, data: row, assignment: { id: assignment.id, remainingHours: assignment.remainingHours } };
   }
 
   async updateLesson(id, updates) {
