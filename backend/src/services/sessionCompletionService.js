@@ -30,7 +30,7 @@ class SessionCompletionService {
     const start = new Date(startAt);
     const end = new Date(endAt);
     const durationMs = end - start;
-    const durationHours = durationMs / (1000 * 60 * 60);
+    let durationHours = durationMs / (1000 * 60 * 60);
     
     // Debug logging for timezone issues
     console.log(`⏱️ Duration calculation:
@@ -40,6 +40,18 @@ class SessionCompletionService {
       end (parsed): ${end.toISOString()}
       durationMs: ${durationMs}
       durationHours: ${durationHours}`);
+    
+    // SAFEGUARD: If duration is negative (timezone bug), use absolute value
+    if (durationHours < 0) {
+      console.warn(`⚠️ NEGATIVE DURATION DETECTED: ${durationHours} hours. Using absolute value.`);
+      durationHours = Math.abs(durationHours);
+    }
+    
+    // Also cap at reasonable max (8 hours) to prevent crazy values
+    if (durationHours > 8) {
+      console.warn(`⚠️ EXCESSIVE DURATION: ${durationHours} hours. Capping at 8 hours.`);
+      durationHours = 8;
+    }
     
     return Math.round(durationHours * 100) / 100; // Round to 2 decimal places
   }
