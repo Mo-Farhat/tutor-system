@@ -403,43 +403,34 @@ function TutorCalendar() {
     );
   };
 
-  // Helper to format date for input (YYYY-MM-DD) in Australia/Sydney
+  // Helper to format date for input (YYYY-MM-DD) in local time
   const formatForDateInput = (dateStr) => {
     if (!dateStr) return "";
     try {
       const date = new Date(dateStr);
       if (isNaN(date.getTime())) return "";
       
-      // Use Intl to get parts in Sydney time
-      const formatter = new Intl.DateTimeFormat("en-AU", {
-        timeZone: "Australia/Sydney",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      });
-      const parts = formatter.formatToParts(date);
-      const year = parts.find(p => p.type === "year").value;
-      const month = parts.find(p => p.type === "month").value;
-      const day = parts.find(p => p.type === "day").value;
+      // Use local time (consistent with toSydneyISO storage)
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
       return `${year}-${month}-${day}`;
     } catch (e) {
       return "";
     }
   };
 
-  // Helper to format time for input (HH:mm) in Australia/Sydney
+  // Helper to format time for input (HH:mm) in local time
   const formatForTimeInput = (dateStr) => {
     if (!dateStr) return "";
     try {
       const date = new Date(dateStr);
       if (isNaN(date.getTime())) return "";
       
-      return date.toLocaleTimeString("en-AU", {
-        timeZone: "Australia/Sydney",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      });
+      // Use local time (consistent with toSydneyISO storage)
+      const hours = String(date.getHours()).padStart(2, "0");
+      const minutes = String(date.getMinutes()).padStart(2, "0");
+      return `${hours}:${minutes}`;
     } catch (e) {
       return "";
     }
