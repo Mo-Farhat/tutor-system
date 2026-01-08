@@ -354,41 +354,22 @@ function TutorCalendar() {
     return `${String(h24).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
   };
 
-  // Helper to combine Sydney date and time into a UTC ISO string
+  // Helper to combine date and time into an ISO string
+  // Simplified: Just store the selected date/time as-is (no timezone conversion)
+  // The backend will treat all times consistently
   const toSydneyISO = (dateStr, timeStr) => {
     if (!dateStr || !timeStr) return "";
     try {
       const [y, m, d] = dateStr.split('-').map(Number);
       const [hh, mm] = timeStr.split(':').map(Number);
       
-      // Create a date in UTC as a starting point
-      let date = new Date(Date.UTC(y, m - 1, d, hh, mm));
-      
-      // Find what time it would be in Sydney if it were this UTC time
-      const formatter = new Intl.DateTimeFormat('en-AU', {
-        timeZone: 'Australia/Sydney',
-        year: 'numeric', month: '2-digit', day: '2-digit',
-        hour: '2-digit', minute: '2-digit', second: '2-digit',
-        hour12: false
-      });
-      
-      const parts = formatter.formatToParts(date);
-      const sY = parseInt(parts.find(p => p.type === 'year').value);
-      const sM = parseInt(parts.find(p => p.type === 'month').value);
-      const sD = parseInt(parts.find(p => p.type === 'day').value);
-      const sH = parseInt(parts.find(p => p.type === 'hour').value);
-      const sMin = parseInt(parts.find(p => p.type === 'minute').value);
-      
-      // Handle the case where hour might be 24
-      const normalizedH = sH === 24 ? 0 : sH;
-      
-      const sydneyDate = Date.UTC(sY, sM - 1, sD, normalizedH, sMin);
-      const diff = sydneyDate - date.getTime();
-      
-      return new Date(date.getTime() - diff).toISOString();
+      // Create date using local time interpretation
+      // This ensures startAt and endAt are in the same timezone
+      const date = new Date(y, m - 1, d, hh, mm, 0);
+      return date.toISOString();
     } catch (e) {
-      console.error("Error converting to Sydney ISO:", e);
-      return `${dateStr}T${timeStr}:00Z`; // Fallback
+      console.error("Error creating ISO date:", e);
+      return `${dateStr}T${timeStr}:00.000Z`; // Fallback
     }
   };
 
