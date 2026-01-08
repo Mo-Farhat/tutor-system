@@ -212,46 +212,54 @@ function StudentPackages() {
                                 </div>
                             )}
 
-                            {/* My Active Packages */}
-                            {purchasedPackages.length > 0 && (
+                            {/* My Active Hour Buckets (from Assignments) */}
+                            {assignments.length > 0 && (
                                 <div className="student-packages-section mb-5">
-                                    <h4 className="section-title">My Active Packages</h4>
+                                    <h4 className="section-title">My Hour Buckets</h4>
+                                    <p className="text-muted small mb-3">
+                                        Hours remaining per tutor/subject. Updated when sessions are marked complete.
+                                    </p>
                                     <div className="row g-4">
-                                        {purchasedPackages.map((pkg) => {
-                                            const progressPercent = pkg.hoursTotal > 0 ? ((pkg.hoursTotal - pkg.hoursUsed) / pkg.hoursTotal) * 100 : 0;
+                                        {assignments.filter(a => a.status === 'active').map((assignment) => {
+                                            const remainingHours = parseFloat(assignment.remainingHours) || 0;
+                                            const isEmpty = remainingHours <= 0;
                                             return (
-                                                <div key={pkg.id} className="col-md-6 col-lg-4">
-                                                    <div className="student-package-card purchased">
+                                                <div key={assignment.id} className="col-md-6 col-lg-4">
+                                                    <div className={`student-package-card purchased ${isEmpty ? 'empty' : ''}`}>
                                                         <div className="package-header">
                                                             <div className="package-icon">
-                                                                {getSubjectIcon(pkg.subject)}
+                                                                {getSubjectIcon(assignment.subject)}
                                                             </div>
                                                             <div className="package-info">
-                                                                <h5 className="package-title">{pkg.subject} Package</h5>
-                                                                {pkg.tutorName && (
-                                                                    <div className="package-tutor small text-muted mb-1">
-                                                                        <i className="fas fa-user-tie me-1"></i>
-                                                                        Tutor: {pkg.tutorName}
-                                                                    </div>
-                                                                )}
-                                                                <span className="badge bg-success">Active</span>
+                                                                <h5 className="package-title">{assignment.subject || 'General'}</h5>
+                                                                <div className="package-tutor small text-muted mb-1">
+                                                                    <i className="fas fa-user-tie me-1"></i>
+                                                                    Tutor: {assignment.tutor?.firstName} {assignment.tutor?.lastName}
+                                                                </div>
+                                                                <span className={`badge ${isEmpty ? 'bg-danger' : 'bg-success'}`}>
+                                                                    {isEmpty ? 'Empty - Buy More' : 'Active'}
+                                                                </span>
                                                             </div>
                                                         </div>
                                                         <div className="package-progress">
                                                             <div className="progress-info">
-                                                                <span>Progress: {pkg.hoursUsed}/{pkg.hoursTotal} hours</span>
-                                                                <span>{Math.round(progressPercent)}%</span>
+                                                                <span>
+                                                                    <i className="fas fa-clock me-1"></i>
+                                                                    {remainingHours.toFixed(1)} hours remaining
+                                                                </span>
                                                             </div>
-                                                            <div className="progress">
-                                                                <div 
-                                                                    className="progress-bar bg-success" 
-                                                                    style={{ width: `${progressPercent}%` }}
-                                                                ></div>
-                                                            </div>
+                                                            {isEmpty && (
+                                                                <div className="alert alert-warning mt-2 mb-0 py-2 px-3">
+                                                                    <small>
+                                                                        <i className="fas fa-exclamation-triangle me-1"></i>
+                                                                        Purchase a package to add more hours
+                                                                    </small>
+                                                                </div>
+                                                            )}
                                                         </div>
                                                         <div className="package-footer">
                                                             <small className="text-muted">
-                                                                Purchased: {new Date(pkg.purchasedAt).toLocaleDateString()}
+                                                                Since: {new Date(assignment.createdAt).toLocaleDateString()}
                                                             </small>
                                                         </div>
                                                     </div>

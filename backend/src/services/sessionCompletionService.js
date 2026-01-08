@@ -31,6 +31,16 @@ class SessionCompletionService {
     const end = new Date(endAt);
     const durationMs = end - start;
     const durationHours = durationMs / (1000 * 60 * 60);
+    
+    // Debug logging for timezone issues
+    console.log(`⏱️ Duration calculation:
+      startAt (raw): ${startAt}
+      endAt (raw): ${endAt}
+      start (parsed): ${start.toISOString()}
+      end (parsed): ${end.toISOString()}
+      durationMs: ${durationMs}
+      durationHours: ${durationHours}`);
+    
     return Math.round(durationHours * 100) / 100; // Round to 2 decimal places
   }
 
