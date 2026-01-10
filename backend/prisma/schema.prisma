@@ -20,6 +20,14 @@ model MasterTier {
   updatedAt  DateTime @updatedAt
 }
 
+// Global application settings (key-value store)
+model AppSettings {
+  key       String   @id
+  value     String
+  label     String?  // Human-readable label
+  updatedAt DateTime @updatedAt
+}
+
 model Notification {
   id        Int                  @id @default(autoincrement())
   userId    Int

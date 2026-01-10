@@ -14,8 +14,15 @@ function TierManagement() {
     striveCut: "",
   });
 
+  // Travel Fee State
+  const [travelFee, setTravelFee] = useState(15);
+  const [travelFeeInput, setTravelFeeInput] = useState("15");
+  const [travelFeeLoading, setTravelFeeLoading] = useState(false);
+  const [travelFeeSuccess, setTravelFeeSuccess] = useState(false);
+
   useEffect(() => {
     fetchTiers();
+    fetchTravelFee();
   }, []);
 
   const fetchTiers = async () => {
@@ -31,6 +38,42 @@ function TierManagement() {
       setError("An unexpected error occurred");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchTravelFee = async () => {
+    try {
+      const res = await adminService.getTravelFee();
+      if (res.success) {
+        setTravelFee(res.data.travelFee);
+        setTravelFeeInput(String(res.data.travelFee));
+      }
+    } catch (err) {
+      console.error("Error fetching travel fee:", err);
+    }
+  };
+
+  const handleUpdateTravelFee = async () => {
+    try {
+      setTravelFeeLoading(true);
+      setTravelFeeSuccess(false);
+      const amount = parseFloat(travelFeeInput);
+      if (isNaN(amount) || amount < 0) {
+        setError("Please enter a valid travel fee amount");
+        return;
+      }
+      const res = await adminService.updateTravelFee(amount);
+      if (res.success) {
+        setTravelFee(amount);
+        setTravelFeeSuccess(true);
+        setTimeout(() => setTravelFeeSuccess(false), 3000);
+      } else {
+        setError(res.error || "Failed to update travel fee");
+      }
+    } catch (err) {
+      setError("Failed to update travel fee");
+    } finally {
+      setTravelFeeLoading(false);
     }
   };
 
@@ -110,6 +153,49 @@ function TierManagement() {
       </div>
 
       {error && !showModal && <div className="alert alert-danger mb-4">{error}</div>}
+
+      {/* Travel Fee Configuration */}
+      <div className="card mb-4 border-0 shadow-sm" style={{ borderRadius: '12px' }}>
+        <div className="card-body">
+          <div className="d-flex align-items-center justify-content-between">
+            <div>
+              <h5 className="mb-1">
+                <i className="fas fa-car me-2 text-primary"></i>
+                Travel Fee (Physical Sessions)
+              </h5>
+              <small className="text-muted">
+                This fee is charged to students for in-person sessions and paid directly to the tutor.
+              </small>
+            </div>
+            <div className="d-flex align-items-center gap-2">
+              <div className="input-group" style={{ width: '150px' }}>
+                <span className="input-group-text">$</span>
+                <input
+                  type="number"
+                  className="form-control"
+                  value={travelFeeInput}
+                  onChange={(e) => setTravelFeeInput(e.target.value)}
+                  step="0.01"
+                  min="0"
+                />
+              </div>
+              <button
+                className={`btn ${travelFeeSuccess ? 'btn-success' : 'btn-outline-primary'}`}
+                onClick={handleUpdateTravelFee}
+                disabled={travelFeeLoading}
+              >
+                {travelFeeLoading ? (
+                  <span className="spinner-border spinner-border-sm"></span>
+                ) : travelFeeSuccess ? (
+                  <><i className="fas fa-check me-1"></i> Saved</>
+                ) : (
+                  'Update'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div className="tier-grid">
         {tiers.map((tier) => (

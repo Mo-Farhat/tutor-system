@@ -642,6 +642,18 @@ class AdminService {
       method: "DELETE",
     });
   }
+
+  // Settings Management
+  async getTravelFee() {
+    return this.makeAdminRequest("/admin/settings/travel-fee");
+  }
+
+  async updateTravelFee(amount) {
+    return this.makeAdminRequest("/admin/settings/travel-fee", {
+      method: "PUT",
+      body: JSON.stringify({ amount }),
+    });
+  }
 }
 
 
@@ -757,3 +769,7 @@ export const getTiers = () => adminService.getTiers();
 export const createTier = (tierData) => adminService.createTier(tierData);
 export const updateTier = (tierId, tierData) => adminService.updateTier(tierId, tierData);
 export const deleteTier = (tierId) => adminService.deleteTier(tierId);
+
+// Settings Management
+export const getTravelFee = () => adminService.getTravelFee();
+export const updateTravelFee = (amount) => adminService.updateTravelFee(amount);

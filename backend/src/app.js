@@ -115,6 +115,7 @@ const subjectRoutes = require("./routes/subjects");
 const adminTiersRoutes = require("./routes/adminTiers");
 const tutorEarningsRoutes = require("./routes/tutorEarnings");
 const reviewsRoutes = require("./routes/reviews");
+const adminSettingsRoutes = require("./routes/adminSettings");
 // Health check with CORS info
 app.get("/health", (req, res) => {
   res.json({ 
@@ -174,6 +175,8 @@ app.use("/api/admin/tiers", adminTiersRoutes);
 app.use("/api", tutorEarningsRoutes);
 
 app.use("/api/reviews", reviewsRoutes);
+
+app.use("/api/admin/settings", adminSettingsRoutes);
 
 /* ---------------------------------------------------------------- */
 
