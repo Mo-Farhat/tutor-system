@@ -43,6 +43,7 @@ function TutorCalendar() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingLesson, setEditingLesson] = useState(null);
   const [updateRecurringSeries, setUpdateRecurringSeries] = useState(false);
+  const [isPhysicalSession, setIsPhysicalSession] = useState(false);
   const [newLesson, setNewLesson] = useState({
     studentId: "",
     subject: "",
@@ -1537,17 +1538,39 @@ function TutorCalendar() {
                       </form>
                     </div>
                     <div className="modal-footer">
-                      {/* Show Mark Complete button for scheduled lessons */}
+                      {/* Show Mark Complete options for scheduled lessons */}
                       {/* TEMP: Removed time check for testing - revert by adding: && new Date(editingLesson.endAt) < new Date() */}
                       {editingLesson && editingLesson.status === 'scheduled' && (
-                        <button
-                          type="button"
-                          className="btn btn-success me-auto"
-                          onClick={() => handleMarkComplete('online')}
-                        >
-                          <i className="fas fa-check-circle me-1"></i>
-                          Mark as Complete
-                        </button>
+                        <div className="d-flex align-items-center me-auto gap-3">
+                          {/* Physical session toggle */}
+                          <div className="form-check form-switch">
+                            <input
+                              className="form-check-input"
+                              type="checkbox"
+                              id="physicalSessionToggle"
+                              checked={isPhysicalSession}
+                              onChange={(e) => setIsPhysicalSession(e.target.checked)}
+                            />
+                            <label className="form-check-label" htmlFor="physicalSessionToggle">
+                              <i className={`fas ${isPhysicalSession ? 'fa-car' : 'fa-laptop'} me-1`}></i>
+                              {isPhysicalSession ? 'In-Person' : 'Online'}
+                            </label>
+                          </div>
+                          {isPhysicalSession && (
+                            <small className="text-muted">
+                              <i className="fas fa-info-circle me-1"></i>
+                              Travel fee will be charged to student
+                            </small>
+                          )}
+                          <button
+                            type="button"
+                            className={`btn ${isPhysicalSession ? 'btn-warning' : 'btn-success'}`}
+                            onClick={() => handleMarkComplete(isPhysicalSession ? 'physical' : 'online')}
+                          >
+                            <i className="fas fa-check-circle me-1"></i>
+                            Mark as Complete
+                          </button>
+                        </div>
                       )}
                       <button
                         type="button"
@@ -1556,6 +1579,7 @@ function TutorCalendar() {
                           setShowEditModal(false);
                           setEditingLesson(null);
                           setUpdateRecurringSeries(false);
+                          setIsPhysicalSession(false);
                         }}
                       >
                         Cancel

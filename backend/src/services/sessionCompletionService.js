@@ -14,12 +14,9 @@
 
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const { studentTutorModel, masterTierModel } = require('../models');
+const { studentTutorModel, masterTierModel, appSettingsModel } = require('../models');
 const stripeService = require('./stripeService');
 const notificationService = require('./notificationService');
-
-// Travel fee constant
-const TRAVEL_FEE_CENTS = 1500; // $15.00
 
 class SessionCompletionService {
   
@@ -137,8 +134,11 @@ class SessionCompletionService {
     const netPayout = durationHours * payoutRate;
     const platformCut = durationHours * striveCut;
     
-    // Travel fee
-    const travelFee = deliveryMode === 'physical' ? 15.00 : null;
+    // Travel fee (configurable via admin settings)
+    let travelFee = null;
+    if (deliveryMode === 'physical') {
+      travelFee = await appSettingsModel.getTravelFee();
+    }
 
     // 6. Deduct hours from bucket
     const previousHours = parseFloat(assignment.remainingHours);
@@ -351,32 +351,54 @@ class SessionCompletionService {
       }
     }
 
-    // Charge travel fee if physical
+    // Charge travel fee if physical and transfer directly to tutor
     if (audit?.travelFee && parseFloat(audit.travelFee) > 0) {
+      const travelFeeAmount = parseFloat(audit.travelFee);
+      const travelFeeCents = Math.round(travelFeeAmount * 100);
+      
       try {
+        // 1. Charge the student for travel fee
         const paymentIntent = await stripeService.createPaymentIntent(
           studentId,
-          TRAVEL_FEE_CENTS,
+          travelFeeCents,
           `Travel fee for in-person session`,
           { type: 'travel_fee', lessonId: lessonId.toString() }
         );
         
-        // Create transaction record
+        // 2. Create transaction record
         await prisma.paymentTransaction.create({
           data: {
             studentId: studentId,
             lessonId: lessonId,
             type: 'fee',
-            amountCents: TRAVEL_FEE_CENTS,
-            description: 'Travel fee - in-person session',
+            amountCents: travelFeeCents,
+            description: 'Travel fee - in-person session (paid to tutor)',
             status: 'pending',
             stripePaymentId: paymentIntent.id,
           },
         });
         
-        chargeResults.push({ type: 'travel_fee', amount: TRAVEL_FEE_CENTS, status: 'pending' });
+        // 3. Transfer full travel fee to tutor's Connect account
+        const tutorProfile = await prisma.tutorProfile.findUnique({
+          where: { userId: lesson.tutorId },
+          select: { stripeConnectAccountId: true },
+        });
+        
+        if (tutorProfile?.stripeConnectAccountId) {
+          await stripeService.createTransfer(
+            tutorProfile.stripeConnectAccountId,
+            travelFeeCents,
+            `Travel fee for lesson #${lessonId}`,
+            { lessonId: lessonId.toString(), type: 'travel_fee' }
+          );
+          console.log(`✅ Transferred $${travelFeeAmount} travel fee to tutor ${lesson.tutorId}`);
+          chargeResults.push({ type: 'travel_fee', amount: travelFeeCents, status: 'transferred_to_tutor' });
+        } else {
+          console.warn(`⚠️ Tutor ${lesson.tutorId} has no Connect account - travel fee not transferred`);
+          chargeResults.push({ type: 'travel_fee', amount: travelFeeCents, status: 'pending', note: 'No Connect account' });
+        }
       } catch (e) {
-        console.error('Failed to charge travel fee:', e);
+        console.error('Failed to charge/transfer travel fee:', e);
         chargeResults.push({ type: 'travel_fee', error: e.message });
       }
     }
